@@ -1,4 +1,6 @@
 import 'package:flower_app/core/di/di.dart';
+import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -18,7 +20,9 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
-          debugShowCheckedModeBanner: false,                 
+          theme: AppTheme(LightThemeColor()).themeData,
+          darkTheme: AppTheme(DarkThemeColor()).themeData,
+         debugShowCheckedModeBanner: false,                 
         );
       },
     );
