@@ -1,4 +1,4 @@
-class AppString{
+abstract class AppString{
   static const String pleaseEnterYourEmail = 'Please enter your email';
   static const String pleaseEnterValidEmail = 'Please enter a valid email';
   static const String passwordIsRequired = 'Password is required';

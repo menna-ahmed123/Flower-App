@@ -1,12 +1,12 @@
-import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 @injectable
 class AuthInterceptors implements Interceptor {
-  final SharedPreferences sharedPreferences;
-  AuthInterceptors(this.sharedPreferences);
+
+  final FlutterSecureStorage secureStorage;
+  AuthInterceptors(this.secureStorage);
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     return handler.next(err);
@@ -17,12 +17,10 @@ class AuthInterceptors implements Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = sharedPreferences.getString("USER_TOKEN");
-    log("TOKEN = $token");
-    if (token != null && token.isNotEmpty) {
+    final token = await secureStorage.read(key: 'USER_TOKEN');   
+     if (token != null && token.isNotEmpty) {
       options.headers['token'] = token;
     }
-    log("REQUEST HEADERS = ${options.headers}");
     handler.next(options);
   }
 

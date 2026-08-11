@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-abstract final class AppIcons {
+ class AppIcons {
   static const IconData visibilityOff = Icons.visibility_off_outlined;
   static const IconData clock = Icons.access_time_outlined;
   static const IconData chevronLeft = Icons.chevron_left;

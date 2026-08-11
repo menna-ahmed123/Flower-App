@@ -16,7 +16,7 @@ abstract class AppColors {
   Brightness get brightness;
 }
 
-class LightThemeColor extends AppColors {
+class LightThemeColor implements AppColors {
   @override
   Brightness get brightness => Brightness.light;
   @override
@@ -78,7 +78,7 @@ class LightThemeColor extends AppColors {
   Color get green => Color(0xFF28A745);
 }
 
-class DarkThemeColor extends AppColors {
+class DarkThemeColor implements AppColors {
   @override
   Brightness get brightness => Brightness.dark;
   @override
@@ -139,9 +139,12 @@ class DarkThemeColor extends AppColors {
   @override
   Color get green => Color(0xFF28A745);
 }
-
+final lightThemeColors = LightThemeColor();
+final darkThemeColors = DarkThemeColor();
 extension ThemeColors on BuildContext {
-  AppColors get colors => Theme.of(this).brightness == Brightness.light
-      ? LightThemeColor()
-      : DarkThemeColor();
+  AppColors get colors =>
+      Theme.of(this).brightness == Brightness.light
+          ? lightThemeColors
+          : darkThemeColors;
 }
+//  color: context.appColors.error,

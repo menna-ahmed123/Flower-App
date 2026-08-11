@@ -1,4 +1,6 @@
-class BaseState<T> {
+import 'package:equatable/equatable.dart';
+
+class BaseState<T>extends Equatable {
   final bool isLoading;
   final String errorMessage;
   final T? data;
@@ -11,4 +13,6 @@ class BaseState<T> {
       data: data ?? this.data,
     );
   }
+  @override
+  List<Object?> get props =>[isLoading,errorMessage,data];
 }

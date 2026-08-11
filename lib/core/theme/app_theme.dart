@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppTheme {
- AppColors colors ;
-  AppTheme(this.colors);
-  late  ThemeData themeData = ThemeData(
+  final AppColors colors ;
+    final ThemeData themeData;
+  AppTheme(this.colors)
+      : themeData = ThemeData(
     colorScheme: ColorScheme(
       brightness: colors.brightness,
       primary: colors.pink,
