@@ -33,6 +33,9 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Test files
+/test/
+
 # Symbolication related
 app.*.symbols
 
@@ -43,3 +46,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Generated Dart files (build_runner / freezed / injectable / retrofit / json_serializable)
+*.g.dart
+*.freezed.dart
+*.config.dart
+
