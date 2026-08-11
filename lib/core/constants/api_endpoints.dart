@@ -1,0 +1,4 @@
+class ApiEndpoints {
+    ApiEndpoints(_);
+
+}
