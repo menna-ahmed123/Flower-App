@@ -3,6 +3,10 @@ import 'package:flower_app/core/errors/app_error.dart';
 
 AppError errorParser(Exception exception) {
   if (exception is DioException) {
+    if (exception.error is ForceLogin) {
+      return ForceLogin();
+    }
+
     switch (exception.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:

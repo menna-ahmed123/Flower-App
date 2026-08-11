@@ -17,11 +17,13 @@ abstract class DioModule {
     );
 
     dio.interceptors.add(authInterceptors);
+    authInterceptors.attachDio(dio);
 
     if (kDebugMode) {
       dio.interceptors.add(
         PrettyDioLogger(
-          requestHeader: true,
+          // Do not log request headers — they may contain the access token.
+          requestHeader: false,
           requestBody: true,
           responseBody: true,
           responseHeader: false,

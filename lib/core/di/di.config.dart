@@ -18,6 +18,8 @@ import '../modules/dio_module.dart' as _i948;
 import '../modules/register_module.dart' as _i505;
 import '../network/auth_interceptors.dart' as _i466;
 import '../network/safe_call.dart' as _i185;
+import '../network/token_refresher.dart' as _i1058;
+import '../network/token_storage.dart' as _i964;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -32,8 +34,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
-    gh.factory<_i466.AuthInterceptors>(
-      () => _i466.AuthInterceptors(gh<_i558.FlutterSecureStorage>()),
+    gh.lazySingleton<_i1058.TokenRefresher>(
+      () => _i1058.UnconfiguredTokenRefresher(),
+    );
+    gh.lazySingleton<_i964.TokenStorage>(
+      () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i466.AuthInterceptors>(
+      () => _i466.AuthInterceptors(
+        gh<_i964.TokenStorage>(),
+        gh<_i1058.TokenRefresher>(),
+      ),
     );
     gh.singleton<_i361.Dio>(
       () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),
