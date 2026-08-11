@@ -4,6 +4,8 @@ import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'app/router/app_router.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
@@ -15,11 +17,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(360, 690),
+      designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
+        return MaterialApp.router(
+          routerConfig: AppRouter.createRouter(),
           theme: AppTheme(LightThemeColor()).themeData,
           darkTheme: AppTheme(DarkThemeColor()).themeData,
          debugShowCheckedModeBanner: false,                 
