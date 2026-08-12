@@ -2,14 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/features/auth/login/data/models/login_request.dart';
 import 'package:flower_app/features/auth/login/data/models/login_response.dart';
-import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'auth_api_client.g.dart';
 
-@LazySingleton()
 @RestApi(baseUrl:ApiEndpoints.baseUrl)
 abstract class AuthApiClient {
+  
   factory AuthApiClient(Dio dio, {String baseUrl}) =_AuthApiClient;
 
  @POST(ApiEndpoints.login)

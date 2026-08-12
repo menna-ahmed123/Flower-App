@@ -22,6 +22,7 @@ import '../../features/auth/login/data/data_source/remote/auth_remote_data_sourc
 import '../../features/auth/login/data/repo/auth_repo_impl.dart' as _i641;
 import '../../features/auth/login/domain/repo/auth_repo.dart' as _i483;
 import '../../features/auth/login/domain/use_case/login_usecase.dart' as _i635;
+import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/register_module.dart' as _i505;
 import '../network/auth_interceptors.dart' as _i466;
@@ -38,18 +39,31 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
     final dioModule = _$DioModule();
+    final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
-    );
-    gh.factory<_i441.AuthRemoteDataSource>(
-      () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
     );
     gh.lazySingleton<_i1058.TokenRefresher>(
       () => _i1058.UnconfiguredTokenRefresher(),
     );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i466.AuthInterceptors>(
+      () => _i466.AuthInterceptors(
+        gh<_i964.TokenStorage>(),
+        gh<_i1058.TokenRefresher>(),
+      ),
+    );
+    gh.singleton<_i361.Dio>(
+      () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),
+    );
+    gh.lazySingleton<_i144.AuthApiClient>(
+      () => apiModule.authApiClient(gh<_i361.Dio>()),
+    );
+    gh.factory<_i441.AuthRemoteDataSource>(
+      () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
     );
     gh.factory<_i483.AuthRepo>(
       () => _i641.AuthRepositoryImpl(
@@ -58,17 +72,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i964.TokenStorage>(),
       ),
     );
-    gh.lazySingleton<_i466.AuthInterceptors>(
-      () => _i466.AuthInterceptors(
-        gh<_i964.TokenStorage>(),
-        gh<_i1058.TokenRefresher>(),
-      ),
-    );
     gh.factory<_i635.LoginUseCase>(
       () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
-    );
-    gh.singleton<_i361.Dio>(
-      () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),
     );
     return this;
   }
@@ -77,3 +82,5 @@ extension GetItInjectableX on _i174.GetIt {
 class _$RegisterModule extends _i505.RegisterModule {}
 
 class _$DioModule extends _i948.DioModule {}
+
+class _$ApiModule extends _i98.ApiModule {}
