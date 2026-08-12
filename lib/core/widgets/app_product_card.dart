@@ -39,7 +39,10 @@ class AppProductCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.white,
           borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: colors.grey.shade600, width: 1.w),
+          border: Border.all(
+            color: colors.grey.shade600,
+            width: 1.w,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: Padding(
@@ -82,9 +85,7 @@ class AppProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-
               SizedBox(height: 8.h),
-
               Text(
                 name,
                 maxLines: 1,
@@ -95,9 +96,7 @@ class AppProductCard extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-
               SizedBox(height: 4.h),
-
               Row(
                 children: [
                   Text(
@@ -108,7 +107,6 @@ class AppProductCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-
                   if (oldPrice != null) ...[
                     SizedBox(width: 8.w),
                     Text(
@@ -120,7 +118,6 @@ class AppProductCard extends StatelessWidget {
                       ),
                     ),
                   ],
-
                   if (discount != null) ...[
                     const Spacer(),
                     Text(
@@ -134,9 +131,7 @@ class AppProductCard extends StatelessWidget {
                   ],
                 ],
               ),
-
               SizedBox(height: 8.h),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -154,27 +149,30 @@ class AppProductCard extends StatelessWidget {
                   ),
                   child: isLoading
                       ? SizedBox(
-                          width: 18.w,
-                          height: 18.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: colors.white,
-                          ),
-                        )
+                    width: 18.w,
+                    height: 18.w,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.white,
+                    ),
+                  )
                       : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(AppIcons.shoppingCart, size: 18.w),
-                            SizedBox(width: 6.w),
-                            Text(
-                              'Add to cart',
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        AppIcons.shoppingCart,
+                        size: 18.w,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        'Add to cart',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w500,
                         ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

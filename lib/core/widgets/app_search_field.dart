@@ -64,38 +64,55 @@ class _AppSearchFieldState extends State<AppSearchField> {
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       textInputAction: TextInputAction.search,
-      style: TextStyle(fontSize: 14.sp, color: colors.black),
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        hintStyle: TextStyle(fontSize: 16.sp, color: colors.grey.shade800),
-        prefixIcon: Icon(
-          AppIcons.search,
+      style: TextStyle(
+        fontSize: 14.sp,
+        color: colors.black,
+      ),
+      decoration: _buildDecoration(colors),
+    );
+  }
+
+  InputDecoration _buildDecoration(AppColors colors) {
+    return InputDecoration(
+      hintText: widget.hintText,
+      hintStyle: TextStyle(
+        fontSize: 16.sp,
+        color: colors.grey.shade800,
+      ),
+      prefixIcon: Icon(
+        AppIcons.search,
+        size: 24.w,
+        color: colors.grey.shade700,
+      ),
+      suffixIcon: _controller.text.isNotEmpty
+          ? IconButton(
+        onPressed: _clear,
+        icon: Icon(
+          AppIcons.close,
           size: 24.w,
           color: colors.grey.shade700,
         ),
-        suffixIcon: _controller.text.isNotEmpty
-            ? IconButton(
-                onPressed: _clear,
-                icon: Icon(
-                  AppIcons.close,
-                  size: 24.w,
-                  color: colors.grey.shade700,
-                ),
-              )
-            : null,
-        filled: true,
-        fillColor: colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(color: colors.grey.shade600),
+      )
+          : null,
+      filled: true,
+      fillColor: colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.r),
+        borderSide: BorderSide(
+          color: colors.grey.shade600,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(color: colors.grey.shade600),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.r),
+        borderSide: BorderSide(
+          color: colors.grey.shade600,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(color: colors.pink, width: 1.5.w),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.r),
+        borderSide: BorderSide(
+          color: colors.pink,
+          width: 1.5.w,
         ),
       ),
     );

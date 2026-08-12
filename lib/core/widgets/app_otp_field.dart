@@ -22,15 +22,51 @@ class AppOtpField extends StatefulWidget {
   final bool autoFocus;
 
   @override
-  State<AppOtpField> createState() => _AppOtpFieldState();
+  State<AppOtpField> createState() => AppOtpFieldState();
 }
 
-class _AppOtpFieldState extends State<AppOtpField> {
+class AppOtpFieldState extends State<AppOtpField> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final hasError = widget.errorText != null;
+    final themes = _buildPinThemes(colors);
 
+    return Pinput(
+      length: widget.length,
+      enabled: widget.enabled,
+      autofocus: widget.autoFocus,
+      keyboardType: TextInputType.number,
+      onChanged: widget.onChanged,
+      onCompleted: widget.onCompleted,
+      defaultPinTheme: themes.defaultTheme,
+      focusedPinTheme: themes.focusedTheme,
+      submittedPinTheme: themes.submittedTheme,
+      errorPinTheme: themes.errorTheme,
+      disabledPinTheme: themes.disabledTheme,
+      forceErrorState: hasError,
+      errorText: widget.errorText,
+      pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+      separatorBuilder: (index) => SizedBox(width: 12.w),
+      cursor: Container(
+        width: 1.5.w,
+        height: 24.h,
+        color: colors.pink,
+      ),
+      errorTextStyle: TextStyle(
+        color: colors.error,
+        fontSize: 11.sp,
+      ),
+    );
+  }
+
+  ({
+  PinTheme defaultTheme,
+  PinTheme focusedTheme,
+  PinTheme submittedTheme,
+  PinTheme errorTheme,
+  PinTheme disabledTheme,
+  }) _buildPinThemes(AppColors colors) {
     final defaultPinTheme = PinTheme(
       width: 74.w,
       height: 68.w,
@@ -45,66 +81,44 @@ class _AppOtpFieldState extends State<AppOtpField> {
       ),
     );
 
-    final focusedPinTheme = defaultPinTheme.copyWith(
+    return (
+    defaultTheme: defaultPinTheme,
+    focusedTheme: defaultPinTheme.copyWith(
       decoration: BoxDecoration(
         color: colors.white,
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: colors.pink, width: 1.w),
+        border: Border.all(
+          color: colors.pink,
+          width: 1.w,
+        ),
       ),
-    );
-
-    final submittedPinTheme = defaultPinTheme.copyWith(
+    ),
+    submittedTheme: defaultPinTheme.copyWith(
       decoration: BoxDecoration(
         color: colors.white,
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: colors.pink, width: 1.w),
+        border: Border.all(
+          color: colors.pink,
+          width: 1.w,
+        ),
       ),
-    );
-
-    final errorPinTheme = defaultPinTheme.copyWith(
+    ),
+    errorTheme: defaultPinTheme.copyWith(
       decoration: BoxDecoration(
         color: colors.white,
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: colors.error, width: 1.w),
+        border: Border.all(
+          color: colors.error,
+          width: 1.w,
+        ),
       ),
-    );
-
-    final disabledPinTheme = defaultPinTheme.copyWith(
+    ),
+    disabledTheme: defaultPinTheme.copyWith(
       decoration: BoxDecoration(
         color: colors.grey.shade300,
         borderRadius: BorderRadius.circular(10.r),
       ),
-    );
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Pinput(
-          length: widget.length,
-          enabled: widget.enabled,
-          autofocus: widget.autoFocus,
-          keyboardType: TextInputType.number,
-          onChanged: widget.onChanged,
-          onCompleted: widget.onCompleted,
-
-          defaultPinTheme: defaultPinTheme,
-          focusedPinTheme: focusedPinTheme,
-          submittedPinTheme: submittedPinTheme,
-          errorPinTheme: errorPinTheme,
-          disabledPinTheme: disabledPinTheme,
-
-          forceErrorState: hasError,
-          errorText: widget.errorText,
-
-          pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-
-          separatorBuilder: (index) => SizedBox(width: 12.w),
-
-          cursor: Container(width: 1.5.w, height: 24.h, color: colors.pink),
-
-          errorTextStyle: TextStyle(color: colors.error, fontSize: 11.sp),
-        ),
-      ],
+    ),
     );
   }
 }
