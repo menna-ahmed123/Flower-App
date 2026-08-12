@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'app/router/app_router.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
     final controller = localeController ?? getIt<LocaleController>();
 
     return ScreenUtilInit(
-      designSize: const Size(360, 690),
+      designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
@@ -45,6 +47,11 @@ class MyApp extends StatelessWidget {
               ],
             );
           },
+        return MaterialApp.router(
+          routerConfig: AppRouter.createRouter(),
+          theme: AppTheme(LightThemeColor()).themeData,
+          darkTheme: AppTheme(DarkThemeColor()).themeData,
+         debugShowCheckedModeBanner: false,                 
         );
       },
     );
