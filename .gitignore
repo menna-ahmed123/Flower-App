@@ -52,4 +52,3 @@ app.*.map.json
 
 # Dart code generation
 *.g.dart
-*.config.dart
