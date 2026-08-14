@@ -49,6 +49,3 @@ app.*.map.json
 **/generated_plugin_registrant.cc
 **/generated_plugin_registrant.h
 **/generated_plugins.cmake
-
-# Dart code generation
-*.g.dart

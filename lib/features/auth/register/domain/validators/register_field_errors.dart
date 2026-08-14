@@ -39,14 +39,26 @@ class RegisterFieldErrors extends Equatable {
 
   static const empty = RegisterFieldErrors();
 
-  RegisterFieldErrors merge(RegisterFieldErrors other) {
+  /// Overwrites [field] even when [partial] has a null (valid) error.
+  RegisterFieldErrors applyChangedField(
+    RegisterField field,
+    RegisterFieldErrors partial,
+  ) {
     return RegisterFieldErrors(
-      firstName: other.firstName ?? firstName,
-      lastName: other.lastName ?? lastName,
-      email: other.email ?? email,
-      password: other.password ?? password,
-      confirmPassword: other.confirmPassword ?? confirmPassword,
-      phoneNumber: other.phoneNumber ?? phoneNumber,
+      firstName: field == RegisterField.firstName
+          ? partial.firstName
+          : firstName,
+      lastName: field == RegisterField.lastName ? partial.lastName : lastName,
+      email: field == RegisterField.email ? partial.email : email,
+      password: field == RegisterField.password ? partial.password : password,
+      confirmPassword:
+          field == RegisterField.password ||
+              field == RegisterField.confirmPassword
+          ? partial.confirmPassword
+          : confirmPassword,
+      phoneNumber: field == RegisterField.phoneNumber
+          ? partial.phoneNumber
+          : phoneNumber,
     );
   }
 

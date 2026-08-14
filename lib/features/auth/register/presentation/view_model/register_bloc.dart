@@ -12,10 +12,8 @@ import 'package:injectable/injectable.dart';
 
 @Injectable()
 class RegisterBloc extends Bloc<RegisterIntent, RegisterState> {
-  RegisterBloc(
-    this._registerUseCase,
-    this._validator,
-  ) : super(const RegisterState()) {
+  RegisterBloc(this._registerUseCase, this._validator)
+    : super(const RegisterState()) {
     on<RegisterFieldChangedIntent>(_onFieldChanged);
     on<RegisterGenderChangedIntent>(_onGenderChanged);
     on<TogglePasswordVisibilityIntent>(_onTogglePasswordVisibility);
@@ -38,7 +36,11 @@ class RegisterBloc extends Bloc<RegisterIntent, RegisterState> {
       intent.field,
       RegisterStateMapper.toFormInput(next),
     );
-    emit(next.copyWith(fieldErrors: state.fieldErrors.merge(partial)));
+    emit(
+      next.copyWith(
+        fieldErrors: state.fieldErrors.applyChangedField(intent.field, partial),
+      ),
+    );
   }
 
   RegisterState _copyField(RegisterField field, String value) {
@@ -66,7 +68,9 @@ class RegisterBloc extends Bloc<RegisterIntent, RegisterState> {
   ) {
     if (state.isLoading) return;
     if (intent.confirm) {
-      emit(state.copyWith(obscureConfirmPassword: !state.obscureConfirmPassword));
+      emit(
+        state.copyWith(obscureConfirmPassword: !state.obscureConfirmPassword),
+      );
       return;
     }
     emit(state.copyWith(obscurePassword: !state.obscurePassword));
@@ -80,10 +84,7 @@ class RegisterBloc extends Bloc<RegisterIntent, RegisterState> {
     emit(state.copyWith(effect: const NavigateToLoginEffect()));
   }
 
-  void _onNavigateBack(
-    NavigateBackIntent intent,
-    Emitter<RegisterState> emit,
-  ) {
+  void _onNavigateBack(NavigateBackIntent intent, Emitter<RegisterState> emit) {
     if (state.isLoading) return;
     emit(state.copyWith(effect: const NavigateBackEffect()));
   }

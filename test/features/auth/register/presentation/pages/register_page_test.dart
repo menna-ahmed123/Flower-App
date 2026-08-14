@@ -15,6 +15,7 @@ void main() {
     });
 
     testEmptyFirstNameValidation(() => repository, () => createBloc);
+    testFirstNameErrorClearsOnValidInput(() => repository, () => createBloc);
     testEmptyLastNameValidation(() => repository, () => createBloc);
     testEmailValidation(() => repository, () => createBloc);
     testPasswordMismatchValidation(() => repository, () => createBloc);
@@ -35,6 +36,30 @@ void testEmptyFirstNameValidation(
     expect(
       find.text(AppString.fieldIsRequired(AppString.firstName)),
       findsOneWidget,
+    );
+    expect(repo().callCount, 0);
+  });
+}
+
+void testFirstNameErrorClearsOnValidInput(
+  FakeRegisterRepository Function() repo,
+  RegisterBloc Function() Function() createBloc,
+) {
+  testWidgets('clears first name error after the user corrects it', (
+    tester,
+  ) async {
+    await pumpRegisterPage(tester, createBloc: createBloc());
+    await tapSignUp(tester);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(AppString.fieldIsRequired(AppString.firstName)),
+      findsOneWidget,
+    );
+    await enterField(tester, AppString.enterFirstName, 'Sara');
+    await tester.pumpAndSettle();
+    expect(
+      find.text(AppString.fieldIsRequired(AppString.firstName)),
+      findsNothing,
     );
     expect(repo().callCount, 0);
   });
@@ -103,10 +128,7 @@ void testSuccessfulSubmissionFlow(
     expect(repo().callCount, 1);
     expect(repo().lastRequest?.email, 'sara@example.com');
     expect(find.text('Login Screen'), findsOneWidget);
-    expect(
-      find.text('Account registered successfully.'),
-      findsOneWidget,
-    );
+    expect(find.text('Account registered successfully.'), findsOneWidget);
   });
 }
 

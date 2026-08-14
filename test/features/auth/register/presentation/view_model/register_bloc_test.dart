@@ -56,15 +56,30 @@ void testBlocUpdatesFields(FakeRegisterUseCase Function() useCase) {
 
 void testBlocClearsValidFieldError(FakeRegisterUseCase Function() useCase) {
   blocTest<RegisterBloc, RegisterState>(
-    'clears errors for valid input on changed field',
+    'clears a previous field error when the changed value becomes valid',
     build: () => _bloc(useCase),
+    seed: () => const RegisterState(
+      fieldErrors: RegisterFieldErrors(
+        firstName: RegisterValidationError.empty,
+        email: RegisterValidationError.invalid,
+      ),
+    ),
     act: (bloc) => bloc.add(
       const RegisterFieldChangedIntent(RegisterField.firstName, 'Sara'),
     ),
     expect: () => [
       isA<RegisterState>()
           .having((state) => state.firstName, 'firstName', 'Sara')
-          .having((state) => state.fieldErrors.firstName, 'err', isNull),
+          .having(
+            (state) => state.fieldErrors.firstName,
+            'firstName err',
+            isNull,
+          )
+          .having(
+            (state) => state.fieldErrors.email,
+            'email err',
+            RegisterValidationError.invalid,
+          ),
     ],
   );
 }

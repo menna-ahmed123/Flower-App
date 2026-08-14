@@ -108,8 +108,9 @@ class RegisterFormValidator {
   }
 
   RegisterValidationError? emailError(String value) {
-    if (value.isEmpty) return RegisterValidationError.empty;
-    if (!_emailPattern.hasMatch(value.trim())) {
+    final email = value.trim();
+    if (email.isEmpty) return RegisterValidationError.empty;
+    if (!_emailPattern.hasMatch(email)) {
       return RegisterValidationError.invalid;
     }
     return null;
@@ -133,8 +134,9 @@ class RegisterFormValidator {
   }
 
   RegisterValidationError? phoneError(String value) {
-    if (value.trim().isEmpty) return RegisterValidationError.empty;
-    if (!_phonePattern.hasMatch(value)) return RegisterValidationError.invalid;
+    final phone = value.trim();
+    if (phone.isEmpty) return RegisterValidationError.empty;
+    if (!_phonePattern.hasMatch(phone)) return RegisterValidationError.invalid;
     return null;
   }
 }
