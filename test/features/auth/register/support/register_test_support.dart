@@ -4,8 +4,11 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/features/auth/register/api/dio_register_api.dart';
-import 'package:flower_app/features/auth/register/api/register_api.dart';
 import 'package:flower_app/features/auth/register/data/data_sources/register_remote_data_source.dart';
+import 'package:flower_app/features/auth/register/data/data_sources/register_remote_data_source_impl.dart';
+import 'package:flower_app/features/auth/register/data/models/register_operation_dto.dart';
+import 'package:flower_app/features/auth/register/data/models/register_request_dto.dart';
+import 'package:flower_app/features/auth/register/data/models/register_result_dto.dart';
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
 import 'package:flower_app/core/base/base_response.dart';
@@ -29,6 +32,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:retrofit/retrofit.dart' hide Headers;
 
 RegisterRequest validRegisterRequest({
   Gender gender = Gender.female,
@@ -60,6 +64,15 @@ const emptyRegisterFormInput = RegisterFormInput(
   password: '',
   confirmPassword: '',
   phoneNumber: '',
+);
+
+const filledRegisterState = RegisterState(
+  firstName: 'Sara',
+  lastName: 'Ali',
+  email: 'sara@example.com',
+  password: 'Pass1234',
+  confirmPassword: 'Pass1234',
+  phoneNumber: '01012345678',
 );
 
 class RegisterBlocTestEnv {
@@ -220,11 +233,11 @@ RegisterBloc Function() testRegisterBlocFactory(
   return () => testRegisterBloc(repository);
 }
 
-class FakeRegisterApi implements RegisterApi {
-  RegisterRequest? lastRequest;
+class FakeDioRegisterApi implements DioRegisterApi {
+  RegisterRequestDto? lastRequest;
   int callCount = 0;
   Object? errorToThrow;
-  RegisterResult result = const RegisterResult(
+  RegisterResultDto result = const RegisterResultDto(
     userId: 'user-1',
     email: 'sara@example.com',
     role: 'Customer',
@@ -233,11 +246,20 @@ class FakeRegisterApi implements RegisterApi {
   );
 
   @override
-  Future<RegisterResult> register(RegisterRequest request) async {
+  Future<HttpResponse<RegisterOperationDto>> register(
+    RegisterRequestDto request,
+  ) async {
     callCount++;
     lastRequest = request;
     if (errorToThrow != null) throw errorToThrow!;
-    return result;
+    return HttpResponse(
+      RegisterOperationDto(
+        isSuccess: true,
+        message: result.message,
+        data: result,
+      ),
+      Response(requestOptions: RequestOptions(), statusCode: 201),
+    );
   }
 }
 
@@ -294,6 +316,12 @@ DioRegisterApi buildDioRegisterApi(RecordingAdapter adapter) {
   final dio = Dio(BaseOptions(baseUrl: ApiEndpoints.baseUrl));
   dio.httpClientAdapter = adapter;
   return DioRegisterApi(dio);
+}
+
+RegisterRemoteDataSourceImpl buildRegisterRemoteDataSource(
+  RecordingAdapter adapter,
+) {
+  return RegisterRemoteDataSourceImpl(buildDioRegisterApi(adapter));
 }
 
 RecordingAdapter successAdapter() {

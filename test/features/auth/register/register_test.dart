@@ -144,7 +144,7 @@ void registerUseCaseGroup() {
 void testPostsOpenApiBody() {
   test('posts OpenAPI body and parses operation result', () async {
     final adapter = successAdapter();
-    final result = await buildDioRegisterApi(adapter).register(validRegisterRequest());
+    final result = await buildRegisterRemoteDataSource(adapter).register(validRegisterRequest());
     expect(adapter.lastOptions?.path, ApiEndpoints.register);
     expect(adapter.lastOptions?.method, 'POST');
     expect(adapter.lastData, expectedFemaleBody());
@@ -164,7 +164,7 @@ void testMapsMaleGender() {
         'status': 'Active',
       },
     });
-    await buildDioRegisterApi(adapter).register(
+    await buildRegisterRemoteDataSource(adapter).register(
       validRegisterRequest(gender: Gender.male),
     );
     expect((adapter.lastData as Map)['gender'], 'Male');
@@ -173,7 +173,7 @@ void testMapsMaleGender() {
 
 void testThrowsWhenPayloadHasNoData() {
   test('throws ApiException when operation payload has no data', () async {
-    final api = buildDioRegisterApi(
+    final api = buildRegisterRemoteDataSource(
       RecordingAdapter(201, {
         'isSuccess': true,
         'statusCode': 201,
@@ -191,7 +191,7 @@ void testThrowsWhenPayloadHasNoData() {
 
 void testThrowsWhenIsSuccessFalse() {
   test('throws ApiException when isSuccess is false', () async {
-    final api = buildDioRegisterApi(
+    final api = buildRegisterRemoteDataSource(
       RecordingAdapter(200, {
         'isSuccess': false,
         'message': 'Sign up failed',
@@ -221,7 +221,7 @@ RecordingAdapter isSuccessMissingAdapter() {
 
 void testThrowsWhenIsSuccessMissing() {
   test('throws ApiException when isSuccess is omitted', () async {
-    final api = buildDioRegisterApi(isSuccessMissingAdapter());
+    final api = buildRegisterRemoteDataSource(isSuccessMissingAdapter());
     expect(
       () => api.register(validRegisterRequest()),
       throwsA(
@@ -232,8 +232,8 @@ void testThrowsWhenIsSuccessMissing() {
 }
 
 void testDelegatesToApi() {
-  test('delegates register call to RegisterApi', () async {
-    final api = FakeRegisterApi();
+  test('delegates register call to DioRegisterApi', () async {
+    final api = FakeDioRegisterApi();
     final dataSource = RegisterRemoteDataSourceImpl(api);
     final result = await dataSource.register(validRegisterRequest());
     expect(api.callCount, 1);
@@ -243,8 +243,8 @@ void testDelegatesToApi() {
 }
 
 void testPropagatesApiFailures() {
-  test('propagates RegisterApi failures', () async {
-    final api = FakeRegisterApi()..errorToThrow = Exception('api down');
+  test('propagates DioRegisterApi failures', () async {
+    final api = FakeDioRegisterApi()..errorToThrow = Exception('api down');
     final dataSource = RegisterRemoteDataSourceImpl(api);
     expect(
       () => dataSource.register(validRegisterRequest()),

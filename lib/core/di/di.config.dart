@@ -15,7 +15,6 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
 import '../../features/auth/register/api/dio_register_api.dart' as _i347;
-import '../../features/auth/register/api/register_api.dart' as _i397;
 import '../../features/auth/register/data/data_sources/register_remote_data_source.dart'
     as _i682;
 import '../../features/auth/register/data/data_sources/register_remote_data_source_impl.dart'
@@ -32,6 +31,7 @@ import '../../features/auth/register/domain/validators/register_form_validator.d
     as _i495;
 import '../../features/auth/register/presentation/view_model/register_bloc.dart'
     as _i213;
+import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/register_module.dart' as _i505;
 import '../network/auth_interceptors.dart' as _i466;
@@ -48,6 +48,7 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
     final dioModule = _$DioModule();
+    final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
     gh.factory<_i495.RegisterFormValidator>(
       () => const _i495.RegisterFormValidator(),
@@ -70,9 +71,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i361.Dio>(
       () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),
     );
-    gh.factory<_i397.RegisterApi>(() => _i347.DioRegisterApi(gh<_i361.Dio>()));
+    gh.lazySingleton<_i347.DioRegisterApi>(
+      () => apiModule.provideDioRegisterApi(gh<_i361.Dio>()),
+    );
     gh.factory<_i682.RegisterRemoteDataSource>(
-      () => _i550.RegisterRemoteDataSourceImpl(gh<_i397.RegisterApi>()),
+      () => _i550.RegisterRemoteDataSourceImpl(gh<_i347.DioRegisterApi>()),
     );
     gh.factory<_i57.RegisterRepository>(
       () => _i200.RegisterRepositoryImpl(
@@ -96,3 +99,5 @@ extension GetItInjectableX on _i174.GetIt {
 class _$RegisterModule extends _i505.RegisterModule {}
 
 class _$DioModule extends _i948.DioModule {}
+
+class _$ApiModule extends _i98.ApiModule {}
