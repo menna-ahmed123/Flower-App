@@ -29,7 +29,8 @@ bool registerSecurityChanged(RegisterState previous, RegisterState current) {
       previous.obscurePassword != current.obscurePassword ||
       previous.obscureConfirmPassword != current.obscureConfirmPassword ||
       previous.fieldErrors.password != current.fieldErrors.password ||
-      previous.fieldErrors.confirmPassword != current.fieldErrors.confirmPassword ||
+      previous.fieldErrors.confirmPassword !=
+          current.fieldErrors.confirmPassword ||
       previous.fieldErrors.phoneNumber != current.fieldErrors.phoneNumber;
 }
 
@@ -47,10 +48,7 @@ class RegisterLoadingGuard extends StatelessWidget {
     return BlocBuilder<RegisterBloc, RegisterState>(
       buildWhen: registerLoadingChanged,
       builder: (context, state) {
-        return AbsorbPointer(
-          absorbing: state.isLoading,
-          child: child,
-        );
+        return AbsorbPointer(absorbing: state.isLoading, child: child);
       },
     );
   }
@@ -64,7 +62,8 @@ class RegisterIdentityFieldsSection extends StatelessWidget {
     return RegisterLoadingGuard(
       child: BlocBuilder<RegisterBloc, RegisterState>(
         buildWhen: registerIdentityChanged,
-        builder: (context, state) => RegisterIdentityFieldsContent(state: state),
+        builder: (context, state) =>
+            RegisterIdentityFieldsContent(state: state),
       ),
     );
   }
@@ -101,26 +100,29 @@ class RegisterIdentityNameFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final errors = state.fieldErrors;
     return RegisterNameFields(
       firstName: state.firstName,
       lastName: state.lastName,
-      firstNameError: RegisterValidationMessageMapper.message(
-        RegisterField.firstName,
-        errors.firstName,
-      ),
-      lastNameError: RegisterValidationMessageMapper.message(
-        RegisterField.lastName,
-        errors.lastName,
-      ),
+      firstNameError: _firstNameError,
+      lastNameError: _lastNameError,
       enabled: true,
-      onFirstNameChanged: (value) => bloc.add(
-        RegisterFieldChangedIntent(RegisterField.firstName, value),
-      ),
-      onLastNameChanged: (value) => bloc.add(
-        RegisterFieldChangedIntent(RegisterField.lastName, value),
-      ),
+      onFirstNameChanged: (value) => _onChanged(RegisterField.firstName, value),
+      onLastNameChanged: (value) => _onChanged(RegisterField.lastName, value),
     );
+  }
+
+  String? get _firstNameError =>
+      _message(RegisterField.firstName, state.fieldErrors.firstName);
+
+  String? get _lastNameError =>
+      _message(RegisterField.lastName, state.fieldErrors.lastName);
+
+  String? _message(RegisterField field, RegisterValidationError? error) {
+    return RegisterValidationMessageMapper.message(field, error);
+  }
+
+  void _onChanged(RegisterField field, String value) {
+    bloc.add(RegisterFieldChangedIntent(field, value));
   }
 }
 
@@ -143,9 +145,8 @@ class RegisterIdentityEmailField extends StatelessWidget {
         state.fieldErrors.email,
       ),
       enabled: true,
-      onChanged: (value) => bloc.add(
-        RegisterFieldChangedIntent(RegisterField.email, value),
-      ),
+      onChanged: (value) =>
+          bloc.add(RegisterFieldChangedIntent(RegisterField.email, value)),
     );
   }
 }
@@ -158,7 +159,8 @@ class RegisterSecurityFieldsSection extends StatelessWidget {
     return RegisterLoadingGuard(
       child: BlocBuilder<RegisterBloc, RegisterState>(
         buildWhen: registerSecurityChanged,
-        builder: (context, state) => RegisterSecurityFieldsContent(state: state),
+        builder: (context, state) =>
+            RegisterSecurityFieldsContent(state: state),
       ),
     );
   }
@@ -183,31 +185,52 @@ class RegisterSecurityFieldsContent extends StatelessWidget {
   }
 
   Widget passwordFields(RegisterBloc bloc) {
-    final errors = state.fieldErrors;
     return RegisterPasswordFields(
       password: state.password,
       confirmPassword: state.confirmPassword,
       obscurePassword: state.obscurePassword,
       obscureConfirmPassword: state.obscureConfirmPassword,
-      passwordError: RegisterValidationMessageMapper.message(
-        RegisterField.password,
-        errors.password,
-      ),
-      confirmPasswordError: RegisterValidationMessageMapper.message(
-        RegisterField.confirmPassword,
-        errors.confirmPassword,
-      ),
-      onPasswordChanged: (value) => bloc.add(
-        RegisterFieldChangedIntent(RegisterField.password, value),
-      ),
-      onConfirmPasswordChanged: (value) => bloc.add(
-        RegisterFieldChangedIntent(RegisterField.confirmPassword, value),
-      ),
-      onTogglePassword: () => bloc.add(const TogglePasswordVisibilityIntent()),
-      onToggleConfirmPassword: () => bloc.add(
-        const TogglePasswordVisibilityIntent(confirm: true),
-      ),
+      passwordError: _passwordError,
+      confirmPasswordError: _confirmPasswordError,
+      onPasswordChanged: (value) => _changePassword(bloc, value),
+      onConfirmPasswordChanged: (value) => _changeConfirm(bloc, value),
+      onTogglePassword: () => _togglePassword(bloc),
+      onToggleConfirmPassword: () => _toggleConfirm(bloc),
     );
+  }
+
+  void _changePassword(RegisterBloc bloc, String value) {
+    _onSecurityChanged(bloc, RegisterField.password, value);
+  }
+
+  void _changeConfirm(RegisterBloc bloc, String value) {
+    _onSecurityChanged(bloc, RegisterField.confirmPassword, value);
+  }
+
+  void _togglePassword(RegisterBloc bloc) {
+    bloc.add(const TogglePasswordVisibilityIntent());
+  }
+
+  void _toggleConfirm(RegisterBloc bloc) {
+    bloc.add(const TogglePasswordVisibilityIntent(confirm: true));
+  }
+
+  String? get _passwordError => RegisterValidationMessageMapper.message(
+    RegisterField.password,
+    state.fieldErrors.password,
+  );
+
+  String? get _confirmPasswordError => RegisterValidationMessageMapper.message(
+    RegisterField.confirmPassword,
+    state.fieldErrors.confirmPassword,
+  );
+
+  void _onSecurityChanged(
+    RegisterBloc bloc,
+    RegisterField field,
+    String value,
+  ) {
+    bloc.add(RegisterFieldChangedIntent(field, value));
   }
 
   Widget phoneField(RegisterBloc bloc) {

@@ -45,31 +45,56 @@ class RegisterFormValidator {
     RegisterField field,
     RegisterFormInput input,
   ) {
+    return _changedFieldErrors(field, input);
+  }
+
+  RegisterFieldErrors _changedFieldErrors(
+    RegisterField field,
+    RegisterFormInput input,
+  ) {
     return switch (field) {
-      RegisterField.firstName => RegisterFieldErrors(
-        firstName: firstNameError(input.firstName),
-      ),
-      RegisterField.lastName => RegisterFieldErrors(
-        lastName: lastNameError(input.lastName),
-      ),
-      RegisterField.email => RegisterFieldErrors(email: emailError(input.email)),
-      RegisterField.password => RegisterFieldErrors(
-        password: passwordError(input.password),
-        confirmPassword: confirmPasswordError(
-          input.confirmPassword,
-          input.password,
-        ),
-      ),
-      RegisterField.confirmPassword => RegisterFieldErrors(
-        confirmPassword: confirmPasswordError(
-          input.confirmPassword,
-          input.password,
-        ),
-      ),
-      RegisterField.phoneNumber => RegisterFieldErrors(
-        phoneNumber: phoneError(input.phoneNumber),
-      ),
+      RegisterField.firstName => _firstNameErrors(input),
+      RegisterField.lastName => _lastNameErrors(input),
+      RegisterField.email => _emailErrors(input),
+      RegisterField.password => _passwordFieldErrors(input),
+      RegisterField.confirmPassword => _confirmPasswordErrors(input),
+      RegisterField.phoneNumber => _phoneErrors(input),
     };
+  }
+
+  RegisterFieldErrors _firstNameErrors(RegisterFormInput input) {
+    return RegisterFieldErrors(firstName: firstNameError(input.firstName));
+  }
+
+  RegisterFieldErrors _lastNameErrors(RegisterFormInput input) {
+    return RegisterFieldErrors(lastName: lastNameError(input.lastName));
+  }
+
+  RegisterFieldErrors _emailErrors(RegisterFormInput input) {
+    return RegisterFieldErrors(email: emailError(input.email));
+  }
+
+  RegisterFieldErrors _confirmPasswordErrors(RegisterFormInput input) {
+    return RegisterFieldErrors(
+      confirmPassword: confirmPasswordError(
+        input.confirmPassword,
+        input.password,
+      ),
+    );
+  }
+
+  RegisterFieldErrors _phoneErrors(RegisterFormInput input) {
+    return RegisterFieldErrors(phoneNumber: phoneError(input.phoneNumber));
+  }
+
+  RegisterFieldErrors _passwordFieldErrors(RegisterFormInput input) {
+    return RegisterFieldErrors(
+      password: passwordError(input.password),
+      confirmPassword: confirmPasswordError(
+        input.confirmPassword,
+        input.password,
+      ),
+    );
   }
 
   RegisterValidationError? firstNameError(String value) {
@@ -98,7 +123,10 @@ class RegisterFormValidator {
     return null;
   }
 
-  RegisterValidationError? confirmPasswordError(String confirm, String password) {
+  RegisterValidationError? confirmPasswordError(
+    String confirm,
+    String password,
+  ) {
     if (confirm.isEmpty) return RegisterValidationError.empty;
     if (confirm != password) return RegisterValidationError.mismatch;
     return null;

@@ -28,7 +28,8 @@ class RegisterSyncedTextField extends StatefulWidget {
   final Widget? suffixIcon;
 
   @override
-  State<RegisterSyncedTextField> createState() => RegisterSyncedTextFieldState();
+  State<RegisterSyncedTextField> createState() =>
+      RegisterSyncedTextFieldState();
 }
 
 class RegisterSyncedTextFieldState extends State<RegisterSyncedTextField> {
@@ -209,7 +210,7 @@ class RegisterPasswordVisibilityIcon extends StatelessWidget {
     return IconButton(
       onPressed: enabled ? onToggle : null,
       icon: Icon(
-        obscureText ? AppIcons.visibilityOff : Icons.visibility_outlined,
+        obscureText ? AppIcons.visibilityOff : AppIcons.visibility,
         size: 20.sp,
       ),
     );
@@ -321,4 +322,3 @@ class RegisterPasswordFields extends StatelessWidget {
     );
   }
 }
-

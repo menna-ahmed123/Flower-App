@@ -6,28 +6,37 @@ class RegisterValidationMessageMapper {
 
   static String? message(RegisterField field, RegisterValidationError? error) {
     if (error == null) return null;
-    return switch ((field, error)) {
-      (RegisterField.firstName, RegisterValidationError.empty) =>
-        AppString.fieldIsRequired(AppString.firstName),
-      (RegisterField.lastName, RegisterValidationError.empty) =>
-        AppString.fieldIsRequired(AppString.lastName),
-      (RegisterField.email, RegisterValidationError.empty) =>
-        AppString.pleaseEnterYourEmail,
-      (RegisterField.email, RegisterValidationError.invalid) =>
-        AppString.pleaseEnterValidEmail,
-      (RegisterField.password, RegisterValidationError.empty) =>
-        AppString.passwordIsRequired,
-      (RegisterField.password, RegisterValidationError.invalid) =>
-        AppString.registrationPasswordRequirement,
-      (RegisterField.confirmPassword, RegisterValidationError.empty) =>
-        AppString.confirmPasswordIsRequired,
-      (RegisterField.confirmPassword, RegisterValidationError.mismatch) =>
-        AppString.passwordsDoNotMatch,
-      (RegisterField.phoneNumber, RegisterValidationError.empty) =>
-        AppString.phoneNumberIsRequired,
-      (RegisterField.phoneNumber, RegisterValidationError.invalid) =>
-        AppString.validEgyptianPhone,
-      _ => null,
-    };
+    return _messages[field]?[error];
   }
+
+  static final Map<RegisterField, Map<RegisterValidationError, String>>
+  _messages = {
+    RegisterField.firstName: {
+      RegisterValidationError.empty: AppString.fieldIsRequired(
+        AppString.firstName,
+      ),
+    },
+    RegisterField.lastName: {
+      RegisterValidationError.empty: AppString.fieldIsRequired(
+        AppString.lastName,
+      ),
+    },
+    RegisterField.email: {
+      RegisterValidationError.empty: AppString.pleaseEnterYourEmail,
+      RegisterValidationError.invalid: AppString.pleaseEnterValidEmail,
+    },
+    RegisterField.password: {
+      RegisterValidationError.empty: AppString.passwordIsRequired,
+      RegisterValidationError.invalid:
+          AppString.registrationPasswordRequirement,
+    },
+    RegisterField.confirmPassword: {
+      RegisterValidationError.empty: AppString.confirmPasswordIsRequired,
+      RegisterValidationError.mismatch: AppString.passwordsDoNotMatch,
+    },
+    RegisterField.phoneNumber: {
+      RegisterValidationError.empty: AppString.phoneNumberIsRequired,
+      RegisterValidationError.invalid: AppString.validEgyptianPhone,
+    },
+  };
 }
