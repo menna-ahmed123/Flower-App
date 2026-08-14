@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/network/auth_interceptors.dart';
-import 'package:flower_app/features/auth/register/api/dio_register_api.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
@@ -14,9 +13,6 @@ abstract class DioModule {
     _attachInterceptors(dio, authInterceptors);
     return dio;
   }
-
-  @lazySingleton
-  DioRegisterApi provideDioRegisterApi(Dio dio) => DioRegisterApi(dio);
 }
 
 BaseOptions _createBaseOptions() {

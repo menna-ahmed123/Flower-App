@@ -1,5 +1,4 @@
 import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
@@ -15,14 +14,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class RegisterPage extends StatelessWidget {
-  const RegisterPage({super.key, this.createBloc});
+  const RegisterPage({super.key, required this.createBloc});
 
-  final RegisterBloc Function()? createBloc;
+  final RegisterBloc Function() createBloc;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => (createBloc ?? () => getIt<RegisterBloc>())(),
+      create: (_) => createBloc(),
       child: const RegisterView(),
     );
   }
@@ -117,7 +116,9 @@ class RegisterEffectHandler {
   }
 
   static void showFailureSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -132,7 +133,8 @@ class RegisterAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: IconButton(
         icon: Icon(AppIcons.chevronLeft),
-        onPressed: () => context.read<RegisterBloc>().add(const NavigateBackIntent()),
+        onPressed: () =>
+            context.read<RegisterBloc>().add(const NavigateBackIntent()),
       ),
       title: const Text(AppString.signUp),
     );

@@ -1,7 +1,9 @@
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
 import 'package:flower_app/features/auth/login/presentation/pages/login_page.dart';
 import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
+import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
 import 'package:flower_app/features/categories/presentation/pages/categories_page.dart';
 import 'package:flower_app/features/home/presentation/pages/home_page.dart';
@@ -21,9 +23,7 @@ class AppRouter {
   }
 
   static Widget errorPage(BuildContext context, GoRouterState state) {
-    return const Scaffold(
-      body: Center(child: Text('Page Not Found')),
-    );
+    return const Scaffold(body: Center(child: Text('Page Not Found')));
   }
 
   static List<RouteBase> get authRoutes {
@@ -43,7 +43,8 @@ class AppRouter {
   static GoRoute get registerRoute {
     return GoRoute(
       path: AppRoutesName.register,
-      builder: (context, state) => const RegisterPage(),
+      builder: (context, state) =>
+          RegisterPage(createBloc: () => getIt<RegisterBloc>()),
     );
   }
 

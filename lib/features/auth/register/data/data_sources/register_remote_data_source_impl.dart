@@ -18,12 +18,14 @@ class RegisterRemoteDataSourceImpl implements RegisterRemoteDataSource {
   @override
   Future<RegisterResult> register(RegisterRequest request) async {
     final response = await _api.register(RegisterRequestMapper.toDto(request));
-    _ensureSuccess(response.data, response.response.statusCode);
-    return _toDomain(response.data);
+    final body = response.data;
+    final data = _requireData(body, response.response.statusCode);
+    return _toDomain(body, data);
   }
 
-  void _ensureSuccess(RegisterOperationDto body, int? statusCode) {
-    if (body.isSuccess == true && body.data != null) return;
+  RegisterResultDto _requireData(RegisterOperationDto body, int? statusCode) {
+    final data = body.data;
+    if (body.isSuccess == true && data != null) return data;
     throw ApiException(
       message: body.message ?? 'Sign up failed',
       statusCode: statusCode,
@@ -31,8 +33,7 @@ class RegisterRemoteDataSourceImpl implements RegisterRemoteDataSource {
     );
   }
 
-  RegisterResult _toDomain(RegisterOperationDto body) {
-    final data = body.data!;
+  RegisterResult _toDomain(RegisterOperationDto body, RegisterResultDto data) {
     return RegisterResultMapper.toDomain(
       RegisterResultDto(
         userId: data.userId,
