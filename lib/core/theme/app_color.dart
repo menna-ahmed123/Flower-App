@@ -13,6 +13,8 @@ abstract class AppColors {
   Color get shadow;
   Color get unselectedAnswer;
   Color get green;
+
+  Color get otpColor;
   Brightness get brightness;
 }
 
@@ -20,7 +22,10 @@ class LightThemeColor implements AppColors {
   @override
   Brightness get brightness => Brightness.light;
   @override
-  Color get disabledButton => Color(0xff5d6063);
+  Color get disabledButton => Color(0xff878787);
+
+  @override
+  Color get otpColor => Color(0xFFCFCFCF);
   @override
   Color get error => Color(0xFFD32F2F);
   @override
@@ -85,6 +90,9 @@ class DarkThemeColor implements AppColors {
   Color get disabledButton => Color(0xff5d6063);
   @override
   Color get error => Color(0xFFD32F2F);
+
+  @override
+  Color get otpColor => Color(0xFFCFCFCF);
   @override
   MaterialColor get grey => MaterialColor(0xffF9F9F9, const <int, Color>{
     50: Color(0xFFFDFDFD),
