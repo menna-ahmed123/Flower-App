@@ -1,5 +1,6 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_request.dart';
+import 'package:flower_app/features/auth/register/domain/validators/register_field_errors.dart';
 import 'package:flower_app/features/auth/register/presentation/effect/register_effect.dart';
 import 'package:flower_app/features/auth/register/presentation/intent/register_intent.dart';
 import 'package:flower_app/features/auth/register/presentation/state/register_state.dart';
@@ -10,7 +11,8 @@ import '../../support/register_test_support.dart';
 void main() {
   initialStateGroup();
   fieldValuesGroup();
-  fieldValidationGroup();
+  fieldValidationValidGroup();
+  fieldValidationInvalidGroup();
   submitValidationGroup();
   submitSuccessGroup();
   submitFailureGroup();
@@ -48,8 +50,8 @@ void fieldValuesGroup() {
   });
 }
 
-void fieldValidationGroup() {
-  group('RegisterBloc field validation', () {
+void fieldValidationValidGroup() {
+  group('RegisterBloc field validation valid', () {
     test('clears errors for valid input on changed field', () async {
       final env = RegisterBlocTestEnv();
       addTearDown(env.dispose);
@@ -61,7 +63,11 @@ void fieldValidationGroup() {
       expect(env.bloc.state.fieldErrors.firstName, isNull);
       expect(env.bloc.state.fieldErrors.email, isNull);
     });
+  });
+}
 
+void fieldValidationInvalidGroup() {
+  group('RegisterBloc field validation invalid', () {
     test('sets error for invalid email on changed field', () async {
       final env = RegisterBlocTestEnv();
       addTearDown(env.dispose);
@@ -70,7 +76,7 @@ void fieldValidationGroup() {
         const RegisterFieldChangedIntent(RegisterField.email, 'not-an-email'),
         until: (state) => state.fieldErrors.email != null,
       );
-      expect(env.bloc.state.fieldErrors.email, AppString.pleaseEnterValidEmail);
+      expect(env.bloc.state.fieldErrors.email, RegisterValidationError.invalid);
       expect(env.bloc.state.fieldErrors.firstName, isNull);
     });
   });
@@ -94,10 +100,12 @@ void submitValidationGroup() {
 
 void submitSuccessGroup() {
   group('RegisterBloc submit success', () {
-    test('emits success on valid submit', () async {
+    test('emits loading then success on valid submit', () async {
       final env = RegisterBlocTestEnv();
       addTearDown(env.dispose);
-      await captureSubmitStates(env.bloc);
+      final states = await captureSubmitStates(env.bloc);
+      expect(states.any((state) => state.isLoading), isTrue);
+      expect(env.bloc.state.isLoading, isFalse);
       expect(env.bloc.state.data?.userId, 'user-1');
       expect(
         env.bloc.state.effect,
@@ -131,6 +139,18 @@ void navigationGroup() {
         until: (state) => state.effect != null,
       );
       expect(env.bloc.state.effect, const NavigateToLoginEffect());
+    });
+
+    test('toggles password visibility', () async {
+      final env = RegisterBlocTestEnv();
+      addTearDown(env.dispose);
+      expect(env.bloc.state.obscurePassword, isTrue);
+      await dispatchIntent(
+        env.bloc,
+        const TogglePasswordVisibilityIntent(),
+        until: (state) => !state.obscurePassword,
+      );
+      expect(env.bloc.state.obscurePassword, isFalse);
     });
   });
 }

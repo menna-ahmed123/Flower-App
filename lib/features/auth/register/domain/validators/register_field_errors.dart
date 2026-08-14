@@ -9,6 +9,8 @@ enum RegisterField {
   phoneNumber,
 }
 
+enum RegisterValidationError { empty, invalid, mismatch }
+
 class RegisterFieldErrors extends Equatable {
   const RegisterFieldErrors({
     this.firstName,
@@ -19,12 +21,12 @@ class RegisterFieldErrors extends Equatable {
     this.phoneNumber,
   });
 
-  final String? firstName;
-  final String? lastName;
-  final String? email;
-  final String? password;
-  final String? confirmPassword;
-  final String? phoneNumber;
+  final RegisterValidationError? firstName;
+  final RegisterValidationError? lastName;
+  final RegisterValidationError? email;
+  final RegisterValidationError? password;
+  final RegisterValidationError? confirmPassword;
+  final RegisterValidationError? phoneNumber;
 
   bool get hasErrors {
     return firstName != null ||

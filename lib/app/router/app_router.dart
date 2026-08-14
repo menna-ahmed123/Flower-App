@@ -1,5 +1,5 @@
 import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/navigation/route_success_snackbar.dart';
+import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
 import 'package:flower_app/features/auth/login/presentation/pages/login_page.dart';
 import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';

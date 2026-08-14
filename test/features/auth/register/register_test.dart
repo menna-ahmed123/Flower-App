@@ -207,19 +207,21 @@ void testThrowsWhenIsSuccessFalse() {
   });
 }
 
+RecordingAdapter isSuccessMissingAdapter() {
+  return RecordingAdapter(200, {
+    'message': 'Registration failed',
+    'data': {
+      'userId': 'user-1',
+      'email': 'sara@example.com',
+      'role': 'Customer',
+      'status': 'Active',
+    },
+  });
+}
+
 void testThrowsWhenIsSuccessMissing() {
   test('throws ApiException when isSuccess is omitted', () async {
-    final api = buildDioRegisterApi(
-      RecordingAdapter(200, {
-        'message': 'Registration failed',
-        'data': {
-          'userId': 'user-1',
-          'email': 'sara@example.com',
-          'role': 'Customer',
-          'status': 'Active',
-        },
-      }),
-    );
+    final api = buildDioRegisterApi(isSuccessMissingAdapter());
     expect(
       () => api.register(validRegisterRequest()),
       throwsA(

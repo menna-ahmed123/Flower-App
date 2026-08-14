@@ -6,7 +6,7 @@ import 'package:flower_app/features/auth/register/domain/models/register_result.
 import 'package:flower_app/features/auth/register/domain/repositories/register_repository.dart';
 import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: RegisterRepository)
+@Injectable(as: RegisterRepository)
 class RegisterRepositoryImpl implements RegisterRepository {
   RegisterRepositoryImpl(this._dataSource, this._safeCall);
 

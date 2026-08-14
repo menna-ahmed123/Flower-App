@@ -12,17 +12,17 @@ class RouteSuccessSnackBar extends StatefulWidget {
   final String? message;
 
   @override
-  State<RouteSuccessSnackBar> createState() => _RouteSuccessSnackBarState();
+  State<RouteSuccessSnackBar> createState() => RouteSuccessSnackBarState();
 }
 
-class _RouteSuccessSnackBarState extends State<RouteSuccessSnackBar> {
+class RouteSuccessSnackBarState extends State<RouteSuccessSnackBar> {
   @override
   void initState() {
     super.initState();
-    _showSuccessMessage();
+    showSuccessMessage();
   }
 
-  void _showSuccessMessage() {
+  void showSuccessMessage() {
     final message = widget.message;
     if (message == null || message.isEmpty) return;
 

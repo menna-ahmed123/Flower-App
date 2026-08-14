@@ -5,6 +5,7 @@ import 'package:flower_app/features/auth/register/domain/use_cases/register_use_
 import 'package:flower_app/features/auth/register/domain/validators/register_form_validator.dart';
 import 'package:flower_app/features/auth/register/presentation/effect/register_effect.dart';
 import 'package:flower_app/features/auth/register/presentation/intent/register_intent.dart';
+import 'package:flower_app/features/auth/register/presentation/mappers/register_state_mapper.dart';
 import 'package:flower_app/features/auth/register/presentation/state/register_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -33,7 +34,10 @@ class RegisterBloc extends Bloc<RegisterIntent, RegisterState> {
   ) {
     if (state.isLoading) return;
     final next = _copyField(intent.field, intent.value);
-    final partial = _validator.validateChangedField(intent.field, next.toFormInput());
+    final partial = _validator.validateChangedField(
+      intent.field,
+      RegisterStateMapper.toFormInput(next),
+    );
     emit(next.copyWith(fieldErrors: state.fieldErrors.merge(partial)));
   }
 
@@ -97,14 +101,14 @@ class RegisterBloc extends Bloc<RegisterIntent, RegisterState> {
   ) async {
     if (state.isLoading) return;
 
-    final errors = _validator.validate(state.toFormInput());
+    final errors = _validator.validate(RegisterStateMapper.toFormInput(state));
     if (errors.hasErrors) {
       emit(state.copyWith(fieldErrors: errors));
       return;
     }
 
     emit(state.copyWith(isLoading: true, clearData: true));
-    final result = await _registerUseCase(state.toRequest());
+    final result = await _registerUseCase(RegisterStateMapper.toRequest(state));
     emit(_reduceResult(result));
   }
 

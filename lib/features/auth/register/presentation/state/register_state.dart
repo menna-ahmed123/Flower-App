@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_request.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_result.dart';
 import 'package:flower_app/features/auth/register/domain/validators/register_field_errors.dart';
-import 'package:flower_app/features/auth/register/domain/validators/register_form_validator.dart';
 import 'package:flower_app/features/auth/register/presentation/effect/register_effect.dart';
 
 class RegisterState extends Equatable {
@@ -68,28 +67,6 @@ class RegisterState extends Equatable {
       fieldErrors: fieldErrors ?? this.fieldErrors,
       data: clearData ? null : (data ?? this.data),
       effect: clearEffect ? null : (effect ?? this.effect),
-    );
-  }
-
-  RegisterRequest toRequest() {
-    return RegisterRequest(
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim(),
-      password: password,
-      phoneNumber: phoneNumber.trim(),
-      gender: gender,
-    );
-  }
-
-  RegisterFormInput toFormInput() {
-    return RegisterFormInput(
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      password: password,
-      confirmPassword: confirmPassword,
-      phoneNumber: phoneNumber,
     );
   }
 

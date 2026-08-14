@@ -1,4 +1,5 @@
 import 'package:flower_app/features/auth/register/presentation/intent/register_intent.dart';
+import 'package:flower_app/features/auth/register/presentation/mappers/register_validation_message_mapper.dart';
 import 'package:flower_app/features/auth/register/presentation/state/register_state.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_field_widgets.dart';
@@ -104,8 +105,14 @@ class RegisterIdentityNameFields extends StatelessWidget {
     return RegisterNameFields(
       firstName: state.firstName,
       lastName: state.lastName,
-      firstNameError: errors.firstName,
-      lastNameError: errors.lastName,
+      firstNameError: RegisterValidationMessageMapper.message(
+        RegisterField.firstName,
+        errors.firstName,
+      ),
+      lastNameError: RegisterValidationMessageMapper.message(
+        RegisterField.lastName,
+        errors.lastName,
+      ),
       enabled: true,
       onFirstNameChanged: (value) => bloc.add(
         RegisterFieldChangedIntent(RegisterField.firstName, value),
@@ -131,7 +138,10 @@ class RegisterIdentityEmailField extends StatelessWidget {
   Widget build(BuildContext context) {
     return RegisterEmailField(
       value: state.email,
-      errorText: state.fieldErrors.email,
+      errorText: RegisterValidationMessageMapper.message(
+        RegisterField.email,
+        state.fieldErrors.email,
+      ),
       enabled: true,
       onChanged: (value) => bloc.add(
         RegisterFieldChangedIntent(RegisterField.email, value),
@@ -179,7 +189,14 @@ class RegisterSecurityFieldsContent extends StatelessWidget {
       confirmPassword: state.confirmPassword,
       obscurePassword: state.obscurePassword,
       obscureConfirmPassword: state.obscureConfirmPassword,
-      errors: errors,
+      passwordError: RegisterValidationMessageMapper.message(
+        RegisterField.password,
+        errors.password,
+      ),
+      confirmPasswordError: RegisterValidationMessageMapper.message(
+        RegisterField.confirmPassword,
+        errors.confirmPassword,
+      ),
       onPasswordChanged: (value) => bloc.add(
         RegisterFieldChangedIntent(RegisterField.password, value),
       ),
@@ -196,7 +213,10 @@ class RegisterSecurityFieldsContent extends StatelessWidget {
   Widget phoneField(RegisterBloc bloc) {
     return RegisterPhoneField(
       value: state.phoneNumber,
-      errorText: state.fieldErrors.phoneNumber,
+      errorText: RegisterValidationMessageMapper.message(
+        RegisterField.phoneNumber,
+        state.fieldErrors.phoneNumber,
+      ),
       enabled: true,
       onChanged: (value) => bloc.add(
         RegisterFieldChangedIntent(RegisterField.phoneNumber, value),

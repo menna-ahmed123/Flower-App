@@ -4,7 +4,7 @@ import 'package:flower_app/features/auth/register/domain/models/register_request
 import 'package:flower_app/features/auth/register/domain/models/register_result.dart';
 import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: RegisterRemoteDataSource)
+@Injectable(as: RegisterRemoteDataSource)
 class RegisterRemoteDataSourceImpl implements RegisterRemoteDataSource {
   RegisterRemoteDataSourceImpl(this._api);
 

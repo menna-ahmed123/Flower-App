@@ -7,7 +7,7 @@ import 'package:flower_app/features/auth/register/api/dio_register_api.dart';
 import 'package:flower_app/features/auth/register/api/register_api.dart';
 import 'package:flower_app/features/auth/register/data/data_sources/register_remote_data_source.dart';
 import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/navigation/route_success_snackbar.dart';
+import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';

@@ -1,6 +1,5 @@
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/features/auth/register/domain/validators/register_field_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -265,18 +264,20 @@ class RegisterPasswordFields extends StatelessWidget {
     required this.confirmPassword,
     required this.obscurePassword,
     required this.obscureConfirmPassword,
-    required this.errors,
     required this.onPasswordChanged,
     required this.onConfirmPasswordChanged,
     required this.onTogglePassword,
     required this.onToggleConfirmPassword,
+    this.passwordError,
+    this.confirmPasswordError,
   });
 
   final String password;
   final String confirmPassword;
   final bool obscurePassword;
   final bool obscureConfirmPassword;
-  final RegisterFieldErrors errors;
+  final String? passwordError;
+  final String? confirmPasswordError;
   final ValueChanged<String> onPasswordChanged;
   final ValueChanged<String> onConfirmPasswordChanged;
   final VoidCallback onTogglePassword;
@@ -303,7 +304,7 @@ class RegisterPasswordFields extends StatelessWidget {
       obscureText: obscurePassword,
       enabled: true,
       onToggle: onTogglePassword,
-      errorText: errors.password,
+      errorText: passwordError,
     );
   }
 
@@ -316,7 +317,7 @@ class RegisterPasswordFields extends StatelessWidget {
       obscureText: obscureConfirmPassword,
       enabled: true,
       onToggle: onToggleConfirmPassword,
-      errorText: errors.confirmPassword,
+      errorText: confirmPasswordError,
     );
   }
 }

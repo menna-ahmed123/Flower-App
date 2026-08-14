@@ -1,4 +1,4 @@
-import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/features/auth/register/domain/validators/register_field_errors.dart';
 import 'package:flower_app/features/auth/register/domain/validators/register_form_validator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -25,8 +25,8 @@ void emptyInputGroup() {
     const validator = RegisterFormValidator();
     test('rejects empty signup input', () {
       final errors = validator.validate(emptyRegisterFormInput);
-      expect(errors.firstName, AppString.fieldIsRequired(AppString.firstName));
-      expect(errors.email, AppString.pleaseEnterYourEmail);
+      expect(errors.firstName, RegisterValidationError.empty);
+      expect(errors.email, RegisterValidationError.empty);
     });
   });
 }
@@ -41,7 +41,7 @@ void passwordMismatchGroup() {
           password: 'Pass1234', confirmPassword: 'Pass9999', phoneNumber: '01012345678',
         ),
       );
-      expect(errors.confirmPassword, AppString.passwordsDoNotMatch);
+      expect(errors.confirmPassword, RegisterValidationError.mismatch);
     });
   });
 }
@@ -56,7 +56,7 @@ void passwordPolicyGroup() {
           password: 'Password', confirmPassword: 'Password', phoneNumber: '01012345678',
         ),
       );
-      expect(errors.password, AppString.registrationPasswordRequirement);
+      expect(errors.password, RegisterValidationError.invalid);
     });
   });
 }
