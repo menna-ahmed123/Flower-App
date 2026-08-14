@@ -26,7 +26,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support/register_test_support.dart';
 
 void main() {
-  signupValidatorGroup();
+  signupRequiredFieldValidatorGroup();
+  signupPasswordMessagingGroup();
   registerRequestGroup();
   registerResultGroup();
   submitIntentGroup();
@@ -39,8 +40,8 @@ void main() {
   registerDependencyInjectionGroup();
 }
 
-void signupValidatorGroup() {
-  group('Signup validators', () {
+void signupRequiredFieldValidatorGroup() {
+  group('Signup required-field validators', () {
     test('rejects empty required fields', () {
       expect(
         AppValidators.requiredField('', field: AppString.firstName),
@@ -49,6 +50,11 @@ void signupValidatorGroup() {
       expect(AppValidators.emailValidator(''), AppString.pleaseEnterYourEmail);
       expect(AppValidators.passwordValidator(''), AppString.passwordIsRequired);
     });
+  });
+}
+
+void signupPasswordMessagingGroup() {
+  group('Signup password validators', () {
     test('uses distinct password messaging', () {
       expect(
         AppValidators.passwordValidator('password'),
@@ -107,25 +113,27 @@ void submitIntentGroup() {
 void dioValidationParsingGroup() {
   group('Validation error parsing dio', () {
     test('maps Dio 422 field errors', () {
-      final error = errorParser(
-        DioException(
-          requestOptions: RequestOptions(path: ApiEndpoints.register),
-          type: DioExceptionType.badResponse,
-          response: Response(
-            requestOptions: RequestOptions(path: ApiEndpoints.register),
-            statusCode: 422,
-            data: {
-              'errors': {
-                'Email': ['Email already registered'],
-              },
-            },
-          ),
-        ),
-      );
+      final error = errorParser(dioEmailAlreadyRegisteredException());
       expect(error, isA<BadResponseError>());
       expect(error.message, contains('Email already registered'));
     });
   });
+}
+
+DioException dioEmailAlreadyRegisteredException() {
+  return DioException(
+    requestOptions: RequestOptions(path: ApiEndpoints.register),
+    type: DioExceptionType.badResponse,
+    response: Response(
+      requestOptions: RequestOptions(path: ApiEndpoints.register),
+      statusCode: 422,
+      data: {
+        'errors': {
+          'Email': ['Email already registered'],
+        },
+      },
+    ),
+  );
 }
 
 void apiValidationParsingGroup() {

@@ -44,13 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Generated Dart files (build_runner / freezed / injectable / retrofit / json_serializable)
-*.g.dart
-*.freezed.dart
-*.config.dart
-
 # Flutter generated files
 **/GeneratedPluginRegistrant.swift
 **/generated_plugin_registrant.cc
-**/generated_plugin_registrant.h
 **/generated_plugins.cmake
