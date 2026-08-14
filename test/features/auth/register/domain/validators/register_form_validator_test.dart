@@ -9,8 +9,10 @@ void main() {
   emptyInputGroup();
   passwordMismatchGroup();
   passwordPolicyGroup();
-  whitespaceInputGroup();
-  fieldErrorApplyGroup();
+  phoneWhitespaceGroup();
+  emailWhitespaceGroup();
+  fieldErrorClearsChangedFieldGroup();
+  fieldErrorPasswordClearsConfirmGroup();
 }
 
 void validInputGroup() {
@@ -71,10 +73,9 @@ void passwordPolicyGroup() {
   });
 }
 
-void whitespaceInputGroup() {
-  group('RegisterFormValidator whitespace', () {
+void phoneWhitespaceGroup() {
+  group('RegisterFormValidator phone whitespace', () {
     const validator = RegisterFormValidator();
-
     test('accepts Egyptian phone numbers with surrounding whitespace', () {
       final errors = validator.validate(
         const RegisterFormInput(
@@ -88,7 +89,12 @@ void whitespaceInputGroup() {
       );
       expect(errors.phoneNumber, isNull);
     });
+  });
+}
 
+void emailWhitespaceGroup() {
+  group('RegisterFormValidator email whitespace', () {
+    const validator = RegisterFormValidator();
     test('treats whitespace-only email as empty', () {
       final errors = validator.validate(
         const RegisterFormInput(
@@ -105,26 +111,34 @@ void whitespaceInputGroup() {
   });
 }
 
-void fieldErrorApplyGroup() {
+void fieldErrorClearsChangedFieldGroup() {
   group('RegisterFieldErrors.applyChangedField', () {
     test('clears the changed field while keeping other errors', () {
       const previous = RegisterFieldErrors(
         firstName: RegisterValidationError.empty,
         email: RegisterValidationError.invalid,
       );
-      const partial = RegisterFieldErrors();
-      final next = previous.applyChangedField(RegisterField.firstName, partial);
+      final next = previous.applyChangedField(
+        RegisterField.firstName,
+        const RegisterFieldErrors(),
+      );
       expect(next.firstName, isNull);
       expect(next.email, RegisterValidationError.invalid);
     });
+  });
+}
 
+void fieldErrorPasswordClearsConfirmGroup() {
+  group('RegisterFieldErrors.applyChangedField', () {
     test('updates confirm-password when password changes', () {
       const previous = RegisterFieldErrors(
         password: RegisterValidationError.invalid,
         confirmPassword: RegisterValidationError.mismatch,
       );
-      const partial = RegisterFieldErrors();
-      final next = previous.applyChangedField(RegisterField.password, partial);
+      final next = previous.applyChangedField(
+        RegisterField.password,
+        const RegisterFieldErrors(),
+      );
       expect(next.password, isNull);
       expect(next.confirmPassword, isNull);
     });
