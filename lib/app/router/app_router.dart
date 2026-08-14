@@ -1,15 +1,13 @@
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/navigation/route_success_snackbar.dart';
 import 'package:flower_app/features/auth/login/presentation/pages/login_page.dart';
 import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
-import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
 import 'package:flower_app/features/categories/presentation/pages/categories_page.dart';
 import 'package:flower_app/features/home/presentation/pages/home_page.dart';
 import 'package:flower_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../core/di/di.dart';
 
 class AppRouter {
   AppRouter._();
@@ -35,16 +33,17 @@ class AppRouter {
   static GoRoute get loginRoute {
     return GoRoute(
       path: AppRoutesName.login,
-      builder: (context, state) => const LoginPage(),
+      builder: (context, state) => RouteSuccessSnackBar(
+        message: state.uri.queryParameters['success'],
+        child: const LoginPage(),
+      ),
     );
   }
 
   static GoRoute get registerRoute {
     return GoRoute(
       path: AppRoutesName.register,
-      builder: (context, state) => RegisterPage(
-        createBloc: () => getIt<RegisterBloc>(),
-      ),
+      builder: (context, state) => const RegisterPage(),
     );
   }
 

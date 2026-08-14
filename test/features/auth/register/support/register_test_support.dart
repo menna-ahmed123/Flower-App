@@ -7,6 +7,7 @@ import 'package:flower_app/features/auth/register/api/dio_register_api.dart';
 import 'package:flower_app/features/auth/register/api/register_api.dart';
 import 'package:flower_app/features/auth/register/data/data_sources/register_remote_data_source.dart';
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/navigation/route_success_snackbar.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
@@ -78,10 +79,76 @@ class RegisterBlocTestEnv {
   Future<void> dispose() => bloc.close();
 }
 
+Future<void> dispatchIntent(
+  RegisterBloc bloc,
+  RegisterIntent intent, {
+  bool Function(RegisterState state)? until,
+}) async {
+  final predicate = until ?? (_) => true;
+  if (predicate(bloc.state)) {
+    bloc.add(intent);
+    await Future<void>.microtask(() {});
+    if (predicate(bloc.state)) return;
+  }
+  final done = bloc.stream.firstWhere(predicate);
+  bloc.add(intent);
+  await done;
+}
+
 Future<void> submitRegisterForm(RegisterBloc bloc) async {
-  seedRegisterForm(bloc);
-  bloc.add(const SubmitRegisterIntent());
-  await Future<void>.delayed(const Duration(milliseconds: 20));
+  for (final intent in _seedRegisterIntents()) {
+    await dispatchIntent(bloc, intent, until: _intentApplied(intent, bloc.state));
+  }
+  await dispatchIntent(
+    bloc,
+    const SubmitRegisterIntent(),
+    until: (state) =>
+        state.effect != null ||
+        (!state.isLoading && state.fieldErrors.hasErrors),
+  );
+}
+
+Iterable<RegisterIntent> _seedRegisterIntents() {
+  return [
+    const RegisterFieldChangedIntent(RegisterField.firstName, 'Sara'),
+    const RegisterFieldChangedIntent(RegisterField.lastName, 'Ali'),
+    const RegisterFieldChangedIntent(RegisterField.email, 'sara@example.com'),
+    const RegisterFieldChangedIntent(RegisterField.password, 'Pass1234'),
+    const RegisterFieldChangedIntent(
+      RegisterField.confirmPassword,
+      'Pass1234',
+    ),
+    const RegisterFieldChangedIntent(
+      RegisterField.phoneNumber,
+      '01012345678',
+    ),
+  ];
+}
+
+bool Function(RegisterState) _intentApplied(
+  RegisterIntent intent,
+  RegisterState before,
+) {
+  return switch (intent) {
+    RegisterFieldChangedIntent(:final field, :final value) => (state) =>
+        switch (field) {
+          RegisterField.firstName => state.firstName == value,
+          RegisterField.lastName => state.lastName == value,
+          RegisterField.email => state.email == value,
+          RegisterField.password => state.password == value,
+          RegisterField.confirmPassword => state.confirmPassword == value,
+          RegisterField.phoneNumber => state.phoneNumber == value,
+        },
+    RegisterGenderChangedIntent(:final gender) =>
+      (state) => state.gender == gender,
+    _ => (_) => true,
+  };
+}
+
+void seedRegisterForm(RegisterBloc bloc) {
+  for (final intent in _seedRegisterIntents()) {
+    bloc.add(intent);
+  }
 }
 
 Future<List<RegisterState>> captureSubmitStates(RegisterBloc bloc) async {
@@ -303,8 +370,10 @@ GoRouter registerTestRouter({required RegisterBloc Function() createBloc}) {
       ),
       GoRoute(
         path: AppRoutesName.login,
-        builder: (context, state) =>
-            const Scaffold(body: Text('Login Screen')),
+        builder: (context, state) => RouteSuccessSnackBar(
+          message: state.uri.queryParameters['success'],
+          child: const Scaffold(body: Text('Login Screen')),
+        ),
       ),
     ],
   );
@@ -331,26 +400,6 @@ Future<void> enterField(
 Future<void> tapSignUp(WidgetTester tester) async {
   await tester.tap(find.widgetWithText(ElevatedButton, AppString.signUp));
   await tester.pump();
-}
-
-void seedRegisterForm(RegisterBloc bloc) {
-  bloc
-    ..add(const RegisterFieldChangedIntent(RegisterField.firstName, 'Sara'))
-    ..add(const RegisterFieldChangedIntent(RegisterField.lastName, 'Ali'))
-    ..add(const RegisterFieldChangedIntent(RegisterField.email, 'sara@example.com'))
-    ..add(const RegisterFieldChangedIntent(RegisterField.password, 'Pass1234'))
-    ..add(
-      const RegisterFieldChangedIntent(
-        RegisterField.confirmPassword,
-        'Pass1234',
-      ),
-    )
-    ..add(
-      const RegisterFieldChangedIntent(
-        RegisterField.phoneNumber,
-        '01012345678',
-      ),
-    );
 }
 
 Future<void> pumpLoadingSubmitButton(WidgetTester tester) async {
@@ -404,9 +453,7 @@ class RegisterGenderSelectorHarnessState
           enabled: true,
           onChanged: onGenderChanged,
         ),
-        Text(
-          'selected:${value.name[0].toUpperCase()}${value.name.substring(1)}',
-        ),
+        Text('selected:${value.displayName}'),
       ],
     );
   }

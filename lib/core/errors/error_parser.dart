@@ -48,8 +48,8 @@ AppError _parseBadResponse(DioException exception) {
   return BadResponseError(statusCodeToMessage(exception.response?.statusCode));
 }
 
-String? fieldErrorsMessage(Object? errors) {
-  if (errors is! Map) return null;
+String? fieldErrorsMessage(Map<String, dynamic>? errors) {
+  if (errors == null) return null;
   final messages = <String>[];
   for (final value in errors.values) {
     if (value is List) {

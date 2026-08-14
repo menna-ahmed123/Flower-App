@@ -32,11 +32,17 @@ void fieldValuesGroup() {
     test('updates fields from intents', () async {
       final env = RegisterBlocTestEnv();
       addTearDown(env.dispose);
-      env.bloc.add(const RegisterFieldChangedIntent(RegisterField.email, 'a@b.com'));
-      await Future<void>.delayed(Duration.zero);
+      await dispatchIntent(
+        env.bloc,
+        const RegisterFieldChangedIntent(RegisterField.email, 'a@b.com'),
+        until: (state) => state.email == 'a@b.com',
+      );
       expect(env.bloc.state.email, 'a@b.com');
-      env.bloc.add(const RegisterGenderChangedIntent(Gender.male));
-      await Future<void>.delayed(Duration.zero);
+      await dispatchIntent(
+        env.bloc,
+        const RegisterGenderChangedIntent(Gender.male),
+        until: (state) => state.gender == Gender.male,
+      );
       expect(env.bloc.state.gender, Gender.male);
     });
   });
@@ -44,13 +50,28 @@ void fieldValuesGroup() {
 
 void fieldValidationGroup() {
   group('RegisterBloc field validation', () {
-    test('validates only the changed field while typing', () async {
+    test('clears errors for valid input on changed field', () async {
       final env = RegisterBlocTestEnv();
       addTearDown(env.dispose);
-      env.bloc.add(const RegisterFieldChangedIntent(RegisterField.firstName, 'S'));
-      await Future<void>.delayed(Duration.zero);
+      await dispatchIntent(
+        env.bloc,
+        const RegisterFieldChangedIntent(RegisterField.firstName, 'Sara'),
+        until: (state) => state.firstName == 'Sara',
+      );
       expect(env.bloc.state.fieldErrors.firstName, isNull);
       expect(env.bloc.state.fieldErrors.email, isNull);
+    });
+
+    test('sets error for invalid email on changed field', () async {
+      final env = RegisterBlocTestEnv();
+      addTearDown(env.dispose);
+      await dispatchIntent(
+        env.bloc,
+        const RegisterFieldChangedIntent(RegisterField.email, 'not-an-email'),
+        until: (state) => state.fieldErrors.email != null,
+      );
+      expect(env.bloc.state.fieldErrors.email, AppString.pleaseEnterValidEmail);
+      expect(env.bloc.state.fieldErrors.firstName, isNull);
     });
   });
 }
@@ -60,8 +81,11 @@ void submitValidationGroup() {
     test('validates before submit', () async {
       final env = RegisterBlocTestEnv();
       addTearDown(env.dispose);
-      env.bloc.add(const SubmitRegisterIntent());
-      await Future<void>.delayed(Duration.zero);
+      await dispatchIntent(
+        env.bloc,
+        const SubmitRegisterIntent(),
+        until: (state) => state.fieldErrors.hasErrors,
+      );
       expect(env.useCase.callCount, 0);
       expect(env.bloc.state.fieldErrors.firstName, isNotNull);
     });
@@ -75,7 +99,12 @@ void submitSuccessGroup() {
       addTearDown(env.dispose);
       await captureSubmitStates(env.bloc);
       expect(env.bloc.state.data?.userId, 'user-1');
-      expect(env.bloc.state.effect, const NavigateToLoginEffect(successMessage: 'Account registered successfully.'));
+      expect(
+        env.bloc.state.effect,
+        const NavigateToLoginEffect(
+          successMessage: 'Account registered successfully.',
+        ),
+      );
     });
   });
 }
@@ -96,8 +125,11 @@ void navigationGroup() {
     test('NavigateToLoginIntent emits effect', () async {
       final env = RegisterBlocTestEnv();
       addTearDown(env.dispose);
-      env.bloc.add(const NavigateToLoginIntent());
-      await Future<void>.delayed(Duration.zero);
+      await dispatchIntent(
+        env.bloc,
+        const NavigateToLoginIntent(),
+        until: (state) => state.effect != null,
+      );
       expect(env.bloc.state.effect, const NavigateToLoginEffect());
     });
   });

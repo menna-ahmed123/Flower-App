@@ -2,6 +2,17 @@ import 'package:equatable/equatable.dart';
 
 enum Gender { female, male }
 
+extension GenderApiValue on Gender {
+  /// OpenAPI contract expects capitalized English labels.
+  String get apiValue => switch (this) {
+    Gender.female => 'Female',
+    Gender.male => 'Male',
+  };
+
+  String get displayName =>
+      name[0].toUpperCase() + name.substring(1);
+}
+
 class RegisterRequest extends Equatable {
   const RegisterRequest({
     required this.firstName,

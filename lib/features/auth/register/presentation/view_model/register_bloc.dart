@@ -9,7 +9,7 @@ import 'package:flower_app/features/auth/register/presentation/state/register_st
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@Injectable()
 class RegisterBloc extends Bloc<RegisterIntent, RegisterState> {
   RegisterBloc(
     this._registerUseCase,

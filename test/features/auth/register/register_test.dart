@@ -9,6 +9,8 @@ import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/features/auth/register/data/data_sources/register_remote_data_source_impl.dart';
 import 'package:flower_app/features/auth/register/data/repositories/register_repository_impl.dart';
+import 'package:flower_app/features/auth/register/data/models/register_result_dto.dart';
+import 'package:flower_app/features/auth/register/data/mappers/register_result_mapper.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_result.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_request.dart';
 import 'package:flower_app/features/auth/register/domain/use_cases/register_use_case_impl.dart';
@@ -54,12 +56,13 @@ void registerRequestGroup() {
 }
 
 void registerResultGroup() {
-  group('RegisterResult', () {
+  group('RegisterResultDto', () {
     test('parses API contract', () {
-      final result = RegisterResult.fromOperationJson({
+      final dto = RegisterResultDto.fromOperationJson({
         'message': 'Account registered successfully.',
         'data': {'userId': 'user-1', 'email': 'user@example.com', 'role': 'Customer', 'status': 'Active'},
       });
+      final result = RegisterResultMapper.toDomain(dto);
       expect(result.userId, 'user-1');
       expect(result.email, 'user@example.com');
     });
@@ -111,6 +114,7 @@ void dioRegisterApiGroup() {
     testMapsMaleGender();
     testThrowsWhenPayloadHasNoData();
     testThrowsWhenIsSuccessFalse();
+    testThrowsWhenIsSuccessMissing();
   });
 }
 
@@ -200,6 +204,28 @@ void testThrowsWhenIsSuccessFalse() {
       }),
     );
     expect(() => api.register(validRegisterRequest()), throwsA(isA<ApiException>()));
+  });
+}
+
+void testThrowsWhenIsSuccessMissing() {
+  test('throws ApiException when isSuccess is omitted', () async {
+    final api = buildDioRegisterApi(
+      RecordingAdapter(200, {
+        'message': 'Registration failed',
+        'data': {
+          'userId': 'user-1',
+          'email': 'sara@example.com',
+          'role': 'Customer',
+          'status': 'Active',
+        },
+      }),
+    );
+    expect(
+      () => api.register(validRegisterRequest()),
+      throwsA(
+        isA<ApiException>().having((e) => e.message, 'message', 'Registration failed'),
+      ),
+    );
   });
 }
 

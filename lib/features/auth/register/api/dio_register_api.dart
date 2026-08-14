@@ -1,9 +1,12 @@
-import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/errors/api_exception.dart';
 import 'package:flower_app/features/auth/register/api/register_api.dart';
+import 'package:flower_app/features/auth/register/data/mappers/register_request_mapper.dart';
+import 'package:flower_app/features/auth/register/data/mappers/register_result_mapper.dart';
+import 'package:flower_app/features/auth/register/data/models/register_result_dto.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_request.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_result.dart';
+import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: RegisterApi)
@@ -16,7 +19,7 @@ class DioRegisterApi implements RegisterApi {
   Future<RegisterResult> register(RegisterRequest request) async {
     final response = await _dio.post<Map<String, dynamic>>(
       ApiEndpoints.register,
-      data: _toRequestBody(request),
+      data: RegisterRequestMapper.toApiBody(request),
     );
 
     final body = response.data;
@@ -28,7 +31,8 @@ class DioRegisterApi implements RegisterApi {
       );
     }
 
-    return RegisterResult.fromOperationJson(body!);
+    final dto = RegisterResultDto.fromOperationJson(body!);
+    return RegisterResultMapper.toDomain(dto);
   }
 
   Map<String, dynamic>? _operationErrors(Map<String, dynamic>? body) {
@@ -40,19 +44,6 @@ class DioRegisterApi implements RegisterApi {
   bool _isSuccessfulOperation(Map<String, dynamic>? body) {
     if (body == null) return false;
     if (body['data'] is! Map<String, dynamic>) return false;
-    final isSuccess = body['isSuccess'];
-    return isSuccess == null || isSuccess == true;
-  }
-
-  Map<String, dynamic> _toRequestBody(RegisterRequest request) {
-    return {
-      'fullName': '${request.firstName} ${request.lastName}'.trim(),
-      'email': request.email,
-      'phoneNumber': request.phoneNumber,
-      'gender': request.gender == Gender.female ? 'Female' : 'Male',
-      'password': request.password,
-      // API requires confirmPassword; UI already validated the match.
-      'confirmPassword': request.password,
-    };
+    return body['isSuccess'] == true;
   }
 }

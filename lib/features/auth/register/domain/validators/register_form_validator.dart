@@ -21,7 +21,7 @@ class RegisterFormInput {
   final String phoneNumber;
 }
 
-@injectable
+@Injectable()
 class RegisterFormValidator {
   const RegisterFormValidator();
 

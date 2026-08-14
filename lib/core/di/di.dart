@@ -3,8 +3,6 @@ import 'package:injectable/injectable.dart';
 
 import 'di.config.dart';
 
-// Run `dart run build_runner build` after adding @injectable types.
-
 final getIt = GetIt.instance;
 
 @InjectableInit(

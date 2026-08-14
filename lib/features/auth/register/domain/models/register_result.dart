@@ -15,19 +15,6 @@ class RegisterResult extends Equatable {
   final String status;
   final String message;
 
-  factory RegisterResult.fromOperationJson(Map<String, dynamic> json) {
-    final data = json['data'];
-    final dataMap = data is Map<String, dynamic> ? data : <String, dynamic>{};
-
-    return RegisterResult(
-      userId: dataMap['userId']?.toString() ?? '',
-      email: dataMap['email']?.toString() ?? '',
-      role: dataMap['role']?.toString() ?? '',
-      status: dataMap['status']?.toString() ?? '',
-      message: json['message']?.toString() ?? '',
-    );
-  }
-
   @override
   List<Object?> get props => [userId, email, role, status, message];
 }
