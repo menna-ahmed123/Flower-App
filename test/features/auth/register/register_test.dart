@@ -22,6 +22,7 @@ import 'package:flower_app/features/auth/register/domain/use_cases/register_use_
 import 'package:flower_app/features/auth/register/presentation/intent/register_intent.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/register_test_support.dart';
 
@@ -382,6 +383,8 @@ void registerDependencyInjectionGroup() {
     test(
       'registers the register graph once and resolves RegisterBloc',
       () async {
+        TestWidgetsFlutterBinding.ensureInitialized();
+        SharedPreferences.setMockInitialValues({});
         await getIt.reset();
         addTearDown(getIt.reset);
         await configureDependencies();
