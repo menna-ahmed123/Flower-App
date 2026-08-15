@@ -1,31 +1,61 @@
 import 'package:flower_app/core/di/di.dart';
+import 'package:flower_app/core/localization/localization.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import 'app/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
+  await getIt<LocaleController>().load();
   runApp(const MyApp());
 }
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key, this.localeController});
+
+  final LocaleController? localeController;
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final GoRouter _router = AppRouter.createRouter();
 
   @override
   Widget build(BuildContext context) {
+    final controller = widget.localeController ?? getIt<LocaleController>();
+
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp.router(
-          routerConfig: AppRouter.createRouter(),
-          theme: AppTheme(LightThemeColor()).themeData,
-          darkTheme: AppTheme(DarkThemeColor()).themeData,
-         debugShowCheckedModeBanner: false,                 
+        return ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) {
+            return MaterialApp.router(
+              routerConfig: _router,
+              theme: AppTheme(LightThemeColor()).themeData,
+              darkTheme: AppTheme(DarkThemeColor()).themeData,
+              debugShowCheckedModeBanner: false,
+              locale: controller.locale,
+              supportedLocales: AppLocales.supportedLocales,
+              localeResolutionCallback: AppLocales.localeResolutionCallback,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+            );
+          },
         );
       },
     );
