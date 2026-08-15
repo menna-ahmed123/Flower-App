@@ -15,6 +15,15 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import '../../features/auth/login/data/api/auth_api_client.dart' as _i144;
+import '../../features/auth/login/data/data_source/remote/auth_remote_data_source.dart'
+    as _i441;
+import '../../features/auth/login/data/data_source/remote/auth_remote_data_source_impl.dart'
+    as _i4;
+import '../../features/auth/login/data/repo/auth_repo_impl.dart' as _i641;
+import '../../features/auth/login/domain/repo/auth_repo.dart' as _i483;
+import '../../features/auth/login/domain/use_case/login_usecase.dart' as _i635;
+import '../modules/api_module.dart' as _i98;
 import '../../features/auth/register/api/dio_register_api.dart' as _i347;
 import '../../features/auth/register/data/data_sources/register_remote_data_source.dart'
     as _i682;
@@ -50,6 +59,7 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
     final dioModule = _$DioModule();
+    final apiModule = _$ApiModule();
     final dioRegisterApiModule = _$DioRegisterApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
     gh.factory<_i495.RegisterFormValidator>(
@@ -83,6 +93,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i361.Dio>(
       () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),
     );
+    gh.lazySingleton<_i144.AuthApiClient>(
+      () => apiModule.authApiClient(gh<_i361.Dio>()),
+    );
+    gh.factory<_i441.AuthRemoteDataSource>(
+      () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
+    );
+    gh.factory<_i483.AuthRepo>(
+      () => _i641.AuthRepositoryImpl(
+        gh<_i441.AuthRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+        gh<_i964.TokenStorage>(),
+      ),
+    );
+    gh.factory<_i635.LoginUseCase>(
+      () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
     gh.lazySingleton<_i347.DioRegisterApi>(
       () => dioRegisterApiModule.dioRegisterApi(gh<_i361.Dio>()),
     );
@@ -112,4 +137,5 @@ class _$RegisterModule extends _i505.RegisterModule {}
 
 class _$DioModule extends _i948.DioModule {}
 
+class _$ApiModule extends _i98.ApiModule {}
 class _$DioRegisterApiModule extends _i347.DioRegisterApiModule {}

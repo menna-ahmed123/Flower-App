@@ -1,3 +1,6 @@
+import 'package:flower_app/core/di/di.dart';
+import 'package:flower_app/features/auth/forgetPassword/forget_password.dart';
+import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
@@ -9,8 +12,16 @@ import 'package:flower_app/features/categories/presentation/pages/categories_pag
 import 'package:flower_app/features/home/presentation/pages/home_page.dart';
 import 'package:flower_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/login/presentation/view/pages/login_page.dart';
+import '../../features/auth/register/presentation/pages/register_page.dart';
+import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/categories/presentation/pages/categories_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import 'app_routes.dart';
 class AppRouter {
   AppRouter._();
 
@@ -63,6 +74,11 @@ class AppRouter {
     return StatefulShellBranch(
       routes: [
         GoRoute(
+          path: AppRoutesName.login,
+           builder: (context, state) => BlocProvider(
+          create: (_) => getIt<LoginViewModel>(),
+          child: const LoginPage(),
+        ),
           path: AppRoutesName.home,
           builder: (context, state) => const HomePage(),
         ),
@@ -77,6 +93,48 @@ class AppRouter {
           path: AppRoutesName.categories,
           builder: (context, state) => const CategoriesPage(),
         ),
+        GoRoute(
+          path: AppRoutesName.forgetPassword,
+          builder: (context, state) => const ForgetPassword(),
+        ),
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return navigationShell;
+          },
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutesName.home,
+                  builder: (context, state) => const HomePage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutesName.categories,
+                  builder: (context, state) => const CategoriesPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutesName.cart,
+                  builder: (context, state) => const CartPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutesName.profile,
+                  builder: (context, state) => const ProfilePage(),
+                ),
+              ],
+            ),
+          ],
       ],
     );
   }

@@ -1,4 +1,16 @@
 abstract class AppString {
+  //login
+  static const String rememberMe = "Remember me";
+  static const String login = "Login";
+  static const String dontHaveAccount = "Don't have an account?";
+  static const String email = "Email";
+  static const String enterYouEmail = "Enter you email";
+  static const String password = "Password";
+  static const String enterYourPassword = "Enter you password ";
+  static const String signUp = "Sign up";
+  static const String forgetPassword = "Forget password?";
+
+  //validation
   static const String pleaseEnterYourEmail = 'Please enter your email';
   static const String pleaseEnterValidEmail = 'This Email is not valid';
   static const String passwordIsRequired = 'Password is required';

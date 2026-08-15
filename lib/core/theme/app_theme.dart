@@ -47,6 +47,22 @@ class AppTheme {
       fillColor: colors.white,
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       labelStyle: TextStyle(
+        color: colors.black,
+        fontSize: 18.sp,
+        fontWeight: FontWeight.w500,
+      ),
+      hintStyle: TextStyle(color: colors.grey[800], fontSize: 13.sp),
+      errorStyle: TextStyle(color: colors.error, fontSize: 11.sp),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.r),
+        borderSide: BorderSide(color: colors.grey[900] ?? colors.grey),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(6.r),
+        borderSide: BorderSide(color:colors.grey[900] ?? colors.grey, width: 1.5.w),
+      ),
+      outlineBorder: BorderSide(color: colors.grey[900] ?? colors.grey, width: 1.5.w),
+      errorBorder: OutlineInputBorder(
             color: colors.grey.shade900,
             fontSize: 18.sp,
             fontWeight: FontWeight.w400,
@@ -68,6 +84,8 @@ class AppTheme {
           ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6.r),
+        borderSide: BorderSide(color: colors.grey[900] ?? colors.grey, width: 1.5.w),
+      ),
             borderSide: BorderSide(color: colors.grey, width: 1.w),
           ),
       focusedBorder: OutlineInputBorder(
