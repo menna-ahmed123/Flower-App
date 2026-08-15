@@ -23,7 +23,16 @@ class AppTheme {
     scaffoldBackgroundColor: colors.white,
     appBarTheme: AppBarTheme(
       backgroundColor: colors.white,
-      iconTheme: IconThemeData(color: colors.black, size: 20.w),
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      titleSpacing: 0,
+      iconTheme: IconThemeData(color: colors.black, size: 28.sp),
+      titleTextStyle: TextStyle(
+        color: colors.black,
+        fontSize: 20.sp,
+        fontWeight: FontWeight.w600,
+      ),
     ),
     textTheme: TextTheme(
       titleLarge: TextStyle(
