@@ -1,7 +1,11 @@
+import 'package:flower_app/core/di/di.dart';
+import 'package:flower_app/features/auth/forgetPassword/forget_password.dart';
+import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/auth/login/presentation/pages/login_page.dart';
+import '../../features/auth/login/presentation/view/pages/login_page.dart';
 import '../../features/auth/register/presentation/pages/register_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/categories/presentation/pages/categories_page.dart';
@@ -23,13 +27,19 @@ abstract final class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.login,
-          builder: (context, state) => const LoginPage(),
+           builder: (context, state) => BlocProvider(
+          create: (_) => getIt<LoginViewModel>(),
+          child: const LoginPage(),
+        ),
         ),
         GoRoute(
           path: AppRoutesName.register,
           builder: (context, state) => const RegisterPage(),
         ),
-
+        GoRoute(
+          path: AppRoutesName.forgetPassword,
+          builder: (context, state) => const ForgetPassword(),
+        ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
             return navigationShell;

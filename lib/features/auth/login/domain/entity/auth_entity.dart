@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-
 class AuthEntity extends Equatable{
   final String accessToken;
   final String refreshToken;

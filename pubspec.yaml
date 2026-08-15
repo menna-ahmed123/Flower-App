@@ -47,7 +47,7 @@ dependencies:
   retrofit: ^4.9.2
   logger: ^2.6.0  # for logging purpose
   mockito: ^5.6.4
-  bloc: ^9.2.1
+  flutter_bloc: ^9.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

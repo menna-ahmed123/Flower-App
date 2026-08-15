@@ -42,24 +42,24 @@ class AppTheme {
         fontSize: 18.sp,
         fontWeight: FontWeight.w500,
       ),
-      hintStyle: TextStyle(color: colors.grey, fontSize: 13.sp),
+      hintStyle: TextStyle(color: colors.grey[800], fontSize: 13.sp),
       errorStyle: TextStyle(color: colors.error, fontSize: 11.sp),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8.r),
-        borderSide: BorderSide(color: colors.grey),
+        borderSide: BorderSide(color: colors.grey[900] ?? colors.grey),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6.r),
-        borderSide: BorderSide(color: colors.grey, width: 1.5.w),
+        borderSide: BorderSide(color:colors.grey[900] ?? colors.grey, width: 1.5.w),
       ),
-      outlineBorder: BorderSide(color: colors.grey, width: 1.5.w),
+      outlineBorder: BorderSide(color: colors.grey[900] ?? colors.grey, width: 1.5.w),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6.r),
         borderSide: BorderSide(color: colors.error, width: 1.5.w),
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6.r),
-        borderSide: BorderSide(color: colors.grey, width: 1.5.w),
+        borderSide: BorderSide(color: colors.grey[900] ?? colors.grey, width: 1.5.w),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6.r),
