@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                                   onTap: () {
                                     if (_formKey.currentState!.validate()) {
                                       loginViewModel.doEvent(
-                                        Login(
+                                        LoginSubmitted(
                                           email: _emailController.text,
                                           password: _passwordController.text,
                                         ),

@@ -14,7 +14,7 @@ class LoginViewModel extends Cubit<LoginState> {
   LoginViewModel(this._loginUseCase) : super(const LoginState());
   void doEvent(LoginEvent event) {
     switch (event) {
-      case Login():
+      case LoginSubmitted():
         _login(event.email, event.password);
         break;
     }
