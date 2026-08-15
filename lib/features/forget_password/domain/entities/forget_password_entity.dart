@@ -1,5 +1,5 @@
 class ForgetPasswordEntity {
-  final String email;
+  final int cooldownRemainingSeconds;
 
-  ForgetPasswordEntity({required this.email});
+  ForgetPasswordEntity({required this.cooldownRemainingSeconds});
 }

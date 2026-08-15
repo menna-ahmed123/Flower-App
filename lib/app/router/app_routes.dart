@@ -1,9 +1,11 @@
 abstract final class AppRoutesName {
-  static const login = '/login';
-  static const register = '/register';
+  static const String login = '/login';
+  static const String register = '/register';
 
-  static const home = '/home';
-  static const categories = '/categories';
-  static const cart = '/cart';
-  static const profile = '/profile';
+  static const String forgetPassword = '/forget-password';
+  static const String verification = 'verification';
+  static const String home = '/home';
+  static const String categories = '/categories';
+  static const String cart = '/cart';
+  static const String profile = '/profile';
 }

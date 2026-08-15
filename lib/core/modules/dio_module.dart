@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/network/auth_interceptors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
@@ -11,6 +12,7 @@ abstract class DioModule {
     final dio = Dio();
 
     dio.options = BaseOptions(
+      baseUrl: ApiEndpoints.baseUrl,
       receiveTimeout: const Duration(seconds: 60),
       connectTimeout: const Duration(seconds: 60),
       sendTimeout: const Duration(seconds: 60),
@@ -22,7 +24,6 @@ abstract class DioModule {
     if (kDebugMode) {
       dio.interceptors.add(
         PrettyDioLogger(
-          // Do not log request headers — they may contain the access token.
           requestHeader: false,
           requestBody: true,
           responseBody: true,
