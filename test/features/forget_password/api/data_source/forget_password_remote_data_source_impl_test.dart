@@ -8,7 +8,6 @@ import 'package:flower_app/features/forget_password/data/models/verify_otp_reque
 import 'package:flower_app/features/forget_password/data/models/verify_otp_response_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 
 import 'forget_password_remote_data_source_impl_test.mocks.dart';
 
