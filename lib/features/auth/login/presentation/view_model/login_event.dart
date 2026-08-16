@@ -1,10 +1,10 @@
 sealed class LoginEvent {}
 
-class Login extends LoginEvent {
+class LoginSubmitted extends LoginEvent {
   final String email;
   final String password;
 
-  Login({
+  LoginSubmitted({
     required this.email,
     required this.password,
   });

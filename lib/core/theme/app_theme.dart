@@ -45,53 +45,34 @@ class AppTheme {
       floatingLabelBehavior: FloatingLabelBehavior.always,
       filled: true,
       fillColor: colors.white,
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       labelStyle: TextStyle(
         color: colors.black,
         fontSize: 18.sp,
         fontWeight: FontWeight.w500,
       ),
-      hintStyle: TextStyle(color: colors.grey[800], fontSize: 13.sp),
+      hintStyle: TextStyle(color: colors.grey.shade700, fontSize: 14.sp),
       errorStyle: TextStyle(color: colors.error, fontSize: 11.sp),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8.r),
-        borderSide: BorderSide(color: colors.grey[900] ?? colors.grey),
+        borderSide: BorderSide(color: colors.grey.shade900),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6.r),
-        borderSide: BorderSide(color:colors.grey[900] ?? colors.grey, width: 1.5.w),
+        borderSide: BorderSide(color: colors.grey.shade900, width: 1.w),
       ),
-      outlineBorder: BorderSide(color: colors.grey[900] ?? colors.grey, width: 1.5.w),
-      errorBorder: OutlineInputBorder(
-            color: colors.grey.shade900,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w400,
-          ),
-          hintStyle: TextStyle(color: colors.grey.shade700, fontSize: 14.sp),
-          errorStyle: TextStyle(color: colors.error, fontSize: 11.sp),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8.r),
-            borderSide: BorderSide(color: colors.grey.shade900),
-          ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6.r),
-            borderSide: BorderSide(color: colors.grey.shade900, width: 1.w),
-          ),
-          outlineBorder: BorderSide(color: colors.grey.shade900, width: 1.w),
-          errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6.r),
-            borderSide: BorderSide(color: colors.error, width: 1.w),
-          ),
-      disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6.r),
-        borderSide: BorderSide(color: colors.grey[900] ?? colors.grey, width: 1.5.w),
-      ),
-            borderSide: BorderSide(color: colors.grey, width: 1.w),
-          ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(6.r),
-            borderSide: BorderSide(color: colors.pink, width: 1.w),
-          ),
+        borderSide: BorderSide(color: colors.pink, width: 1.w),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(6.r),
+        borderSide: BorderSide(color: colors.error, width: 1.w),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(6.r),
+        borderSide: BorderSide(color: colors.grey.shade900, width: 1.w),
+      ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(

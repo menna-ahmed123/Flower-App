@@ -1,10 +1,8 @@
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/features/auth/forgetPassword/forget_password.dart';
-import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
-import 'package:flower_app/features/auth/login/presentation/pages/login_page.dart';
+import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
@@ -16,18 +14,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/login/presentation/view/pages/login_page.dart';
-import '../../features/auth/register/presentation/pages/register_page.dart';
-import '../../features/cart/presentation/pages/cart_page.dart';
-import '../../features/categories/presentation/pages/categories_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/profile/presentation/pages/profile_page.dart';
-import 'app_routes.dart';
+
 class AppRouter {
   AppRouter._();
 
   static GoRouter createRouter() {
     return GoRouter(
-      initialLocation: AppRoutesName.register,
+      initialLocation: AppRoutesName.login,
       errorBuilder: errorPage,
       routes: [...authRoutes, shellRoute],
     );
@@ -46,7 +39,10 @@ class AppRouter {
       path: AppRoutesName.login,
       builder: (context, state) => RouteSuccessSnackBar(
         message: state.uri.queryParameters['success'],
-        child: const LoginPage(),
+        child: BlocProvider(
+          create: (_) => getIt<LoginViewModel>(),
+          child: const LoginPage(),
+        ),
       ),
     );
   }
@@ -74,11 +70,6 @@ class AppRouter {
     return StatefulShellBranch(
       routes: [
         GoRoute(
-          path: AppRoutesName.login,
-           builder: (context, state) => BlocProvider(
-          create: (_) => getIt<LoginViewModel>(),
-          child: const LoginPage(),
-        ),
           path: AppRoutesName.home,
           builder: (context, state) => const HomePage(),
         ),
@@ -135,6 +126,7 @@ class AppRouter {
               ],
             ),
           ],
+        ),
       ],
     );
   }
