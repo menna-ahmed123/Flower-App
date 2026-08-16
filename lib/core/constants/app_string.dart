@@ -31,6 +31,13 @@ abstract final class AppString {
   static const String otpRequired = 'Please enter the verification code';
   static const String invalidOtp = 'Please enter a valid verification code';
 
+  // Added for OTP error + resend cooldown
+  static const String invalidCode = 'Invalid code';
+  static const String didntReceiveCode = "Didn't receive code? ";
+  static const String resend = 'Resend';
+  static const String pleaseWaitBeforeResend =
+      'Please wait 30 seconds before resending';
+
   static String fieldIsRequired(String field) => '$field is required';
 
   static String fieldMinLength(String field, int length) =>
