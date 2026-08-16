@@ -10,13 +10,19 @@ import 'package:flower_app/features/forget_password/presentation/view_model/forg
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../domain/entities/reset_password_entity.dart';
+import '../../domain/entities/reset_password_params.dart';
+import '../../domain/use_cases/reset_password_use_case.dart';
+
 @injectable
 class ForgetPasswordCubit extends Cubit<ForgetPasswordState> {
-  ForgetPasswordCubit(this._forgetPasswordUseCase, this._verifyOtpUseCase)
-    : super(ForgetPasswordState.initial());
+  ForgetPasswordCubit(this._forgetPasswordUseCase, this._verifyOtpUseCase,
+      this._resetPasswordUseCase)
+      : super(ForgetPasswordState.initial());
 
   final ForgetPasswordUseCase _forgetPasswordUseCase;
   final VerifyOtpUseCase _verifyOtpUseCase;
+  final ResetPasswordUseCase _resetPasswordUseCase;
 
   void onEvent(ForgetPasswordEvent event) {
     switch (event) {
@@ -25,6 +31,9 @@ class ForgetPasswordCubit extends Cubit<ForgetPasswordState> {
 
       case VerifyOtpSubmitted():
         _verifyOtp(event.params);
+
+      case ResetPasswordSubmitted():
+        _resetPassword(event.params);
     }
   }
 
@@ -107,6 +116,46 @@ class ForgetPasswordCubit extends Cubit<ForgetPasswordState> {
         emit(
           state.copyWith(
             verifyOtpState: state.verifyOtpState?.copyWith(
+              isLoading: false,
+              errorMessage: response.errorMessage,
+            ),
+          ),
+        );
+    }
+  }
+
+  Future<void> _resetPassword(ResetPasswordParams params) async {
+    _emitResetPasswordLoading();
+    final response = await _resetPasswordUseCase(resetPasswordParams: params);
+    _emitResetPasswordResult(response);
+  }
+
+  void _emitResetPasswordLoading() {
+    emit(
+      state.copyWith(
+        resetPasswordState: state.resetPasswordState?.copyWith(
+          isLoading: true,
+          errorMessage: '',
+        ),
+      ),
+    );
+  }
+
+  void _emitResetPasswordResult(BaseResponse<ResetPasswordEntity> response) {
+    switch (response) {
+      case SuccessResponse<ResetPasswordEntity>():
+        emit(
+          state.copyWith(
+            resetPasswordState: state.resetPasswordState?.copyWith(
+              isLoading: false,
+              data: response.data,
+            ),
+          ),
+        );
+      case ErrorResponse<ResetPasswordEntity>():
+        emit(
+          state.copyWith(
+            resetPasswordState: state.resetPasswordState?.copyWith(
               isLoading: false,
               errorMessage: response.errorMessage,
             ),

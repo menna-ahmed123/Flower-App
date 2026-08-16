@@ -4,6 +4,8 @@ import 'package:flower_app/features/forget_password/api/client/forget_password_a
 import 'package:flower_app/features/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart';
 import 'package:flower_app/features/forget_password/data/models/forget_password_request_model.dart';
 import 'package:flower_app/features/forget_password/data/models/forget_password_response_model.dart';
+import 'package:flower_app/features/forget_password/data/models/reset_password_request_model.dart';
+import 'package:flower_app/features/forget_password/data/models/reset_password_response_model.dart';
 import 'package:flower_app/features/forget_password/data/models/verify_otp_request_model.dart';
 import 'package:flower_app/features/forget_password/data/models/verify_otp_response_model.dart';
 import 'package:injectable/injectable.dart';
@@ -20,7 +22,7 @@ class ForgetPasswordRemoteDataSourceImpl
   });
 
   @override
-  Future<BaseResponse<ForgetPasswordResponseModel>> forgetPassword ({
+  Future<BaseResponse<ForgetPasswordResponseModel>> forgetPassword({
     required ForgetPasswordRequestModel requestModel,
   }) async {
     // Temporary mock response for testing until the real API is available.
@@ -53,6 +55,28 @@ class ForgetPasswordRemoteDataSourceImpl
     // Real API call - uncomment when the backend API is available.
     return safeCall.safeApiCall(
       () => forgetPasswordApiClient.verifyOtp(requestModel),
+    );
+    */
+  }
+
+  @override
+  Future<BaseResponse<ResetPasswordResponseModel>> resetPassword({
+    required ResetPasswordRequestModel requestModel,
+  }) async {
+    // Temporary mock response for testing until the real API is available.
+    return SuccessResponse(
+      ResetPasswordResponseModel(
+        isSuccess: true,
+        statusCode: 200,
+        message: 'Password reset successfully',
+        errors: null,
+      ),
+    );
+
+    /*
+    // Real API call - uncomment when the backend API is available.
+    return safeCall.safeApiCall(
+      () => forgetPasswordApiClient.resetPassword(requestModel),
     );
     */
   }

@@ -5,4 +5,6 @@ class ApiEndpoints {
   static const String forgotPassword = '/identity/auth/forgot-password';
 
   static const String verifyOtp = '/identity/auth/verify-otp';
+
+  static const String resetPassword = '/identity/auth/reset-password';
 }

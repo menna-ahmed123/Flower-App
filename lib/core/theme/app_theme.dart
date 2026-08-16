@@ -21,8 +21,13 @@ class AppTheme {
     ),
     brightness: colors.brightness,
     scaffoldBackgroundColor: colors.white,
-    appBarTheme: AppBarTheme(
-      backgroundColor: colors.white,
+        actionIconTheme: ActionIconThemeData(
+          backButtonIconBuilder: (context) =>
+              Icon(Icons.arrow_back_ios_new, color: colors.black, size: 20.w),
+        ),
+        appBarTheme: AppBarTheme(
+          titleSpacing: 0,
+          backgroundColor: colors.white,
       iconTheme: IconThemeData(color: colors.black, size: 20.w),
     ),
     textTheme: TextTheme(
@@ -77,6 +82,4 @@ class AppTheme {
       ),
     ),
   );
-
- 
 }
