@@ -12,11 +12,7 @@ import 'forget_password_use_case_test.mocks.dart';
 
 @GenerateMocks([ForgetPasswordRepo])
 void main() {
-  provideDummy<BaseResponse<ForgetPasswordEntity>>(
-    SuccessResponse<ForgetPasswordEntity>(
-      ForgetPasswordEntity(cooldownRemainingSeconds: 30),
-    ),
-  );
+  _registerDummy();
 
   late ForgetPasswordUseCase forgetPasswordUseCase;
   late MockForgetPasswordRepo mockForgetPasswordRepo;
@@ -44,6 +40,14 @@ void main() {
       );
     });
   });
+}
+
+void _registerDummy() {
+  provideDummy<BaseResponse<ForgetPasswordEntity>>(
+    SuccessResponse<ForgetPasswordEntity>(
+      ForgetPasswordEntity(cooldownRemainingSeconds: 30),
+    ),
+  );
 }
 
 Future<void> _testForgetPasswordSuccess(

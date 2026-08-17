@@ -16,10 +16,10 @@ class VerificationBody extends StatefulWidget {
   const VerificationBody({super.key});
 
   @override
-  State<VerificationBody> createState() => _VerificationBodyState();
+  State<VerificationBody> createState() => VerificationBodyState();
 }
 
-class _VerificationBodyState extends State<VerificationBody> {
+class VerificationBodyState extends State<VerificationBody> {
   final _otpController = TextEditingController();
   String? _localOtpError;
 

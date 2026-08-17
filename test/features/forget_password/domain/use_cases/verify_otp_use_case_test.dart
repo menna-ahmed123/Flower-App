@@ -11,15 +11,7 @@ import 'forget_password_use_case_test.mocks.dart';
 
 @GenerateMocks([ForgetPasswordRepo])
 void main() {
-  provideDummy<BaseResponse<VerifyOtpEntity>>(
-    SuccessResponse<VerifyOtpEntity>(
-      VerifyOtpEntity(
-        status: 'verified',
-        resetToken: 'test-reset-token',
-        expiresAtUtc: DateTime.utc(2026, 8, 16, 4, 0),
-      ),
-    ),
-  );
+  _registerDummy();
 
   late VerifyOtpUseCase verifyOtpUseCase;
   late MockForgetPasswordRepo mockForgetPasswordRepo;
@@ -37,6 +29,18 @@ void main() {
       await _testVerifyOtpSuccess(verifyOtpUseCase, mockForgetPasswordRepo);
     });
   });
+}
+
+void _registerDummy() {
+  provideDummy<BaseResponse<VerifyOtpEntity>>(
+    SuccessResponse<VerifyOtpEntity>(
+      VerifyOtpEntity(
+        status: 'verified',
+        resetToken: 'test-reset-token',
+        expiresAtUtc: DateTime.utc(2026, 8, 16, 4, 0),
+      ),
+    ),
+  );
 }
 
 Future<void> _testVerifyOtpSuccess(

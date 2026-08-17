@@ -14,10 +14,10 @@ class ForgetPasswordBody extends StatefulWidget {
   const ForgetPasswordBody({super.key});
 
   @override
-  State<ForgetPasswordBody> createState() => _ForgetPasswordBodyState();
+  State<ForgetPasswordBody> createState() => ForgetPasswordBodyState();
 }
 
-class _ForgetPasswordBodyState extends State<ForgetPasswordBody> {
+class ForgetPasswordBodyState extends State<ForgetPasswordBody> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
 

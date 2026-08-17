@@ -15,10 +15,10 @@ class ResendCodeButton extends StatefulWidget {
   final int cooldownSeconds;
 
   @override
-  State<ResendCodeButton> createState() => _ResendCodeButtonState();
+  State<ResendCodeButton> createState() => ResendCodeButtonState();
 }
 
-class _ResendCodeButtonState extends State<ResendCodeButton> {
+class ResendCodeButtonState extends State<ResendCodeButton> {
   Timer? _timer;
   late int _remainingSeconds;
 
