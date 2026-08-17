@@ -53,7 +53,7 @@ class AppValidators {
     return null;
   }
 
-  static String? confirmPasswordValidator(String? value, String password) {
+  static String? registrationPasswordValidator(String? value) {
     if (value == null || value.isEmpty) {
       return AppString.passwordIsRequired;
     }

@@ -5,6 +5,8 @@ abstract final class AppString {
   static const String passwordIsRequired = 'Password is required';
   static const String passwordRequirement =
       'Password must be 8+ chars and 1 uppercase letter';
+  static const String registrationPasswordRequirement =
+      'Password must contain at least 6 characters, one uppercase letter and one number';
   static const String passwordsDoNotMatch = 'Passwords do not match';
 
   static const String phoneNumberIsRequired = 'Phone number is required';

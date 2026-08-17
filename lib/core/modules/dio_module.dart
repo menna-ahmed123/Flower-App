@@ -35,6 +35,22 @@ abstract class DioModule {
       );
     }
 
-    return dio;
+void _attachInterceptors(Dio dio, AuthInterceptors authInterceptors) {
+  dio.interceptors.add(authInterceptors);
+  authInterceptors.attachDio(dio);
+  if (kDebugMode) {
+    dio.interceptors.add(_createPrettyLogger());
   }
+}
+
+PrettyDioLogger _createPrettyLogger() {
+  return PrettyDioLogger(
+    requestHeader: false,
+    requestBody: true,
+    responseBody: true,
+    responseHeader: false,
+    error: true,
+    compact: true,
+    maxWidth: 90,
+  );
 }
