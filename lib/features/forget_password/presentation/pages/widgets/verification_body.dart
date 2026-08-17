@@ -66,102 +66,122 @@ class _VerificationBodyState extends State<VerificationBody> {
     }
   }
 
+  void _onOtpChanged(String value) {
+    _otpController.text = value;
+    _clearLocalErrorIfNeeded();
+  }
+
+  void _onOtpCompleted(String value) {
+    _otpController.text = value;
+  }
+
+  bool _listenWhen(ForgetPasswordState previous, ForgetPasswordState current) {
+    return previous.verifyOtpState != current.verifyOtpState;
+  }
+
+  void _listener(BuildContext context, ForgetPasswordState state) {
+    if (state.verifyOtpState?.data != null) {
+      // Navigate to reset password page.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: BlocListener<ForgetPasswordCubit, ForgetPasswordState>(
-        listenWhen: (previous, current) =>
-            previous.verifyOtpState != current.verifyOtpState,
-        listener: (context, state) {
-          if (state.verifyOtpState?.data != null) {
-            // Navigate to reset password page.
-          }
-        },
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 60.h),
-
-              Text(
-                AppString.verificationCode,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-
-              SizedBox(height: 12.h),
-
-              Text(AppString.verificationCodeDescription),
-
-              SizedBox(height: 8.h),
-
-              BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
-                buildWhen: (previous, current) =>
-                    previous.email != current.email,
-                builder: (context, state) {
-                  return Text(
-                    state.email,
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  );
-                },
-              ),
-
-              SizedBox(height: 40.h),
-
-              BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
-                buildWhen: (previous, current) =>
-                    previous.verifyOtpState != current.verifyOtpState,
-                builder: (context, state) {
-                  final serverHasError =
-                      (state.verifyOtpState?.errorMessage ?? '').isNotEmpty;
-
-                  final errorText =
-                      _localOtpError ??
-                      (serverHasError ? AppString.invalidCode : null);
-
-                  return AppOtpField(
-                    length: 6,
-                    onChanged: (value) {
-                      _otpController.text = value;
-                      _clearLocalErrorIfNeeded();
-                    },
-                    onCompleted: (value) {
-                      _otpController.text = value;
-                    },
-                    errorText: errorText,
-                  );
-                },
-              ),
-
-              SizedBox(height: 12.h),
-
-              Row(
-                children: [
-                  Text(AppString.didntReceiveCode),
-                  ResendCodeButton(onResend: _resendCode),
-                ],
-              ),
-
-              SizedBox(height: 32.h),
-
-              BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
-                buildWhen: (previous, current) =>
-                    previous.verifyOtpState?.isLoading !=
-                    current.verifyOtpState?.isLoading,
-                builder: (context, state) {
-                  final isLoading = state.verifyOtpState?.isLoading ?? false;
-
-                  return AppButton(
-                    text: AppString.verify,
-                    isLoading: isLoading,
-                    onPressed: isLoading ? null : _verifyOtp,
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+        listenWhen: _listenWhen,
+        listener: _listener,
+        child: _buildContent(context),
       ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 60.h),
+          _buildTitle(context),
+          SizedBox(height: 12.h),
+          Text(AppString.verificationCodeDescription),
+          SizedBox(height: 8.h),
+          _buildEmail(),
+          SizedBox(height: 40.h),
+          _buildOtpField(),
+          SizedBox(height: 12.h),
+          _buildResendRow(),
+          SizedBox(height: 32.h),
+          _buildVerifyButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context) {
+    return Text(
+      AppString.verificationCode,
+      style: Theme.of(context).textTheme.titleLarge,
+    );
+  }
+
+  Widget _buildEmail() {
+    return BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
+      buildWhen: (previous, current) => previous.email != current.email,
+      builder: (context, state) {
+        return Text(
+          state.email,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        );
+      },
+    );
+  }
+
+  Widget _buildOtpField() {
+    return BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
+      buildWhen: (previous, current) =>
+          previous.verifyOtpState != current.verifyOtpState,
+      builder: (context, state) {
+        final serverHasError =
+            (state.verifyOtpState?.errorMessage ?? '').isNotEmpty;
+
+        final errorText =
+            _localOtpError ?? (serverHasError ? AppString.invalidCode : null);
+
+        return AppOtpField(
+          length: 6,
+          onChanged: _onOtpChanged,
+          onCompleted: _onOtpCompleted,
+          errorText: errorText,
+        );
+      },
+    );
+  }
+
+  Widget _buildResendRow() {
+    return Row(
+      children: [
+        Text(AppString.didntReceiveCode),
+        ResendCodeButton(onResend: _resendCode),
+      ],
+    );
+  }
+
+  Widget _buildVerifyButton() {
+    return BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
+      buildWhen: (previous, current) =>
+          previous.verifyOtpState?.isLoading !=
+          current.verifyOtpState?.isLoading,
+      builder: (context, state) {
+        final isLoading = state.verifyOtpState?.isLoading ?? false;
+
+        return AppButton(
+          text: AppString.verify,
+          isLoading: isLoading,
+          onPressed: isLoading ? null : _verifyOtp,
+        );
+      },
     );
   }
 }

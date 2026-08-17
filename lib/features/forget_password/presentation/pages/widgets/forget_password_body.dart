@@ -39,74 +39,83 @@ class _ForgetPasswordBodyState extends State<ForgetPasswordBody> {
     );
   }
 
+  bool _listenWhen(ForgetPasswordState previous, ForgetPasswordState current) {
+    return previous.forgotPasswordState != current.forgotPasswordState;
+  }
+
+  void _listener(BuildContext context, ForgetPasswordState state) {
+    if (state.forgotPasswordState?.data != null) {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const VerificationPage()));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: BlocListener<ForgetPasswordCubit, ForgetPasswordState>(
-        listenWhen: (previous, current) =>
-            previous.forgotPasswordState != current.forgotPasswordState,
-        listener: (context, state) {
-          if (state.forgotPasswordState?.data != null) {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const VerificationPage()));
-          }
-        },
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 60.h),
+        listenWhen: _listenWhen,
+        listener: _listener,
+        child: _buildForm(context),
+      ),
+    );
+  }
 
-                Text(
-                  AppString.forgotPassword,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-
-                SizedBox(height: 12.h),
-
-                Text(AppString.forgotPasswordDescription),
-
-                SizedBox(height: 40.h),
-
-                Text(AppString.email),
-
-                SizedBox(height: 8.h),
-
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    hintText: AppString.enterYourEmail,
-                  ),
-                  validator: AppValidators.emailValidator,
-                ),
-
-                SizedBox(height: 32.h),
-
-                BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
-                  buildWhen: (previous, current) =>
-                      previous.forgotPasswordState?.isLoading !=
-                      current.forgotPasswordState?.isLoading,
-                  builder: (context, state) {
-                    final isLoading =
-                        state.forgotPasswordState?.isLoading ?? false;
-
-                    return AppButton(
-                      text: AppString.sendCode,
-                      isLoading: isLoading,
-                      onPressed: isLoading ? null : _submit,
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
+  Widget _buildForm(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 60.h),
+            _buildTitle(context),
+            SizedBox(height: 12.h),
+            Text(AppString.forgotPasswordDescription),
+            SizedBox(height: 40.h),
+            Text(AppString.email),
+            SizedBox(height: 8.h),
+            _buildEmailField(),
+            SizedBox(height: 32.h),
+            _buildSubmitButton(),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context) {
+    return Text(
+      AppString.forgotPassword,
+      style: Theme.of(context).textTheme.titleLarge,
+    );
+  }
+
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      decoration: const InputDecoration(hintText: AppString.enterYourEmail),
+      validator: AppValidators.emailValidator,
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
+      buildWhen: (previous, current) =>
+          previous.forgotPasswordState?.isLoading !=
+          current.forgotPasswordState?.isLoading,
+      builder: (context, state) {
+        final isLoading = state.forgotPasswordState?.isLoading ?? false;
+
+        return AppButton(
+          text: AppString.sendCode,
+          isLoading: isLoading,
+          onPressed: isLoading ? null : _submit,
+        );
+      },
     );
   }
 }

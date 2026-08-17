@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 
 class ResendCodeButton extends StatefulWidget {
@@ -31,28 +33,35 @@ class _ResendCodeButtonState extends State<ResendCodeButton> {
     _timer?.cancel();
     setState(() => _remainingSeconds = widget.cooldownSeconds);
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingSeconds <= 1) {
-        timer.cancel();
-        setState(() => _remainingSeconds = 0);
-      } else {
-        setState(() => _remainingSeconds--);
-      }
-    });
+    _timer = Timer.periodic(const Duration(seconds: 1), _onTimerTick);
+  }
+
+  void _onTimerTick(Timer timer) {
+    if (_remainingSeconds <= 1) {
+      timer.cancel();
+      setState(() => _remainingSeconds = 0);
+      return;
+    }
+
+    setState(() => _remainingSeconds--);
   }
 
   void _handleTap() {
     if (_remainingSeconds > 0) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(content: Text(AppString.pleaseWaitBeforeResend)),
-        );
+      _showCooldownMessage();
       return;
     }
 
     widget.onResend();
     _startTimer();
+  }
+
+  void _showCooldownMessage() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(content: Text(AppString.pleaseWaitBeforeResend)),
+      );
   }
 
   @override
@@ -72,7 +81,9 @@ class _ResendCodeButtonState extends State<ResendCodeButton> {
             ? AppString.resend
             : '${AppString.resend} (${_remainingSeconds}s)',
         style: TextStyle(
-          color: isEnabled ? Colors.pink : Colors.grey,
+          color: isEnabled
+              ? context.colors.pink
+              : context.colors.disabledButton,
           fontWeight: FontWeight.w600,
         ),
       ),
