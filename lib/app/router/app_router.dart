@@ -1,6 +1,7 @@
 import 'package:flower_app/core/di/di.dart';
-import 'package:flower_app/features/auth/login/presentation/pages/login_page.dart';
+import 'package:flower_app/features/auth/login/presentation/view/pages/login_page.dart';
 import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
+import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
 import 'package:flower_app/features/categories/presentation/pages/categories_page.dart';
 import 'package:flower_app/features/forget_password/presentation/pages/forget_password_page.dart';
@@ -13,7 +14,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_routes.dart';
-abstract final class AppRouter {
+
+class AppRouter {
+  AppRouter._();
+
   static GoRouter createRouter() {
     return GoRouter(
       initialLocation: AppRoutesName.forgetPassword,
@@ -21,7 +25,7 @@ abstract final class AppRouter {
       routes: [
         _loginRoute(),
         _registerRoute(),
-        _forgetPasswordShell(),
+        _forgetPasswordRoute(),
         _mainShell(),
       ],
     );
@@ -30,6 +34,8 @@ abstract final class AppRouter {
   static Widget _errorBuilder(BuildContext context, GoRouterState state) {
     return const Scaffold(body: Center(child: Text('Page Not Found')));
   }
+
+  // ==================== AUTH ====================
 
   static GoRoute _loginRoute() {
     return GoRoute(
@@ -41,36 +47,40 @@ abstract final class AppRouter {
   static GoRoute _registerRoute() {
     return GoRoute(
       path: AppRoutesName.register,
-      builder: (context, state) => const RegisterPage(),
+      builder: (context, state) =>
+          RegisterPage(createBloc: () => getIt<RegisterBloc>()),
     );
   }
 
-  static ShellRoute _forgetPasswordShell() {
-    return ShellRoute(
-      builder: (context, state, child) {
+  // ==================== FORGET PASSWORD ====================
+
+  static GoRoute _forgetPasswordRoute() {
+    return GoRoute(
+      path: AppRoutesName.forgetPassword,
+      builder: (context, state) {
         return BlocProvider(
           create: (_) => getIt<ForgetPasswordCubit>(),
-          child: child,
+          child: const ForgetPasswordPage(),
         );
       },
       routes: [
         GoRoute(
-          path: AppRoutesName.forgetPassword,
-          builder: (context, state) => const ForgetPasswordPage(),
-          routes: [
-            GoRoute(
-              path: AppRoutesName.verification,
-              builder: (context, state) => const VerificationPage(),
-            ),
-          ],
+          path: AppRoutesName.verification,
+          builder: (context, state) {
+            return const VerificationPage();
+          },
         ),
       ],
     );
   }
 
+  // ==================== MAIN SHELL ====================
+
   static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) => navigationShell,
+      builder: (context, state, navigationShell) {
+        return navigationShell;
+      },
       branches: [
         _homeBranch(),
         _categoriesBranch(),

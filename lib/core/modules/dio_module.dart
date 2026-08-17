@@ -9,19 +9,22 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 abstract class DioModule {
   @singleton
   Dio provideDio(AuthInterceptors authInterceptors) {
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: ApiEndpoints.baseUrl,
-        receiveTimeout: const Duration(seconds: 60),
-        connectTimeout: const Duration(seconds: 60),
-        sendTimeout: const Duration(seconds: 60),
-      ),
-    );
+    final dio = Dio(_createBaseOptions());
 
     _configureInterceptors(dio, authInterceptors);
     _addDebugLogger(dio);
 
     return dio;
+  }
+
+  BaseOptions _createBaseOptions() {
+    return BaseOptions(
+      baseUrl: ApiEndpoints.baseUrl,
+      receiveTimeout: const Duration(seconds: 60),
+      connectTimeout: const Duration(seconds: 60),
+      sendTimeout: const Duration(seconds: 60),
+      headers: const {'Content-Type': 'application/json'},
+    );
   }
 
   void _configureInterceptors(Dio dio, AuthInterceptors authInterceptors) {
