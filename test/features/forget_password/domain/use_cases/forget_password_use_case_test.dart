@@ -1,4 +1,5 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/forget_password/domain/entities/forget_password_entity.dart';
 import 'package:flower_app/features/forget_password/domain/entities/forget_password_params.dart';
 import 'package:flower_app/features/forget_password/domain/repos/forget_password_repo.dart';
@@ -35,15 +36,15 @@ void main() {
         email: 'test@example.com',
       );
 
+      final successResponse = SuccessResponse<ForgetPasswordEntity>(
+        ForgetPasswordEntity(cooldownRemainingSeconds: 30),
+      );
+
       when(
         mockForgetPasswordRepo.forgetPassword(
           forgetPasswordParams: forgetPasswordParams,
         ),
-      ).thenAnswer(
-        (_) async => SuccessResponse<ForgetPasswordEntity>(
-          ForgetPasswordEntity(cooldownRemainingSeconds: 30),
-        ),
-      );
+      ).thenAnswer((_) async => successResponse);
 
       // Act
       final result = await forgetPasswordUseCase(
@@ -58,6 +59,36 @@ void main() {
             .data
             .cooldownRemainingSeconds,
         30,
+      );
+    });
+
+    test('should return error when forget password fails', () async {
+      // Arrange
+      final forgetPasswordParams = ForgetPasswordParams(
+        email: 'test@example.com',
+      );
+
+      final errorResponse = ErrorResponse<ForgetPasswordEntity>(
+        appError: BadResponseError('Invalid email'),
+      );
+
+      when(
+        mockForgetPasswordRepo.forgetPassword(
+          forgetPasswordParams: forgetPasswordParams,
+        ),
+      ).thenAnswer((_) async => errorResponse);
+
+      // Act
+      final result = await forgetPasswordUseCase(
+        forgetPasswordParams: forgetPasswordParams,
+      );
+
+      // Assert
+      expect(result, isA<ErrorResponse<ForgetPasswordEntity>>());
+
+      expect(
+        (result as ErrorResponse<ForgetPasswordEntity>).errorMessage,
+        'Invalid email',
       );
     });
   });

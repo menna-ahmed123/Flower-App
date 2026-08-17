@@ -15,7 +15,6 @@ import 'package:go_router/go_router.dart';
 import '../../features/forget_password/presentation/pages/reset_password_page.dart';
 import 'app_routes.dart';
 
-abstract final class AppRouter {
   static GoRouter createRouter() {
     return GoRouter(
       initialLocation: AppRoutesName.forgetPassword,
@@ -24,13 +23,13 @@ abstract final class AppRouter {
       },
       routes: [
         GoRoute(
-          path: AppRoutesName.login,
-          builder: (context, state) => const LoginPage(),
+          path: AppRoutesName.categories,
+          builder: (context, state) => const CategoriesPage(),
         ),
 
         GoRoute(
-          path: AppRoutesName.register,
-          builder: (context, state) => const RegisterPage(),
+          path: AppRoutesName.forgetPassword,
+          builder: (context, state) => const ForgetPassword(),
         ),
 
         ShellRoute(
@@ -100,6 +99,28 @@ abstract final class AppRouter {
               ],
             ),
           ],
+        ),
+      ],
+    );
+  }
+
+  static StatefulShellBranch get cartBranch {
+    return StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: AppRoutesName.cart,
+          builder: (context, state) => const CartPage(),
+        ),
+      ],
+    );
+  }
+
+  static StatefulShellBranch get profileBranch {
+    return StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: AppRoutesName.profile,
+          builder: (context, state) => const ProfilePage(),
         ),
       ],
     );

@@ -1,81 +1,82 @@
 import 'package:dio/dio.dart';
+import 'package:flower_app/core/errors/api_exception.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 
 AppError errorParser(Exception exception) {
-  if (exception is DioException) {
-    if (exception.error is ForceLogin) {
-      return ForceLogin();
-    }
-
-    switch (exception.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return TimeOutError(exception);
-
-      case DioExceptionType.badCertificate:
-        return BadCertificateError(
-          exception,
-          "Invalid certificate, please try again later.",
-        );
-
-      case DioExceptionType.badResponse:
-        final data = exception.response?.data;
-
-        if (data is Map<String, dynamic>) {
-          if (data['message'] != null) {
-            return BadResponseError(data['message'].toString());
-          }
-
-          if (data['error'] != null) {
-            return BadResponseError(data['error'].toString());
-          }
-        }
-
-        if (exception.response?.statusCode == 401) {
-          return UnauthorizedError();
-        }
-
-        return BadResponseError(
-          statusCodeToMessage(exception.response?.statusCode),
-        );
-      case DioExceptionType.cancel:
-        return IgnoreError();
-      case DioExceptionType.connectionError:
-        return NoInternetError(exception);
-      case DioExceptionType.unknown:
-      case DioExceptionType.transformTimeout:
-        return IgnoreError();
-    }
-  }
-  return IgnoreError();
+  if (exception is ApiException) return _parseApiException(exception);
+  if (exception is! DioException) return IgnoreError();
+  if (exception.error is ForceLogin) return ForceLogin();
+  return _parseDioException(exception);
 }
 
-String statusCodeToMessage(int? statusCode) {
-  switch (statusCode) {
-    case 400:
-      return 'Something went wrong, please try again.';
-    case 401:
-      return 'Unauthorized, please login again.';
-    case 403:
-      return 'You are not allowed to perform this action.';
-    case 404:
-      return 'Resource not found.';
-    case 409:
-      return 'Conflict occurred.';
-    case 422:
-      return 'No Data Found.';
-    case 429:
-      return 'Too many requests, please try again later.';
-    case 500:
-      return 'Internal server error, please try again later.';
-    case 502:
-      return 'Bad gateway.';
-    case 503:
-      return 'Service unavailable.';
-    case 504:
-      return 'Gateway timeout.';
-    default:
-      return 'Something went wrong, please try again.';
+AppError _parseApiException(ApiException exception) {
+  final fieldErrors = fieldErrorsMessage(exception.errors);
+  if (fieldErrors != null) return BadResponseError(fieldErrors);
+  return BadResponseError(exception.message);
+}
+
+AppError _parseDioException(DioException exception) {
+  return switch (exception.type) {
+    DioExceptionType.connectionTimeout ||
+    DioExceptionType.sendTimeout ||
+    DioExceptionType.receiveTimeout => TimeOutError(exception),
+    DioExceptionType.badCertificate => BadCertificateError(
+      exception,
+      'Invalid certificate, please try again later.',
+    ),
+    DioExceptionType.badResponse => _parseBadResponse(exception),
+    DioExceptionType.connectionError => NoInternetError(exception),
+    DioExceptionType.cancel ||
+    DioExceptionType.unknown ||
+    DioExceptionType.transformTimeout => IgnoreError(),
+  };
+}
+
+AppError _parseBadResponse(DioException exception) {
+  final data = exception.response?.data;
+  if (data is Map<String, dynamic>) {
+    final fieldErrors = fieldErrorsMessage(data['errors']);
+    if (fieldErrors != null) return BadResponseError(fieldErrors);
+    if (data['message'] != null) {
+      return BadResponseError(data['message'].toString());
+    }
+    if (data['error'] != null) {
+      return BadResponseError(data['error'].toString());
+    }
   }
+  if (exception.response?.statusCode == 401) return UnauthorizedError();
+  return BadResponseError(statusCodeToMessage(exception.response?.statusCode));
+}
+
+String? fieldErrorsMessage(Map<String, dynamic>? errors) {
+  if (errors == null) return null;
+  final messages = <String>[];
+  for (final value in errors.values) {
+    if (value is List) {
+      messages.addAll(value.map((e) => e.toString()));
+    } else if (value != null) {
+      messages.add(value.toString());
+    }
+  }
+  if (messages.isEmpty) return null;
+  return messages.join('\n');
+}
+
+const Map<int, String> statusMessages = {
+  400: 'Something went wrong, please try again.',
+  401: 'Unauthorized, please login again.',
+  403: 'You are not allowed to perform this action.',
+  404: 'Resource not found.',
+  409: 'Conflict occurred.',
+  422: 'Validation failed.',
+  429: 'Too many requests, please try again later.',
+  500: 'Internal server error, please try again later.',
+  502: 'Bad gateway.',
+  503: 'Service unavailable.',
+  504: 'Gateway timeout.',
+};
+
+String statusCodeToMessage(int? statusCode) {
+  return statusMessages[statusCode] ??
+      'Something went wrong, please try again.';
 }

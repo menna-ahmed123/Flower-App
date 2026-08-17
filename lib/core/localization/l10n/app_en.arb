@@ -1,0 +1,55 @@
+{
+  "@@locale": "en",
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Generic save action label"
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Generic cancel action label"
+  },
+  "commonConfirm": "Confirm",
+  "@commonConfirm": {
+    "description": "Generic confirm action label"
+  },
+  "commonClose": "Close",
+  "@commonClose": {
+    "description": "Generic close action label"
+  },
+  "commonBack": "Back",
+  "@commonBack": {
+    "description": "Generic back/navigation action label"
+  },
+  "commonNext": "Next",
+  "@commonNext": {
+    "description": "Generic next/navigation action label"
+  },
+  "commonPrevious": "Previous",
+  "@commonPrevious": {
+    "description": "Generic previous/navigation action label"
+  },
+  "commonRetry": "Retry",
+  "@commonRetry": {
+    "description": "Generic retry action label"
+  },
+  "commonLoading": "Loading",
+  "@commonLoading": {
+    "description": "Generic loading state label"
+  },
+  "commonError": "Error",
+  "@commonError": {
+    "description": "Generic error state label"
+  },
+  "commonSuccess": "Success",
+  "@commonSuccess": {
+    "description": "Generic success state label"
+  },
+  "localeEnglish": "English",
+  "@localeEnglish": {
+    "description": "English language display name"
+  },
+  "localeArabic": "Arabic",
+  "@localeArabic": {
+    "description": "Arabic language display name"
+  }
+}

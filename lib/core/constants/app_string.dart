@@ -5,6 +5,8 @@ abstract final class AppString {
   static const String passwordIsRequired = 'Password is required';
   static const String passwordRequirement =
       'Password must be 8+ chars and 1 uppercase letter';
+  static const String registrationPasswordRequirement =
+      'Password must contain at least 6 characters, one uppercase letter and one number';
   static const String passwordsDoNotMatch = 'Passwords do not match';
 
   static const String phoneNumberIsRequired = 'Phone number is required';
@@ -39,6 +41,13 @@ abstract final class AppString {
   static const String resetPasswordSuccess = 'Reset Password Successfully';
   static const String resetPasswordDescription =
       'Password must not be empty and must contain 6 characters with upper case letter and one number at least ';
+
+  // Added for OTP error + resend cooldown
+  static const String invalidCode = 'Invalid code';
+  static const String didntReceiveCode = "Didn't receive code? ";
+  static const String resend = 'Resend';
+  static const String pleaseWaitBeforeResend =
+      'Please wait 30 seconds before resending';
 
   static String fieldIsRequired(String field) => '$field is required';
 
