@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../reset_password_page.dart';
+
 class VerificationBody extends StatefulWidget {
   const VerificationBody({super.key});
 
@@ -74,7 +76,9 @@ class _VerificationBodyState extends State<VerificationBody> {
             previous.verifyOtpState != current.verifyOtpState,
         listener: (context, state) {
           if (state.verifyOtpState?.data != null) {
-            // Navigate to reset password page.
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ResetPasswordPage()),
+            );
           }
         },
         child: Padding(

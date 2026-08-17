@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/forget_password/presentation/pages/reset_password_page.dart';
 import 'app_routes.dart';
 
   static GoRouter createRouter() {
@@ -50,6 +51,10 @@ import 'app_routes.dart';
                   builder: (context, state) {
                     return const VerificationPage();
                   },
+                ),
+                GoRoute(
+                  path: AppRoutesName.resetPassword,
+                  builder: (context, state) => const ResetPasswordPage(),
                 ),
               ],
             ),

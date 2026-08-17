@@ -2,9 +2,12 @@ import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/forget_password/domain/entities/forget_password_entity.dart';
 import 'package:flower_app/features/forget_password/domain/entities/forget_password_params.dart';
+import 'package:flower_app/features/forget_password/domain/entities/reset_password_entity.dart';
+import 'package:flower_app/features/forget_password/domain/entities/reset_password_params.dart';
 import 'package:flower_app/features/forget_password/domain/entities/verify_otp_entity.dart';
 import 'package:flower_app/features/forget_password/domain/entities/verify_otp_params.dart';
 import 'package:flower_app/features/forget_password/domain/use_cases/forget_password_use_case.dart';
+import 'package:flower_app/features/forget_password/domain/use_cases/reset_password_use_case.dart';
 import 'package:flower_app/features/forget_password/domain/use_cases/verify_otp_use_case.dart';
 import 'package:flower_app/features/forget_password/presentation/view_model/forget_password_cubit.dart';
 import 'package:flower_app/features/forget_password/presentation/view_model/forget_password_event.dart';
@@ -14,11 +17,17 @@ import 'package:mockito/mockito.dart';
 
 import 'forget_password_cubit_test.mocks.dart';
 
-@GenerateMocks([ForgetPasswordUseCase, VerifyOtpUseCase])
+@GenerateMocks([
+  ForgetPasswordUseCase,
+  VerifyOtpUseCase,
+  ResetPasswordUseCase,
+])
 void main() {
   provideDummy<BaseResponse<ForgetPasswordEntity>>(
     SuccessResponse<ForgetPasswordEntity>(
-      ForgetPasswordEntity(cooldownRemainingSeconds: 30),
+      ForgetPasswordEntity(
+        cooldownRemainingSeconds: 30,
+      ),
     ),
   );
 
@@ -32,17 +41,31 @@ void main() {
     ),
   );
 
+  provideDummy<BaseResponse<ResetPasswordEntity>>(
+    SuccessResponse<ResetPasswordEntity>(
+      ResetPasswordEntity(
+        isSuccess: true,
+        statusCode: 200,
+        message: 'Password reset successfully',
+        errors: null,
+      ),
+    ),
+  );
+
   late MockForgetPasswordUseCase mockForgetPasswordUseCase;
   late MockVerifyOtpUseCase mockVerifyOtpUseCase;
+  late MockResetPasswordUseCase mockResetPasswordUseCase;
   late ForgetPasswordCubit cubit;
 
   setUp(() {
     mockForgetPasswordUseCase = MockForgetPasswordUseCase();
     mockVerifyOtpUseCase = MockVerifyOtpUseCase();
+    mockResetPasswordUseCase = MockResetPasswordUseCase();
 
     cubit = ForgetPasswordCubit(
       mockForgetPasswordUseCase,
       mockVerifyOtpUseCase,
+      mockResetPasswordUseCase,
     );
   });
 
@@ -54,174 +77,373 @@ void main() {
     test(
       'should emit loading state when forgot password is submitted',
       () async {
-        // Arrange
-        final params = ForgetPasswordParams(email: 'test@gmail.com');
+        final params = ForgetPasswordParams(
+          email: 'test@gmail.com',
+        );
 
         when(
-          mockForgetPasswordUseCase(forgetPasswordParams: params),
+          mockForgetPasswordUseCase(
+            forgetPasswordParams: params,
+          ),
         ).thenAnswer(
           (_) async => SuccessResponse<ForgetPasswordEntity>(
-            ForgetPasswordEntity(cooldownRemainingSeconds: 30),
+            ForgetPasswordEntity(
+              cooldownRemainingSeconds: 30,
+            ),
           ),
         );
 
-        // Act
-        cubit.onEvent(ForgotPasswordSubmitted(params: params));
+        cubit.onEvent(
+          ForgotPasswordSubmitted(params: params),
+        );
 
-        // Assert
         expect(cubit.state.email, 'test@gmail.com');
-
         expect(cubit.state.forgotPasswordState?.isLoading, true);
-
         expect(cubit.state.forgotPasswordState?.errorMessage, '');
       },
     );
 
-    test('should emit success state when forgot password succeeds', () async {
-      // Arrange
-      final params = ForgetPasswordParams(email: 'test@gmail.com');
+    test(
+      'should emit success state when forgot password succeeds',
+      () async {
+        final params = ForgetPasswordParams(
+          email: 'test@gmail.com',
+        );
 
-      final response = SuccessResponse<ForgetPasswordEntity>(
-        ForgetPasswordEntity(cooldownRemainingSeconds: 30),
-      );
+        final response = SuccessResponse<ForgetPasswordEntity>(
+          ForgetPasswordEntity(
+            cooldownRemainingSeconds: 30,
+          ),
+        );
 
-      when(
-        mockForgetPasswordUseCase(forgetPasswordParams: params),
-      ).thenAnswer((_) async => response);
+        when(
+          mockForgetPasswordUseCase(
+            forgetPasswordParams: params,
+          ),
+        ).thenAnswer((_) async => response);
 
-      // Act
-      cubit.onEvent(ForgotPasswordSubmitted(params: params));
+        cubit.onEvent(
+          ForgotPasswordSubmitted(params: params),
+        );
 
-      await Future<void>.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
 
-      // Assert
-      expect(cubit.state.email, 'test@gmail.com');
+        expect(cubit.state.email, 'test@gmail.com');
+        expect(cubit.state.forgotPasswordState?.isLoading, false);
+        expect(
+          cubit.state.forgotPasswordState?.data?.cooldownRemainingSeconds,
+          30,
+        );
+        expect(cubit.state.forgotPasswordState?.errorMessage, '');
 
-      expect(cubit.state.forgotPasswordState?.isLoading, false);
+        verify(
+          mockForgetPasswordUseCase(
+            forgetPasswordParams: params,
+          ),
+        ).called(1);
+      },
+    );
 
-      expect(
-        cubit.state.forgotPasswordState?.data?.cooldownRemainingSeconds,
-        30,
-      );
+    test(
+      'should emit error state when forgot password fails',
+      () async {
+        final params = ForgetPasswordParams(
+          email: 'invalid@email.com',
+        );
 
-      expect(cubit.state.forgotPasswordState?.errorMessage, '');
+        final response = ErrorResponse<ForgetPasswordEntity>(
+          appError: BadResponseError('Invalid email'),
+        );
 
-      verify(mockForgetPasswordUseCase(forgetPasswordParams: params)).called(1);
-    });
+        when(
+          mockForgetPasswordUseCase(
+            forgetPasswordParams: params,
+          ),
+        ).thenAnswer((_) async => response);
 
-    test('should emit error state when forgot password fails', () async {
-      // Arrange
-      final params = ForgetPasswordParams(email: 'invalid@email.com');
+        cubit.onEvent(
+          ForgotPasswordSubmitted(params: params),
+        );
 
-      final response = ErrorResponse<ForgetPasswordEntity>(
-        appError: BadResponseError('Invalid email'),
-      );
+        await Future<void>.delayed(Duration.zero);
 
-      when(
-        mockForgetPasswordUseCase(forgetPasswordParams: params),
-      ).thenAnswer((_) async => response);
+        expect(cubit.state.email, 'invalid@email.com');
+        expect(cubit.state.forgotPasswordState?.isLoading, false);
+        expect(
+          cubit.state.forgotPasswordState?.errorMessage,
+          'Invalid email',
+        );
 
-      // Act
-      cubit.onEvent(ForgotPasswordSubmitted(params: params));
-
-      await Future<void>.delayed(Duration.zero);
-
-      // Assert
-      expect(cubit.state.email, 'invalid@email.com');
-
-      expect(cubit.state.forgotPasswordState?.isLoading, false);
-
-      expect(cubit.state.forgotPasswordState?.errorMessage, 'Invalid email');
-
-      verify(mockForgetPasswordUseCase(forgetPasswordParams: params)).called(1);
-    });
+        verify(
+          mockForgetPasswordUseCase(
+            forgetPasswordParams: params,
+          ),
+        ).called(1);
+      },
+    );
   });
 
   group('Verify OTP Cubit', () {
-    test('should emit loading state when verify OTP is submitted', () async {
-      // Arrange
-      final params = VerifyOtpParams(email: 'test@gmail.com', otp: '123456');
+    test(
+      'should emit loading state when verify OTP is submitted',
+      () async {
+        final params = VerifyOtpParams(
+          email: 'test@gmail.com',
+          otp: '123456',
+        );
 
-      when(mockVerifyOtpUseCase(verifyOtpParams: params)).thenAnswer(
-        (_) async => SuccessResponse<VerifyOtpEntity>(
+        when(
+          mockVerifyOtpUseCase(
+            verifyOtpParams: params,
+          ),
+        ).thenAnswer(
+          (_) async => SuccessResponse<VerifyOtpEntity>(
+            VerifyOtpEntity(
+              status: 'verified',
+              resetToken: 'test-reset-token',
+              expiresAtUtc: DateTime.utc(2026, 8, 17, 4),
+            ),
+          ),
+        );
+
+        cubit.onEvent(
+          VerifyOtpSubmitted(params: params),
+        );
+
+        expect(cubit.state.verifyOtpState?.isLoading, true);
+        expect(cubit.state.verifyOtpState?.errorMessage, '');
+      },
+    );
+
+    test(
+      'should emit success state when verify OTP succeeds',
+      () async {
+        final params = VerifyOtpParams(
+          email: 'test@gmail.com',
+          otp: '123456',
+        );
+
+        final response = SuccessResponse<VerifyOtpEntity>(
           VerifyOtpEntity(
             status: 'verified',
             resetToken: 'test-reset-token',
             expiresAtUtc: DateTime.utc(2026, 8, 17, 4),
           ),
-        ),
-      );
+        );
 
-      // Act
-      cubit.onEvent(VerifyOtpSubmitted(params: params));
+        when(
+          mockVerifyOtpUseCase(
+            verifyOtpParams: params,
+          ),
+        ).thenAnswer((_) async => response);
 
-      // Assert
-      expect(cubit.state.verifyOtpState?.isLoading, true);
+        cubit.onEvent(
+          VerifyOtpSubmitted(params: params),
+        );
 
-      expect(cubit.state.verifyOtpState?.errorMessage, '');
-    });
+        await Future<void>.delayed(Duration.zero);
 
-    test('should emit success state when verify OTP succeeds', () async {
-      // Arrange
-      final params = VerifyOtpParams(email: 'test@gmail.com', otp: '123456');
+        expect(cubit.state.verifyOtpState?.isLoading, false);
+        expect(
+          cubit.state.verifyOtpState?.data?.status,
+          'verified',
+        );
+        expect(
+          cubit.state.verifyOtpState?.data?.resetToken,
+          'test-reset-token',
+        );
+        expect(
+          cubit.state.verifyOtpState?.data?.expiresAtUtc,
+          DateTime.utc(2026, 8, 17, 4),
+        );
+        expect(cubit.state.verifyOtpState?.errorMessage, '');
 
-      final response = SuccessResponse<VerifyOtpEntity>(
-        VerifyOtpEntity(
-          status: 'verified',
+        verify(
+          mockVerifyOtpUseCase(
+            verifyOtpParams: params,
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should emit error state when verify OTP fails',
+      () async {
+        final params = VerifyOtpParams(
+          email: 'test@gmail.com',
+          otp: '123456',
+        );
+
+        final response = ErrorResponse<VerifyOtpEntity>(
+          appError: BadResponseError('Invalid OTP'),
+        );
+
+        when(
+          mockVerifyOtpUseCase(
+            verifyOtpParams: params,
+          ),
+        ).thenAnswer((_) async => response);
+
+        cubit.onEvent(
+          VerifyOtpSubmitted(params: params),
+        );
+
+        await Future<void>.delayed(Duration.zero);
+
+        expect(cubit.state.verifyOtpState?.isLoading, false);
+        expect(
+          cubit.state.verifyOtpState?.errorMessage,
+          'Invalid OTP',
+        );
+
+        verify(
+          mockVerifyOtpUseCase(
+            verifyOtpParams: params,
+          ),
+        ).called(1);
+      },
+    );
+  });
+
+  group('Reset Password Cubit', () {
+    test(
+      'should emit loading state when reset password is submitted',
+      () async {
+        final params = ResetPasswordParams(
           resetToken: 'test-reset-token',
-          expiresAtUtc: DateTime.utc(2026, 8, 17, 4),
-        ),
-      );
+          newPassword: 'Password123',
+          confirmPassword: 'Password123',
+        );
 
-      when(
-        mockVerifyOtpUseCase(verifyOtpParams: params),
-      ).thenAnswer((_) async => response);
+        when(
+          mockResetPasswordUseCase(
+            resetPasswordParams: params,
+          ),
+        ).thenAnswer(
+          (_) async => SuccessResponse<ResetPasswordEntity>(
+            ResetPasswordEntity(
+              isSuccess: true,
+              statusCode: 200,
+              message: 'Password reset successfully',
+              errors: null,
+            ),
+          ),
+        );
 
-      // Act
-      cubit.onEvent(VerifyOtpSubmitted(params: params));
+        cubit.onEvent(
+          ResetPasswordSubmitted(params: params),
+        );
 
-      await Future<void>.delayed(Duration.zero);
+        expect(
+          cubit.state.resetPasswordState?.isLoading,
+          true,
+        );
+        expect(
+          cubit.state.resetPasswordState?.errorMessage,
+          '',
+        );
+      },
+    );
 
-      // Assert
-      expect(cubit.state.verifyOtpState?.isLoading, false);
+    test(
+      'should emit success state when reset password succeeds',
+      () async {
+        final params = ResetPasswordParams(
+          resetToken: 'test-reset-token',
+          newPassword: 'Password123',
+          confirmPassword: 'Password123',
+        );
 
-      expect(cubit.state.verifyOtpState?.data?.status, 'verified');
+        final response = SuccessResponse<ResetPasswordEntity>(
+          ResetPasswordEntity(
+            isSuccess: true,
+            statusCode: 200,
+            message: 'Password reset successfully',
+            errors: null,
+          ),
+        );
 
-      expect(cubit.state.verifyOtpState?.data?.resetToken, 'test-reset-token');
+        when(
+          mockResetPasswordUseCase(
+            resetPasswordParams: params,
+          ),
+        ).thenAnswer((_) async => response);
 
-      expect(
-        cubit.state.verifyOtpState?.data?.expiresAtUtc,
-        DateTime.utc(2026, 8, 17, 4),
-      );
+        cubit.onEvent(
+          ResetPasswordSubmitted(params: params),
+        );
 
-      expect(cubit.state.verifyOtpState?.errorMessage, '');
+        await Future<void>.delayed(Duration.zero);
 
-      verify(mockVerifyOtpUseCase(verifyOtpParams: params)).called(1);
-    });
+        expect(
+          cubit.state.resetPasswordState?.isLoading,
+          false,
+        );
+        expect(
+          cubit.state.resetPasswordState?.data?.isSuccess,
+          true,
+        );
+        expect(
+          cubit.state.resetPasswordState?.data?.statusCode,
+          200,
+        );
+        expect(
+          cubit.state.resetPasswordState?.data?.message,
+          'Password reset successfully',
+        );
+        expect(
+          cubit.state.resetPasswordState?.errorMessage,
+          '',
+        );
 
-    test('should emit error state when verify OTP fails', () async {
-      // Arrange
-      final params = VerifyOtpParams(email: 'test@gmail.com', otp: '123456');
+        verify(
+          mockResetPasswordUseCase(
+            resetPasswordParams: params,
+          ),
+        ).called(1);
+      },
+    );
 
-      final response = ErrorResponse<VerifyOtpEntity>(
-        appError: BadResponseError('Invalid OTP'),
-      );
+    test(
+      'should emit error state when reset password fails',
+      () async {
+        final params = ResetPasswordParams(
+          resetToken: 'test-reset-token',
+          newPassword: 'Password123',
+          confirmPassword: 'WrongPassword',
+        );
 
-      when(
-        mockVerifyOtpUseCase(verifyOtpParams: params),
-      ).thenAnswer((_) async => response);
+        final response = ErrorResponse<ResetPasswordEntity>(
+          appError: BadResponseError('Password reset failed'),
+        );
 
-      // Act
-      cubit.onEvent(VerifyOtpSubmitted(params: params));
+        when(
+          mockResetPasswordUseCase(
+            resetPasswordParams: params,
+          ),
+        ).thenAnswer((_) async => response);
 
-      await Future<void>.delayed(Duration.zero);
+        cubit.onEvent(
+          ResetPasswordSubmitted(params: params),
+        );
 
-      // Assert
-      expect(cubit.state.verifyOtpState?.isLoading, false);
+        await Future<void>.delayed(Duration.zero);
 
-      expect(cubit.state.verifyOtpState?.errorMessage, 'Invalid OTP');
+        expect(
+          cubit.state.resetPasswordState?.isLoading,
+          false,
+        );
+        expect(
+          cubit.state.resetPasswordState?.errorMessage,
+          'Password reset failed',
+        );
 
-      verify(mockVerifyOtpUseCase(verifyOtpParams: params)).called(1);
-    });
+        verify(
+          mockResetPasswordUseCase(
+            resetPasswordParams: params,
+          ),
+        ).called(1);
+      },
+    );
   });
 }

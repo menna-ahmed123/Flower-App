@@ -4,6 +4,9 @@ import 'package:flower_app/features/forget_password/domain/entities/forget_passw
 import 'package:flower_app/features/forget_password/domain/entities/verify_otp_entity.dart';
 import 'package:flower_app/features/forget_password/domain/entities/verify_otp_params.dart';
 
+import '../entities/reset_password_entity.dart';
+import '../entities/reset_password_params.dart';
+
 abstract class ForgetPasswordRepo {
   Future<BaseResponse<ForgetPasswordEntity>> forgetPassword({
     required ForgetPasswordParams forgetPasswordParams,
@@ -11,5 +14,9 @@ abstract class ForgetPasswordRepo {
 
   Future<BaseResponse<VerifyOtpEntity>> verifyOtp({
     required VerifyOtpParams verifyOtpParams,
+  });
+
+  Future<BaseResponse<ResetPasswordEntity>> resetPassword({
+    required ResetPasswordParams resetPasswordParams,
   });
 }

@@ -32,6 +32,15 @@ abstract final class AppString {
   static const String verify = 'Verify';
   static const String otpRequired = 'Please enter the verification code';
   static const String invalidOtp = 'Please enter a valid verification code';
+  static const String resetPassword = 'Reset Password';
+  static const String newPassword = 'New Password';
+  static const String enterYourPassword = 'Enter Your Password';
+  static const String confirmPassword = 'Confirm Password';
+  static const String confirm = 'Confirm';
+  static const String password = 'Password';
+  static const String resetPasswordSuccess = 'Reset Password Successfully';
+  static const String resetPasswordDescription =
+      'Password must not be empty and must contain 6 characters with upper case letter and one number at least ';
 
   // Added for OTP error + resend cooldown
   static const String invalidCode = 'Invalid code';
