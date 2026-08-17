@@ -9,114 +9,97 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'forget_password_repo_impl_test.mocks.dart';
-
+import 'verify_otp_repo_impl_test.mocks.dart';
 
 @GenerateMocks([ForgetPasswordRemoteDataSourceImpl])
 void main() {
+  _runVerifyOtpRepoTests();
+}
+
+void _runVerifyOtpRepoTests() {
   provideDummy<BaseResponse<VerifyOtpResponseModel>>(
     SuccessResponse<VerifyOtpResponseModel>(
       VerifyOtpResponseModel(
         resetToken: 'test-reset-token',
-        expiresAtUtc: DateTime.utc(2026, 8, 16, 4, 0),
+        expiresAtUtc: DateTime.utc(2026, 8, 16, 4),
         status: 'verified',
       ),
     ),
   );
 
-  late MockForgetPasswordRemoteDataSourceImpl
-  mockForgetPasswordRemoteDataSource;
-
-  late ForgetPasswordRepoImpl forgetPasswordRepoImpl;
+  late MockForgetPasswordRemoteDataSourceImpl mockDataSource;
+  late ForgetPasswordRepoImpl repository;
 
   setUp(() {
-    mockForgetPasswordRemoteDataSource =
-        MockForgetPasswordRemoteDataSourceImpl();
+    mockDataSource = MockForgetPasswordRemoteDataSourceImpl();
 
-    forgetPasswordRepoImpl = ForgetPasswordRepoImpl(
-      remoteDataSource: mockForgetPasswordRemoteDataSource,
-    );
+    repository = ForgetPasswordRepoImpl(remoteDataSource: mockDataSource);
   });
 
-  group('Verify OTP Function Tests', () {
-    test('Success when OTP is verified', () async {
-      // Arrange
-      final verifyOtpParams = VerifyOtpParams(
-        email: 'test@gmail.com',
-        otp: '123456',
-      );
+  _verifySuccessTest(() => repository, () => mockDataSource);
+  _verifyErrorTest(() => repository, () => mockDataSource);
+}
 
-      final successResponse = SuccessResponse<VerifyOtpResponseModel>(
-        VerifyOtpResponseModel(
-          resetToken: 'test-reset-token',
-          expiresAtUtc: DateTime.utc(2026, 8, 16, 4, 0),
-          status: 'verified',
-        ),
-      );
+void _verifySuccessTest(
+  ForgetPasswordRepoImpl Function() getRepository,
+  MockForgetPasswordRemoteDataSourceImpl Function() getDataSource,
+) {
+  test('Success when OTP is verified', () async {
+    final params = VerifyOtpParams(email: 'test@gmail.com', otp: '123456');
 
-      when(
-        mockForgetPasswordRemoteDataSource.verifyOtp(
-          requestModel: anyNamed('requestModel'),
-        ),
-      ).thenAnswer((_) async => successResponse);
+    final response = SuccessResponse<VerifyOtpResponseModel>(
+      VerifyOtpResponseModel(
+        resetToken: 'test-reset-token',
+        expiresAtUtc: DateTime.utc(2026, 8, 16, 4),
+        status: 'verified',
+      ),
+    );
 
-      // Act
-      final result = await forgetPasswordRepoImpl.verifyOtp(
-        verifyOtpParams: verifyOtpParams,
-      );
+    when(
+      getDataSource().verifyOtp(requestModel: anyNamed('requestModel')),
+    ).thenAnswer((_) async => response);
 
-      // Assert
-      expect(result, isA<SuccessResponse<VerifyOtpEntity>>());
+    final result = await getRepository().verifyOtp(verifyOtpParams: params);
 
-      final response = result as SuccessResponse<VerifyOtpEntity>;
+    expect(result, isA<SuccessResponse<VerifyOtpEntity>>());
 
-      expect(response.data.resetToken, 'test-reset-token');
+    final success = result as SuccessResponse<VerifyOtpEntity>;
 
-      expect(response.data.expiresAtUtc, DateTime.utc(2026, 8, 16, 4, 0));
+    expect(success.data.resetToken, 'test-reset-token');
+    expect(success.data.expiresAtUtc, DateTime.utc(2026, 8, 16, 4));
+    expect(success.data.status, 'verified');
 
-      expect(response.data.status, 'verified');
+    verify(
+      getDataSource().verifyOtp(requestModel: anyNamed('requestModel')),
+    ).called(1);
+  });
+}
 
-      verify(
-        mockForgetPasswordRemoteDataSource.verifyOtp(
-          requestModel: anyNamed('requestModel'),
-        ),
-      ).called(1);
-    });
+void _verifyErrorTest(
+  ForgetPasswordRepoImpl Function() getRepository,
+  MockForgetPasswordRemoteDataSourceImpl Function() getDataSource,
+) {
+  test('Error when OTP verification fails', () async {
+    final params = VerifyOtpParams(email: 'test@gmail.com', otp: '123456');
 
-    test('Error when OTP verification fails', () async {
-      // Arrange
-      final verifyOtpParams = VerifyOtpParams(
-        email: 'test@gmail.com',
-        otp: '123456',
-      );
+    final response = ErrorResponse<VerifyOtpResponseModel>(
+      appError: BadResponseError('Invalid OTP'),
+    );
 
-      final errorResponse = ErrorResponse<VerifyOtpResponseModel>(
-        appError: BadResponseError('Invalid OTP'),
-      );
+    when(
+      getDataSource().verifyOtp(requestModel: anyNamed('requestModel')),
+    ).thenAnswer((_) async => response);
 
-      when(
-        mockForgetPasswordRemoteDataSource.verifyOtp(
-          requestModel: anyNamed('requestModel'),
-        ),
-      ).thenAnswer((_) async => errorResponse);
+    final result = await getRepository().verifyOtp(verifyOtpParams: params);
 
-      // Act
-      final result = await forgetPasswordRepoImpl.verifyOtp(
-        verifyOtpParams: verifyOtpParams,
-      );
+    expect(result, isA<ErrorResponse<VerifyOtpEntity>>());
 
-      // Assert
-      expect(result, isA<ErrorResponse<VerifyOtpEntity>>());
+    final error = result as ErrorResponse<VerifyOtpEntity>;
 
-      final response = result as ErrorResponse<VerifyOtpEntity>;
+    expect(error.errorMessage, 'Invalid OTP');
 
-      expect(response.errorMessage, 'Invalid OTP');
-
-      verify(
-        mockForgetPasswordRemoteDataSource.verifyOtp(
-          requestModel: anyNamed('requestModel'),
-        ),
-      ).called(1);
-    });
+    verify(
+      getDataSource().verifyOtp(requestModel: anyNamed('requestModel')),
+    ).called(1);
   });
 }

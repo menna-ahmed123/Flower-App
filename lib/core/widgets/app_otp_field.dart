@@ -25,7 +25,10 @@ class AppOtpField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    return _buildOtpField(context.colors);
+  }
+
+  Widget _buildOtpField(AppColors colors) {
     final themes = _buildPinThemes(colors);
 
     return Pinput(

@@ -31,65 +31,81 @@ void main() {
 
   group('ForgetPasswordUseCase Tests', () {
     test('should return success when forget password succeeds', () async {
-      // Arrange
-      final forgetPasswordParams = ForgetPasswordParams(
-        email: 'test@example.com',
-      );
-
-      final successResponse = SuccessResponse<ForgetPasswordEntity>(
-        ForgetPasswordEntity(cooldownRemainingSeconds: 30),
-      );
-
-      when(
-        mockForgetPasswordRepo.forgetPassword(
-          forgetPasswordParams: forgetPasswordParams,
-        ),
-      ).thenAnswer((_) async => successResponse);
-
-      // Act
-      final result = await forgetPasswordUseCase(
-        forgetPasswordParams: forgetPasswordParams,
-      );
-
-      // Assert
-      expect(result, isA<SuccessResponse<ForgetPasswordEntity>>());
-
-      expect(
-        (result as SuccessResponse<ForgetPasswordEntity>)
-            .data
-            .cooldownRemainingSeconds,
-        30,
+      await _testForgetPasswordSuccess(
+        forgetPasswordUseCase,
+        mockForgetPasswordRepo,
       );
     });
 
     test('should return error when forget password fails', () async {
-      // Arrange
-      final forgetPasswordParams = ForgetPasswordParams(
-        email: 'test@example.com',
-      );
-
-      final errorResponse = ErrorResponse<ForgetPasswordEntity>(
-        appError: BadResponseError('Invalid email'),
-      );
-
-      when(
-        mockForgetPasswordRepo.forgetPassword(
-          forgetPasswordParams: forgetPasswordParams,
-        ),
-      ).thenAnswer((_) async => errorResponse);
-
-      // Act
-      final result = await forgetPasswordUseCase(
-        forgetPasswordParams: forgetPasswordParams,
-      );
-
-      // Assert
-      expect(result, isA<ErrorResponse<ForgetPasswordEntity>>());
-
-      expect(
-        (result as ErrorResponse<ForgetPasswordEntity>).errorMessage,
-        'Invalid email',
+      await _testForgetPasswordError(
+        forgetPasswordUseCase,
+        mockForgetPasswordRepo,
       );
     });
   });
+}
+
+Future<void> _testForgetPasswordSuccess(
+  ForgetPasswordUseCase forgetPasswordUseCase,
+  MockForgetPasswordRepo mockForgetPasswordRepo,
+) async {
+  // Arrange
+  final forgetPasswordParams = ForgetPasswordParams(email: 'test@example.com');
+
+  final successResponse = SuccessResponse<ForgetPasswordEntity>(
+    ForgetPasswordEntity(cooldownRemainingSeconds: 30),
+  );
+
+  when(
+    mockForgetPasswordRepo.forgetPassword(
+      forgetPasswordParams: forgetPasswordParams,
+    ),
+  ).thenAnswer((_) async => successResponse);
+
+  // Act
+  final result = await forgetPasswordUseCase(
+    forgetPasswordParams: forgetPasswordParams,
+  );
+
+  // Assert
+  expect(result, isA<SuccessResponse<ForgetPasswordEntity>>());
+
+  expect(
+    (result as SuccessResponse<ForgetPasswordEntity>)
+        .data
+        .cooldownRemainingSeconds,
+    30,
+  );
+}
+
+Future<void> _testForgetPasswordError(
+  ForgetPasswordUseCase forgetPasswordUseCase,
+  MockForgetPasswordRepo mockForgetPasswordRepo,
+) async {
+  // Arrange
+  final forgetPasswordParams = ForgetPasswordParams(email: 'test@example.com');
+
+  final errorResponse = ErrorResponse<ForgetPasswordEntity>(
+    appError: BadResponseError('Invalid email'),
+  );
+
+  when(
+    mockForgetPasswordRepo.forgetPassword(
+      forgetPasswordParams: forgetPasswordParams,
+    ),
+  ).thenAnswer((_) async => errorResponse);
+
+  // Act
+  final result = await forgetPasswordUseCase(
+    forgetPasswordParams: forgetPasswordParams,
+  );
+
+  // Assert
+  expect(result, isA<ErrorResponse<ForgetPasswordEntity>>());
+
+  expect(
+    (result as ErrorResponse<ForgetPasswordEntity>).errorMessage,
+    'Invalid email',
+  );
 }

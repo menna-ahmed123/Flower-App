@@ -13,89 +13,83 @@ import 'forget_password_repo_impl_test.mocks.dart';
 
 @GenerateMocks([ForgetPasswordRemoteDataSourceImpl])
 void main() {
+  _runForgetPasswordRepoTests();
+}
+
+void _runForgetPasswordRepoTests() {
   provideDummy<BaseResponse<ForgetPasswordResponseModel>>(
     SuccessResponse<ForgetPasswordResponseModel>(
       ForgetPasswordResponseModel(cooldownRemainingSeconds: 30),
     ),
   );
 
-  late MockForgetPasswordRemoteDataSourceImpl mockForgetPasswordRemoteDataSource;
-
-  late ForgetPasswordRepoImpl forgetPasswordRepoImpl;
+  late MockForgetPasswordRemoteDataSourceImpl mockDataSource;
+  late ForgetPasswordRepoImpl repository;
 
   setUp(() {
-    mockForgetPasswordRemoteDataSource = MockForgetPasswordRemoteDataSourceImpl();
+    mockDataSource = MockForgetPasswordRemoteDataSourceImpl();
 
-    forgetPasswordRepoImpl = ForgetPasswordRepoImpl(
-      remoteDataSource: mockForgetPasswordRemoteDataSource,
-    );
+    repository = ForgetPasswordRepoImpl(remoteDataSource: mockDataSource);
   });
 
-  group('Forget Password Function Tests', () {
-    test('Success with valid email', () async {
-      // Arrange
-      final forgetPasswordParams = ForgetPasswordParams(
-        email: 'test@gmail.com',
-      );
+  _successTest(() => repository, () => mockDataSource);
+  _errorTest(() => repository, () => mockDataSource);
+}
 
-      final successResponse = SuccessResponse<ForgetPasswordResponseModel>(
-        ForgetPasswordResponseModel(cooldownRemainingSeconds: 30),
-      );
+void _successTest(
+  ForgetPasswordRepoImpl Function() getRepository,
+  MockForgetPasswordRemoteDataSourceImpl Function() getDataSource,
+) {
+  test('Success with valid email', () async {
+    final params = ForgetPasswordParams(email: 'test@gmail.com');
 
-      when(
-        mockForgetPasswordRemoteDataSource.forgetPassword(
-          requestModel: anyNamed('requestModel'),
-        ),
-      ).thenAnswer((_) async => successResponse);
+    final response = SuccessResponse<ForgetPasswordResponseModel>(
+      ForgetPasswordResponseModel(cooldownRemainingSeconds: 30),
+    );
 
-      // Act
-      final result = await forgetPasswordRepoImpl.forgetPassword(
-        forgetPasswordParams: forgetPasswordParams,
-      );
+    when(
+      getDataSource().forgetPassword(requestModel: anyNamed('requestModel')),
+    ).thenAnswer((_) async => response);
 
-      // Assert
-      expect(result, isA<SuccessResponse<ForgetPasswordEntity>>());
+    final result = await getRepository().forgetPassword(
+      forgetPasswordParams: params,
+    );
 
-      final response = result as SuccessResponse<ForgetPasswordEntity>;
+    expect(result, isA<SuccessResponse<ForgetPasswordEntity>>());
 
-      expect(response.data.cooldownRemainingSeconds, 30);
+    final success = result as SuccessResponse<ForgetPasswordEntity>;
 
-      verify(
-        mockForgetPasswordRemoteDataSource.forgetPassword(
-          requestModel: anyNamed('requestModel'),
-        ),
-      ).called(1);
-    });
+    expect(success.data.cooldownRemainingSeconds, 30);
 
-    test('Error when forget password fails', () async {
-      // Arrange
-      final forgetPasswordParams = ForgetPasswordParams(
-        email: 'invalid@email.com',
-      );
+    verify(
+      getDataSource().forgetPassword(requestModel: anyNamed('requestModel')),
+    ).called(1);
+  });
+}
 
-      final errorResponse = ErrorResponse<ForgetPasswordResponseModel>(
-        appError: BadResponseError('Invalid email'),
-      );
+void _errorTest(
+  ForgetPasswordRepoImpl Function() getRepository,
+  MockForgetPasswordRemoteDataSourceImpl Function() getDataSource,
+) {
+  test('Error when forget password fails', () async {
+    final params = ForgetPasswordParams(email: 'invalid@email.com');
 
-      when(
-        mockForgetPasswordRemoteDataSource.forgetPassword(
-          requestModel: anyNamed('requestModel'),
-        ),
-      ).thenAnswer((_) async => errorResponse);
+    final response = ErrorResponse<ForgetPasswordResponseModel>(
+      appError: BadResponseError('Invalid email'),
+    );
 
-      // Act
-      final result = await forgetPasswordRepoImpl.forgetPassword(
-        forgetPasswordParams: forgetPasswordParams,
-      );
+    when(
+      getDataSource().forgetPassword(requestModel: anyNamed('requestModel')),
+    ).thenAnswer((_) async => response);
 
-      // Assert
-      expect(result, isA<ErrorResponse<ForgetPasswordEntity>>());
+    final result = await getRepository().forgetPassword(
+      forgetPasswordParams: params,
+    );
 
-      final response = result as ErrorResponse<ForgetPasswordEntity>;
+    expect(result, isA<ErrorResponse<ForgetPasswordEntity>>());
 
-      expect(response.errorMessage, 'Invalid email');
+    final error = result as ErrorResponse<ForgetPasswordEntity>;
 
-   
-    });
+    expect(error.errorMessage, 'Invalid email');
   });
 }

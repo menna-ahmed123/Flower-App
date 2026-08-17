@@ -34,38 +34,44 @@ void main() {
 
   group('VerifyOtpUseCase Tests', () {
     test('should return success when verify OTP succeeds', () async {
-      // Arrange
-      final verifyOtpParams = VerifyOtpParams(
-        email: 'test@example.com',
-        otp: '123456',
-      );
-
-      final successResponse = SuccessResponse<VerifyOtpEntity>(
-        VerifyOtpEntity(
-          status: 'verified',
-          resetToken: 'test-reset-token',
-          expiresAtUtc: DateTime.utc(2026, 8, 16, 4, 0),
-        ),
-      );
-
-      when(
-        mockForgetPasswordRepo.verifyOtp(verifyOtpParams: verifyOtpParams),
-      ).thenAnswer((_) async => successResponse);
-
-      // Act
-      final result = await verifyOtpUseCase(verifyOtpParams: verifyOtpParams);
-
-      // Assert
-     // Assert
-      expect(result, isA<SuccessResponse<VerifyOtpEntity>>());
-
-      final successResult = result as SuccessResponse<VerifyOtpEntity>;
-
-      expect(successResult.data.status, 'verified');
-
-      expect(successResult.data.resetToken, 'test-reset-token');
-
-      expect(successResult.data.expiresAtUtc, DateTime.utc(2026, 8, 16, 4, 0));
+      await _testVerifyOtpSuccess(verifyOtpUseCase, mockForgetPasswordRepo);
     });
   });
+}
+
+Future<void> _testVerifyOtpSuccess(
+  VerifyOtpUseCase verifyOtpUseCase,
+  MockForgetPasswordRepo mockForgetPasswordRepo,
+) async {
+  // Arrange
+  final verifyOtpParams = VerifyOtpParams(
+    email: 'test@example.com',
+    otp: '123456',
+  );
+
+  final successResponse = SuccessResponse<VerifyOtpEntity>(
+    VerifyOtpEntity(
+      status: 'verified',
+      resetToken: 'test-reset-token',
+      expiresAtUtc: DateTime.utc(2026, 8, 16, 4, 0),
+    ),
+  );
+
+  when(
+    mockForgetPasswordRepo.verifyOtp(verifyOtpParams: verifyOtpParams),
+  ).thenAnswer((_) async => successResponse);
+
+  // Act
+  final result = await verifyOtpUseCase(verifyOtpParams: verifyOtpParams);
+
+  // Assert
+  expect(result, isA<SuccessResponse<VerifyOtpEntity>>());
+
+  final successResult = result as SuccessResponse<VerifyOtpEntity>;
+
+  expect(successResult.data.status, 'verified');
+
+  expect(successResult.data.resetToken, 'test-reset-token');
+
+  expect(successResult.data.expiresAtUtc, DateTime.utc(2026, 8, 16, 4, 0));
 }

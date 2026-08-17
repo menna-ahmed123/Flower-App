@@ -13,66 +13,66 @@ import 'forget_password_remote_data_source_impl_test.mocks.dart';
 
 @GenerateMocks([ForgetPasswordApiClient, SafeCall])
 void main() {
-  late MockForgetPasswordApiClient mockForgetPasswordApiClient;
-  late MockSafeCall mockSafeCall;
+  _runForgetPasswordRemoteDataSourceTests();
+}
 
-  late ForgetPasswordRemoteDataSourceImpl forgetPasswordRemoteDataSourceImpl;
+void _runForgetPasswordRemoteDataSourceTests() {
+  late MockForgetPasswordApiClient mockApiClient;
+  late MockSafeCall mockSafeCall;
+  late ForgetPasswordRemoteDataSourceImpl dataSource;
 
   setUp(() {
-    mockForgetPasswordApiClient = MockForgetPasswordApiClient();
+    mockApiClient = MockForgetPasswordApiClient();
     mockSafeCall = MockSafeCall();
 
-    forgetPasswordRemoteDataSourceImpl = ForgetPasswordRemoteDataSourceImpl(
-      forgetPasswordApiClient: mockForgetPasswordApiClient,
+    dataSource = ForgetPasswordRemoteDataSourceImpl(
+      forgetPasswordApiClient: mockApiClient,
       safeCall: mockSafeCall,
     );
   });
 
-  group('ForgetPasswordRemoteDataSourceImpl Tests', () {
-    test(
-      'should return success response when forget password is called',
-      () async {
-        // Arrange
-        final requestModel = ForgetPasswordRequestModel(
-          email: 'test@gmail.com',
-        );
+  _forgetPasswordTests(() => dataSource);
+  _verifyOtpTests(() => dataSource);
+}
 
-        // Act
-        final result = await forgetPasswordRemoteDataSourceImpl.forgetPassword(
-          requestModel: requestModel,
-        );
+void _forgetPasswordTests(
+  ForgetPasswordRemoteDataSourceImpl Function() getDataSource,
+) {
+  test(
+    'should return success response when forget password is called',
+    () async {
+      final requestModel = ForgetPasswordRequestModel(email: 'test@gmail.com');
 
-        // Assert
-        expect(result, isA<SuccessResponse<ForgetPasswordResponseModel>>());
-
-        final response = result as SuccessResponse<ForgetPasswordResponseModel>;
-
-        expect(response.data.cooldownRemainingSeconds, 30);
-      },
-    );
-
-    test('should return success response when verify OTP is called', () async {
-      // Arrange
-      final requestModel = VerifyOtpRequestModel(
-        email: 'test@gmail.com',
-        otp: '123456',
-      );
-
-      // Act
-      final result = await forgetPasswordRemoteDataSourceImpl.verifyOtp(
+      final result = await getDataSource().forgetPassword(
         requestModel: requestModel,
       );
 
-      // Assert
-      expect(result, isA<SuccessResponse<VerifyOtpResponseModel>>());
+      expect(result, isA<SuccessResponse<ForgetPasswordResponseModel>>());
 
-      final response = result as SuccessResponse<VerifyOtpResponseModel>;
+      final response = result as SuccessResponse<ForgetPasswordResponseModel>;
 
-      expect(response.data.status, 'success');
+      expect(response.data.cooldownRemainingSeconds, 30);
+    },
+  );
+}
 
-      expect(response.data.resetToken, 'mock-reset-token');
+void _verifyOtpTests(
+  ForgetPasswordRemoteDataSourceImpl Function() getDataSource,
+) {
+  test('should return success response when verify OTP is called', () async {
+    final requestModel = VerifyOtpRequestModel(
+      email: 'test@gmail.com',
+      otp: '123456',
+    );
 
-      expect(response.data.expiresAtUtc, isNotNull);
-    });
+    final result = await getDataSource().verifyOtp(requestModel: requestModel);
+
+    expect(result, isA<SuccessResponse<VerifyOtpResponseModel>>());
+
+    final response = result as SuccessResponse<VerifyOtpResponseModel>;
+
+    expect(response.data.status, 'success');
+    expect(response.data.resetToken, 'mock-reset-token');
+    expect(response.data.expiresAtUtc, isNotNull);
   });
 }
