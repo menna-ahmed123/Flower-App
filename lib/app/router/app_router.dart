@@ -1,5 +1,6 @@
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/login_page.dart';
+import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
@@ -20,12 +21,12 @@ class AppRouter {
 
   static GoRouter createRouter() {
     return GoRouter(
-      initialLocation: AppRoutesName.forgetPassword,
+      initialLocation: AppRoutesName.login,
       errorBuilder: _errorBuilder,
       routes: [
         _loginRoute(),
         _registerRoute(),
-        _forgetPasswordRoute(),
+        _forgetPasswordShell(),
         _mainShell(),
       ],
     );
@@ -37,33 +38,46 @@ class AppRouter {
 
   // ==================== AUTH ====================
 
+  // ==================== AUTH ====================
+
   static GoRoute _loginRoute() {
     return GoRoute(
       path: AppRoutesName.login,
-      builder: (context, state) => const LoginPage(),
+      builder: (context, state) {
+        return BlocProvider(
+          create: (_) => getIt<LoginViewModel>(),
+          child: const LoginPage(),
+        );
+      },
     );
   }
 
   static GoRoute _registerRoute() {
     return GoRoute(
       path: AppRoutesName.register,
-      builder: (context, state) =>
-          RegisterPage(createBloc: () => getIt<RegisterBloc>()),
+      builder: (context, state) {
+        return RegisterPage(createBloc: () => getIt<RegisterBloc>());
+      },
     );
   }
 
   // ==================== FORGET PASSWORD ====================
 
-  static GoRoute _forgetPasswordRoute() {
-    return GoRoute(
-      path: AppRoutesName.forgetPassword,
-      builder: (context, state) {
+  static ShellRoute _forgetPasswordShell() {
+    return ShellRoute(
+      builder: (context, state, child) {
         return BlocProvider(
           create: (_) => getIt<ForgetPasswordCubit>(),
-          child: const ForgetPasswordPage(),
+          child: child,
         );
       },
       routes: [
+        GoRoute(
+          path: AppRoutesName.forgetPassword,
+          builder: (context, state) {
+            return const ForgetPasswordPage();
+          },
+        ),
         GoRoute(
           path: AppRoutesName.verification,
           builder: (context, state) {
