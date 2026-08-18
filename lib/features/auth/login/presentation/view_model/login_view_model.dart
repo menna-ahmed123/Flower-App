@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/auth/login/data/models/login_request.dart';
 import 'package:flower_app/features/auth/login/domain/entity/auth_entity.dart';

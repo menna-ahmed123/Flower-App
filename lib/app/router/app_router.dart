@@ -1,19 +1,20 @@
 import 'package:flower_app/core/di/di.dart';
-import 'package:flower_app/features/auth/forgetPassword/forget_password.dart';
-import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
+import 'package:flower_app/features/auth/login/presentation/view/pages/login_page.dart';
 import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
 import 'package:flower_app/features/categories/presentation/pages/categories_page.dart';
+import 'package:flower_app/features/forget_password/presentation/pages/forget_password_page.dart';
+import 'package:flower_app/features/forget_password/presentation/pages/verification_page.dart';
+import 'package:flower_app/features/forget_password/presentation/view_model/forget_password_cubit.dart';
 import 'package:flower_app/features/home/presentation/pages/home_page.dart';
 import 'package:flower_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/auth/login/presentation/view/pages/login_page.dart';
+import 'app_routes.dart';
 
 class AppRouter {
   AppRouter._();
@@ -21,52 +22,89 @@ class AppRouter {
   static GoRouter createRouter() {
     return GoRouter(
       initialLocation: AppRoutesName.login,
-      errorBuilder: errorPage,
-      routes: [...authRoutes, shellRoute],
+      errorBuilder: _errorBuilder,
+      routes: [
+        _loginRoute(),
+        _registerRoute(),
+        _forgetPasswordShell(),
+        _mainShell(),
+      ],
     );
   }
 
-  static Widget errorPage(BuildContext context, GoRouterState state) {
+  static Widget _errorBuilder(BuildContext context, GoRouterState state) {
     return const Scaffold(body: Center(child: Text('Page Not Found')));
   }
 
-  static List<RouteBase> get authRoutes {
-    return [loginRoute, registerRoute];
-  }
+  // ==================== AUTH ====================
 
-  static GoRoute get loginRoute {
+  // ==================== AUTH ====================
+
+  static GoRoute _loginRoute() {
     return GoRoute(
       path: AppRoutesName.login,
-      builder: (context, state) => RouteSuccessSnackBar(
-        message: state.uri.queryParameters['success'],
-        child: BlocProvider(
+      builder: (context, state) {
+        return BlocProvider(
           create: (_) => getIt<LoginViewModel>(),
           child: const LoginPage(),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  static GoRoute get registerRoute {
+  static GoRoute _registerRoute() {
     return GoRoute(
       path: AppRoutesName.register,
-      builder: (context, state) =>
-          RegisterPage(createBloc: () => getIt<RegisterBloc>()),
+      builder: (context, state) {
+        return RegisterPage(createBloc: () => getIt<RegisterBloc>());
+      },
     );
   }
 
-  static StatefulShellRoute get shellRoute {
+  // ==================== FORGET PASSWORD ====================
+
+  static ShellRoute _forgetPasswordShell() {
+    return ShellRoute(
+      builder: (context, state, child) {
+        return BlocProvider(
+          create: (_) => getIt<ForgetPasswordCubit>(),
+          child: child,
+        );
+      },
+      routes: [
+        GoRoute(
+          path: AppRoutesName.forgetPassword,
+          builder: (context, state) {
+            return const ForgetPasswordPage();
+          },
+        ),
+        GoRoute(
+          path: AppRoutesName.verification,
+          builder: (context, state) {
+            return const VerificationPage();
+          },
+        ),
+      ],
+    );
+  }
+
+  // ==================== MAIN SHELL ====================
+
+  static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) => navigationShell,
-      branches: shellBranches,
+      builder: (context, state, navigationShell) {
+        return navigationShell;
+      },
+      branches: [
+        _homeBranch(),
+        _categoriesBranch(),
+        _cartBranch(),
+        _profileBranch(),
+      ],
     );
   }
 
-  static List<StatefulShellBranch> get shellBranches {
-    return [homeBranch, categoriesBranch, cartBranch, profileBranch];
-  }
-
-  static StatefulShellBranch get homeBranch {
+  static StatefulShellBranch _homeBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
@@ -77,61 +115,18 @@ class AppRouter {
     );
   }
 
-  static StatefulShellBranch get categoriesBranch {
+  static StatefulShellBranch _categoriesBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
           path: AppRoutesName.categories,
           builder: (context, state) => const CategoriesPage(),
         ),
-        GoRoute(
-          path: AppRoutesName.forgetPassword,
-          builder: (context, state) => const ForgetPassword(),
-        ),
-        StatefulShellRoute.indexedStack(
-          builder: (context, state, navigationShell) {
-            return navigationShell;
-          },
-          branches: [
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: AppRoutesName.home,
-                  builder: (context, state) => const HomePage(),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: AppRoutesName.categories,
-                  builder: (context, state) => const CategoriesPage(),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: AppRoutesName.cart,
-                  builder: (context, state) => const CartPage(),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: AppRoutesName.profile,
-                  builder: (context, state) => const ProfilePage(),
-                ),
-              ],
-            ),
-          ],
-        ),
       ],
     );
   }
 
-  static StatefulShellBranch get cartBranch {
+  static StatefulShellBranch _cartBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
@@ -142,7 +137,7 @@ class AppRouter {
     );
   }
 
-  static StatefulShellBranch get profileBranch {
+  static StatefulShellBranch _profileBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(

@@ -72,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     CustomTextField(
                       label: AppString.email,
-                      hint: AppString.enterYouEmail,
+                      hint: AppString.enterYourEmail,
                       validator: AppValidators.emailValidator,
                       controller: _emailController,
                     ),

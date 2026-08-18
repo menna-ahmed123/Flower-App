@@ -23,7 +23,8 @@ import '../../features/auth/login/data/data_source/remote/auth_remote_data_sourc
 import '../../features/auth/login/data/repo/auth_repo_impl.dart' as _i641;
 import '../../features/auth/login/domain/repo/auth_repo.dart' as _i483;
 import '../../features/auth/login/domain/use_case/login_usecase.dart' as _i635;
-import '../modules/api_module.dart' as _i98;
+import '../../features/auth/login/presentation/view_model/login_view_model.dart'
+    as _i188;
 import '../../features/auth/register/api/dio_register_api.dart' as _i347;
 import '../../features/auth/register/data/data_sources/register_remote_data_source.dart'
     as _i682;
@@ -41,8 +42,25 @@ import '../../features/auth/register/domain/validators/register_form_validator.d
     as _i495;
 import '../../features/auth/register/presentation/view_model/register_bloc.dart'
     as _i213;
+import '../../features/forget_password/api/client/forget_password_api_client.dart'
+    as _i864;
+import '../../features/forget_password/api/data_source/forget_password_remote_data_source_impl.dart'
+    as _i643;
+import '../../features/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart'
+    as _i881;
+import '../../features/forget_password/data/repos/forget_password_repo_impl.dart'
+    as _i216;
+import '../../features/forget_password/domain/repos/forget_password_repo.dart'
+    as _i639;
+import '../../features/forget_password/domain/use_cases/forget_password_use_case.dart'
+    as _i437;
+import '../../features/forget_password/domain/use_cases/verify_otp_use_case.dart'
+    as _i222;
+import '../../features/forget_password/presentation/view_model/forget_password_cubit.dart'
+    as _i1064;
 import '../localization/locale_controller.dart' as _i1066;
 import '../localization/locale_storage.dart' as _i463;
+import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/register_module.dart' as _i505;
 import '../network/auth_interceptors.dart' as _i466;
@@ -59,8 +77,8 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
     final dioModule = _$DioModule();
-    final apiModule = _$ApiModule();
     final dioRegisterApiModule = _$DioRegisterApiModule();
+    final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
     gh.factory<_i495.RegisterFormValidator>(
       () => const _i495.RegisterFormValidator(),
@@ -93,8 +111,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i361.Dio>(
       () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),
     );
-    gh.lazySingleton<_i144.AuthApiClient>(
+    gh.lazySingleton<_i347.DioRegisterApi>(
+      () => dioRegisterApiModule.dioRegisterApi(gh<_i361.Dio>()),
+    );
+    gh.singleton<_i864.ForgetPasswordApiClient>(
+      () => apiModule.provideForgetPasswordApiClient(gh<_i361.Dio>()),
+    );
+    gh.factory<_i144.AuthApiClient>(
       () => apiModule.authApiClient(gh<_i361.Dio>()),
+    );
+    gh.factory<_i682.RegisterRemoteDataSource>(
+      () => _i550.RegisterRemoteDataSourceImpl(gh<_i347.DioRegisterApi>()),
+    );
+    gh.lazySingleton<_i881.ForgetPasswordRemoteDataSource>(
+      () => _i643.ForgetPasswordRemoteDataSourceImpl(
+        forgetPasswordApiClient: gh<_i864.ForgetPasswordApiClient>(),
+        safeCall: gh<_i185.SafeCall>(),
+      ),
     );
     gh.factory<_i441.AuthRemoteDataSource>(
       () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
@@ -106,14 +139,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i964.TokenStorage>(),
       ),
     );
-    gh.factory<_i635.LoginUseCase>(
-      () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
-    gh.lazySingleton<_i347.DioRegisterApi>(
-      () => dioRegisterApiModule.dioRegisterApi(gh<_i361.Dio>()),
-    );
-    gh.factory<_i682.RegisterRemoteDataSource>(
-      () => _i550.RegisterRemoteDataSourceImpl(gh<_i347.DioRegisterApi>()),
-    );
     gh.factory<_i57.RegisterRepository>(
       () => _i200.RegisterRepositoryImpl(
         gh<_i682.RegisterRemoteDataSource>(),
@@ -123,10 +148,37 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i118.RegisterUseCase>(
       () => _i753.RegisterUseCaseImpl(gh<_i57.RegisterRepository>()),
     );
+    gh.factory<_i635.LoginUseCase>(
+      () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
+    );
+    gh.lazySingleton<_i639.ForgetPasswordRepo>(
+      () => _i216.ForgetPasswordRepoImpl(
+        remoteDataSource: gh<_i881.ForgetPasswordRemoteDataSource>(),
+      ),
+    );
     gh.factory<_i213.RegisterBloc>(
       () => _i213.RegisterBloc(
         gh<_i118.RegisterUseCase>(),
         gh<_i495.RegisterFormValidator>(),
+      ),
+    );
+    gh.factory<_i188.LoginViewModel>(
+      () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
+    );
+    gh.factory<_i437.ForgetPasswordUseCase>(
+      () => _i437.ForgetPasswordUseCase(
+        forgetPasswordRepo: gh<_i639.ForgetPasswordRepo>(),
+      ),
+    );
+    gh.factory<_i222.VerifyOtpUseCase>(
+      () => _i222.VerifyOtpUseCase(
+        forgetPasswordRepo: gh<_i639.ForgetPasswordRepo>(),
+      ),
+    );
+    gh.factory<_i1064.ForgetPasswordCubit>(
+      () => _i1064.ForgetPasswordCubit(
+        gh<_i437.ForgetPasswordUseCase>(),
+        gh<_i222.VerifyOtpUseCase>(),
       ),
     );
     return this;
@@ -137,5 +189,6 @@ class _$RegisterModule extends _i505.RegisterModule {}
 
 class _$DioModule extends _i948.DioModule {}
 
-class _$ApiModule extends _i98.ApiModule {}
 class _$DioRegisterApiModule extends _i347.DioRegisterApiModule {}
+
+class _$ApiModule extends _i98.ApiModule {}
