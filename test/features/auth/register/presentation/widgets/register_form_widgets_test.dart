@@ -15,12 +15,21 @@ void main() {
 void nameFieldsGroup() {
   group('RegisterNameFields', () {
     testWidgets('shows errorText', (tester) async {
-      await pumpThemedWidget(tester, RegisterNameFields(
-        firstName: '', lastName: '', enabled: true,
-        onFirstNameChanged: (_) {}, onLastNameChanged: (_) {},
-        firstNameError: AppString.fieldIsRequired(AppString.firstName),
-      ));
-      expect(find.text(AppString.fieldIsRequired(AppString.firstName)), findsOneWidget);
+      await pumpThemedWidget(
+        tester,
+        RegisterNameFields(
+          firstName: '',
+          lastName: '',
+          enabled: true,
+          onFirstNameChanged: (_) {},
+          onLastNameChanged: (_) {},
+          firstNameError: AppString.fieldIsRequired(AppString.firstName),
+        ),
+      );
+      expect(
+        find.text(AppString.fieldIsRequired(AppString.firstName)),
+        findsOneWidget,
+      );
     });
   });
 }
@@ -28,7 +37,10 @@ void nameFieldsGroup() {
 void genderGroup() {
   group('RegisterGenderSelector', () {
     testWidgets('selects male option', (tester) async {
-      await pumpThemedWidget(tester, RegisterGenderSelectorHarness(initial: Gender.female));
+      await pumpThemedWidget(
+        tester,
+        RegisterGenderSelectorHarness(initial: Gender.female),
+      );
       await tester.tap(find.text(AppString.male));
       await tester.pumpAndSettle();
       expect(find.text('selected:Male'), findsOneWidget);

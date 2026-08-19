@@ -6,16 +6,11 @@ class LoginState extends Equatable {
   @override
   List<Object?> get props => [loginState];
 
- final BaseState<AuthEntity> loginState;
-  const LoginState({
-    this.loginState = const BaseState(),
-  });
+  final BaseState<AuthEntity> loginState;
 
-  LoginState copyWith({
-    BaseState<AuthEntity>? loginState,
-  }) {
-    return LoginState(
-      loginState: loginState ?? this.loginState,
-    );
+  const LoginState({this.loginState = const BaseState()});
+
+  LoginState copyWith({BaseState<AuthEntity>? loginState}) {
+    return LoginState(loginState: loginState ?? this.loginState);
   }
 }

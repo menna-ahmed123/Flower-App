@@ -1,3 +1,4 @@
+import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
@@ -11,6 +12,7 @@ import 'package:flower_app/features/forget_password/presentation/view_model/forg
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class VerificationBody extends StatefulWidget {
   const VerificationBody({super.key});
@@ -82,7 +84,9 @@ class VerificationBodyState extends State<VerificationBody> {
 
   void _listener(BuildContext context, ForgetPasswordState state) {
     if (state.verifyOtpState?.data != null) {
-      // Navigate to reset password page.
+      context.push(
+        '${AppRoutesName.forgetPassword}/${AppRoutesName.resetPassword}',
+      );
     }
   }
 

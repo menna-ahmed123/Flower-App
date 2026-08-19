@@ -1,5 +1,3 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
-
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/auth/login/data/models/login_request.dart';
@@ -26,7 +24,7 @@ void main() {
     refreshToken: 'refresh-token',
     role: 'Customer',
   );
-    String dummyErrorMessage = "Dummy Message";
+  String dummyErrorMessage = "Dummy Message";
 
   group("test use case states", () {
     test("test login use case success state", () async {
@@ -36,7 +34,7 @@ void main() {
         authRepo.signIn(request),
       ).thenAnswer((_) async => SuccessResponse<AuthEntity>(authEntity));
       // act
-      final result = await loginUseCase(request).call();
+      final result = await loginUseCase(request);
 
       // assert
       expect(result, isA<SuccessResponse<AuthEntity>>());
@@ -45,20 +43,19 @@ void main() {
     });
   });
   test("test login use case error state", () async {
-      //Arrange
-       final error = BadResponseError(dummyErrorMessage);
+    //Arrange
+    final error = BadResponseError(dummyErrorMessage);
 
-      provideDummy<BaseResponse<AuthEntity>>(ErrorResponse(appError:error ));
-      when(
-        authRepo.signIn(request),
-      ).thenAnswer((_) async => ErrorResponse(appError:error));
-      // act
-      final result = await loginUseCase(request).call();
+    provideDummy<BaseResponse<AuthEntity>>(ErrorResponse(appError: error));
+    when(
+      authRepo.signIn(request),
+    ).thenAnswer((_) async => ErrorResponse(appError: error));
+    // act
+    final result = await loginUseCase(request);
 
-      // assert
-      expect(result, isA<ErrorResponse<AuthEntity>>());
-      final errorResponse  = result as ErrorResponse<AuthEntity>;
-      expect(errorResponse .errorMessage, dummyErrorMessage);
-    });
-
+    // assert
+    expect(result, isA<ErrorResponse<AuthEntity>>());
+    final errorResponse = result as ErrorResponse<AuthEntity>;
+    expect(errorResponse.errorMessage, dummyErrorMessage);
+  });
 }

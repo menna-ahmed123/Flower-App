@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Shows a one-shot success [SnackBar] after the route is built.
 class RouteSuccessSnackBar extends StatefulWidget {
-  const RouteSuccessSnackBar({
-    super.key,
-    required this.child,
-    this.message,
-  });
+  const RouteSuccessSnackBar({super.key, required this.child, this.message});
 
   final Widget child;
   final String? message;
@@ -28,9 +24,9 @@ class RouteSuccessSnackBarState extends State<RouteSuccessSnackBar> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     });
   }
 

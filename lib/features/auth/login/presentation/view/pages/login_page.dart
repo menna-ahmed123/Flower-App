@@ -167,13 +167,12 @@ class _LoginPageState extends State<LoginPage> {
                         color: context.colors.black[50] ?? Colors.grey,
                         backgroundColor: context.colors.white,
                         borderColor: context.colors.black,
-                        onTap: (){
+                        onTap: () {
                           context.push(AppRoutesName.home);
                         },
-                        
                       ),
                     ),
-                    SizedBox(height: 16.h,),
+                    SizedBox(height: 16.h),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

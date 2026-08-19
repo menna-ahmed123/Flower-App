@@ -1,10 +1,10 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/auth/login/data/models/login_request.dart';
 import 'package:flower_app/features/auth/login/domain/entity/auth_entity.dart';
 import 'package:flower_app/features/auth/login/domain/use_case/login_usecase.dart';
 import 'package:flower_app/features/auth/login/presentation/view_model/login_event.dart';
 import 'package:flower_app/features/auth/login/presentation/view_model/login_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -12,6 +12,7 @@ class LoginViewModel extends Cubit<LoginState> {
   final LoginUseCase _loginUseCase;
 
   LoginViewModel(this._loginUseCase) : super(const LoginState());
+
   void doEvent(LoginEvent event) {
     switch (event) {
       case LoginSubmitted():

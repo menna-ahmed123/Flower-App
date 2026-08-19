@@ -1,10 +1,8 @@
-import 'package:flower_app/app/router/app_router.dart';
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/features/forget_password/domain/entities/forget_password_params.dart';
-import 'package:flower_app/features/forget_password/presentation/pages/verification_page.dart';
 import 'package:flower_app/features/forget_password/presentation/view_model/forget_password_cubit.dart';
 import 'package:flower_app/features/forget_password/presentation/view_model/forget_password_event.dart';
 import 'package:flower_app/features/forget_password/presentation/view_model/forget_password_state.dart';
@@ -48,7 +46,9 @@ class ForgetPasswordBodyState extends State<ForgetPasswordBody> {
 
   void _listener(BuildContext context, ForgetPasswordState state) {
     if (state.forgotPasswordState?.data != null) {
-     context.push(AppRoutesName.verification);
+      context.push(
+        '${AppRoutesName.forgetPassword}/${AppRoutesName.verification}',
+      );
     }
   }
 

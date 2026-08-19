@@ -1,4 +1,3 @@
-
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/core/network/token_storage.dart';
@@ -12,15 +11,13 @@ import 'package:injectable/injectable.dart';
 class AuthRepositoryImpl implements AuthRepo {
   final AuthRemoteDataSource remoteDatasource;
   final SafeCall safeCall;
-    final TokenStorage tokenStorage;
-  AuthRepositoryImpl(
-    this.remoteDatasource,
-    this.safeCall, this.tokenStorage,
-  );
+  final TokenStorage tokenStorage;
+
+  AuthRepositoryImpl(this.remoteDatasource, this.safeCall, this.tokenStorage);
 
   @override
   Future<BaseResponse<AuthEntity>> signIn(LoginRequest request) {
-    return safeCall.safeApiCall(()async{
+    return safeCall.safeApiCall(() async {
       final response = await remoteDatasource.login(request);
       await tokenStorage.saveTokens(
         accessToken: response.data.accessToken,

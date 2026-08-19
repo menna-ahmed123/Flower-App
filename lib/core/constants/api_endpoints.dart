@@ -7,6 +7,8 @@ class ApiEndpoints {
 
   static const String verifyOtp = '/identity/auth/verify-otp';
 
+  static const String resetPassword = '/identity/auth/reset-password';
+
   static const String login = '/identity/auth/login';
 
   static const String register = '/identity/users/register';

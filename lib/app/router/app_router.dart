@@ -6,6 +6,7 @@ import 'package:flower_app/features/auth/register/presentation/view_model/regist
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
 import 'package:flower_app/features/categories/presentation/pages/categories_page.dart';
 import 'package:flower_app/features/forget_password/presentation/pages/forget_password_page.dart';
+import 'package:flower_app/features/forget_password/presentation/pages/reset_password_page.dart';
 import 'package:flower_app/features/forget_password/presentation/pages/verification_page.dart';
 import 'package:flower_app/features/forget_password/presentation/view_model/forget_password_cubit.dart';
 import 'package:flower_app/features/home/presentation/pages/home_page.dart';
@@ -36,10 +37,6 @@ class AppRouter {
     return const Scaffold(body: Center(child: Text('Page Not Found')));
   }
 
-  // ==================== AUTH ====================
-
-  // ==================== AUTH ====================
-
   static GoRoute _loginRoute() {
     return GoRoute(
       path: AppRoutesName.login,
@@ -61,8 +58,6 @@ class AppRouter {
     );
   }
 
-  // ==================== FORGET PASSWORD ====================
-
   static ShellRoute _forgetPasswordShell() {
     return ShellRoute(
       builder: (context, state, child) {
@@ -77,18 +72,24 @@ class AppRouter {
           builder: (context, state) {
             return const ForgetPasswordPage();
           },
-        ),
-        GoRoute(
-          path: AppRoutesName.verification,
-          builder: (context, state) {
-            return const VerificationPage();
-          },
+          routes: [
+            GoRoute(
+              path: AppRoutesName.verification,
+              builder: (context, state) {
+                return const VerificationPage();
+              },
+            ),
+            GoRoute(
+              path: AppRoutesName.resetPassword,
+              builder: (context, state) {
+                return const ResetPasswordPage();
+              },
+            ),
+          ],
         ),
       ],
     );
   }
-
-  // ==================== MAIN SHELL ====================
 
   static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(

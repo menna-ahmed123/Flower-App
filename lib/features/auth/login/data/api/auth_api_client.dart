@@ -6,13 +6,10 @@ import 'package:retrofit/retrofit.dart';
 
 part 'auth_api_client.g.dart';
 
-@RestApi(baseUrl:ApiEndpoints.baseUrl)
+@RestApi(baseUrl: ApiEndpoints.baseUrl)
 abstract class AuthApiClient {
-  
-  factory AuthApiClient(Dio dio, {String baseUrl}) =_AuthApiClient;
+  factory AuthApiClient(Dio dio, {String baseUrl}) = _AuthApiClient;
 
- @POST(ApiEndpoints.login)
- Future<LoginResponse> login(@Body() LoginRequest request);
- 
- 
+  @POST(ApiEndpoints.login)
+  Future<LoginResponse> login(@Body() LoginRequest request);
 }

@@ -96,6 +96,15 @@ abstract class AppString {
 
   static const String invalidOtp = 'Please enter a valid verification code';
 
+  // ==================== Reset Password ====================
+
+  static const String resetPassword = 'Reset Password';
+  static const String newPassword = 'New Password';
+  static const String confirm = 'Confirm';
+  static const String resetPasswordSuccess = 'Reset Password Successfully';
+  static const String resetPasswordDescription =
+      'Password must not be empty and must contain 6 characters with upper case letter and one number at least ';
+
   // ==================== OTP Resend ====================
 
   static const String invalidCode = 'Invalid code';

@@ -13,7 +13,6 @@ void main() {
       final result = await safeCall.safeApiCall<String>(() async => "success");
       expect(result, isA<SuccessResponse<String>>());
 
-
       final success = result as SuccessResponse<String>;
       expect(success.data, 'success');
     });

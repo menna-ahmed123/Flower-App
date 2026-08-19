@@ -2,30 +2,30 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
+import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/errors/app_error.dart';
+import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
+import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/auth/register/api/dio_register_api.dart';
 import 'package:flower_app/features/auth/register/data/data_sources/register_remote_data_source.dart';
 import 'package:flower_app/features/auth/register/data/data_sources/register_remote_data_source_impl.dart';
 import 'package:flower_app/features/auth/register/data/models/register_operation_dto.dart';
 import 'package:flower_app/features/auth/register/data/models/register_request_dto.dart';
 import 'package:flower_app/features/auth/register/data/models/register_result_dto.dart';
-import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
-import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/core/errors/app_error.dart';
-import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_request.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_result.dart';
 import 'package:flower_app/features/auth/register/domain/repositories/register_repository.dart';
 import 'package:flower_app/features/auth/register/domain/use_cases/register_use_case.dart';
 import 'package:flower_app/features/auth/register/domain/use_cases/register_use_case_impl.dart';
+import 'package:flower_app/features/auth/register/domain/validators/register_form_validator.dart';
 import 'package:flower_app/features/auth/register/presentation/intent/register_intent.dart';
 import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
-import 'package:flower_app/features/auth/register/domain/validators/register_form_validator.dart';
-import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/auth/register/presentation/state/register_state.dart';
+import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_form_footer.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_gender_selector.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +110,11 @@ Future<void> dispatchIntent(
 
 Future<void> submitRegisterForm(RegisterBloc bloc) async {
   for (final intent in _seedRegisterIntents()) {
-    await dispatchIntent(bloc, intent, until: _intentApplied(intent, bloc.state));
+    await dispatchIntent(
+      bloc,
+      intent,
+      until: _intentApplied(intent, bloc.state),
+    );
   }
   await dispatchIntent(
     bloc,
@@ -127,14 +131,8 @@ Iterable<RegisterIntent> _seedRegisterIntents() {
     const RegisterFieldChangedIntent(RegisterField.lastName, 'Ali'),
     const RegisterFieldChangedIntent(RegisterField.email, 'sara@example.com'),
     const RegisterFieldChangedIntent(RegisterField.password, 'Pass1234'),
-    const RegisterFieldChangedIntent(
-      RegisterField.confirmPassword,
-      'Pass1234',
-    ),
-    const RegisterFieldChangedIntent(
-      RegisterField.phoneNumber,
-      '01012345678',
-    ),
+    const RegisterFieldChangedIntent(RegisterField.confirmPassword, 'Pass1234'),
+    const RegisterFieldChangedIntent(RegisterField.phoneNumber, '01012345678'),
   ];
 }
 
@@ -143,15 +141,15 @@ bool Function(RegisterState) _intentApplied(
   RegisterState before,
 ) {
   return switch (intent) {
-    RegisterFieldChangedIntent(:final field, :final value) => (state) =>
-        switch (field) {
-          RegisterField.firstName => state.firstName == value,
-          RegisterField.lastName => state.lastName == value,
-          RegisterField.email => state.email == value,
-          RegisterField.password => state.password == value,
-          RegisterField.confirmPassword => state.confirmPassword == value,
-          RegisterField.phoneNumber => state.phoneNumber == value,
-        },
+    RegisterFieldChangedIntent(:final field, :final value) =>
+      (state) => switch (field) {
+        RegisterField.firstName => state.firstName == value,
+        RegisterField.lastName => state.lastName == value,
+        RegisterField.email => state.email == value,
+        RegisterField.password => state.password == value,
+        RegisterField.confirmPassword => state.confirmPassword == value,
+        RegisterField.phoneNumber => state.phoneNumber == value,
+      },
     RegisterGenderChangedIntent(:final gender) =>
       (state) => state.gender == gender,
     _ => (_) => true,
@@ -416,11 +414,7 @@ Future<void> fillValidRegisterForm(WidgetTester tester) async {
   await enterField(tester, AppString.enterPhoneNumber, '01012345678');
 }
 
-Future<void> enterField(
-  WidgetTester tester,
-  String hint,
-  String value,
-) async {
+Future<void> enterField(WidgetTester tester, String hint, String value) async {
   await tester.enterText(find.widgetWithText(TextFormField, hint), value);
   await tester.pump();
 }

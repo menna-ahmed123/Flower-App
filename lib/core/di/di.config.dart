@@ -54,6 +54,8 @@ import '../../features/forget_password/domain/repos/forget_password_repo.dart'
     as _i639;
 import '../../features/forget_password/domain/use_cases/forget_password_use_case.dart'
     as _i437;
+import '../../features/forget_password/domain/use_cases/reset_password_use_case.dart'
+    as _i56;
 import '../../features/forget_password/domain/use_cases/verify_otp_use_case.dart'
     as _i222;
 import '../../features/forget_password/presentation/view_model/forget_password_cubit.dart'
@@ -123,7 +125,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i682.RegisterRemoteDataSource>(
       () => _i550.RegisterRemoteDataSourceImpl(gh<_i347.DioRegisterApi>()),
     );
-    gh.lazySingleton<_i881.ForgetPasswordRemoteDataSource>(
+    gh.factory<_i881.ForgetPasswordRemoteDataSource>(
       () => _i643.ForgetPasswordRemoteDataSourceImpl(
         forgetPasswordApiClient: gh<_i864.ForgetPasswordApiClient>(),
         safeCall: gh<_i185.SafeCall>(),
@@ -170,6 +172,11 @@ extension GetItInjectableX on _i174.GetIt {
         forgetPasswordRepo: gh<_i639.ForgetPasswordRepo>(),
       ),
     );
+    gh.factory<_i56.ResetPasswordUseCase>(
+      () => _i56.ResetPasswordUseCase(
+        forgetPasswordRepo: gh<_i639.ForgetPasswordRepo>(),
+      ),
+    );
     gh.factory<_i222.VerifyOtpUseCase>(
       () => _i222.VerifyOtpUseCase(
         forgetPasswordRepo: gh<_i639.ForgetPasswordRepo>(),
@@ -179,6 +186,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i1064.ForgetPasswordCubit(
         gh<_i437.ForgetPasswordUseCase>(),
         gh<_i222.VerifyOtpUseCase>(),
+        gh<_i56.ResetPasswordUseCase>(),
       ),
     );
     return this;

@@ -16,12 +16,13 @@ class LoginResponse {
     required this.message,
     required this.data,
   });
-  
+
   factory LoginResponse.fromJson(Map<String, dynamic> json) =>
       _$LoginResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
 }
+
 @JsonSerializable()
 class LoginData {
   final String accessToken;
@@ -41,16 +42,17 @@ class LoginData {
     required this.canAccessDriverHome,
     this.driverApplicationRejectionReason,
   });
-AuthEntity toDomain() {
-  return AuthEntity(
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-    role: role,
-  );
-}
+
+  AuthEntity toDomain() {
+    return AuthEntity(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      role: role,
+    );
+  }
+
   factory LoginData.fromJson(Map<String, dynamic> json) =>
       _$LoginDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$LoginDataToJson(this);
-
 }

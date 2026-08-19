@@ -1,8 +1,8 @@
-export 'package:flower_app/features/auth/register/domain/validators/register_field_errors.dart';
-
 import 'package:equatable/equatable.dart';
 import 'package:flower_app/features/auth/register/domain/models/register_request.dart';
 import 'package:flower_app/features/auth/register/domain/validators/register_field_errors.dart';
+
+export 'package:flower_app/features/auth/register/domain/validators/register_field_errors.dart';
 
 sealed class RegisterIntent extends Equatable {
   const RegisterIntent();
