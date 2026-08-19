@@ -63,143 +63,145 @@ class _LoginPageState extends State<LoginPage> {
                 );
               }
             },
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomTextField(
-                      label: AppString.email,
-                      hint: AppString.enterYourEmail,
-                      validator: AppValidators.emailValidator,
-                      controller: _emailController,
-                    ),
-                    SizedBox(height: 16.h),
-                    CustomTextField(
-                      label: AppString.password,
-                      hint: AppString.enterYourPassword,
-                      validator: AppValidators.passwordValidator,
-                      controller: _passwordController,
-                    ),
-                    StatefulBuilder(
-                      builder: (context, setState) {
-                        return Row(
-                          children: [
-                            Checkbox(
-                              activeColor: context.colors.pink,
-                              side: BorderSide(
-                                color: context.colors.grey[900] ?? Colors.grey,
-                                width: 1.5.w,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomTextField(
+                        label: AppString.email,
+                        hint: AppString.enterYourEmail,
+                        validator: AppValidators.emailValidator,
+                        controller: _emailController,
+                      ),
+                      SizedBox(height: 16.h),
+                      CustomTextField(
+                        label: AppString.password,
+                        hint: AppString.enterYourPassword,
+                        validator: AppValidators.passwordValidator,
+                        controller: _passwordController,
+                      ),
+                      StatefulBuilder(
+                        builder: (context, setState) {
+                          return Row(
+                            children: [
+                              Checkbox(
+                                activeColor: context.colors.pink,
+                                side: BorderSide(
+                                  color: context.colors.grey[900] ?? Colors.grey,
+                                  width: 1.5.w,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.r),
+                                ),
+                                value: isChecked,
+                                onChanged: (value) {
+                                  setState(() {
+                                    isChecked = value!;
+                                  });
+                                },
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.r),
-                              ),
-                              value: isChecked,
-                              onChanged: (value) {
-                                setState(() {
-                                  isChecked = value!;
-                                });
-                              },
-                            ),
-                            Text(
-                              AppString.rememberMe,
-                              style: TextStyle(
-                                color: context.colors.black,
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                            Spacer(),
-                            TextButton(
-                              onPressed: () {
-                                context.push(AppRoutesName.forgetPassword);
-                              },
-                              child: Text(
-                                AppString.forgetPassword,
+                              Text(
+                                AppString.rememberMe,
                                 style: TextStyle(
-                                  color: context.colors.pink,
+                                  color: context.colors.black,
                                   fontSize: 14.sp,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: context.colors.pink,
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-
-                    SizedBox(height: 16.h),
-                    SizedBox(
-                      width: double.infinity,
-                      child: BlocBuilder<LoginViewModel, LoginState>(
-                        builder: (context, state) {
-                          return state.loginState.isLoading
-                              ? Center(
-                                  child: CircularProgressIndicator(
+                              Spacer(),
+                              TextButton(
+                                onPressed: () {
+                                  context.push(AppRoutesName.forgetPassword);
+                                },
+                                child: Text(
+                                  AppString.forgetPassword,
+                                  style: TextStyle(
                                     color: context.colors.pink,
+                                    fontSize: 14.sp,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: context.colors.pink,
                                   ),
-                                )
-                              : CustomButton(
-                                  text: AppString.login,
-                                  color: context.colors.white,
-                                  onTap: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      loginViewModel.doEvent(
-                                        LoginSubmitted(
-                                          email: _emailController.text,
-                                          password: _passwordController.text,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                );
+                                ),
+                              ),
+                            ],
+                          );
                         },
                       ),
-                    ),
-
-                    SizedBox(height: 16.h),
-                    SizedBox(
-                      width: double.infinity,
-                      child: CustomButton(
-                        text: "Continue as guest",
-                        color: context.colors.black[50] ?? Colors.grey,
-                        backgroundColor: context.colors.white,
-                        borderColor: context.colors.black,
-                        onTap: () {
-                          context.push(AppRoutesName.home);
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppString.dontHaveAccount,
-                          style: TextStyle(
-                            color: context.colors.black,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            context.push(AppRoutesName.register);
+              
+                      SizedBox(height: 16.h),
+                      SizedBox(
+                        width: double.infinity,
+                        child: BlocBuilder<LoginViewModel, LoginState>(
+                          builder: (context, state) {
+                            return state.loginState.isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      color: context.colors.pink,
+                                    ),
+                                  )
+                                : CustomButton(
+                                    text: AppString.login,
+                                    color: context.colors.white,
+                                    onTap: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        loginViewModel.doEvent(
+                                          LoginSubmitted(
+                                            email: _emailController.text,
+                                            password: _passwordController.text,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  );
                           },
-                          child: Text(
-                            AppString.signUp,
+                        ),
+                      ),
+              
+                      SizedBox(height: 16.h),
+                      SizedBox(
+                        width: double.infinity,
+                        child: CustomButton(
+                          text: "Continue as guest",
+                          color: context.colors.black[50] ?? Colors.grey,
+                          backgroundColor: context.colors.white,
+                          borderColor: context.colors.black,
+                          onTap: () {
+                            context.push(AppRoutesName.home);
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            AppString.dontHaveAccount,
                             style: TextStyle(
-                              color: context.colors.pink,
+                              color: context.colors.black,
                               fontSize: 16.sp,
-                              decoration: TextDecoration.underline,
-                              decorationColor: context.colors.pink,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          TextButton(
+                            onPressed: () {
+                              context.push(AppRoutesName.register);
+                            },
+                            child: Text(
+                              AppString.signUp,
+                              style: TextStyle(
+                                color: context.colors.pink,
+                                fontSize: 16.sp,
+                                decoration: TextDecoration.underline,
+                                decorationColor: context.colors.pink,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
