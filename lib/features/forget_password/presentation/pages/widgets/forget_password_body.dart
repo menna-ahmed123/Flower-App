@@ -1,3 +1,5 @@
+import 'package:flower_app/app/router/app_router.dart';
+import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
@@ -9,6 +11,7 @@ import 'package:flower_app/features/forget_password/presentation/view_model/forg
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class ForgetPasswordBody extends StatefulWidget {
   const ForgetPasswordBody({super.key});
@@ -45,9 +48,7 @@ class ForgetPasswordBodyState extends State<ForgetPasswordBody> {
 
   void _listener(BuildContext context, ForgetPasswordState state) {
     if (state.forgotPasswordState?.data != null) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const VerificationPage()));
+     context.push(AppRoutesName.verification);
     }
   }
 

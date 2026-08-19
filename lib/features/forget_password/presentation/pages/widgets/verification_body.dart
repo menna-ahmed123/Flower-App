@@ -21,18 +21,19 @@ class VerificationBody extends StatefulWidget {
 
 class VerificationBodyState extends State<VerificationBody> {
   final _otpController = TextEditingController();
-  String? _localOtpError;
+  final ValueNotifier<String?> _localOtpError = ValueNotifier(null);
 
   @override
   void dispose() {
     _otpController.dispose();
+    _localOtpError.dispose();
     super.dispose();
   }
 
   void _verifyOtp() {
     final localError = AppValidators.otpValidator(_otpController.text);
 
-    setState(() => _localOtpError = localError);
+    _localOtpError.value = localError;
 
     if (localError != null) {
       return;
@@ -61,8 +62,8 @@ class VerificationBodyState extends State<VerificationBody> {
   }
 
   void _clearLocalErrorIfNeeded() {
-    if (_localOtpError != null) {
-      setState(() => _localOtpError = null);
+    if (_localOtpError.value != null) {
+      _localOtpError.value = null;
     }
   }
 
@@ -146,14 +147,19 @@ class VerificationBodyState extends State<VerificationBody> {
         final serverHasError =
             (state.verifyOtpState?.errorMessage ?? '').isNotEmpty;
 
-        final errorText =
-            _localOtpError ?? (serverHasError ? AppString.invalidCode : null);
+        return ValueListenableBuilder<String?>(
+          valueListenable: _localOtpError,
+          builder: (context, localError, child) {
+            final errorText =
+                localError ?? (serverHasError ? AppString.invalidCode : null);
 
-        return AppOtpField(
-          length: 6,
-          onChanged: _onOtpChanged,
-          onCompleted: _onOtpCompleted,
-          errorText: errorText,
+            return AppOtpField(
+              length: 6,
+              onChanged: _onOtpChanged,
+              onCompleted: _onOtpCompleted,
+              errorText: errorText,
+            );
+          },
         );
       },
     );

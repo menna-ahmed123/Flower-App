@@ -8,7 +8,7 @@ import 'package:flower_app/features/forget_password/data/models/verify_otp_reque
 import 'package:flower_app/features/forget_password/data/models/verify_otp_response_model.dart';
 import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: ForgetPasswordRemoteDataSource)
+@Injectable(as: ForgetPasswordRemoteDataSource)
 class ForgetPasswordRemoteDataSourceImpl
     implements ForgetPasswordRemoteDataSource {
   final ForgetPasswordApiClient forgetPasswordApiClient;
