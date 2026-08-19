@@ -1,30 +1,39 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/core/theme/app_theme.dart';
+import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flower_app/main.dart';
+import 'features/auth/register/support/register_test_support.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  registerPageSmokeTest();
+}
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+void registerPageSmokeTest() {
+  testWidgets('Register page loads sign up screen', (tester) async {
+    await pumpRegisterSmokePage(tester);
+    expect(find.widgetWithText(ElevatedButton, 'Sign up'), findsOneWidget);
   });
+}
+
+Future<void> pumpRegisterSmokePage(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(375, 900);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, _) => MaterialApp(
+        theme: AppTheme(lightThemeColors).themeData,
+        home: RegisterPage(
+          createBloc: testRegisterBlocFactory(FakeRegisterRepository()),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
 }

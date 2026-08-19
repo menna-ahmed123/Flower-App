@@ -3,6 +3,26 @@ import 'package:flower_app/core/constants/app_string.dart';
 class AppValidators {
   AppValidators._();
 
+  static final RegExp _passwordPattern = RegExp(r'^(?=.*[A-Z]).{8,}$');
+
+  static final RegExp _registrationPasswordPattern = RegExp(
+    r'^(?=.*[A-Z])(?=.*\d).{6,}$',
+  );
+
+  static final RegExp _usernamePattern = RegExp(r'^[a-zA-Z0-9_]+$');
+
+  static final RegExp _emailPattern = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+
+  static final RegExp _phonePattern = RegExp(r'^01[0125][0-9]{8}$');
+
+  static String? requiredField(String? value, {required String field}) {
+    if (value == null || value.trim().isEmpty) {
+      return AppString.fieldIsRequired(field);
+    }
+
+    return null;
+  }
+
   static String? usernameValidator(String? value, {String field = 'Name'}) {
     if (value == null || value.trim().isEmpty) {
       return AppString.fieldIsRequired(field);
@@ -16,9 +36,7 @@ class AppValidators {
       return AppString.fieldNoSpaces(field);
     }
 
-    final regex = RegExp(r'^[a-zA-Z0-9_]+$');
-
-    if (!regex.hasMatch(value)) {
+    if (!_usernamePattern.hasMatch(value)) {
       return AppString.onlyLettersNumbersUnderscore;
     }
 
@@ -26,13 +44,11 @@ class AppValidators {
   }
 
   static String? emailValidator(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return AppString.pleaseEnterYourEmail;
     }
 
-    final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-
-    if (!regex.hasMatch(value.trim())) {
+    if (!_emailPattern.hasMatch(value.trim())) {
       return AppString.pleaseEnterValidEmail;
     }
 
@@ -44,10 +60,20 @@ class AppValidators {
       return AppString.passwordIsRequired;
     }
 
-    final RegExp passwordRegExp = RegExp(r'^(?=.*[A-Z]).{8,}$');
-
-    if (!passwordRegExp.hasMatch(value)) {
+    if (!_passwordPattern.hasMatch(value)) {
       return AppString.passwordRequirement;
+    }
+
+    return null;
+  }
+
+  static String? registrationPasswordValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return AppString.passwordIsRequired;
+    }
+
+    if (!_registrationPasswordPattern.hasMatch(value)) {
+      return AppString.registrationPasswordRequirement;
     }
 
     return null;
@@ -55,7 +81,7 @@ class AppValidators {
 
   static String? confirmPasswordValidator(String? value, String password) {
     if (value == null || value.isEmpty) {
-      return AppString.passwordIsRequired;
+      return AppString.confirmPasswordIsRequired;
     }
 
     if (value != password) {
@@ -70,9 +96,7 @@ class AppValidators {
       return AppString.phoneNumberIsRequired;
     }
 
-    final regex = RegExp(r'^01[0125][0-9]{8}$');
-
-    if (!regex.hasMatch(value)) {
+    if (!_phonePattern.hasMatch(value.trim())) {
       return AppString.validEgyptianPhone;
     }
 
@@ -84,9 +108,7 @@ class AppValidators {
       return AppString.passwordIsRequired;
     }
 
-    final regex = RegExp(r'^(?=.*[A-Z])(?=.*\d).{6,}$');
-
-    if (!regex.hasMatch(value)) {
+    if (!_registrationPasswordPattern.hasMatch(value)) {
       return AppString.resetPasswordRequirement;
     }
 

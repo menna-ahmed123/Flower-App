@@ -3,18 +3,17 @@ import 'package:flower_app/features/forget_password/data/data_sources/remote/for
 import 'package:flower_app/features/forget_password/data/models/forget_password_request_model.dart';
 import 'package:flower_app/features/forget_password/data/models/forget_password_response_model.dart';
 import 'package:flower_app/features/forget_password/data/models/reset_password_request_model.dart';
+import 'package:flower_app/features/forget_password/data/models/reset_password_response_model.dart';
 import 'package:flower_app/features/forget_password/data/models/verify_otp_request_model.dart';
 import 'package:flower_app/features/forget_password/data/models/verify_otp_response_model.dart';
 import 'package:flower_app/features/forget_password/domain/entities/forget_password_entity.dart';
 import 'package:flower_app/features/forget_password/domain/entities/forget_password_params.dart';
+import 'package:flower_app/features/forget_password/domain/entities/reset_password_entity.dart';
+import 'package:flower_app/features/forget_password/domain/entities/reset_password_params.dart';
 import 'package:flower_app/features/forget_password/domain/entities/verify_otp_entity.dart';
 import 'package:flower_app/features/forget_password/domain/entities/verify_otp_params.dart';
 import 'package:flower_app/features/forget_password/domain/repos/forget_password_repo.dart';
 import 'package:injectable/injectable.dart';
-
-import '../../domain/entities/reset_password_entity.dart';
-import '../../domain/entities/reset_password_params.dart';
-import '../models/reset_password_response_model.dart';
 
 @LazySingleton(as: ForgetPasswordRepo)
 class ForgetPasswordRepoImpl implements ForgetPasswordRepo {

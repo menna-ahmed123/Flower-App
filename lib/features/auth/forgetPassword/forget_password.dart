@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class ForgetPassword extends StatelessWidget {
+  const ForgetPassword({super.key});
 
   @override
   Widget build(BuildContext context) {

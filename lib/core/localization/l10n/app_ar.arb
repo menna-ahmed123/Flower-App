@@ -1,0 +1,16 @@
+{
+  "@@locale": "ar",
+  "commonSave": "حفظ",
+  "commonCancel": "إلغاء",
+  "commonConfirm": "تأكيد",
+  "commonClose": "إغلاق",
+  "commonBack": "رجوع",
+  "commonNext": "التالي",
+  "commonPrevious": "السابق",
+  "commonRetry": "إعادة المحاولة",
+  "commonLoading": "جارٍ التحميل",
+  "commonError": "خطأ",
+  "commonSuccess": "تم بنجاح",
+  "localeEnglish": "الإنجليزية",
+  "localeArabic": "العربية"
+}

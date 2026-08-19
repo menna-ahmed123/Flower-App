@@ -1,5 +1,10 @@
-class ForgetPasswordEntity {
+import 'package:equatable/equatable.dart';
+
+class ForgetPasswordEntity extends Equatable {
   final int cooldownRemainingSeconds;
 
-  ForgetPasswordEntity({required this.cooldownRemainingSeconds});
+  const ForgetPasswordEntity({required this.cooldownRemainingSeconds});
+
+  @override
+  List<Object?> get props => [cooldownRemainingSeconds];
 }

@@ -1,5 +1,10 @@
-class ForgetPasswordParams {
+import 'package:equatable/equatable.dart';
+
+class ForgetPasswordParams extends Equatable {
   final String email;
 
-  ForgetPasswordParams({required this.email});
+  const ForgetPasswordParams({required this.email});
+
+  @override
+  List<Object?> get props => [email];
 }
