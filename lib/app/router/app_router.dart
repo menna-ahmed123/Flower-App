@@ -5,10 +5,10 @@ import 'package:flower_app/features/auth/register/presentation/pages/register_pa
 import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
 import 'package:flower_app/features/categories/presentation/pages/categories_page.dart';
-import 'package:flower_app/features/forget_password/presentation/pages/forget_password_page.dart';
-import 'package:flower_app/features/forget_password/presentation/pages/reset_password_page.dart';
-import 'package:flower_app/features/forget_password/presentation/pages/verification_page.dart';
-import 'package:flower_app/features/forget_password/presentation/view_model/forget_password_cubit.dart';
+import 'package:flower_app/features/auth/forget_password/presentation/pages/forget_password_page.dart';
+import 'package:flower_app/features/auth/forget_password/presentation/pages/reset_password_page.dart';
+import 'package:flower_app/features/auth/forget_password/presentation/pages/verification_page.dart';
+import 'package:flower_app/features/auth/forget_password/presentation/view_model/forget_password_cubit.dart';
 import 'package:flower_app/features/home/presentation/pages/home_page.dart';
 import 'package:flower_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter/material.dart';

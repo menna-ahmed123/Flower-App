@@ -6,25 +6,25 @@
 import 'dart:async' as _i4;
 
 import 'package:flower_app/core/base/base_response.dart' as _i5;
-import 'package:flower_app/features/forget_password/domain/entities/forget_password_entity.dart'
+import 'package:flower_app/features/auth/forget_password/domain/entities/forget_password_entity.dart'
     as _i6;
-import 'package:flower_app/features/forget_password/domain/entities/forget_password_params.dart'
+import 'package:flower_app/features/auth/forget_password/domain/entities/forget_password_params.dart'
     as _i7;
-import 'package:flower_app/features/forget_password/domain/entities/reset_password_entity.dart'
+import 'package:flower_app/features/auth/forget_password/domain/entities/reset_password_entity.dart'
     as _i13;
-import 'package:flower_app/features/forget_password/domain/entities/reset_password_params.dart'
+import 'package:flower_app/features/auth/forget_password/domain/entities/reset_password_params.dart'
     as _i14;
-import 'package:flower_app/features/forget_password/domain/entities/verify_otp_entity.dart'
+import 'package:flower_app/features/auth/forget_password/domain/entities/verify_otp_entity.dart'
     as _i10;
-import 'package:flower_app/features/forget_password/domain/entities/verify_otp_params.dart'
+import 'package:flower_app/features/auth/forget_password/domain/entities/verify_otp_params.dart'
     as _i11;
-import 'package:flower_app/features/forget_password/domain/repos/forget_password_repo.dart'
+import 'package:flower_app/features/auth/forget_password/domain/repos/forget_password_repo.dart'
     as _i2;
-import 'package:flower_app/features/forget_password/domain/use_cases/forget_password_use_case.dart'
+import 'package:flower_app/features/auth/forget_password/domain/use_cases/forget_password_use_case.dart'
     as _i3;
-import 'package:flower_app/features/forget_password/domain/use_cases/reset_password_use_case.dart'
+import 'package:flower_app/features/auth/forget_password/domain/use_cases/reset_password_use_case.dart'
     as _i12;
-import 'package:flower_app/features/forget_password/domain/use_cases/verify_otp_use_case.dart'
+import 'package:flower_app/features/auth/forget_password/domain/use_cases/verify_otp_use_case.dart'
     as _i9;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i8;

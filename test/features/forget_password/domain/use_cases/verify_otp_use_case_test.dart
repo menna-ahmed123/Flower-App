@@ -1,8 +1,8 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/features/forget_password/domain/entities/verify_otp_entity.dart';
-import 'package:flower_app/features/forget_password/domain/entities/verify_otp_params.dart';
-import 'package:flower_app/features/forget_password/domain/repos/forget_password_repo.dart';
-import 'package:flower_app/features/forget_password/domain/use_cases/verify_otp_use_case.dart';
+import 'package:flower_app/features/auth/forget_password/domain/entities/verify_otp_entity.dart';
+import 'package:flower_app/features/auth/forget_password/domain/entities/verify_otp_params.dart';
+import 'package:flower_app/features/auth/forget_password/domain/repos/forget_password_repo.dart';
+import 'package:flower_app/features/auth/forget_password/domain/use_cases/verify_otp_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flower_app/features/auth/login/data/api/auth_api_client.dart';
-import 'package:flower_app/features/forget_password/api/client/forget_password_api_client.dart';
+import 'package:flower_app/features/auth/forget_password/api/client/forget_password_api_client.dart';
 import 'package:injectable/injectable.dart';
 
 @module

@@ -42,23 +42,23 @@ import '../../features/auth/register/domain/validators/register_form_validator.d
     as _i495;
 import '../../features/auth/register/presentation/view_model/register_bloc.dart'
     as _i213;
-import '../../features/forget_password/api/client/forget_password_api_client.dart'
+import '../../features/auth/forget_password/api/client/forget_password_api_client.dart'
     as _i864;
-import '../../features/forget_password/api/data_source/forget_password_remote_data_source_impl.dart'
+import '../../features/auth/forget_password/api/data_source/forget_password_remote_data_source_impl.dart'
     as _i643;
-import '../../features/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart'
+import '../../features/auth/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart'
     as _i881;
-import '../../features/forget_password/data/repos/forget_password_repo_impl.dart'
+import '../../features/auth/forget_password/data/repos/forget_password_repo_impl.dart'
     as _i216;
-import '../../features/forget_password/domain/repos/forget_password_repo.dart'
+import '../../features/auth/forget_password/domain/repos/forget_password_repo.dart'
     as _i639;
-import '../../features/forget_password/domain/use_cases/forget_password_use_case.dart'
+import '../../features/auth/forget_password/domain/use_cases/forget_password_use_case.dart'
     as _i437;
-import '../../features/forget_password/domain/use_cases/reset_password_use_case.dart'
+import '../../features/auth/forget_password/domain/use_cases/reset_password_use_case.dart'
     as _i56;
-import '../../features/forget_password/domain/use_cases/verify_otp_use_case.dart'
+import '../../features/auth/forget_password/domain/use_cases/verify_otp_use_case.dart'
     as _i222;
-import '../../features/forget_password/presentation/view_model/forget_password_cubit.dart'
+import '../../features/auth/forget_password/presentation/view_model/forget_password_cubit.dart'
     as _i1064;
 import '../localization/locale_controller.dart' as _i1066;
 import '../localization/locale_storage.dart' as _i463;

@@ -1,13 +1,13 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/network/safe_call.dart';
-import 'package:flower_app/features/forget_password/api/client/forget_password_api_client.dart';
-import 'package:flower_app/features/forget_password/api/data_source/forget_password_remote_data_source_impl.dart';
-import 'package:flower_app/features/forget_password/data/models/forget_password_request_model.dart';
-import 'package:flower_app/features/forget_password/data/models/forget_password_response_model.dart';
-import 'package:flower_app/features/forget_password/data/models/reset_password_request_model.dart';
-import 'package:flower_app/features/forget_password/data/models/reset_password_response_model.dart';
-import 'package:flower_app/features/forget_password/data/models/verify_otp_request_model.dart';
-import 'package:flower_app/features/forget_password/data/models/verify_otp_response_model.dart';
+import 'package:flower_app/features/auth/forget_password/api/client/forget_password_api_client.dart';
+import 'package:flower_app/features/auth/forget_password/api/data_source/forget_password_remote_data_source_impl.dart';
+import 'package:flower_app/features/auth/forget_password/data/models/forget_password_request_model.dart';
+import 'package:flower_app/features/auth/forget_password/data/models/forget_password_response_model.dart';
+import 'package:flower_app/features/auth/forget_password/data/models/reset_password_request_model.dart';
+import 'package:flower_app/features/auth/forget_password/data/models/reset_password_response_model.dart';
+import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_request_model.dart';
+import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_response_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 

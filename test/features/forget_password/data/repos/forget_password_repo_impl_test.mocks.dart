@@ -6,19 +6,19 @@
 import 'dart:async' as _i3;
 
 import 'package:flower_app/core/base/base_response.dart' as _i4;
-import 'package:flower_app/features/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart'
+import 'package:flower_app/features/auth/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart'
     as _i2;
-import 'package:flower_app/features/forget_password/data/models/forget_password_request_model.dart'
+import 'package:flower_app/features/auth/forget_password/data/models/forget_password_request_model.dart'
     as _i6;
-import 'package:flower_app/features/forget_password/data/models/forget_password_response_model.dart'
+import 'package:flower_app/features/auth/forget_password/data/models/forget_password_response_model.dart'
     as _i5;
-import 'package:flower_app/features/forget_password/data/models/reset_password_request_model.dart'
+import 'package:flower_app/features/auth/forget_password/data/models/reset_password_request_model.dart'
     as _i11;
-import 'package:flower_app/features/forget_password/data/models/reset_password_response_model.dart'
+import 'package:flower_app/features/auth/forget_password/data/models/reset_password_response_model.dart'
     as _i10;
-import 'package:flower_app/features/forget_password/data/models/verify_otp_request_model.dart'
+import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_request_model.dart'
     as _i9;
-import 'package:flower_app/features/forget_password/data/models/verify_otp_response_model.dart'
+import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_response_model.dart'
     as _i8;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i7;
