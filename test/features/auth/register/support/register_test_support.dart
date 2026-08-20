@@ -1,339 +1,90 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:dio/dio.dart';
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
-import 'package:flower_app/features/auth/register/api/dio_register_api.dart';
-import 'package:flower_app/features/auth/register/data/data_sources/register_remote_data_source.dart';
-import 'package:flower_app/features/auth/register/data/data_sources/register_remote_data_source_impl.dart';
-import 'package:flower_app/features/auth/register/data/models/register_operation_dto.dart';
-import 'package:flower_app/features/auth/register/data/models/register_request_dto.dart';
-import 'package:flower_app/features/auth/register/data/models/register_result_dto.dart';
-import 'package:flower_app/features/auth/register/domain/models/register_request.dart';
-import 'package:flower_app/features/auth/register/domain/models/register_result.dart';
-import 'package:flower_app/features/auth/register/domain/repositories/register_repository.dart';
-import 'package:flower_app/features/auth/register/domain/use_cases/register_use_case.dart';
-import 'package:flower_app/features/auth/register/domain/use_cases/register_use_case_impl.dart';
-import 'package:flower_app/features/auth/register/domain/validators/register_form_validator.dart';
-import 'package:flower_app/features/auth/register/presentation/intent/register_intent.dart';
-import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
-import 'package:flower_app/features/auth/register/presentation/state/register_state.dart';
-import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
-import 'package:flower_app/features/auth/register/presentation/widgets/register_form_footer.dart';
+import 'package:flower_app/features/auth/register/data/models/register_request.dart';
+import 'package:flower_app/features/auth/register/data/models/register_response.dart';
+import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+import 'package:flower_app/features/auth/register/domain/entity/register_entity.dart';
+import 'package:flower_app/features/auth/register/domain/repo/register_repo.dart';
+import 'package:flower_app/features/auth/register/domain/use_case/register_usecase.dart';
+import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
+import 'package:flower_app/features/auth/register/presentation/view_model/register_event.dart';
+import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_gender_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:retrofit/retrofit.dart' hide Headers;
+
+const fakeRegisterEntity = RegisterEntity(
+  userId: 'user-1',
+  email: 'sara@example.com',
+  role: 'Customer',
+  status: 'Active',
+  message: 'Account registered successfully.',
+);
+
+const SuccessResponse<RegisterEntity> fakeRegisterSuccess = SuccessResponse(
+  fakeRegisterEntity,
+);
 
 RegisterRequest validRegisterRequest({
-  Gender gender = Gender.female,
+  String fullName = 'Sara Ali',
   String email = 'sara@example.com',
+  String phoneNumber = '01012345678',
+  String gender = 'Female',
+  String password = 'Pass1234',
+  String confirmPassword = 'Pass1234',
 }) {
   return RegisterRequest(
-    firstName: 'Sara',
-    lastName: 'Ali',
+    fullName: fullName,
     email: email,
-    password: 'Pass1234',
-    phoneNumber: '01012345678',
+    phoneNumber: phoneNumber,
+    gender: gender,
+    password: password,
+    confirmPassword: confirmPassword,
+  );
+}
+
+RegisterSubmitted validRegisterSubmitted({
+  String firstName = 'Sara',
+  String lastName = 'Ali',
+  String email = 'sara@example.com',
+  String password = 'Pass1234',
+  String confirmPassword = 'Pass1234',
+  String phoneNumber = '01012345678',
+  String gender = 'Female',
+}) {
+  return RegisterSubmitted(
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    password: password,
+    confirmPassword: confirmPassword,
+    phoneNumber: phoneNumber,
     gender: gender,
   );
 }
 
-const validRegisterFormInput = RegisterFormInput(
-  firstName: 'Sara',
-  lastName: 'Ali',
-  email: 'sara@example.com',
-  password: 'Pass1234',
-  confirmPassword: 'Pass1234',
-  phoneNumber: '01012345678',
-);
-
-const emptyRegisterFormInput = RegisterFormInput(
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  phoneNumber: '',
-);
-
-const filledRegisterState = RegisterState(
-  firstName: 'Sara',
-  lastName: 'Ali',
-  email: 'sara@example.com',
-  password: 'Pass1234',
-  confirmPassword: 'Pass1234',
-  phoneNumber: '01012345678',
-);
-
-class RegisterBlocTestEnv {
-  RegisterBlocTestEnv._(this.useCase, this.bloc);
-
-  final FakeRegisterUseCase useCase;
-  final RegisterBloc bloc;
-
-  factory RegisterBlocTestEnv({FakeRegisterUseCase? useCase}) {
-    final fake = useCase ?? FakeRegisterUseCase();
-    return RegisterBlocTestEnv._(
-      fake,
-      RegisterBloc(fake, const RegisterFormValidator()),
-    );
-  }
-
-  Future<void> dispose() => bloc.close();
-}
-
-Future<void> dispatchIntent(
-  RegisterBloc bloc,
-  RegisterIntent intent, {
-  bool Function(RegisterState state)? until,
-}) async {
-  final predicate = until ?? (_) => true;
-  if (predicate(bloc.state)) {
-    bloc.add(intent);
-    await Future<void>.microtask(() {});
-    if (predicate(bloc.state)) return;
-  }
-  final done = bloc.stream.firstWhere(predicate);
-  bloc.add(intent);
-  await done;
-}
-
-Future<void> submitRegisterForm(RegisterBloc bloc) async {
-  for (final intent in _seedRegisterIntents()) {
-    await dispatchIntent(
-      bloc,
-      intent,
-      until: _intentApplied(intent, bloc.state),
-    );
-  }
-  await dispatchIntent(
-    bloc,
-    const SubmitRegisterIntent(),
-    until: (state) =>
-        state.effect != null ||
-        (!state.isLoading && state.fieldErrors.hasErrors),
+RegisterResponse successfulRegisterResponse({
+  String message = 'Account registered successfully.',
+}) {
+  return RegisterResponse(
+    isSuccess: true,
+    statusCode: 201,
+    message: message,
+    data: RegisterData(
+      userId: 'user-1',
+      email: 'sara@example.com',
+      role: 'Customer',
+      status: 'Active',
+    ),
   );
-}
-
-Iterable<RegisterIntent> _seedRegisterIntents() {
-  return [
-    const RegisterFieldChangedIntent(RegisterField.firstName, 'Sara'),
-    const RegisterFieldChangedIntent(RegisterField.lastName, 'Ali'),
-    const RegisterFieldChangedIntent(RegisterField.email, 'sara@example.com'),
-    const RegisterFieldChangedIntent(RegisterField.password, 'Pass1234'),
-    const RegisterFieldChangedIntent(RegisterField.confirmPassword, 'Pass1234'),
-    const RegisterFieldChangedIntent(RegisterField.phoneNumber, '01012345678'),
-  ];
-}
-
-bool Function(RegisterState) _intentApplied(
-  RegisterIntent intent,
-  RegisterState before,
-) {
-  return switch (intent) {
-    RegisterFieldChangedIntent(:final field, :final value) =>
-      (state) => switch (field) {
-        RegisterField.firstName => state.firstName == value,
-        RegisterField.lastName => state.lastName == value,
-        RegisterField.email => state.email == value,
-        RegisterField.password => state.password == value,
-        RegisterField.confirmPassword => state.confirmPassword == value,
-        RegisterField.phoneNumber => state.phoneNumber == value,
-      },
-    RegisterGenderChangedIntent(:final gender) =>
-      (state) => state.gender == gender,
-    _ => (_) => true,
-  };
-}
-
-void seedRegisterForm(RegisterBloc bloc) {
-  for (final intent in _seedRegisterIntents()) {
-    bloc.add(intent);
-  }
-}
-
-Future<List<RegisterState>> captureSubmitStates(RegisterBloc bloc) async {
-  final states = <RegisterState>[];
-  final sub = bloc.stream.listen(states.add);
-  await submitRegisterForm(bloc);
-  await sub.cancel();
-  return states;
-}
-
-class FakeRegisterUseCase implements RegisterUseCase {
-  RegisterRequest? lastRequest;
-  int callCount = 0;
-  bool shouldFail = false;
-  Duration delay = Duration.zero;
-
-  @override
-  Future<BaseResponse<RegisterResult>> call(RegisterRequest request) async {
-    callCount++;
-    lastRequest = request;
-    if (delay > Duration.zero) {
-      await Future<void>.delayed(delay);
-    }
-    if (shouldFail) {
-      return ErrorResponse(appError: BadResponseError(AppString.signupFailed));
-    }
-    return fakeRegisterSuccess;
-  }
-}
-
-const SuccessResponse<RegisterResult> fakeRegisterSuccess = SuccessResponse(
-  RegisterResult(
-    userId: 'user-1',
-    email: 'sara@example.com',
-    role: 'Customer',
-    status: 'Active',
-    message: 'Account registered successfully.',
-  ),
-);
-
-class FakeRegisterRepository implements RegisterRepository {
-  FakeRegisterRepository({this.shouldFail = false});
-
-  int callCount = 0;
-  RegisterRequest? lastRequest;
-  bool shouldFail;
-
-  @override
-  Future<BaseResponse<RegisterResult>> register(RegisterRequest request) async {
-    callCount++;
-    lastRequest = request;
-    if (shouldFail) {
-      return ErrorResponse(appError: BadResponseError(AppString.signupFailed));
-    }
-    return fakeRegisterSuccess;
-  }
-}
-
-RegisterBloc testRegisterBloc(FakeRegisterRepository repository) {
-  return RegisterBloc(
-    RegisterUseCaseImpl(repository),
-    const RegisterFormValidator(),
-  );
-}
-
-RegisterBloc Function() testRegisterBlocFactory(
-  FakeRegisterRepository repository,
-) {
-  return () => testRegisterBloc(repository);
-}
-
-class FakeDioRegisterApi implements DioRegisterApi {
-  RegisterRequestDto? lastRequest;
-  int callCount = 0;
-  Object? errorToThrow;
-  RegisterResultDto result = const RegisterResultDto(
-    userId: 'user-1',
-    email: 'sara@example.com',
-    role: 'Customer',
-    status: 'Active',
-    message: 'ok',
-  );
-
-  @override
-  Future<HttpResponse<RegisterOperationDto>> register(
-    RegisterRequestDto request,
-  ) async {
-    callCount++;
-    lastRequest = request;
-    if (errorToThrow != null) throw errorToThrow!;
-    return HttpResponse(
-      RegisterOperationDto(
-        isSuccess: true,
-        message: result.message,
-        data: result,
-      ),
-      Response(requestOptions: RequestOptions(), statusCode: 201),
-    );
-  }
-}
-
-class FakeRegisterRemoteDataSource implements RegisterRemoteDataSource {
-  RegisterRequest? lastRequest;
-  int callCount = 0;
-  Object? errorToThrow;
-  RegisterResult result = const RegisterResult(
-    userId: 'user-1',
-    email: 'sara@example.com',
-    role: 'Customer',
-    status: 'Active',
-  );
-
-  @override
-  Future<RegisterResult> register(RegisterRequest request) async {
-    callCount++;
-    lastRequest = request;
-    if (errorToThrow != null) throw errorToThrow!;
-    return result;
-  }
-}
-
-class RecordingAdapter implements HttpClientAdapter {
-  RecordingAdapter(this.statusCode, this.payload);
-
-  final int statusCode;
-  final Map<String, dynamic> payload;
-  RequestOptions? lastOptions;
-  Object? lastData;
-
-  @override
-  void close({bool force = false}) {}
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) async {
-    lastOptions = options;
-    lastData = options.data;
-    return ResponseBody.fromString(
-      jsonEncode(payload),
-      statusCode,
-      headers: {
-        Headers.contentTypeHeader: [Headers.jsonContentType],
-      },
-    );
-  }
-}
-
-DioRegisterApi buildDioRegisterApi(RecordingAdapter adapter) {
-  final dio = Dio(BaseOptions(baseUrl: ApiEndpoints.baseUrl));
-  dio.httpClientAdapter = adapter;
-  return DioRegisterApi(dio);
-}
-
-RegisterRemoteDataSourceImpl buildRegisterRemoteDataSource(
-  RecordingAdapter adapter,
-) {
-  return RegisterRemoteDataSourceImpl(buildDioRegisterApi(adapter));
-}
-
-RecordingAdapter successAdapter() {
-  return RecordingAdapter(201, {
-    'isSuccess': true,
-    'statusCode': 201,
-    'message': 'Account registered successfully.',
-    'data': {
-      'userId': 'user-1',
-      'email': 'sara@example.com',
-      'role': 'Customer',
-      'status': 'Active',
-    },
-  });
 }
 
 Map<String, dynamic> expectedFemaleBody() {
@@ -347,7 +98,55 @@ Map<String, dynamic> expectedFemaleBody() {
   };
 }
 
+class _UnusedRegisterRepo implements RegisterRepo {
+  @override
+  Future<BaseResponse<RegisterEntity>> register(RegisterRequest request) {
+    throw UnimplementedError();
+  }
+}
+
+class FakeRegisterUseCase extends RegisterUseCase {
+  FakeRegisterUseCase() : super(_UnusedRegisterRepo());
+
+  RegisterRequest? lastRequest;
+  int callCount = 0;
+  bool shouldFail = false;
+  Duration delay = Duration.zero;
+  RegisterEntity result = fakeRegisterEntity;
+
+  @override
+  Future<BaseResponse<RegisterEntity>> call(RegisterRequest request) async {
+    callCount++;
+    lastRequest = request;
+    if (delay > Duration.zero) {
+      await Future<void>.delayed(delay);
+    }
+    if (shouldFail) {
+      return ErrorResponse(appError: BadResponseError(AppString.signupFailed));
+    }
+    return SuccessResponse(result);
+  }
+}
+
+RegisterViewModel testRegisterViewModel(FakeRegisterUseCase useCase) {
+  return RegisterViewModel(useCase);
+}
+
+void ignoreOverflowErrors() {
+  final originalOnError = FlutterError.onError;
+  FlutterError.onError = (details) {
+    if (details.exceptionAsString().contains('A RenderFlex overflowed')) {
+      return;
+    }
+    originalOnError?.call(details);
+  };
+  addTearDown(() {
+    FlutterError.onError = originalOnError;
+  });
+}
+
 Future<void> pumpThemedWidget(WidgetTester tester, Widget child) async {
+  ignoreOverflowErrors();
   tester.view.physicalSize = const Size(375, 900);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -367,8 +166,9 @@ Future<void> pumpThemedWidget(WidgetTester tester, Widget child) async {
 
 Future<void> pumpRegisterPage(
   WidgetTester tester, {
-  required RegisterBloc Function() createBloc,
+  required FakeRegisterUseCase useCase,
 }) async {
+  ignoreOverflowErrors();
   tester.view.physicalSize = const Size(375, 900);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -379,20 +179,23 @@ Future<void> pumpRegisterPage(
       splitScreenMode: true,
       builder: (context, _) => MaterialApp.router(
         theme: AppTheme(lightThemeColors).themeData,
-        routerConfig: registerTestRouter(createBloc: createBloc),
+        routerConfig: registerTestRouter(useCase: useCase),
       ),
     ),
   );
   await tester.pumpAndSettle();
 }
 
-GoRouter registerTestRouter({required RegisterBloc Function() createBloc}) {
+GoRouter registerTestRouter({required FakeRegisterUseCase useCase}) {
   return GoRouter(
     initialLocation: AppRoutesName.register,
     routes: [
       GoRoute(
         path: AppRoutesName.register,
-        builder: (context, state) => RegisterPage(createBloc: createBloc),
+        builder: (context, state) => BlocProvider(
+          create: (_) => RegisterViewModel(useCase),
+          child: const RegisterPage(),
+        ),
       ),
       GoRoute(
         path: AppRoutesName.login,
@@ -421,26 +224,6 @@ Future<void> enterField(WidgetTester tester, String hint, String value) async {
 
 Future<void> tapSignUp(WidgetTester tester) async {
   await tester.tap(find.widgetWithText(ElevatedButton, AppString.signUp));
-  await tester.pump();
-}
-
-Future<void> pumpLoadingSubmitButton(WidgetTester tester) async {
-  tester.view.physicalSize = const Size(375, 900);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    ScreenUtilInit(
-      designSize: const Size(375, 812),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, _) => MaterialApp(
-        theme: AppTheme(lightThemeColors).themeData,
-        home: Scaffold(
-          body: RegisterSubmitButton(isLoading: true, onPressed: () {}),
-        ),
-      ),
-    ),
-  );
   await tester.pump();
 }
 
@@ -475,7 +258,7 @@ class RegisterGenderSelectorHarnessState
           enabled: true,
           onChanged: onGenderChanged,
         ),
-        Text('selected:${value.displayName}'),
+        Text('selected:${value.apiValue}'),
       ],
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/features/auth/register/domain/models/register_request.dart';
-import 'package:flower_app/features/auth/register/presentation/widgets/register_field_widgets.dart';
+import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,19 +12,11 @@ void main() {
 }
 
 void nameFieldsGroup() {
-  group('RegisterNameFields', () {
-    testWidgets('shows errorText', (tester) async {
-      await pumpThemedWidget(
-        tester,
-        RegisterNameFields(
-          firstName: '',
-          lastName: '',
-          enabled: true,
-          onFirstNameChanged: (_) {},
-          onLastNameChanged: (_) {},
-          firstNameError: AppString.fieldIsRequired(AppString.firstName),
-        ),
-      );
+  group('Register identity fields', () {
+    testWidgets('shows first name validation errorText', (tester) async {
+      await pumpRegisterPage(tester, useCase: FakeRegisterUseCase());
+      await tapSignUp(tester);
+      await tester.pumpAndSettle();
       expect(
         find.text(AppString.fieldIsRequired(AppString.firstName)),
         findsOneWidget,
@@ -49,10 +40,16 @@ void genderGroup() {
 }
 
 void submitGroup() {
-  group('RegisterSubmitButton', () {
+  group('Register submit loading', () {
     testWidgets('shows loading indicator', (tester) async {
-      await pumpLoadingSubmitButton(tester);
+      final useCase = FakeRegisterUseCase()
+        ..delay = const Duration(milliseconds: 50);
+      await pumpRegisterPage(tester, useCase: useCase);
+      await fillValidRegisterForm(tester);
+      await tapSignUp(tester);
+      await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      await tester.pumpAndSettle();
     });
   });
 }

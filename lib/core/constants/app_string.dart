@@ -102,6 +102,7 @@ abstract class AppString {
   static const String noResultsFound = 'No results found';
 
   // ==================== Home / Dashboard ====================
+  static const String home = 'Home';
   static const String categories = 'Categories';
   static const String occasions = 'Occasions';
   static const String bestSellers = 'Best Sellers';
@@ -119,6 +120,7 @@ abstract class AppString {
   static const String outOfStock = 'Out of Stock';
 
   // ==================== Cart ====================
+  static const String cart = 'Cart';
   static const String myCart = 'My Cart';
   static const String cartIsEmpty = 'Your cart is empty';
   static const String orderSummary = 'Order Summary';
@@ -158,6 +160,7 @@ abstract class AppString {
   static const String statusCancelled = 'Cancelled';
 
   // ==================== Profile & Settings ====================
+  static const String profile = 'Profile';
   static const String myProfile = 'My Profile';
   static const String editProfile = 'Edit Profile';
   static const String savedAddresses = 'Saved Addresses';
@@ -168,11 +171,7 @@ abstract class AppString {
   static const String appVersion = 'Version 1.0.0';
   static const String helpSupport = 'Help & Support';
 
-
-    static const String somethingWrong = 'Something went wrong';
-        static const String retry = 'Retry';
-
-        static const String noData = 'No data found';
-
-
+  static const String somethingWrong = 'Something went wrong';
+  static const String retry = 'Retry';
+  static const String noData = 'No data found';
 }

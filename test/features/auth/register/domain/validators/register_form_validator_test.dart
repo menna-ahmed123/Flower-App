@@ -1,8 +1,6 @@
-import 'package:flower_app/features/auth/register/domain/validators/register_field_errors.dart';
-import 'package:flower_app/features/auth/register/domain/validators/register_form_validator.dart';
+import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import '../../support/register_test_support.dart';
 
 void main() {
   validInputGroup();
@@ -11,136 +9,79 @@ void main() {
   passwordPolicyGroup();
   phoneWhitespaceGroup();
   emailWhitespaceGroup();
-  fieldErrorClearsChangedFieldGroup();
-  fieldErrorPasswordClearsConfirmGroup();
 }
 
 void validInputGroup() {
-  group('RegisterFormValidator valid input', () {
-    const validator = RegisterFormValidator();
+  group('Register AppValidators valid input', () {
     test('accepts valid signup input', () {
-      expect(validator.validate(validRegisterFormInput).hasErrors, isFalse);
+      expect(
+        AppValidators.requiredField('Sara', field: AppString.firstName),
+        isNull,
+      );
+      expect(
+        AppValidators.requiredField('Ali', field: AppString.lastName),
+        isNull,
+      );
+      expect(AppValidators.emailValidator('sara@example.com'), isNull);
+      expect(AppValidators.registrationPasswordValidator('Pass1234'), isNull);
+      expect(
+        AppValidators.confirmPasswordValidator('Pass1234', 'Pass1234'),
+        isNull,
+      );
+      expect(AppValidators.phoneValidator('01012345678'), isNull);
     });
   });
 }
 
 void emptyInputGroup() {
-  group('RegisterFormValidator empty input', () {
-    const validator = RegisterFormValidator();
+  group('Register AppValidators empty input', () {
     test('rejects empty signup input', () {
-      final errors = validator.validate(emptyRegisterFormInput);
-      expect(errors.firstName, RegisterValidationError.empty);
-      expect(errors.email, RegisterValidationError.empty);
+      expect(
+        AppValidators.requiredField('', field: AppString.firstName),
+        AppString.fieldIsRequired(AppString.firstName),
+      );
+      expect(AppValidators.emailValidator(''), AppString.pleaseEnterYourEmail);
     });
   });
 }
 
 void passwordMismatchGroup() {
-  group('RegisterFormValidator password mismatch', () {
-    const validator = RegisterFormValidator();
+  group('Register AppValidators password mismatch', () {
     test('rejects password mismatch', () {
-      final errors = validator.validate(
-        const RegisterFormInput(
-          firstName: 'Sara',
-          lastName: 'Ali',
-          email: 'sara@example.com',
-          password: 'Pass1234',
-          confirmPassword: 'Pass9999',
-          phoneNumber: '01012345678',
-        ),
+      expect(
+        AppValidators.confirmPasswordValidator('Pass9999', 'Pass1234'),
+        AppString.passwordsDoNotMatch,
       );
-      expect(errors.confirmPassword, RegisterValidationError.mismatch);
     });
   });
 }
 
 void passwordPolicyGroup() {
-  group('RegisterFormValidator password policy', () {
-    const validator = RegisterFormValidator();
+  group('Register AppValidators password policy', () {
     test('uses registration password policy', () {
-      final errors = validator.validate(
-        const RegisterFormInput(
-          firstName: 'Sara',
-          lastName: 'Ali',
-          email: 'sara@example.com',
-          password: 'Password',
-          confirmPassword: 'Password',
-          phoneNumber: '01012345678',
-        ),
+      expect(
+        AppValidators.registrationPasswordValidator('Password'),
+        AppString.registrationPasswordRequirement,
       );
-      expect(errors.password, RegisterValidationError.invalid);
     });
   });
 }
 
 void phoneWhitespaceGroup() {
-  group('RegisterFormValidator phone whitespace', () {
-    const validator = RegisterFormValidator();
+  group('Register AppValidators phone whitespace', () {
     test('accepts Egyptian phone numbers with surrounding whitespace', () {
-      final errors = validator.validate(
-        const RegisterFormInput(
-          firstName: 'Sara',
-          lastName: 'Ali',
-          email: 'sara@example.com',
-          password: 'Pass1234',
-          confirmPassword: 'Pass1234',
-          phoneNumber: ' 01012345678 ',
-        ),
-      );
-      expect(errors.phoneNumber, isNull);
+      expect(AppValidators.phoneValidator(' 01012345678 '), isNull);
     });
   });
 }
 
 void emailWhitespaceGroup() {
-  group('RegisterFormValidator email whitespace', () {
-    const validator = RegisterFormValidator();
+  group('Register AppValidators email whitespace', () {
     test('treats whitespace-only email as empty', () {
-      final errors = validator.validate(
-        const RegisterFormInput(
-          firstName: 'Sara',
-          lastName: 'Ali',
-          email: '   ',
-          password: 'Pass1234',
-          confirmPassword: 'Pass1234',
-          phoneNumber: '01012345678',
-        ),
+      expect(
+        AppValidators.emailValidator('   '),
+        AppString.pleaseEnterYourEmail,
       );
-      expect(errors.email, RegisterValidationError.empty);
-    });
-  });
-}
-
-void fieldErrorClearsChangedFieldGroup() {
-  group('RegisterFieldErrors.applyChangedField', () {
-    test('clears the changed field while keeping other errors', () {
-      const previous = RegisterFieldErrors(
-        firstName: RegisterValidationError.empty,
-        email: RegisterValidationError.invalid,
-      );
-      final next = previous.applyChangedField(
-        RegisterField.firstName,
-        const RegisterFieldErrors(),
-      );
-      expect(next.firstName, isNull);
-      expect(next.email, RegisterValidationError.invalid);
-    });
-  });
-}
-
-void fieldErrorPasswordClearsConfirmGroup() {
-  group('RegisterFieldErrors.applyChangedField', () {
-    test('updates confirm-password when password changes', () {
-      const previous = RegisterFieldErrors(
-        password: RegisterValidationError.invalid,
-        confirmPassword: RegisterValidationError.mismatch,
-      );
-      final next = previous.applyChangedField(
-        RegisterField.password,
-        const RegisterFieldErrors(),
-      );
-      expect(next.password, isNull);
-      expect(next.confirmPassword, isNull);
     });
   });
 }

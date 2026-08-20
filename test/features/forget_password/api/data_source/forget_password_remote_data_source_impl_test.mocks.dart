@@ -5,8 +5,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i6;
 
-import 'package:flower_app/core/base/base_response.dart' as _i11;
-import 'package:flower_app/core/network/safe_call.dart' as _i10;
 import 'package:flower_app/features/auth/forget_password/api/client/forget_password_api_client.dart'
     as _i5;
 import 'package:flower_app/features/auth/forget_password/data/models/forget_password_request_model.dart'
@@ -22,7 +20,6 @@ import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_
 import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_response_model.dart'
     as _i3;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i12;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -110,28 +107,4 @@ class MockForgetPasswordApiClient extends _i1.Mock
             ),
           )
           as _i6.Future<_i4.ResetPasswordResponseModel>);
-}
-
-/// A class which mocks [SafeCall].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockSafeCall extends _i1.Mock implements _i10.SafeCall {
-  MockSafeCall() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i6.Future<_i11.BaseResponse<T>> safeApiCall<T>(
-    _i6.Future<T> Function()? apiCall,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#safeApiCall, [apiCall]),
-            returnValue: _i6.Future<_i11.BaseResponse<T>>.value(
-              _i12.dummyValue<_i11.BaseResponse<T>>(
-                this,
-                Invocation.method(#safeApiCall, [apiCall]),
-              ),
-            ),
-          )
-          as _i6.Future<_i11.BaseResponse<T>>);
 }

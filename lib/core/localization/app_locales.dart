@@ -5,7 +5,7 @@ abstract final class AppLocales {
   static const Locale en = Locale('en');
   static const Locale ar = Locale('ar');
 
-  /// Default locale when no saved preference and device locale is unsupported.
+  /// Default locale while the product UI is English-only.
   static const Locale defaultLocale = en;
 
   static const List<Locale> supportedLocales = <Locale>[en, ar];
@@ -31,32 +31,21 @@ abstract final class AppLocales {
   }
 
   /// Resolution order:
-  /// 1. Saved user preference (if supported)
-  /// 2. Device locale (if supported)
-  /// 3. [defaultLocale]
-  static Locale resolve({
-    required Locale? savedLocale,
-    required Locale? deviceLocale,
-  }) {
-    final preferred = fromLanguageCode(savedLocale?.languageCode);
-    if (preferred != null) {
-      return preferred;
-    }
-
-    final device = fromLanguageCode(deviceLocale?.languageCode);
-    if (device != null) {
-      return device;
-    }
-
-    return defaultLocale;
+  /// 1. Explicit/saved locale (if supported)
+  /// 2. [defaultLocale] (English)
+  ///
+  /// Device locale is not used. The visible UI is currently English-only;
+  /// following an Arabic device locale would flip the whole app to RTL.
+  static Locale resolve({required Locale? savedLocale}) {
+    return fromLanguageCode(savedLocale?.languageCode) ?? defaultLocale;
   }
 
-  /// Used by [MaterialApp.localeResolutionCallback] when no explicit locale
-  /// is set (follow device → fallback to default).
+  /// Honors [MaterialApp.locale] when it is a supported language, otherwise
+  /// falls back to English. Does not follow the device language.
   static Locale localeResolutionCallback(
-    Locale? deviceLocale,
+    Locale? requestedLocale,
     Iterable<Locale> supportedLocales,
   ) {
-    return resolve(savedLocale: null, deviceLocale: deviceLocale);
+    return resolve(savedLocale: requestedLocale);
   }
 }
