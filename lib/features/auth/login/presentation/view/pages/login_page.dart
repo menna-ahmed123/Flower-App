@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
           child: BlocListener<LoginViewModel, LoginState>(
             listener: (context, state) {
               if (state.loginState.data != null) {
-                context.goNamed(AppRoutesName.home);
+                context.go(AppRoutesName.home);
               } else if (state.loginState.errorMessage.isNotEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

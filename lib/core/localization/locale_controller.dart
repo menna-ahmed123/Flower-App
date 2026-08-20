@@ -6,7 +6,7 @@ import 'locale_storage.dart';
 
 /// Holds and persists the active application locale.
 ///
-/// - `locale == null` → follow the device locale (resolved at the app root)
+/// - `locale == null` → English (current UI language)
 /// - `locale != null` → force the saved/selected locale
 ///
 /// Future Settings screens can call [changeLocale] / [useSystemLocale].
@@ -19,12 +19,15 @@ class LocaleController extends ChangeNotifier {
   Locale? _locale;
   bool _isLoaded = false;
 
-  /// Explicit override. `null` means follow the device locale.
+  /// Explicit override. `null` means use [AppLocales.defaultLocale] (English).
   Locale? get locale => _locale;
+
+  /// Locale actually applied to [MaterialApp]. Never null.
+  Locale get resolvedLocale => _locale ?? AppLocales.defaultLocale;
 
   bool get isLoaded => _isLoaded;
 
-  bool get isRtl => AppLocales.isRtl(_locale ?? AppLocales.defaultLocale);
+  bool get isRtl => AppLocales.isRtl(resolvedLocale);
 
   /// Loads any previously saved locale. Call once during app startup.
   Future<void> load() async {
@@ -48,7 +51,7 @@ class LocaleController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Clears the saved preference and follows the device locale again.
+  /// Clears the saved preference and returns to English.
   Future<void> useSystemLocale() async {
     if (_locale == null) {
       return;

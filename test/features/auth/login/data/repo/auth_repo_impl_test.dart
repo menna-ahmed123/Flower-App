@@ -80,6 +80,14 @@ void main() {
         ).called(1);
       },
     );
+
+    test('should clear tokens when signOut is called', () async {
+      when(tokenStorage.clearTokens()).thenAnswer((_) async {});
+
+      await authRepositoryImpl.signOut();
+
+      verify(tokenStorage.clearTokens()).called(1);
+    });
   });
   test(
     "should return ErrorResponse and unsave tokens when login error",

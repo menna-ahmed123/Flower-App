@@ -13,20 +13,24 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
   await getIt<LocaleController>().load();
-  runApp(const MyApp());
+  final initialLocation = await AppRouter.resolveInitialLocation();
+  runApp(MyApp(initialLocation: initialLocation));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key, this.localeController});
+  const MyApp({super.key, this.localeController, this.initialLocation});
 
   final LocaleController? localeController;
+  final String? initialLocation;
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  late final GoRouter _router = AppRouter.createRouter();
+  late final GoRouter _router = AppRouter.createRouter(
+    initialLocation: widget.initialLocation,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +49,7 @@ class _MyAppState extends State<MyApp> {
               theme: AppTheme(LightThemeColor()).themeData,
               darkTheme: AppTheme(DarkThemeColor()).themeData,
               debugShowCheckedModeBanner: false,
-              locale: controller.locale,
+              locale: controller.resolvedLocale,
               supportedLocales: AppLocales.supportedLocales,
               localeResolutionCallback: AppLocales.localeResolutionCallback,
               localizationsDelegates: const [

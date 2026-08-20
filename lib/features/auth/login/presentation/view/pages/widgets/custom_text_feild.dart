@@ -23,6 +23,7 @@ class CustomTextField extends StatelessWidget {
       child: TextFormField(
         validator: validator,
         controller: controller,
+        obscureText: obscureText ?? false,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(labelText: label, hintText: hint),
       ),

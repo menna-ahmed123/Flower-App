@@ -1,8 +1,11 @@
+import 'package:flower_app/app/layout/main_shell.dart';
 import 'package:flower_app/core/di/di.dart';
+import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
+import 'package:flower_app/core/network/token_storage.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/login_page.dart';
 import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
-import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
-import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
+import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
+import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
 import 'package:flower_app/features/categories/presentation/pages/categories_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/forget_password_page.dart';
@@ -20,9 +23,15 @@ import 'app_routes.dart';
 class AppRouter {
   AppRouter._();
 
-  static GoRouter createRouter() {
+  static Future<String> resolveInitialLocation() async {
+    final isAuthenticated = await _hasSession();
+    return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
+  }
+
+  static GoRouter createRouter({String? initialLocation}) {
     return GoRouter(
-      initialLocation: AppRoutesName.login,
+      initialLocation: initialLocation ?? AppRoutesName.login,
+      redirect: _redirect,
       errorBuilder: _errorBuilder,
       routes: [
         _loginRoute(),
@@ -31,6 +40,28 @@ class AppRouter {
         _mainShell(),
       ],
     );
+  }
+
+  static Future<String?> _redirect(
+    BuildContext context,
+    GoRouterState state,
+  ) async {
+    final isLoginRoute = state.matchedLocation == AppRoutesName.login;
+    if (!isLoginRoute) {
+      return null;
+    }
+
+    final isAuthenticated = await _hasSession();
+    if (isAuthenticated) {
+      return AppRoutesName.home;
+    }
+
+    return null;
+  }
+
+  static Future<bool> _hasSession() async {
+    final token = await getIt<TokenStorage>().getAccessToken();
+    return token != null && token.isNotEmpty;
   }
 
   static Widget _errorBuilder(BuildContext context, GoRouterState state) {
@@ -43,7 +74,10 @@ class AppRouter {
       builder: (context, state) {
         return BlocProvider(
           create: (_) => getIt<LoginViewModel>(),
-          child: const LoginPage(),
+          child: RouteSuccessSnackBar(
+            message: state.uri.queryParameters['success'],
+            child: const LoginPage(),
+          ),
         );
       },
     );
@@ -53,7 +87,10 @@ class AppRouter {
     return GoRoute(
       path: AppRoutesName.register,
       builder: (context, state) {
-        return RegisterPage(createBloc: () => getIt<RegisterBloc>());
+        return BlocProvider(
+          create: (_) => getIt<RegisterViewModel>(),
+          child: const RegisterPage(),
+        );
       },
     );
   }
@@ -94,7 +131,7 @@ class AppRouter {
   static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return navigationShell;
+        return MainShell(navigationShell: navigationShell);
       },
       branches: [
         _homeBranch(),

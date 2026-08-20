@@ -26,4 +26,9 @@ class AuthRepositoryImpl implements AuthRepo {
       return response.data.toDomain();
     });
   }
+
+  @override
+  Future<void> signOut() {
+    return tokenStorage.clearTokens();
+  }
 }

@@ -124,4 +124,12 @@ abstract class AppString {
       '$field must be at least $length characters';
 
   static String fieldNoSpaces(String field) => '$field cannot contain spaces';
+
+  // ==================== Main ====================
+
+  static const String home = 'Home';
+  static const String categories = 'Categories';
+  static const String cart = 'Cart';
+  static const String profile = 'Profile';
+  static const String logout = 'Logout';
 }
