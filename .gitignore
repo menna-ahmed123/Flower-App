@@ -18,10 +18,13 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line is
-# commented out by default.
+# VS Code
 #.vscode/
+
+# Environment Variables (Sensitive Data)
+.env
+.env.*
+!.env.example
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -51,14 +54,9 @@ app.*.map.json
 *.g.dart
 *.freezed.dart
 *.config.dart
+*.mocks.dart
 
 # Flutter generated files
 **/GeneratedPluginRegistrant.swift
 **/generated_plugin_registrant.cc
 **/generated_plugins.cmake
-
-# Generated Dart files
-*.g.dart
-*.freezed.dart
-*.config.dart
-*.mocks.dart
