@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
  class AppIcons {
-  static const IconData arrowBack = Icons.arrow_back;
+  static const IconData arrowBack = Icons.arrow_back_ios;
   static const IconData visibilityOff = Icons.visibility_off_outlined;
   static const IconData visibility = Icons.visibility_outlined;
   static const IconData clock = Icons.access_time_outlined;

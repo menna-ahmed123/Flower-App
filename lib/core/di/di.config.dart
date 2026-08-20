@@ -62,6 +62,23 @@ import '../../features/auth/register/domain/use_case/register_usecase.dart'
     as _i95;
 import '../../features/auth/register/presentation/view_model/register_view_model.dart'
     as _i656;
+import '../../features/commerce/api/commerce_api_client.dart' as _i243;
+import '../../features/commerce/data/data_sources/commerce_remote_data_source.dart'
+    as _i696;
+import '../../features/commerce/data/data_sources/commerce_remote_data_source_impl.dart'
+    as _i1023;
+import '../../features/commerce/data/repo/commerce_repo_impl.dart' as _i861;
+import '../../features/commerce/domain/repo/commerce_repo.dart' as _i772;
+import '../../features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart'
+    as _i969;
+import '../../features/commerce/presentation/category/view_model/category_view_model.dart'
+    as _i605;
+import '../../features/commerce/presentation/home/view_model/home_view_model.dart'
+    as _i369;
+import '../../features/commerce/presentation/occasion/view_model/occasion_view_model.dart'
+    as _i421;
+import '../../features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart'
+    as _i784;
 import '../localization/locale_controller.dart' as _i1066;
 import '../localization/locale_storage.dart' as _i463;
 import '../modules/api_module.dart' as _i98;
@@ -86,6 +103,13 @@ extension GetItInjectableX on _i174.GetIt {
     final dioModule = _$DioModule();
     final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
+    gh.factory<_i969.BestSellerViewModel>(() => _i969.BestSellerViewModel());
+    gh.factory<_i605.CategoryViewModel>(() => _i605.CategoryViewModel());
+    gh.factory<_i369.HomeViewModel>(() => _i369.HomeViewModel());
+    gh.factory<_i421.OccasionViewModel>(() => _i421.OccasionViewModel());
+    gh.factory<_i784.ProductDetailsViewModel>(
+      () => _i784.ProductDetailsViewModel(),
+    );
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
@@ -108,8 +132,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1058.TokenRefresher>(
       () => _i1058.UnconfiguredTokenRefresher(),
     );
+    gh.factory<_i696.CommerceRemoteDataSource>(
+      () => _i1023.CommerceRemoteDataSourceImpl(gh<_i243.CommerceApiClient>()),
+    );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.factory<_i772.CommerceRepo>(
+      () => _i861.CommerceRepoImpl(
+        gh<_i696.CommerceRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
     );
     gh.lazySingleton<_i463.LocaleStorage>(
       () => _i463.PreferencesLocaleStorage(gh<_i460.SharedPreferences>()),
