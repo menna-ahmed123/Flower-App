@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(
                         width: double.infinity,
                         child: CustomButton(
-                          text: "Continue as guest",
+                          text: AppString.continueAsGuest,
                           color: context.colors.black[50] ?? Colors.grey,
                           backgroundColor: context.colors.white,
                           borderColor: context.colors.black,

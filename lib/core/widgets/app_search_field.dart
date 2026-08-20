@@ -1,14 +1,15 @@
+import 'package:flower_app/core/constants/app_icons.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../constants/app_icons.dart';
 
 class AppSearchField extends StatefulWidget {
   const AppSearchField({
     super.key,
     this.controller,
-    this.hintText = 'Search',
+    this.hintText = AppString.search,
     this.onChanged,
     this.onSubmitted,
     this.onClear,

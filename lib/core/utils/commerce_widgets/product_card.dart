@@ -5,16 +5,16 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class AppProductCard extends StatelessWidget {
-  const AppProductCard({
+class ProductCard extends StatelessWidget {
+  const ProductCard({
     super.key,
     required this.imageUrl,
     required this.name,
     required this.price,
     required this.onAddToCart,
-    this.oldPrice,
-    this.discount,
-    this.onTap,
+     this.oldPrice,
+     this.discount,
+    required this.onTap,
     this.isLoading = false,
   });
 
@@ -23,27 +23,23 @@ class AppProductCard extends StatelessWidget {
   final String price;
   final String? oldPrice;
   final String? discount;
-
-  final VoidCallback? onTap;
-  final VoidCallback? onAddToCart;
-
+  final VoidCallback onTap;
+  final VoidCallback onAddToCart;
   final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10.r),
       child: Container(
+        width: 163.w,
+      //  height: 229.h,
         decoration: BoxDecoration(
           color: colors.white,
           borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(
-            color: colors.grey.shade600,
-            width: 1.w,
-          ),
+          border: Border.all(color: colors.grey.shade600, width: 1.w),
         ),
         clipBehavior: Clip.antiAlias,
         child: Padding(
@@ -57,6 +53,8 @@ class AppProductCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4.r),
                   child: CachedNetworkImage(
                     imageUrl: imageUrl,
+                    width: 147.w,
+                    height: 131.h,
                     fit: BoxFit.cover,
                     placeholder: (context, url) {
                       return Container(
@@ -150,30 +148,27 @@ class AppProductCard extends StatelessWidget {
                   ),
                   child: isLoading
                       ? SizedBox(
-                    width: 18.w,
-                    height: 18.w,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: colors.white,
-                    ),
-                  )
+                          width: 18.w,
+                          height: 18.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colors.white,
+                          ),
+                        )
                       : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        AppIcons.shoppingCart,
-                        size: 18.w,
-                      ),
-                      SizedBox(width: 6.w),
-                      Text(
-                        AppString.addToCart,
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w500,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(AppIcons.shoppingCart, size: 18.w),
+                            SizedBox(width: 6.w),
+                            Text(
+                              AppString.addToCart,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ],

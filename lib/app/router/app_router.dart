@@ -1,16 +1,20 @@
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/login_page.dart';
 import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_bloc.dart';
-import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
-import 'package:flower_app/features/categories/presentation/pages/categories_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/forget_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/reset_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/verification_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/view_model/forget_password_cubit.dart';
-import 'package:flower_app/features/home/presentation/pages/home_page.dart';
-import 'package:flower_app/features/profile/presentation/pages/profile_page.dart';
+import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
+import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
+import 'package:flower_app/features/commerce/presentation/home/view/screen/home_screen.dart';
+import 'package:flower_app/features/commerce/presentation/occasion/view/screen/occasion_screen.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
+import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -34,7 +38,7 @@ class AppRouter {
   }
 
   static Widget _errorBuilder(BuildContext context, GoRouterState state) {
-    return const Scaffold(body: Center(child: Text('Page Not Found')));
+    return const Scaffold(body: Center(child: Text(AppString.pageNotFound)));
   }
 
   static GoRoute _loginRoute() {
@@ -98,7 +102,7 @@ class AppRouter {
       },
       branches: [
         _homeBranch(),
-        _categoriesBranch(),
+        categoryBranch(),
         _cartBranch(),
         _profileBranch(),
       ],
@@ -110,18 +114,50 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.home,
-          builder: (context, state) => const HomePage(),
+          builder: (context, state) => const HomeScreen(),
+        ),
+      ],
+    );
+  }
+   static StatefulShellBranch bestSellerBranch() {
+    return StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: AppRoutesName.bestSeller,
+          builder: (context, state) => const BestSellerScreen(),
+        ),
+      ],
+    );
+  }
+    static StatefulShellBranch productDetailsBranch() {
+    return StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: AppRoutesName.productDetails,
+          builder: (context, state) => const ProductDetailsScreen(),
+        ),
+      ],
+    );
+  }
+   
+   static StatefulShellBranch occasionBranch() {
+    return StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: AppRoutesName.occasion,
+          builder: (context, state) => const OccasionScreen(),
         ),
       ],
     );
   }
 
-  static StatefulShellBranch _categoriesBranch() {
+
+  static StatefulShellBranch categoryBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
-          path: AppRoutesName.categories,
-          builder: (context, state) => const CategoriesPage(),
+          path: AppRoutesName.category,
+          builder: (context, state) => const CategoryScreen(),
         ),
       ],
     );
@@ -132,7 +168,7 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.cart,
-          builder: (context, state) => const CartPage(),
+          builder: (context, state) => const CartScreen(),
         ),
       ],
     );
@@ -143,7 +179,7 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.profile,
-          builder: (context, state) => const ProfilePage(),
+          builder: (context, state) => const ProfileScreen(),
         ),
       ],
     );
