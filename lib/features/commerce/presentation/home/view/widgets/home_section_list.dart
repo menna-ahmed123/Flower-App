@@ -12,15 +12,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeSectionList extends StatelessWidget {
-  const HomeSectionList({super.key, required this.sections});
+  const HomeSectionList({super.key, required this.sections, this.onQuery});
 
   final List<HomeSectionEntity> sections;
+  final ValueChanged<String>? onQuery;
 
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(child: HomeHeader()),
+        SliverToBoxAdapter(child: HomeHeader(onQuery: onQuery)),
         for (final section in sections)
           SliverToBoxAdapter(child: HomeSectionView(section: section)),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),

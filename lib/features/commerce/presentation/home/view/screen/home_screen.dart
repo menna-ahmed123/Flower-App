@@ -26,7 +26,12 @@ class HomeScreen extends StatelessWidget {
     if (home.errorMessage.isNotEmpty && home.data == null) {
       return _error(context, home.errorMessage);
     }
-    return HomeSectionList(sections: home.data?.sections ?? const []);
+    return HomeSectionList(
+      sections: context.read<HomeViewModel>().displayedSections,
+      onQuery: (query) {
+        context.read<HomeViewModel>().doEvent(HomeQueryChanged(query));
+      },
+    );
   }
 
   Widget _loading(BuildContext context) {

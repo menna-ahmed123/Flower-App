@@ -44,4 +44,68 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     expect(viewModel.state.homeState.errorMessage, 'failed');
   });
+
+  test('empty query returns the original product list', () async {
+    await _load(viewModel, useCase, _products());
+    viewModel.doEvent(HomeQueryChanged(''));
+    expect(_names(viewModel), ['Sunny', 'Red roses', 'Spring vase']);
+  });
+
+  test('matching query filters products by name', () async {
+    await _load(viewModel, useCase, _products());
+    viewModel.doEvent(HomeQueryChanged('rose'));
+    expect(_names(viewModel), ['Red roses']);
+  });
+
+  test('search is case-insensitive', () async {
+    await _load(viewModel, useCase, _products());
+    viewModel.doEvent(HomeQueryChanged('SUNNY'));
+    expect(_names(viewModel), ['Sunny']);
+  });
+
+  test('non-matching query returns no products', () async {
+    await _load(viewModel, useCase, _products());
+    viewModel.doEvent(HomeQueryChanged('xyz'));
+    expect(_names(viewModel), isEmpty);
+  });
+
+  test('does not mutate the original product list', () async {
+    final original = _products();
+    await _load(viewModel, useCase, original);
+    viewModel.doEvent(HomeQueryChanged('rose'));
+    expect(original.sections.single.items.map((item) => item.name), [
+      'Sunny',
+      'Red roses',
+      'Spring vase',
+    ]);
+  });
+}
+
+HomeLayoutEntity _products() {
+  return HomeLayoutEntity(
+    sections: [
+      sectionEntity(
+        type: 'product_rail',
+        id: 'p',
+        items: [railItem('Sunny'), railItem('Red roses'), railItem('Spring vase')],
+      ),
+    ],
+  );
+}
+
+List<String> _names(HomeViewModel viewModel) {
+  return [
+    for (final item in viewModel.displayedSections.single.items) item.name,
+  ];
+}
+
+Future<void> _load(
+  HomeViewModel viewModel,
+  MockHomeUseCase useCase,
+  HomeLayoutEntity layout,
+) async {
+  provideDummy<BaseResponse<HomeLayoutEntity>>(SuccessResponse(layout));
+  when(useCase()).thenAnswer((_) async => SuccessResponse(layout));
+  viewModel.doEvent(HomeRequested());
+  await Future<void>.delayed(Duration.zero);
 }

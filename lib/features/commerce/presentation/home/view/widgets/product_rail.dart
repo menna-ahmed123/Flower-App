@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/utils/commerce_widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_section_header.dart';
@@ -36,6 +37,9 @@ class ProductRail extends StatelessWidget {
   }
 
   Widget _list() {
+    if (section.items.isEmpty) {
+      return const Center(child: Text(AppString.noResultsFound));
+    }
     return ListView.separated(
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.symmetric(horizontal: 16.w),

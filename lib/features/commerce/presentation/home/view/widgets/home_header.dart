@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  const HomeHeader({super.key, this.onQuery});
+
+  final ValueChanged<String>? onQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,10 @@ class HomeHeader extends StatelessWidget {
         children: [
           _logo(context),
           SizedBox(height: 12.h),
-          const AppSearchField(),
+          AppSearchField(
+            onChanged: onQuery,
+            onClear: () => onQuery?.call(''),
+          ),
           SizedBox(height: 12.h),
           _deliverTo(context),
         ],
