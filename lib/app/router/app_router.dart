@@ -14,6 +14,8 @@ import 'package:flower_app/features/auth/forget_password/presentation/view_model
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/screen/home_screen.dart';
+import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
+import 'package:flower_app/features/commerce/presentation/home/view_model/home_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view/screen/occasion_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
@@ -147,16 +149,35 @@ class AppRouter {
   }
 
   static StatefulShellBranch _homeBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.home,
-          builder: (context, state) => const HomeScreen(),
-        ),
-      ],
+    return StatefulShellBranch(routes: _homeRoutes());
+  }
+
+  static List<RouteBase> _homeRoutes() {
+    return [
+      GoRoute(path: AppRoutesName.home, builder: _homeBuilder),
+      GoRoute(
+        path: AppRoutesName.bestSeller,
+        builder: (context, state) => const BestSellerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutesName.occasion,
+        builder: (context, state) => const OccasionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutesName.productDetails,
+        builder: (context, state) => const ProductDetailsScreen(),
+      ),
+    ];
+  }
+
+  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+      child: const HomeScreen(),
     );
   }
-   static StatefulShellBranch bestSellerBranch() {
+
+  static StatefulShellBranch bestSellerBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
@@ -166,7 +187,8 @@ class AppRouter {
       ],
     );
   }
-    static StatefulShellBranch productDetailsBranch() {
+
+  static StatefulShellBranch productDetailsBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
@@ -176,8 +198,8 @@ class AppRouter {
       ],
     );
   }
-   
-   static StatefulShellBranch occasionBranch() {
+
+  static StatefulShellBranch occasionBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
@@ -187,7 +209,6 @@ class AppRouter {
       ],
     );
   }
-
 
   static StatefulShellBranch categoryBranch() {
     return StatefulShellBranch(
