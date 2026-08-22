@@ -69,6 +69,8 @@ import '../../features/commerce/data/data_sources/commerce_remote_data_source_im
     as _i1023;
 import '../../features/commerce/data/repo/commerce_repo_impl.dart' as _i861;
 import '../../features/commerce/domain/repo/commerce_repo.dart' as _i772;
+import '../../features/commerce/domain/use_cases/product_details_use_case.dart'
+    as _i172;
 import '../../features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart'
     as _i969;
 import '../../features/commerce/presentation/category/view_model/category_view_model.dart'
@@ -107,9 +109,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i605.CategoryViewModel>(() => _i605.CategoryViewModel());
     gh.factory<_i369.HomeViewModel>(() => _i369.HomeViewModel());
     gh.factory<_i421.OccasionViewModel>(() => _i421.OccasionViewModel());
-    gh.factory<_i784.ProductDetailsViewModel>(
-      () => _i784.ProductDetailsViewModel(),
-    );
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
@@ -132,17 +131,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1058.TokenRefresher>(
       () => _i1058.UnconfiguredTokenRefresher(),
     );
-    gh.factory<_i696.CommerceRemoteDataSource>(
-      () => _i1023.CommerceRemoteDataSourceImpl(gh<_i243.CommerceApiClient>()),
-    );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
-    );
-    gh.factory<_i772.CommerceRepo>(
-      () => _i861.CommerceRepoImpl(
-        gh<_i696.CommerceRemoteDataSource>(),
-        gh<_i185.SafeCall>(),
-      ),
     );
     gh.lazySingleton<_i463.LocaleStorage>(
       () => _i463.PreferencesLocaleStorage(gh<_i460.SharedPreferences>()),
@@ -168,6 +158,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i3.RegisterApiClient>(
       () => apiModule.registerApiClient(gh<_i361.Dio>()),
     );
+    gh.factory<_i243.CommerceApiClient>(
+      () => apiModule.commerceApiClient(gh<_i361.Dio>()),
+    );
     gh.factory<_i441.AuthRemoteDataSource>(
       () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
       registerFor: {_prod},
@@ -188,6 +181,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i441.AuthRemoteDataSource>(),
         gh<_i185.SafeCall>(),
         gh<_i964.TokenStorage>(),
+      ),
+    );
+    gh.factory<_i696.CommerceRemoteDataSource>(
+      () => _i1023.CommerceRemoteDataSourceImpl(
+        gh<_i243.CommerceApiClient>(),
+        gh<_i185.SafeCall>(),
       ),
     );
     gh.lazySingleton<_i488.ForgetPasswordRepo>(
@@ -213,6 +212,9 @@ extension GetItInjectableX on _i174.GetIt {
         forgetPasswordRepo: gh<_i488.ForgetPasswordRepo>(),
       ),
     );
+    gh.factory<_i772.CommerceRepo>(
+      () => _i861.CommerceRepoImpl(gh<_i696.CommerceRemoteDataSource>()),
+    );
     gh.factory<_i926.RegisterRepo>(
       () => _i934.RegisterRepositoryImpl(
         gh<_i258.RegisterRemoteDataSource>(),
@@ -221,6 +223,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i609.LogoutUseCase>(
       () => _i609.LogoutUseCase(gh<_i483.AuthRepo>()),
+    );
+    gh.factory<_i172.ProductDetailsUseCase>(
+      () => _i172.ProductDetailsUseCase(commerceRepo: gh<_i772.CommerceRepo>()),
     );
     gh.factory<_i95.RegisterUseCase>(
       () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
@@ -237,6 +242,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
+    );
+    gh.factory<_i784.ProductDetailsViewModel>(
+      () => _i784.ProductDetailsViewModel(gh<_i172.ProductDetailsUseCase>()),
     );
     return this;
   }

@@ -16,6 +16,8 @@ import 'package:flower_app/features/commerce/presentation/category/view/screen/c
 import 'package:flower_app/features/commerce/presentation/home/view/screen/home_screen.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view/screen/occasion_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -51,11 +53,13 @@ class AppRouter {
     GoRouterState state,
   ) async {
     final isLoginRoute = state.matchedLocation == AppRoutesName.login;
+
     if (!isLoginRoute) {
       return null;
     }
 
     final isAuthenticated = await _hasSession();
+
     if (isAuthenticated) {
       return AppRoutesName.home;
     }
@@ -65,6 +69,7 @@ class AppRouter {
 
   static Future<bool> _hasSession() async {
     final token = await getIt<TokenStorage>().getAccessToken();
+
     return token != null && token.isNotEmpty;
   }
 
@@ -151,12 +156,24 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.home,
-          builder: (context, state) => const HomeScreen(),
+          builder: (_, state) {
+            // TODO: Remove this temporary Product Details screen
+            // and return HomeScreen after testing.
+            const productId = '40000000-0000-0000-0000-000000000009';
+
+            return BlocProvider(
+              create: (_) =>
+                  getIt<ProductDetailsViewModel>()
+                    ..onEvent(GetProductDetailsEvent(productId: productId)),
+              child: const ProductDetailsScreen(),
+            );
+          },
         ),
       ],
     );
   }
-   static StatefulShellBranch bestSellerBranch() {
+
+  static StatefulShellBranch bestSellerBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
@@ -166,18 +183,8 @@ class AppRouter {
       ],
     );
   }
-    static StatefulShellBranch productDetailsBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.productDetails,
-          builder: (context, state) => const ProductDetailsScreen(),
-        ),
-      ],
-    );
-  }
-   
-   static StatefulShellBranch occasionBranch() {
+
+  static StatefulShellBranch occasionBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
@@ -187,7 +194,6 @@ class AppRouter {
       ],
     );
   }
-
 
   static StatefulShellBranch categoryBranch() {
     return StatefulShellBranch(

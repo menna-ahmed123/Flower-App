@@ -11,9 +11,13 @@ import 'app/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await configureDependencies();
+
   await getIt<LocaleController>().load();
+
   final initialLocation = await AppRouter.resolveInitialLocation();
+
   runApp(MyApp(initialLocation: initialLocation));
 }
 
