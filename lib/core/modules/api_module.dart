@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flower_app/features/auth/login/data/api/auth_api_client.dart';
 import 'package:flower_app/features/auth/forget_password/api/client/forget_password_api_client.dart';
 import 'package:flower_app/features/auth/register/data/api/register_api_client.dart';
+import 'package:flower_app/features/commerce/api/commerce_api_client.dart';
 import 'package:injectable/injectable.dart';
 
 @module
@@ -17,5 +18,8 @@ abstract class ApiModule {
 
   RegisterApiClient registerApiClient(Dio dio) {
     return RegisterApiClient(dio);
+  }
+     CommerceApiClient commerceApiClient(Dio dio){
+    return CommerceApiClient(dio);
   }
 }

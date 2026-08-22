@@ -15,6 +15,7 @@ import 'package:flower_app/features/commerce/presentation/best_seller/view/scree
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/screen/home_screen.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view/screen/occasion_screen.dart';
+import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
@@ -42,6 +43,13 @@ class AppRouter {
         _registerRoute(),
         _forgetPasswordShell(),
         _mainShell(),
+         GoRoute(
+            path: AppRoutesName.occasion,
+            builder: (context, state) => BlocProvider(
+              create: (_) => getIt<OccasionViewModel>(),
+              child: const OccasionScreen(),
+            ),
+          ),
       ],
     );
   }
@@ -177,16 +185,16 @@ class AppRouter {
     );
   }
    
-   static StatefulShellBranch occasionBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.occasion,
-          builder: (context, state) => const OccasionScreen(),
-        ),
-      ],
-    );
-  }
+  //  static StatefulShellBranch occasionBranch() {
+  //   return StatefulShellBranch(
+  //     routes: [
+  //       GoRoute(
+  //         path: AppRoutesName.occasion,
+  //         builder: (context, state) => const OccasionScreen(),
+  //       ),
+  //     ],
+  //   );
+  // }
 
 
   static StatefulShellBranch categoryBranch() {
