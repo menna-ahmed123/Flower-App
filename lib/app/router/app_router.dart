@@ -12,6 +12,7 @@ import 'package:flower_app/features/auth/forget_password/presentation/pages/rese
 import 'package:flower_app/features/auth/forget_password/presentation/pages/verification_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/view_model/forget_password_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
+import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/screen/home_screen.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view/screen/occasion_screen.dart';
@@ -42,7 +43,15 @@ class AppRouter {
         _registerRoute(),
         _forgetPasswordShell(),
         _mainShell(),
+         GoRoute(
+            path: AppRoutesName.bestSeller,
+            builder: (context, state) => BlocProvider(
+              create: (_) => getIt<BestSellerViewModel>(),
+              child: const BestSellerScreen(),
+            ),
+          ),
       ],
+      
     );
   }
 
@@ -152,20 +161,31 @@ class AppRouter {
         GoRoute(
           path: AppRoutesName.home,
           builder: (context, state) => const HomeScreen(),
+        //    routes: [
+        //   GoRoute(
+        //     path: AppRoutesName.bestSeller,
+        //     builder: (context, state) => BlocProvider(
+        //       create: (_) => getIt<BestSellerViewModel>(),
+        //       child: const BestSellerScreen(),
+        //     ),
+        //   ),
+        // ],
         ),
       ],
     );
   }
-   static StatefulShellBranch bestSellerBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.bestSeller,
-          builder: (context, state) => const BestSellerScreen(),
-        ),
-      ],
-    );
-  }
+  //  static StatefulShellBranch bestSellerBranch() {
+  //   return StatefulShellBranch(
+  //     routes: [
+  //       GoRoute(
+  //         path: AppRoutesName.bestSeller,
+  //         builder: (context, state) => BlocProvider(
+  //           create: (_)=> getIt<BestSellerViewModel>(),
+  //           child: const BestSellerScreen()),
+  //       ),
+  //     ],
+  //   );
+  // }
     static StatefulShellBranch productDetailsBranch() {
     return StatefulShellBranch(
       routes: [
