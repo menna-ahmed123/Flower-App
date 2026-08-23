@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
- class AppIcons {
+
+class AppIcons {
   static const IconData arrowBack = Icons.arrow_back_ios;
   static const IconData visibilityOff = Icons.visibility_off_outlined;
   static const IconData visibility = Icons.visibility_outlined;
@@ -12,6 +13,8 @@ import 'package:flutter/material.dart';
 
   static const IconData person = Icons.person_outline;
   static const IconData location = Icons.location_on_outlined;
+  static const IconData florist = Icons.local_florist;
+  static const IconData keyboardArrowDown = Icons.keyboard_arrow_down;
   static const IconData search = Icons.search;
   static const IconData microphone = Icons.mic_outlined;
   static const IconData calendar = Icons.calendar_today_outlined;
@@ -34,7 +37,7 @@ import 'package:flutter/material.dart';
 
   static const IconData star = Icons.star;
   static const IconData seat = Icons.event_seat_outlined;
-  
+
   static const IconData phone = Icons.phone_outlined;
   static const IconData message = Icons.chat_bubble_outline;
   static const IconData scooter = Icons.two_wheeler;
@@ -50,4 +53,5 @@ import 'package:flutter/material.dart';
   static const IconData checkCircle = Icons.check_circle_outline;
   static const IconData refresh = Icons.refresh;
 }
+
 /// Without flags////
