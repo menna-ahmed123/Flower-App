@@ -14,18 +14,18 @@ class CommerceRepoImpl implements CommerceRepo {
   CommerceRepoImpl(this.commerceRemoteDataSource, this.safeCall);
 
   @override
-  Future<BaseResponse<List<OccasionModel>>> getAllOccasions() {
-    return safeCall.safeApiCall(() async {
-      final response = await commerceRemoteDataSource.getAllOccasions();
-      return response.data;
-    });
-  }
-
-  @override
   Future<BaseResponse<List<ProductEntity>>> getAllProducts() {
     return safeCall.safeApiCall(() async {
       final response = await commerceRemoteDataSource.getAllProducts();
       return response.data.items.map((product) => product.toDomain()).toList();
+    });
+  }
+///// Occasions //////
+  @override
+  Future<BaseResponse<List<OccasionModel>>> getAllOccasions() {
+    return safeCall.safeApiCall(() async {
+      final response = await commerceRemoteDataSource.getAllOccasions();
+      return response.data;
     });
   }
 

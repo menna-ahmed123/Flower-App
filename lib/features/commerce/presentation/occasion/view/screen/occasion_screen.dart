@@ -1,6 +1,7 @@
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
-import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/utils/commerce_widgets/commerce_app_bar.dart';
+import 'package:flower_app/core/utils/commerce_widgets/custom_tab_bar.dart';
 import 'package:flower_app/core/utils/commerce_widgets/product_grid.dart';
 import 'package:flower_app/features/commerce/data/models/occasion_model.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_event.dart';
@@ -44,66 +45,36 @@ class _OccasionScreenState extends State<OccasionScreen> {
                   SizedBox(
                     height: 70.h,
                     child: CommerceAppBar(
-                      title: "Occasion",
+                      title: AppString.occasions,
                       des: "Bloom with our exquisite best sellers",
                     ),
                   ),
                   SizedBox(height: 12.h),
-                  SizedBox(
-                    height: 40.h,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: tabs.length,
-                      separatorBuilder: (_, __) => SizedBox(width: 10.w),
-                      itemBuilder: (context, index) {
-                        final tab = tabs[index];
-                        final isSelected = state.selectedTab == tab;
+                  CustomTabBar(
+                    tabs: tabs,
+                    selectedTab: state.selectedTab,
+                    onTabSelected: (tab) {
+                      final selectedOccasion =
+                          (state.occasionsState.data ?? const <OccasionModel>[])
+                              .firstWhere(
+                                (occasion) => occasion.name == tab,
+                                orElse: () =>
+                                    state.occasionsState.data?.first ??
+                                    OccasionModel(
+                                      id: '',
+                                      name: tab,
+                                      imageUrl: '',
+                                      sortOrder: 0,
+                                    ),
+                              );
 
-                        return ChoiceChip(
-                          label: Text(tab),
-                          selected: isSelected,
-                          showCheckmark: false,
-                          selectedColor: context.colors.pink.withValues(
-                            alpha: 0.12,
-                          ),
-                          backgroundColor: Colors.white,
-                          labelStyle: TextStyle(
-                            color: isSelected
-                                ? context.colors.pink
-                                : Colors.black,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          side: BorderSide(
-                            color: isSelected
-                                ? context.colors.pink
-                                : Colors.transparent,
-                          ),
-                          onSelected: (_) {
-                            final selectedOccasion =
-                                (state.occasionsState.data ??
-                                        const <OccasionModel>[])
-                                    .firstWhere(
-                                      (occasion) => occasion.name == tab,
-                                      orElse: () =>
-                                          state.occasionsState.data?.first ??
-                                          OccasionModel(
-                                            id: '',
-                                            name: tab,
-                                            imageUrl: '',
-                                            sortOrder: 0,
-                                          ),
-                                    );
-
-                            context.read<OccasionViewModel>().onEvent(
-                              SelectOccasionTab(
-                                occasionId: selectedOccasion.id,
-                                tab: tab,
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                      context.read<OccasionViewModel>().onEvent(
+                        SelectOccasionTab(
+                          occasionId: selectedOccasion.id,
+                          tab: tab,
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(height: 16.h),
                   Expanded(

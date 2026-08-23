@@ -14,8 +14,10 @@ abstract class CommerceApiClient {
   @GET(ApiEndpoints.allProducts)
   Future<ProductsResponse> getAllProducts();
 
+/// Occasions ///
   @GET(ApiEndpoints.allOccasions)
   Future<OccasionsResponse> getAllOccasions();
+  
   @GET(ApiEndpoints.allProducts)
 Future<ProductsResponse> getProductsByOccasion(
   @Query('occasionId') String occasionId,

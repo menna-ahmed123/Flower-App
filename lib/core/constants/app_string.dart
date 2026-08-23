@@ -109,7 +109,6 @@ abstract class AppString {
   static const String viewAll = 'View All';
   static const String specialOffers = 'Special Offers';
   static const String popularFlowers = 'Popular Flowers';
-
   // ==================== Product Details ====================
   static const String addToCart = 'Add to cart';
   static const String buyNow = 'Buy Now';
@@ -118,6 +117,7 @@ abstract class AppString {
   static const String reviews = 'Reviews';
   static const String relatedProducts = 'Related Products';
   static const String outOfStock = 'Out of Stock';
+  static const String desSeller = "Bloom with our exquisite best sellers";
 
   // ==================== Cart ====================
   static const String cart = 'Cart';
