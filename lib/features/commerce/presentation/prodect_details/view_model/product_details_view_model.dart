@@ -22,6 +22,7 @@ class ProductDetailsViewModel extends Cubit<ProductDetailsState> {
       'EVENT RECEIVED: ${event.runtimeType}',
       name: 'ProductDetailsViewModel',
     );
+    
 
     if (event is GetProductDetailsEvent) {
       log('PRODUCT ID: ${event.productId}', name: 'ProductDetailsViewModel');
