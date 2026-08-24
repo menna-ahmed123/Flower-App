@@ -7,11 +7,16 @@ import 'package:flower_app/features/auth/login/presentation/view_model/login_sta
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../../core/auth/presentation/view_model/auth_cubit.dart';
+import '../../../../../core/auth/presentation/view_model/auth_event.dart';
+
 @injectable
 class LoginViewModel extends Cubit<LoginState> {
   final LoginUseCase _loginUseCase;
+  final AuthCubit _authCubit;
 
-  LoginViewModel(this._loginUseCase) : super(const LoginState());
+  LoginViewModel(this._loginUseCase,
+      this._authCubit,) : super(const LoginState());
 
   void doEvent(LoginEvent event) {
     switch (event) {
@@ -35,11 +40,15 @@ class LoginViewModel extends Cubit<LoginState> {
 
     switch (response) {
       case SuccessResponse<AuthEntity>():
+        await _authCubit.doEvent(
+          const AuthEvent.authCheckRequested(),
+        );
+
         emit(
           state.copyWith(
             loginState: state.loginState.copyWith(
               isLoading: false,
-              data: (response as SuccessResponse).data,
+              data: response.data,
               errorMessage: '',
             ),
           ),
@@ -50,7 +59,7 @@ class LoginViewModel extends Cubit<LoginState> {
           state.copyWith(
             loginState: state.loginState.copyWith(
               isLoading: false,
-              errorMessage: (response as ErrorResponse).errorMessage,
+              errorMessage: response.errorMessage,
             ),
           ),
         );

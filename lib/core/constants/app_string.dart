@@ -51,6 +51,8 @@ abstract class AppString {
   static const String genderIsRequired = 'Gender is required';
   static const String signupSuccess = 'Account created successfully';
   static const String signupFailed = 'Sign up failed. Please try again.';
+  static const String loginToContinue =
+      'Please login or create an account to continue';
 
   // ==================== Forgot Password ====================
 

@@ -79,6 +79,8 @@ import '../../features/commerce/presentation/occasion/view_model/occasion_view_m
     as _i421;
 import '../../features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart'
     as _i784;
+import '../auth/auth_guard.dart' as _i580;
+import '../auth/presentation/view_model/auth_cubit.dart' as _i4;
 import '../localization/locale_controller.dart' as _i1066;
 import '../localization/locale_storage.dart' as _i463;
 import '../modules/api_module.dart' as _i98;
@@ -147,6 +149,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i463.LocaleStorage>(
       () => _i463.PreferencesLocaleStorage(gh<_i460.SharedPreferences>()),
     );
+    gh.lazySingleton<_i580.AuthGuard>(
+      () => _i580.AuthGuard(gh<_i964.TokenStorage>()),
+    );
+    gh.factory<_i4.AuthCubit>(() => _i4.AuthCubit(gh<_i964.TokenStorage>()));
     gh.lazySingleton<_i466.AuthInterceptors>(
       () => _i466.AuthInterceptors(
         gh<_i964.TokenStorage>(),
@@ -225,15 +231,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i95.RegisterUseCase>(
       () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
     );
-    gh.factory<_i188.LoginViewModel>(
-      () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
-    );
     gh.factory<_i795.ForgetPasswordCubit>(
       () => _i795.ForgetPasswordCubit(
         gh<_i913.ForgetPasswordUseCase>(),
         gh<_i722.VerifyOtpUseCase>(),
         gh<_i22.ResetPasswordUseCase>(),
       ),
+    );
+    gh.factory<_i188.LoginViewModel>(
+      () => _i188.LoginViewModel(gh<_i635.LoginUseCase>(), gh<_i4.AuthCubit>()),
     );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
