@@ -9,6 +9,7 @@ class PriceAndStatusRow extends StatelessWidget {
 
   final ProductDetailsEntity product;
 
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;

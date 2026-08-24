@@ -2,6 +2,7 @@ import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/widgets/price_and_status_row.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view/widgets/price_and_status_row.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/widgets/product_image_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,6 +27,7 @@ class ProductDetailsBody extends StatelessWidget {
               children: [
                 PriceAndStatusRow(product: product),
                 SizedBox(height: 4.h),
+
                 Text(
                   AppString.allPricesIncludeTax,
                   style: TextStyle(
@@ -33,7 +35,9 @@ class ProductDetailsBody extends StatelessWidget {
                     color: context.colors.grey.shade700,
                   ),
                 ),
+
                 SizedBox(height: 12.h),
+
                 Text(
                   product.name ?? '',
                   style: TextStyle(
@@ -42,6 +46,7 @@ class ProductDetailsBody extends StatelessWidget {
                     color: context.colors.black,
                   ),
                 ),
+
                 SizedBox(height: 20.h),
                 Text(
                   AppString.description,
@@ -52,6 +57,7 @@ class ProductDetailsBody extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 6.h),
+
                 Text(
                   product.description ?? '',
                   style: TextStyle(
@@ -60,6 +66,7 @@ class ProductDetailsBody extends StatelessWidget {
                     color: context.colors.grey.shade800,
                   ),
                 ),
+
                 SizedBox(height: 20.h),
                 Text(
                   AppString.bouquetInclude,
@@ -70,6 +77,7 @@ class ProductDetailsBody extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 6.h),
+
                 ...(product.includedItems ?? const []).map(
                   (item) => Padding(
                     padding: EdgeInsets.only(bottom: 4.h),

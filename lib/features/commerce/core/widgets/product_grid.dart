@@ -1,11 +1,10 @@
 import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
-import 'package:flower_app/features/commerce/domain/models/product_request.dart';
+import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
 
 class ProductGrid extends StatelessWidget {
-  const ProductGrid({super.key, required this.dummyProducts});
-  final List<Product> dummyProducts;
-
+  const ProductGrid({super.key, required this.products});
+  final List<ProductEntity> products;
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -15,20 +14,23 @@ class ProductGrid extends StatelessWidget {
     crossAxisSpacing: 12,
     mainAxisSpacing: 12,
 childAspectRatio: 0.6,  ),
-  itemCount: dummyProducts.length,
+  itemCount: products.length,
   itemBuilder: (context, index) {
-    final product = dummyProducts[index];
+    final product = products[index];
 
-    return ProductCard(
-      imageUrl: product.imageUrl,
-      name: product.name,
-      price: product.price,
-      oldPrice: product.oldPrice,
-      discount: product.discount,
-      onAddToCart: () {  },
-      onTap: () {  },
-
-    );
+  return ProductCard(
+  imageUrl: product.imageUrl,
+  name: product.name,
+  price: product.discountedPrice.toStringAsFixed(2),
+  oldPrice: product.price != product.discountedPrice
+      ? product.price?.toStringAsFixed(2)
+      : null,
+  discount: product.discountPercent != null
+      ? '${product.discountPercent!.toStringAsFixed(0)}%'
+      : null,
+  onAddToCart: () {},
+  onTap: () {},
+);
   },
 );
   }
