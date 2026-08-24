@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/core/helpers/image_url_helper.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,8 +12,8 @@ class ProductCard extends StatelessWidget {
     required this.name,
     required this.price,
     required this.onAddToCart,
-     this.oldPrice,
-     this.discount,
+    this.oldPrice,
+    this.discount,
     required this.onTap,
     this.isLoading = false,
   });
@@ -30,16 +29,13 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fullUrl = ImageUrlHelper.getFullImageUrl(imageUrl);
-
-debugPrint('IMAGE URL: $fullUrl');
     final colors = context.colors;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10.r),
       child: Container(
         width: 163.w,
-      //  height: 229.h,
+        //  height: 229.h,
         decoration: BoxDecoration(
           color: colors.white,
           borderRadius: BorderRadius.circular(10.r),
@@ -55,9 +51,8 @@ debugPrint('IMAGE URL: $fullUrl');
                 aspectRatio: 1,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(4.r),
-                child: CachedNetworkImage(
-                  
-  imageUrl:fullUrl ,
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
                     width: 147.w,
                     height: 131.h,
                     fit: BoxFit.cover,
