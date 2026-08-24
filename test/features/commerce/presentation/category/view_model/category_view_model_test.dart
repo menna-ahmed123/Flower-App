@@ -1,11 +1,9 @@
-import 'package:bloc_test/bloc_test.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/category_use_case.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/product_use_case.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_event.dart';
-import 'package:flower_app/features/commerce/presentation/category/view_model/category_state.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
