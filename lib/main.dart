@@ -1,8 +1,12 @@
+import 'dart:developer';
+
+import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/localization/localization.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +15,11 @@ import 'app/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+      await dotenv.load();
+      
+
   await configureDependencies();
+  log("${ApiEndpoints.baseUrl}");
   await getIt<LocaleController>().load();
   final initialLocation = await AppRouter.resolveInitialLocation();
   runApp(MyApp(initialLocation: initialLocation));

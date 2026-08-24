@@ -6,7 +6,7 @@ import 'package:retrofit/retrofit.dart';
 
 part 'commerce_api_client.g.dart';
 
-@RestApi(baseUrl: ApiEndpoints.baseUrl)
+@RestApi()
 abstract class CommerceApiClient {
   factory CommerceApiClient(Dio dio, {String baseUrl}) =
       _CommerceApiClient;
