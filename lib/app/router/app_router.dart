@@ -21,15 +21,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/auth/auth_guard.dart';
-import '../../core/auth/presentation/view/auth_guard_page.dart';
+import '../../core/auth/domain/repos/auth_repository.dart';
 import 'app_routes.dart';
 
 class AppRouter {
   AppRouter._();
 
   static Future<String> resolveInitialLocation() async {
-    final isAuthenticated = await getIt<AuthGuard>().isAuthenticated();
+    final isAuthenticated = await getIt<AuthRepository>().isAuthenticated();
 
     return isAuthenticated
         ? AppRoutesName.home
@@ -186,11 +185,7 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.cart,
-          builder: (context, state) {
-            return const AuthGuardPage(
-              child: CartScreen(),
-            );
-          },
+          builder: (context, state) => const CartScreen(),
         ),
       ],
     );
@@ -201,11 +196,7 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.profile,
-          builder: (context, state) {
-            return const AuthGuardPage(
-              child: ProfileScreen(),
-            );
-          },
+          builder: (context, state) => const ProfileScreen(),
         ),
       ],
     );

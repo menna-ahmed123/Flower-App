@@ -1,16 +1,19 @@
 import 'package:flower_app/core/base/base_state.dart';
-import 'package:flower_app/core/network/token_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../domain/repos/auth_repository.dart';
+import '../../pending_action.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
-@injectable
+@lazySingleton
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit(this._tokenStorage) : super(AuthState.initial());
+  AuthCubit(this._authRepository) : super(AuthState.initial());
 
-  final TokenStorage _tokenStorage;
+  final AuthRepository _authRepository;
+
+  PendingAction? _pendingAction;
 
   Future<void> doEvent(AuthEvent event) async {
     switch (event) {
@@ -25,28 +28,93 @@ class AuthCubit extends Cubit<AuthState> {
       case AuthGuestRequested():
         _continueAsGuest();
         break;
+
+      case AuthAuthenticationRequired(:final pendingAction):
+        _requireAuthentication(pendingAction);
+        break;
+
+      case AuthLoginSucceeded():
+        await _handleAuthenticationSuccess();
+        break;
     }
   }
 
   void _continueAsGuest() {
-    emit(state.copyWith(authState: const BaseState(data: false)));
+    emit(
+      state.copyWith(
+        authState: const BaseState(data: false),
+      ),
+    );
   }
 
   Future<void> _checkAuth() async {
-    final accessToken = await _tokenStorage.getAccessToken();
+    final isAuthenticated = await _authRepository.isAuthenticated();
 
     emit(
       state.copyWith(
-        authState: BaseState(
-          data: accessToken != null && accessToken.isNotEmpty,
-        ),
+        authState: BaseState(data: isAuthenticated),
       ),
     );
   }
 
   Future<void> _logout() async {
-    await _tokenStorage.clearTokens();
+    await _authRepository.logout();
 
-    emit(state.copyWith(authState: const BaseState(data: false)));
+    _pendingAction = null;
+
+    emit(
+      state.copyWith(
+        authState: const BaseState(data: false),
+        requiresAuthentication: false,
+      ),
+    );
+  }
+
+  void _requireAuthentication(PendingAction? pendingAction) {
+    _pendingAction = pendingAction;
+
+    emit(
+      state.copyWith(
+        requiresAuthentication: true,
+      ),
+    );
+  }
+
+  Future<void> _handleAuthenticationSuccess() async {
+    await _checkAuth();
+
+    if (!state.isAuthenticated) {
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        requiresAuthentication: false,
+      ),
+    );
+
+    await replayPendingAction();
+  }
+
+  Future<void> replayPendingAction() async {
+    final action = _pendingAction;
+
+    _pendingAction = null;
+
+    if (action == null) {
+      return;
+    }
+
+    await action();
+  }
+
+  void clearPendingAction() {
+    _pendingAction = null;
+  }
+
+  @override
+  Future<void> close() {
+    _pendingAction = null;
+    return super.close();
   }
 }

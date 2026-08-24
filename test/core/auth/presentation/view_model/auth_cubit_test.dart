@@ -1,61 +1,233 @@
+import 'package:flower_app/core/auth/domain/repos/auth_repository.dart';
 import 'package:flower_app/core/auth/presentation/view_model/auth_cubit.dart';
 import 'package:flower_app/core/auth/presentation/view_model/auth_event.dart';
+import 'package:flower_app/core/auth/presentation/view_model/auth_state.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../../../features/auth/login/data/repo/auth_repo_impl_test.mocks.dart';
+import 'auth_cubit_test.mocks.dart';
 
+@GenerateMocks([AuthRepository])
 void main() {
-  group('AuthCubit', () {
-    late MockTokenStorage tokenStorage;
-    late AuthCubit authCubit;
+  late MockAuthRepository authRepository;
+  late AuthCubit authCubit;
 
-    setUp(() {
-      tokenStorage = MockTokenStorage();
-      authCubit = AuthCubit(tokenStorage);
+  setUp(() {
+    authRepository = MockAuthRepository();
+    authCubit = AuthCubit(authRepository);
+  });
+
+  tearDown(() async {
+    await authCubit.close();
+  });
+
+  group('AuthCheckRequested', () {
+    test('should emit authenticated when user is authenticated', () async {
+      when(
+        authRepository.isAuthenticated(),
+      ).thenAnswer((_) async => true);
+
+      await authCubit.doEvent(
+        const AuthCheckRequested(),
+      );
+
+      expect(authCubit.state.isAuthenticated, true);
+      verify(authRepository.isAuthenticated()).called(1);
     });
 
-    test('should emit authenticated when access token exists', () async {
-      when(tokenStorage.getAccessToken()).thenAnswer((_) async => 'fake-token');
+    test('should emit unauthenticated when user is not authenticated',
+            () async {
+          when(
+            authRepository.isAuthenticated(),
+          ).thenAnswer((_) async => false);
 
-      await authCubit.doEvent(const AuthCheckRequested());
+          await authCubit.doEvent(
+            const AuthCheckRequested(),
+          );
 
-      expect(authCubit.state.authState.data, true);
+          expect(authCubit.state.isAuthenticated, false);
+          verify(authRepository.isAuthenticated()).called(1);
+        });
+  });
+
+  group('AuthGuestRequested', () {
+    test('should continue as guest', () async {
+      await authCubit.doEvent(
+        const AuthGuestRequested(),
+      );
+
+      expect(authCubit.state.isAuthenticated, false);
+    });
+  });
+
+  group('AuthLogoutRequested', () {
+    test('should logout and emit unauthenticated', () async {
+      when(
+        authRepository.logout(),
+      ).thenAnswer((_) async {});
+
+      await authCubit.doEvent(
+        const AuthLogoutRequested(),
+      );
+
+      verify(authRepository.logout()).called(1);
+      expect(authCubit.state.isAuthenticated, false);
+      expect(authCubit.state.requiresAuthentication, false);
+    });
+  });
+
+  group('AuthAuthenticationRequired', () {
+    test('should require authentication and store pending action', () async {
+      var actionExecuted = false;
+
+      Future<void> pendingAction() async {
+        actionExecuted = true;
+      }
+
+      await authCubit.doEvent(
+        AuthAuthenticationRequired(
+          pendingAction: pendingAction,
+        ),
+      );
+
+      expect(authCubit.state.requiresAuthentication, true);
+      expect(actionExecuted, false);
     });
 
-    test(
-      'should emit unauthenticated when access token does not exist',
-      () async {
-        when(tokenStorage.getAccessToken()).thenAnswer((_) async => null);
+    test('should require authentication without pending action', () async {
+      await authCubit.doEvent(
+        const AuthAuthenticationRequired(),
+      );
 
-        await authCubit.doEvent(const AuthCheckRequested());
+      expect(authCubit.state.requiresAuthentication, true);
+    });
+  });
 
-        expect(authCubit.state.authState.data, false);
-      },
-    );
+  group('AuthLoginSucceeded', () {
+    test('should authenticate and replay pending action after login',
+            () async {
+          when(
+            authRepository.isAuthenticated(),
+          ).thenAnswer((_) async => true);
 
-    test('should emit unauthenticated when access token is empty', () async {
-      when(tokenStorage.getAccessToken()).thenAnswer((_) async => '');
+          var actionExecuted = false;
 
-      await authCubit.doEvent(const AuthCheckRequested());
+          Future<void> pendingAction() async {
+            actionExecuted = true;
+          }
 
-      expect(authCubit.state.authState.data, false);
+          await authCubit.doEvent(
+            AuthAuthenticationRequired(
+              pendingAction: pendingAction,
+            ),
+          );
+
+          await authCubit.doEvent(
+            const AuthLoginSucceeded(),
+          );
+
+          expect(authCubit.state.isAuthenticated, true);
+          expect(authCubit.state.requiresAuthentication, false);
+          expect(actionExecuted, true);
+
+          verify(authRepository.isAuthenticated()).called(1);
+        });
+
+    test('should not replay pending action when authentication fails',
+            () async {
+          when(
+            authRepository.isAuthenticated(),
+          ).thenAnswer((_) async => false);
+
+          var actionExecuted = false;
+
+          Future<void> pendingAction() async {
+            actionExecuted = true;
+          }
+
+          await authCubit.doEvent(
+            AuthAuthenticationRequired(
+              pendingAction: pendingAction,
+            ),
+          );
+
+          await authCubit.doEvent(
+            const AuthLoginSucceeded(),
+          );
+
+          expect(authCubit.state.isAuthenticated, false);
+          expect(authCubit.state.requiresAuthentication, true);
+          expect(actionExecuted, false);
+
+          verify(authRepository.isAuthenticated()).called(1);
+        });
+  });
+
+  group('replayPendingAction', () {
+    test('should execute pending action', () async {
+      var actionExecuted = false;
+
+      Future<void> pendingAction() async {
+        actionExecuted = true;
+      }
+
+      await authCubit.doEvent(
+        AuthAuthenticationRequired(
+          pendingAction: pendingAction,
+        ),
+      );
+
+      await authCubit.replayPendingAction();
+
+      expect(actionExecuted, true);
     });
 
-    test('should clear token when logout is requested', () async {
-      when(tokenStorage.clearTokens()).thenAnswer((_) async {});
+    test('should clear pending action after replay', () async {
+      var executionCount = 0;
 
-      await authCubit.doEvent(const AuthLogoutRequested());
+      Future<void> pendingAction() async {
+        executionCount++;
+      }
 
-      verify(tokenStorage.clearTokens()).called(1);
+      await authCubit.doEvent(
+        AuthAuthenticationRequired(
+          pendingAction: pendingAction,
+        ),
+      );
+
+      await authCubit.replayPendingAction();
+      await authCubit.replayPendingAction();
+
+      expect(executionCount, 1);
     });
 
-    test('should emit unauthenticated when logout is requested', () async {
-      when(tokenStorage.clearTokens()).thenAnswer((_) async {});
+    test('should do nothing when there is no pending action', () async {
+      await authCubit.replayPendingAction();
 
-      await authCubit.doEvent(const AuthLogoutRequested());
+      expect(authCubit.state.isAuthenticated, false);
+    });
+  });
 
-      expect(authCubit.state.authState.data, false);
+  group('clearPendingAction', () {
+    test('should prevent pending action from being replayed', () async {
+      var actionExecuted = false;
+
+      Future<void> pendingAction() async {
+        actionExecuted = true;
+      }
+
+      await authCubit.doEvent(
+        AuthAuthenticationRequired(
+          pendingAction: pendingAction,
+        ),
+      );
+
+      authCubit.clearPendingAction();
+
+      await authCubit.replayPendingAction();
+
+      expect(actionExecuted, false);
     });
   });
 }

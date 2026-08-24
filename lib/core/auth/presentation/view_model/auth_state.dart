@@ -7,9 +7,14 @@ part 'auth_state.freezed.dart';
 abstract class AuthState with _$AuthState {
   const factory AuthState({
     @Default(BaseState<bool>()) BaseState<bool> authState,
+    @Default(false) bool requiresAuthentication,
   }) = _AuthState;
 
   factory AuthState.initial() {
     return const AuthState();
   }
+}
+
+extension AuthStateX on AuthState {
+  bool get isAuthenticated => authState.data ?? false;
 }

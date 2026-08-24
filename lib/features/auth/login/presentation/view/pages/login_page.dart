@@ -13,11 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../../../core/auth/auth_guard.dart';
 import '../../../../../../core/auth/presentation/view_model/auth_cubit.dart';
 import '../../../../../../core/auth/presentation/view_model/auth_event.dart';
-import '../../../../../../core/di/di.dart';
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -59,18 +56,17 @@ class _LoginPageState extends State<LoginPage> {
             listener: (context, state) async {
               if (state.loginState.data != null) {
                 await context.read<AuthCubit>().doEvent(
-                  const AuthCheckRequested(),
+                  const AuthLoginSucceeded(),
                 );
+
                 if (!context.mounted) return;
-                final hasPendingAction = await getIt<AuthGuard>()
-                    .replayPendingAction();
-                if (!context.mounted) return;
-                if (!hasPendingAction) {
-                  if (context.canPop()) {
-                    context.pop();
-                  } else {
-                    context.go(AppRoutesName.home);
-                  }
+
+                final authState = context.read<AuthCubit>().state;
+
+                if (!authState.requiresAuthentication && context.canPop()) {
+                  context.pop();
+                } else if (!authState.requiresAuthentication) {
+                  context.go(AppRoutesName.home);
                 }
               } else if (state.loginState.errorMessage.isNotEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
