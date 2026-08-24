@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/localization/localization.dart';
 import 'package:flower_app/core/theme/app_color.dart';
@@ -15,11 +12,8 @@ import 'app/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-      await dotenv.load();
-      
-
   await configureDependencies();
-  log("${ApiEndpoints.baseUrl}");
+        await dotenv.load();
   await getIt<LocaleController>().load();
   final initialLocation = await AppRouter.resolveInitialLocation();
   runApp(MyApp(initialLocation: initialLocation));
