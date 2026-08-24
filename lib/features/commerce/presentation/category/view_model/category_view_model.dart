@@ -16,12 +16,12 @@ class CategoryViewModel extends Cubit<CategoryState> {
   final CategoryUseCase categoryUseCase;
   final ProductUseCase productUseCase;
 
-  void onEvent(CategoryEvent event) {
+   Future<void> onEvent(CategoryEvent event) async {
     switch (event) {
       case LoadCategories():
-        _loadCategories();
+        await _loadCategories();
       case SelectCategoryTab():
-        _loadProductsByCategory(event.categoryId, event.tab);
+        await _loadProductsByCategory(event.categoryId, event.tab);
     }
   }
 
