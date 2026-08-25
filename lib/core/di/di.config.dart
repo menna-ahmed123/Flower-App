@@ -80,6 +80,9 @@ import '../../features/commerce/presentation/occasion/view_model/occasion_view_m
     as _i421;
 import '../../features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart'
     as _i784;
+import '../auth/data/repos/auth_repository_impl.dart' as _i874;
+import '../auth/domain/repos/auth_repository.dart' as _i420;
+import '../auth/presentation/view_model/auth_cubit.dart' as _i4;
 import '../localization/locale_controller.dart' as _i1066;
 import '../localization/locale_storage.dart' as _i463;
 import '../modules/api_module.dart' as _i98;
@@ -138,6 +141,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i463.LocaleStorage>(
       () => _i463.PreferencesLocaleStorage(gh<_i460.SharedPreferences>()),
     );
+    gh.lazySingleton<_i420.AuthRepository>(
+      () => _i874.AuthRepositoryImpl(gh<_i964.TokenStorage>()),
+    );
     gh.lazySingleton<_i466.AuthInterceptors>(
       () => _i466.AuthInterceptors(
         gh<_i964.TokenStorage>(),
@@ -146,6 +152,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1066.LocaleController>(
       () => _i1066.LocaleController(gh<_i463.LocaleStorage>()),
+    );
+    gh.lazySingleton<_i4.AuthCubit>(
+      () => _i4.AuthCubit(gh<_i420.AuthRepository>()),
     );
     gh.singleton<_i361.Dio>(
       () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),

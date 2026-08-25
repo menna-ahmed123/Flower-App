@@ -37,7 +37,6 @@ migrate_working_dir/
 /coverage/
 
 
-
 # Symbolication related
 app.*.symbols
 
