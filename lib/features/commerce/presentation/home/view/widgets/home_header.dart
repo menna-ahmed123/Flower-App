@@ -19,10 +19,7 @@ class HomeHeader extends StatelessWidget {
         children: [
           _logo(context),
           SizedBox(height: 12.h),
-          AppSearchField(
-            onChanged: onQuery,
-            onClear: () => onQuery?.call(''),
-          ),
+          AppSearchField(onChanged: onQuery, onClear: () => onQuery?.call('')),
           SizedBox(height: 12.h),
           _deliverTo(context),
         ],

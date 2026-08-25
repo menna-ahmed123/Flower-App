@@ -29,11 +29,11 @@ class _CommerceApiClient implements CommerceApiClient {
     final _options = _setStreamType<HomeLayoutResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
-            _dio.options,
-            '/catalog/home/layout',
-            queryParameters: queryParameters,
-            data: _data,
-          )
+        _dio.options,
+        '/catalog/home/layout',
+        queryParameters: queryParameters,
+        data: _data,
+      )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -63,11 +63,11 @@ class _CommerceApiClient implements CommerceApiClient {
     final _options = _setStreamType<ProductsResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
-            _dio.options,
-            '/catalog/products',
-            queryParameters: queryParameters,
-            data: _data,
-          )
+        _dio.options,
+        '/catalog/products',
+        queryParameters: queryParameters,
+        data: _data,
+      )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -90,11 +90,11 @@ class _CommerceApiClient implements CommerceApiClient {
     final _options = _setStreamType<OccasionsResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
-            _dio.options,
-            '/catalog/occasions',
-            queryParameters: queryParameters,
-            data: _data,
-          )
+        _dio.options,
+        '/catalog/occasions',
+        queryParameters: queryParameters,
+        data: _data,
+      )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -117,11 +117,11 @@ class _CommerceApiClient implements CommerceApiClient {
     final _options = _setStreamType<ProductDetailsResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
-            _dio.options,
-            '/catalog/products/${id}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
+        _dio.options,
+        '/catalog/products/${id}',
+        queryParameters: queryParameters,
+        data: _data,
+      )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -144,11 +144,11 @@ class _CommerceApiClient implements CommerceApiClient {
     final _options = _setStreamType<CategoriesResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
-            _dio.options,
-            '/catalog/categories',
-            queryParameters: queryParameters,
-            data: _data,
-          )
+        _dio.options,
+        '/catalog/categories',
+        queryParameters: queryParameters,
+        data: _data,
+      )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -171,11 +171,11 @@ class _CommerceApiClient implements CommerceApiClient {
     final _options = _setStreamType<CatalogItemsResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
-            _dio.options,
-            '/catalog/categories',
-            queryParameters: queryParameters,
-            data: _data,
-          )
+        _dio.options,
+        '/catalog/categories',
+        queryParameters: queryParameters,
+        data: _data,
+      )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -198,11 +198,11 @@ class _CommerceApiClient implements CommerceApiClient {
     final _options = _setStreamType<CatalogItemsResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
-            _dio.options,
-            '/catalog/occasions',
-            queryParameters: queryParameters,
-            data: _data,
-          )
+        _dio.options,
+        '/catalog/occasions',
+        queryParameters: queryParameters,
+        data: _data,
+      )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -232,11 +232,11 @@ class _CommerceApiClient implements CommerceApiClient {
     final _options = _setStreamType<CatalogItemsResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
-            _dio.options,
-            '/catalog/products',
-            queryParameters: queryParameters,
-            data: _data,
-          )
+        _dio.options,
+        '/catalog/products',
+        queryParameters: queryParameters,
+        data: _data,
+      )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -264,7 +264,9 @@ class _CommerceApiClient implements CommerceApiClient {
   }
 
   String _combineBaseUrls(String dioBaseUrl, String? baseUrl) {
-    if (baseUrl == null || baseUrl.trim().isEmpty) {
+    if (baseUrl == null || baseUrl
+        .trim()
+        .isEmpty) {
       return dioBaseUrl;
     }
 

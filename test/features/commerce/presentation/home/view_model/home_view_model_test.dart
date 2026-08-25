@@ -87,7 +87,11 @@ HomeLayoutEntity _products() {
       sectionEntity(
         type: 'product_rail',
         id: 'p',
-        items: [railItem('Sunny'), railItem('Red roses'), railItem('Spring vase')],
+        items: [
+          railItem('Sunny'),
+          railItem('Red roses'),
+          railItem('Spring vase'),
+        ],
       ),
     ],
   );
