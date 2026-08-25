@@ -1,3 +1,4 @@
+import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
@@ -11,6 +12,7 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class OccasionScreen extends StatefulWidget {
   const OccasionScreen({super.key});
@@ -90,6 +92,14 @@ class _OccasionScreenState extends State<OccasionScreen> {
                         : (state.productsState.data ?? const []).isEmpty
                         ? const Center(child: Text('No products found'))
                         : ProductGrid(
+                           onTap: (product) {
+                              context.push(
+                                AppRoutesName.productDetails.replaceFirst(
+                                  ':productId',
+                                  product.id,
+                                ),
+                              );
+                            },
                             products: state.productsState.data ?? const [],
                           ),
                   ),

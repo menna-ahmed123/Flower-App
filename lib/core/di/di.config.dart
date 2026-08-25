@@ -91,8 +91,6 @@ import '../network/safe_call.dart' as _i185;
 import '../network/token_refresher.dart' as _i1058;
 import '../network/token_storage.dart' as _i964;
 
-const String _prod = 'prod';
-
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
   Future<_i174.GetIt> init({
@@ -159,6 +157,9 @@ extension GetItInjectableX on _i174.GetIt {
         remoteDataSource: gh<_i24.ForgetPasswordRemoteDataSource>(),
       ),
     );
+    gh.factory<_i258.RegisterRemoteDataSource>(
+      () => _i453.RegisterRemoteDataSourceImpl(gh<_i3.RegisterApiClient>()),
+    );
     gh.factory<_i772.CommerceRepo>(
       () => _i861.CommerceRepoImpl(
         gh<_i696.CommerceRemoteDataSource>(),
@@ -180,15 +181,17 @@ extension GetItInjectableX on _i174.GetIt {
         forgetPasswordRepo: gh<_i488.ForgetPasswordRepo>(),
       ),
     );
+    gh.factory<_i926.RegisterRepo>(
+      () => _i934.RegisterRepositoryImpl(
+        gh<_i258.RegisterRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
+    );
     gh.factory<_i242.CategoryUseCase>(
       () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
     );
     gh.factory<_i682.OccasionUseCase>(
       () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
-    );
-    gh.factory<_i258.RegisterRemoteDataSource>(
-      () => _i453.RegisterRemoteDataSourceImpl(gh<_i3.RegisterApiClient>()),
-      registerFor: {_prod},
     );
     gh.factory<_i441.AuthRemoteDataSource>(
       () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
@@ -206,6 +209,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i613.ProductUseCase>(
       () => _i613.ProductUseCase(gh<_i772.CommerceRepo>()),
     );
+    gh.factory<_i95.RegisterUseCase>(
+      () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
+    );
     gh.factory<_i795.ForgetPasswordCubit>(
       () => _i795.ForgetPasswordCubit(
         gh<_i913.ForgetPasswordUseCase>(),
@@ -219,11 +225,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i969.BestSellerViewModel>(
       () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
     );
-    gh.factory<_i926.RegisterRepo>(
-      () => _i934.RegisterRepositoryImpl(
-        gh<_i258.RegisterRemoteDataSource>(),
-        gh<_i185.SafeCall>(),
-      ),
+    gh.factory<_i656.RegisterViewModel>(
+      () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
     );
     gh.factory<_i784.ProductDetailsViewModel>(
       () => _i784.ProductDetailsViewModel(gh<_i172.ProductDetailsUseCase>()),
@@ -243,14 +246,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i613.ProductUseCase>(),
       ),
     );
-    gh.factory<_i95.RegisterUseCase>(
-      () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
-    );
     gh.factory<_i188.LoginViewModel>(
       () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
-    );
-    gh.factory<_i656.RegisterViewModel>(
-      () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
     );
     return this;
   }

@@ -1,3 +1,4 @@
+import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/features/commerce/core/widgets/custom_tab_bar.dart';
 import 'package:flower_app/features/commerce/core/widgets/product_grid.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
@@ -7,6 +8,7 @@ import 'package:flower_app/features/commerce/presentation/category/view_model/ca
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class CategoryBody extends StatelessWidget {
   const CategoryBody({super.key});
@@ -41,14 +43,14 @@ class CategoryBody extends StatelessWidget {
 
             SizedBox(height: 16.h),
 
-            Expanded(child: _buildProductsBody(state)),
+            Expanded(child: _buildProductsBody(context, state)),
           ],
         );
       },
     );
   }
 
-  Widget _buildProductsBody(CategoryState state) {
+  Widget _buildProductsBody(BuildContext context, CategoryState state) {
     if (state.categoriesState.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -71,6 +73,13 @@ class CategoryBody extends StatelessWidget {
       return const Center(child: Text('No products found'));
     }
 
-    return ProductGrid(products: products);
+    return ProductGrid(
+      products: products,
+      onTap: (product) {
+        context.push(
+          AppRoutesName.productDetails.replaceFirst(':productId', product.id),
+        );
+      },
+    );
   }
 }

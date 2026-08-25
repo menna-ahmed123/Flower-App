@@ -3,8 +3,9 @@ import 'package:flower_app/features/commerce/domain/entities/product_entity.dart
 import 'package:flutter/material.dart';
 
 class ProductGrid extends StatelessWidget {
-  const ProductGrid({super.key, required this.products});
+  const ProductGrid({super.key, required this.products, required this.onTap});
   final List<ProductEntity> products;
+  final void Function(ProductEntity) onTap;
   @override
   Widget build(BuildContext context) {
     return GridView.builder(

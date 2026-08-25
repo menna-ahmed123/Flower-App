@@ -20,6 +20,8 @@ import 'package:flower_app/features/commerce/presentation/home/view/screen/home_
 import 'package:flower_app/features/commerce/presentation/occasion/view/screen/occasion_screen.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,7 @@ class AppRouter {
 
   static Future<String> resolveInitialLocation() async {
     final isAuthenticated = await _hasSession();
+
     return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
   }
 
@@ -46,13 +49,15 @@ class AppRouter {
         _registerRoute(),
         _forgetPasswordShell(),
         _mainShell(),
-         GoRoute(
-            path: AppRoutesName.bestSeller,
-            builder: (context, state) => BlocProvider(
-              create: (_) => getIt<BestSellerViewModel>(),
-              child: const BestSellerScreen(),
-            ),
+
+        GoRoute(
+          path: AppRoutesName.bestSeller,
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<BestSellerViewModel>(),
+            child: const BestSellerScreen(),
           ),
+        ),
+
         GoRoute(
           path: AppRoutesName.occasion,
           builder: (context, state) => BlocProvider(
@@ -60,12 +65,21 @@ class AppRouter {
             child: const OccasionScreen(),
           ),
         ),
+
         GoRoute(
           path: AppRoutesName.productDetails,
-          builder: (context, state) => const ProductDetailsScreen(),
+          builder: (context, state) {
+            final productId = state.pathParameters['productId']!;
+
+            return BlocProvider(
+              create: (_) =>
+                  getIt<ProductDetailsViewModel>()
+                    ..onEvent(GetProductDetailsEvent(productId: productId)),
+              child: const ProductDetailsScreen(),
+            );
+          },
         ),
       ],
-      
     );
   }
 
@@ -177,8 +191,9 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.home,
-          builder: (context, state) => const HomeScreen(),
-        
+          builder: (context, state) {
+            return const HomeScreen();
+          },
         ),
       ],
     );
@@ -204,7 +219,9 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.cart,
-          builder: (context, state) => const CartScreen(),
+          builder: (context, state) {
+            return const CartScreen();
+          },
         ),
       ],
     );
@@ -215,7 +232,9 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.profile,
-          builder: (context, state) => const ProfileScreen(),
+          builder: (context, state) {
+            return const ProfileScreen();
+          },
         ),
       ],
     );
