@@ -6,7 +6,7 @@ import 'package:injectable/injectable.dart';
 import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart';
 import 'package:flower_app/features/commerce/data/models/product_response.dart';
 
-@Injectable(as: CommerceRemoteDataSource, env: ['dev', 'prod'])
+@Injectable(as: CommerceRemoteDataSource)
 class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   final CommerceApiClient _commerceApiClient;
 
