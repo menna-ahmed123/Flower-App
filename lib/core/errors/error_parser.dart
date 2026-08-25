@@ -25,11 +25,24 @@ AppError _parseDioException(DioException exception) {
       'Invalid certificate, please try again later.',
     ),
     DioExceptionType.badResponse => _parseBadResponse(exception),
-    DioExceptionType.connectionError => NoInternetError(exception),
+    DioExceptionType.connectionError => _connectionError(exception),
     DioExceptionType.cancel ||
     DioExceptionType.unknown ||
     DioExceptionType.transformTimeout => IgnoreError(),
   };
+}
+
+AppError _connectionError(DioException exception) {
+  final detail = '${exception.message} ${exception.error}';
+  if (detail.contains('Connection refused') ||
+      detail.contains('Failed host lookup') ||
+      detail.contains('Network is unreachable') ||
+      detail.contains('Connection reset')) {
+    return BadResponseError(
+      'Cannot reach the server. Start the backend with ./setup.sh and retry.',
+    );
+  }
+  return NoInternetError(exception);
 }
 
 AppError _parseBadResponse(DioException exception) {

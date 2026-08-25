@@ -14,6 +14,13 @@ import 'category_view_model_test.mocks.dart';
 
 @GenerateMocks([CategoryUseCase, ProductUseCase])
 void main() {
+  provideDummy<BaseResponse<List<CategoryEntity>>>(
+    const SuccessResponse<List<CategoryEntity>>([]),
+  );
+  provideDummy<BaseResponse<List<ProductEntity>>>(
+    const SuccessResponse<List<ProductEntity>>([]),
+  );
+
   late MockCategoryUseCase categoryUseCase;
   late MockProductUseCase productUseCase;
   late CategoryViewModel categoryViewModel;

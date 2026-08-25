@@ -10,6 +10,10 @@ import 'product_use_case_test.mocks.dart';
 
 @GenerateMocks([CommerceRepo])
 void main() {
+  provideDummy<BaseResponse<List<ProductEntity>>>(
+    const SuccessResponse<List<ProductEntity>>([]),
+  );
+
   late MockCommerceRepo commerceRepo;
   late ProductUseCase productUseCase;
 
