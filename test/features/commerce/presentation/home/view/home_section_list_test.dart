@@ -63,9 +63,7 @@ GoRouter _viewAllRouter() {
       GoRoute(
         path: AppRoutesName.home,
         builder: (context, state) {
-          return Scaffold(
-            body: HomeSectionList(sections: _orderedSections()),
-          );
+          return Scaffold(body: HomeSectionList(sections: _orderedSections()));
         },
       ),
       GoRoute(
