@@ -6,8 +6,16 @@
 import 'dart:async' as _i3;
 
 import 'package:flower_app/core/base/base_response.dart' as _i4;
+import 'package:flower_app/features/commerce/data/models/occasion_model.dart'
+    as _i8;
+import 'package:flower_app/features/commerce/domain/entities/category_entity.dart'
+    as _i10;
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart'
     as _i5;
+import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart'
+    as _i9;
+import 'package:flower_app/features/commerce/domain/entities/product_entity.dart'
+    as _i7;
 import 'package:flower_app/features/commerce/domain/repo/commerce_repo.dart'
     as _i2;
 import 'package:mockito/mockito.dart' as _i1;
@@ -51,4 +59,73 @@ class MockCommerceRepo extends _i1.Mock implements _i2.CommerceRepo {
                 ),
           )
           as _i3.Future<_i4.BaseResponse<_i5.HomeLayoutEntity>>);
+
+  @override
+  _i3.Future<_i4.BaseResponse<List<_i7.ProductEntity>>> getProducts({
+    String? occasionId,
+    String? categoryId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getProducts, [], {
+              #occasionId: occasionId,
+              #categoryId: categoryId,
+            }),
+            returnValue:
+                _i3.Future<_i4.BaseResponse<List<_i7.ProductEntity>>>.value(
+                  _i6.dummyValue<_i4.BaseResponse<List<_i7.ProductEntity>>>(
+                    this,
+                    Invocation.method(#getProducts, [], {
+                      #occasionId: occasionId,
+                      #categoryId: categoryId,
+                    }),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.BaseResponse<List<_i7.ProductEntity>>>);
+
+  @override
+  _i3.Future<_i4.BaseResponse<List<_i8.OccasionModel>>> getAllOccasions() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllOccasions, []),
+            returnValue:
+                _i3.Future<_i4.BaseResponse<List<_i8.OccasionModel>>>.value(
+                  _i6.dummyValue<_i4.BaseResponse<List<_i8.OccasionModel>>>(
+                    this,
+                    Invocation.method(#getAllOccasions, []),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.BaseResponse<List<_i8.OccasionModel>>>);
+
+  @override
+  _i3.Future<_i4.BaseResponse<_i9.ProductDetailsEntity>> getProductDetails({
+    required String? productId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getProductDetails, [], {#productId: productId}),
+            returnValue:
+                _i3.Future<_i4.BaseResponse<_i9.ProductDetailsEntity>>.value(
+                  _i6.dummyValue<_i4.BaseResponse<_i9.ProductDetailsEntity>>(
+                    this,
+                    Invocation.method(#getProductDetails, [], {
+                      #productId: productId,
+                    }),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.BaseResponse<_i9.ProductDetailsEntity>>);
+
+  @override
+  _i3.Future<_i4.BaseResponse<List<_i10.CategoryEntity>>> getAllCategories() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllCategories, []),
+            returnValue:
+                _i3.Future<_i4.BaseResponse<List<_i10.CategoryEntity>>>.value(
+                  _i6.dummyValue<_i4.BaseResponse<List<_i10.CategoryEntity>>>(
+                    this,
+                    Invocation.method(#getAllCategories, []),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.BaseResponse<List<_i10.CategoryEntity>>>);
 }

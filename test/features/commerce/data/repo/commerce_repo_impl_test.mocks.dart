@@ -3,12 +3,20 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i8;
 
 import 'package:flower_app/features/commerce/data/data_sources/commerce_remote_data_source.dart'
-    as _i3;
+    as _i7;
+import 'package:flower_app/features/commerce/data/models/categories_response.dart'
+    as _i6;
 import 'package:flower_app/features/commerce/data/models/home_layout_response.dart'
     as _i2;
+import 'package:flower_app/features/commerce/data/models/occasions_response.dart'
+    as _i4;
+import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart'
+    as _i5;
+import 'package:flower_app/features/commerce/data/models/product_response.dart'
+    as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -32,25 +40,112 @@ class _FakeHomeLayoutResponse_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
+class _FakeProductsResponse_1 extends _i1.SmartFake
+    implements _i3.ProductsResponse {
+  _FakeProductsResponse_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeOccasionsResponse_2 extends _i1.SmartFake
+    implements _i4.OccasionsResponse {
+  _FakeOccasionsResponse_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeProductDetailsResponseModel_3 extends _i1.SmartFake
+    implements _i5.ProductDetailsResponseModel {
+  _FakeProductDetailsResponseModel_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeCategoriesResponse_4 extends _i1.SmartFake
+    implements _i6.CategoriesResponse {
+  _FakeCategoriesResponse_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [CommerceRemoteDataSource].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCommerceRemoteDataSource extends _i1.Mock
-    implements _i3.CommerceRemoteDataSource {
+    implements _i7.CommerceRemoteDataSource {
   MockCommerceRemoteDataSource() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.HomeLayoutResponse> getHomeLayout({String? storeId}) =>
+  _i8.Future<_i2.HomeLayoutResponse> getHomeLayout({String? storeId}) =>
       (super.noSuchMethod(
             Invocation.method(#getHomeLayout, [], {#storeId: storeId}),
-            returnValue: _i4.Future<_i2.HomeLayoutResponse>.value(
+            returnValue: _i8.Future<_i2.HomeLayoutResponse>.value(
               _FakeHomeLayoutResponse_0(
                 this,
                 Invocation.method(#getHomeLayout, [], {#storeId: storeId}),
               ),
             ),
           )
-          as _i4.Future<_i2.HomeLayoutResponse>);
+          as _i8.Future<_i2.HomeLayoutResponse>);
+
+  @override
+  _i8.Future<_i3.ProductsResponse> getProducts({
+    String? occasionId,
+    String? categoryId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getProducts, [], {
+              #occasionId: occasionId,
+              #categoryId: categoryId,
+            }),
+            returnValue: _i8.Future<_i3.ProductsResponse>.value(
+              _FakeProductsResponse_1(
+                this,
+                Invocation.method(#getProducts, [], {
+                  #occasionId: occasionId,
+                  #categoryId: categoryId,
+                }),
+              ),
+            ),
+          )
+          as _i8.Future<_i3.ProductsResponse>);
+
+  @override
+  _i8.Future<_i4.OccasionsResponse> getAllOccasions() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllOccasions, []),
+            returnValue: _i8.Future<_i4.OccasionsResponse>.value(
+              _FakeOccasionsResponse_2(
+                this,
+                Invocation.method(#getAllOccasions, []),
+              ),
+            ),
+          )
+          as _i8.Future<_i4.OccasionsResponse>);
+
+  @override
+  _i8.Future<_i5.ProductDetailsResponseModel> getProductDetails(
+    String? productId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getProductDetails, [productId]),
+            returnValue: _i8.Future<_i5.ProductDetailsResponseModel>.value(
+              _FakeProductDetailsResponseModel_3(
+                this,
+                Invocation.method(#getProductDetails, [productId]),
+              ),
+            ),
+          )
+          as _i8.Future<_i5.ProductDetailsResponseModel>);
+
+  @override
+  _i8.Future<_i6.CategoriesResponse> getAllCategories() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllCategories, []),
+            returnValue: _i8.Future<_i6.CategoriesResponse>.value(
+              _FakeCategoriesResponse_4(
+                this,
+                Invocation.method(#getAllCategories, []),
+              ),
+            ),
+          )
+          as _i8.Future<_i6.CategoriesResponse>);
 }
