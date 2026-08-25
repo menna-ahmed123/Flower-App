@@ -6,7 +6,7 @@ abstract final class AppRoutesName {
   static const String resetPassword = 'reset-password';
   static const String home = '/home';
   static const String bestSeller = '/best_seller';
-  static const String productDetails = '/product_details';
+  static const productDetails = '/product-details/:productId';
   static const String occasion = '/occasion';
   static const String category = '/category';
   static const String cart = '/cart';
