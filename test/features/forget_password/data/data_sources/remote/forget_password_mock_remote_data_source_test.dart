@@ -1,5 +1,5 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/features/auth/forget_password/data/data_sources/remote/forget_password_mock_remote_data_source.dart';
+import 'package:flower_app/features/auth/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart';
 import 'package:flower_app/features/auth/forget_password/data/models/forget_password_request_model.dart';
 import 'package:flower_app/features/auth/forget_password/data/models/forget_password_response_model.dart';
 import 'package:flower_app/features/auth/forget_password/data/models/reset_password_request_model.dart';
@@ -9,10 +9,10 @@ import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  late ForgetPasswordMockRemoteDataSource dataSource;
+  late ForgetPasswordRemoteDataSource dataSource;
 
   setUp(() {
-    dataSource = ForgetPasswordMockRemoteDataSource();
+    dataSource = _ForgetPasswordRemoteDataSourceFake();
   });
 
   test('returns dummy success for forget password', () async {
@@ -56,4 +56,43 @@ void main() {
     expect(response.data.message, 'Password reset successfully');
     expect(response.data.errors, isNull);
   });
+}
+
+class _ForgetPasswordRemoteDataSourceFake
+    implements ForgetPasswordRemoteDataSource {
+  @override
+  Future<BaseResponse<ForgetPasswordResponseModel>> forgetPassword({
+    required ForgetPasswordRequestModel requestModel,
+  }) async {
+    return SuccessResponse(
+      ForgetPasswordResponseModel(cooldownRemainingSeconds: 30),
+    );
+  }
+
+  @override
+  Future<BaseResponse<VerifyOtpResponseModel>> verifyOtp({
+    required VerifyOtpRequestModel requestModel,
+  }) async {
+    return SuccessResponse(
+      VerifyOtpResponseModel(
+        status: 'success',
+        resetToken: 'mock-reset-token',
+        expiresAtUtc: DateTime.now().toUtc().add(const Duration(minutes: 10)),
+      ),
+    );
+  }
+
+  @override
+  Future<BaseResponse<ResetPasswordResponseModel>> resetPassword({
+    required ResetPasswordRequestModel requestModel,
+  }) async {
+    return SuccessResponse(
+      ResetPasswordResponseModel(
+        isSuccess: true,
+        statusCode: 200,
+        message: 'Password reset successfully',
+        errors: null,
+      ),
+    );
+  }
 }

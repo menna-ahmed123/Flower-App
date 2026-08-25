@@ -22,7 +22,10 @@ class ResetPasswordResponseModel {
   });
 
   factory ResetPasswordResponseModel.fromJson(Map<String, dynamic> json) {
-    return _$ResetPasswordResponseModelFromJson(json);
+    return _$ResetPasswordResponseModelFromJson({
+      ...json,
+      'isSuccess': json['isSuccess'] ?? json['success'],
+    });
   }
 
   Map<String, dynamic> toJson() {

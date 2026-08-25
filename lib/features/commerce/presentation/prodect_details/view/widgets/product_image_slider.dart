@@ -1,5 +1,4 @@
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -119,7 +118,7 @@ class _SliderIndicator extends StatelessWidget {
           decoration: BoxDecoration(
             color: isActive
                 ? context.colors.pink
-                : context.colors.white.withOpacity(0.6),
+                : context.colors.white.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(4.r),
           ),
         );

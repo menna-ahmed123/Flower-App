@@ -5,10 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PriceAndStatusRow extends StatelessWidget {
-  const PriceAndStatusRow({required this.product});
+  const PriceAndStatusRow({super.key, required this.product});
 
   final ProductDetailsEntity product;
-
 
   @override
   Widget build(BuildContext context) {

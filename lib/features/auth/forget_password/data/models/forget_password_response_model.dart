@@ -9,8 +9,12 @@ class ForgetPasswordResponseModel {
 
   ForgetPasswordResponseModel({required this.cooldownRemainingSeconds});
 
-  factory ForgetPasswordResponseModel.fromJson(Map<String, dynamic> json) =>
-      _$ForgetPasswordResponseModelFromJson(json);
+  factory ForgetPasswordResponseModel.fromJson(Map<String, dynamic> json) {
+    final payload = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json;
+    return _$ForgetPasswordResponseModelFromJson(payload);
+  }
 
   Map<String, dynamic> toJson() => _$ForgetPasswordResponseModelToJson(this);
 

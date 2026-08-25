@@ -2,7 +2,6 @@ import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/widgets/price_and_status_row.dart';
-import 'package:flower_app/features/commerce/presentation/prodect_details/view/widgets/price_and_status_row.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/widgets/product_image_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

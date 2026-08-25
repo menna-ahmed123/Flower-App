@@ -18,7 +18,10 @@ class LoginResponse {
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) =>
-      _$LoginResponseFromJson(json);
+      _$LoginResponseFromJson({
+        ...json,
+        'isSuccess': json['isSuccess'] ?? json['success'] ?? false,
+      });
 
   Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
 }

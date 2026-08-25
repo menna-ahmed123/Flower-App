@@ -15,8 +15,12 @@ class VerifyOtpResponseModel {
     required this.expiresAtUtc,
   });
 
-  factory VerifyOtpResponseModel.fromJson(Map<String, dynamic> json) =>
-      _$VerifyOtpResponseModelFromJson(json);
+  factory VerifyOtpResponseModel.fromJson(Map<String, dynamic> json) {
+    final payload = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json;
+    return _$VerifyOtpResponseModelFromJson(payload);
+  }
 
   Map<String, dynamic> toJson() => _$VerifyOtpResponseModelToJson(this);
 

@@ -2,7 +2,11 @@ import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/features/commerce/api/commerce_api_client.dart';
 import 'package:flower_app/features/commerce/data/data_sources/commerce_remote_data_source.dart';
 import 'package:flower_app/features/commerce/data/models/catalog_items_response.dart';
+import 'package:flower_app/features/commerce/data/models/categories_response.dart';
 import 'package:flower_app/features/commerce/data/models/home_layout_response.dart';
+import 'package:flower_app/features/commerce/data/models/occasions_response.dart';
+import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart';
+import 'package:flower_app/features/commerce/data/models/product_response.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: CommerceRemoteDataSource)
@@ -20,6 +24,32 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
       message: layout.message,
       data: [for (final section in layout.data) await _hydrateSection(section)],
     );
+  }
+
+  @override
+  Future<ProductsResponse> getProducts({
+    String? occasionId,
+    String? categoryId,
+  }) {
+    return commerceApiClient.getProducts(
+      occasionId: occasionId,
+      categoryId: categoryId,
+    );
+  }
+
+  @override
+  Future<CategoriesResponse> getAllCategories() {
+    return commerceApiClient.getAllCategories();
+  }
+
+  @override
+  Future<OccasionsResponse> getAllOccasions() {
+    return commerceApiClient.getAllOccasions();
+  }
+
+  @override
+  Future<ProductDetailsResponseModel> getProductDetails(String productId) {
+    return commerceApiClient.getProductDetails(productId);
   }
 
   Future<HomeSectionDto> _hydrateSection(HomeSectionDto section) async {
@@ -43,7 +73,15 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
         _occasionItem,
       ),
       'product_rail' => _railItems(
-        () => commerceApiClient.getProducts(page: 1, pageSize: take),
+        () async {
+          final response = await commerceApiClient.getProducts(
+            page: 1,
+            pageSize: take,
+          );
+          return CatalogItemsResponse(
+            items: [for (final item in response.data.items) item.toJson()],
+          );
+        },
         take,
         _productItem,
       ),

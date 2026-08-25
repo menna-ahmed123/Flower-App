@@ -48,7 +48,8 @@ AppError _connectionError(DioException exception) {
 AppError _parseBadResponse(DioException exception) {
   final data = exception.response?.data;
   if (data is Map<String, dynamic>) {
-    final fieldErrors = fieldErrorsMessage(data['errors']);
+    final fieldErrors = fieldErrorsMessage(data['errors']) ??
+        fieldErrorsMessage(_validationFieldErrors(data['data']));
     if (fieldErrors != null) return BadResponseError(fieldErrors);
     if (data['message'] != null) {
       return BadResponseError(data['message'].toString());
@@ -59,6 +60,23 @@ AppError _parseBadResponse(DioException exception) {
   }
   if (exception.response?.statusCode == 401) return UnauthorizedError();
   return BadResponseError(statusCodeToMessage(exception.response?.statusCode));
+}
+
+/// Docker identity validation failures put field errors in `data`
+/// (e.g. Email / PhoneNumber), not in `errors`.
+Map<String, dynamic>? _validationFieldErrors(dynamic raw) {
+  if (raw is! Map) return null;
+  if (raw.containsKey('userId') ||
+      raw.containsKey('accessToken') ||
+      raw.containsKey('refreshToken')) {
+    return null;
+  }
+  final map = Map<String, dynamic>.from(raw);
+  if (map.isEmpty) return null;
+  final looksLikeFieldErrors = map.values.every(
+    (value) => value is List || value is String,
+  );
+  return looksLikeFieldErrors ? map : null;
 }
 
 String? fieldErrorsMessage(Map<String, dynamic>? errors) {
