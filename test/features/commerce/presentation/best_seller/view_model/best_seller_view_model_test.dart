@@ -15,6 +15,10 @@ import 'best_seller_view_model_test.mocks.dart';
 
 @GenerateMocks([ProductUseCase])
 void main() {
+  provideDummy<BaseResponse<List<ProductEntity>>>(
+    const SuccessResponse<List<ProductEntity>>([]),
+  );
+
   late MockProductUseCase productUseCase;
 
   final dummyProducts = [

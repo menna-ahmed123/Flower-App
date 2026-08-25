@@ -103,6 +103,7 @@ abstract class AppString {
 
   // ==================== Home / Dashboard ====================
   static const String home = 'Home';
+  static const String flowery = 'Flowery';
   static const String categories = 'Categories';
   static const String occasions = 'Occasions';
   static const String bestSellers = 'Best Sellers';
@@ -111,6 +112,7 @@ abstract class AppString {
   static const String popularFlowers = 'Popular Flowers';
   static const String desSell = "Bloom with our exquisite best sellers";
   static const String notFound = 'No products found';
+  static const String deliverTo = 'Deliver to 2XVP+XC - Sheikh Zayed';
 
   // ==================== Product Details ====================
   static const String addToCart = 'Add to cart';

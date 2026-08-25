@@ -17,6 +17,8 @@ import 'package:flower_app/features/commerce/presentation/category/view/screen/c
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_event.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/screen/home_screen.dart';
+import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
+import 'package:flower_app/features/commerce/presentation/home/view_model/home_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view/screen/occasion_screen.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
@@ -191,11 +193,16 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.home,
-          builder: (context, state) {
-            return const HomeScreen();
-          },
+          builder: _homeBuilder,
         ),
       ],
+    );
+  }
+
+  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+      child: const HomeScreen(),
     );
   }
 

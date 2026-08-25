@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/localization/localization.dart';
 import 'package:flower_app/core/theme/app_color.dart';
@@ -12,8 +13,8 @@ import 'app/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await dotenv.load(fileName: '.env');
+  await dotenv.load(fileName: '.env', isOptional: true);
+  await ApiEndpoints.loadBaseUrl();
   await configureDependencies();
   await getIt<LocaleController>().load();
 

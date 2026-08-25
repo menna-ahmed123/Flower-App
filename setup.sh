@@ -7,6 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="${SCRIPT_DIR}/.env"
 COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.prod.yml"
+HOST_PORT="8080"
 
 log() { echo -e "\033[1;34m[setup_backend]\033[0m $*"; }
 success() { echo -e "\033[1;32m[setup_backend]\033[0m $*"; }
@@ -65,7 +66,6 @@ get_host_ip() {
 }
 
 DEVICE_IP="$(get_host_ip)"
-HOST_PORT="8080"
 BASE_URL="http://${DEVICE_IP}:${HOST_PORT}"
 
 TMP_FILE="$(mktemp)"

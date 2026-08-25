@@ -65,6 +65,7 @@ import '../../features/commerce/data/repo/commerce_repo_impl.dart' as _i861;
 import '../../features/commerce/domain/repo/commerce_repo.dart' as _i772;
 import '../../features/commerce/domain/use_cases/category_use_case.dart'
     as _i242;
+import '../../features/commerce/domain/use_cases/home_use_case.dart' as _i1049;
 import '../../features/commerce/domain/use_cases/occasion_use_case.dart'
     as _i682;
 import '../../features/commerce/domain/use_cases/product_details_use_case.dart'
@@ -102,7 +103,6 @@ extension GetItInjectableX on _i174.GetIt {
     final dioModule = _$DioModule();
     final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
-    gh.factory<_i369.HomeViewModel>(() => _i369.HomeViewModel());
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
@@ -190,6 +190,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i242.CategoryUseCase>(
       () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
     );
+    gh.factory<_i1049.HomeUseCase>(
+      () => _i1049.HomeUseCase(gh<_i772.CommerceRepo>()),
+    );
     gh.factory<_i682.OccasionUseCase>(
       () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
     );
@@ -227,6 +230,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
+    );
+    gh.factory<_i369.HomeViewModel>(
+      () => _i369.HomeViewModel(gh<_i1049.HomeUseCase>()),
     );
     gh.factory<_i784.ProductDetailsViewModel>(
       () => _i784.ProductDetailsViewModel(gh<_i172.ProductDetailsUseCase>()),
