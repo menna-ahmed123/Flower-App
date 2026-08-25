@@ -6,8 +6,16 @@ import 'package:injectable/injectable.dart';
 @Injectable()
 class ProductUseCase {
   final CommerceRepo commerceRepo;
+
   ProductUseCase(this.commerceRepo);
-  Future<BaseResponse<List<ProductEntity>>> call() {
-    return commerceRepo.getAllProducts();
+
+  Future<BaseResponse<List<ProductEntity>>> call({
+    String? occasionId,
+    String? categoryId,
+  }) {
+    return commerceRepo.getProducts(
+      occasionId: occasionId,
+      categoryId: categoryId,
+    );
   }
 }

@@ -41,18 +41,27 @@ void main() {
 
   group('ProductUseCase', () {
     test('returns SuccessResponse when repo call succeeds', () async {
-      when(commerceRepo.getAllProducts())
+      when(commerceRepo.getProducts(
+        occasionId: 'occasion-1',
+        categoryId: 'category-1',
+      ))
           .thenAnswer((_) async => SuccessResponse(dummyProducts));
 
-      final result = await productUseCase();
+      final result = await productUseCase(
+        occasionId: 'occasion-1',
+        categoryId: 'category-1',
+      );
 
       expect(result, isA<SuccessResponse<List<ProductEntity>>>());
       expect((result as SuccessResponse<List<ProductEntity>>).data, dummyProducts);
-      verify(commerceRepo.getAllProducts()).called(1);
+      verify(commerceRepo.getProducts(
+        occasionId: 'occasion-1',
+        categoryId: 'category-1',
+      )).called(1);
     });
 
     test('returns ErrorResponse when repo call fails', () async {
-      when(commerceRepo.getAllProducts()).thenAnswer(
+      when(commerceRepo.getProducts()).thenAnswer(
         (_) async => ErrorResponse<List<ProductEntity>>(
           appError: BadResponseError('No Found Page'),
         ),
@@ -65,7 +74,7 @@ void main() {
         (result as ErrorResponse<List<ProductEntity>>).errorMessage,
         'No Found Page',
       );
-      verify(commerceRepo.getAllProducts()).called(1);
+      verify(commerceRepo.getProducts()).called(1);
     });
   });
 }

@@ -9,6 +9,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 abstract class DioModule {
   @singleton
   Dio provideDio(AuthInterceptors authInterceptors) {
+
     final dio = Dio(_createBaseOptions());
 
     _configureInterceptors(dio, authInterceptors);
@@ -19,7 +20,7 @@ abstract class DioModule {
 
   BaseOptions _createBaseOptions() {
     return BaseOptions(
-      baseUrl: ApiEndpoints.baseUrl,
+            baseUrl: ApiEndpoints.baseUrl,
       receiveTimeout: const Duration(seconds: 60),
       connectTimeout: const Duration(seconds: 60),
       sendTimeout: const Duration(seconds: 60),

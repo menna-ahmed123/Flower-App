@@ -1,7 +1,7 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/core/utils/commerce_widgets/commerce_app_bar.dart';
 import 'package:flower_app/core/utils/commerce_widgets/product_grid.dart';
+import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_event.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_state.dart';
@@ -35,16 +35,16 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
             SizedBox(
               height: 70.h,
               child: CommerceAppBar(
-                title:AppString.bestSellers,
-des:AppString.desSell,
+                title: AppString.bestSellers,
+                des: AppString.desSell,
               ),
             ),
-      
+
             Expanded(
               child: BlocBuilder<BestSellerViewModel, BestSellerState>(
                 builder: (context, state) {
                   final productState = state.bestSellState;
-      
+
                   if (productState.isLoading) {
                     return Center(
                       child: CircularProgressIndicator(
@@ -52,7 +52,7 @@ des:AppString.desSell,
                       ),
                     );
                   }
-      
+
                   if (productState.errorMessage.isNotEmpty) {
                     return Center(
                       child: Padding(
@@ -98,9 +98,9 @@ des:AppString.desSell,
                       ),
                     );
                   }
-      
+
                   final List<ProductEntity> products = productState.data ?? [];
-      
+
                   if (products.isEmpty) {
                     return Center(
                       child: Column(
@@ -124,11 +124,9 @@ des:AppString.desSell,
                       ),
                     );
                   }
-      
-                   return ProductGrid(products: products); 
-                  
+
+                  return ProductGrid(products: products);
                 },
-        
               ),
             ),
           ],

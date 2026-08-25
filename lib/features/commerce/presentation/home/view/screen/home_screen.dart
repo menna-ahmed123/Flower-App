@@ -9,12 +9,24 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ElevatedButton(
+      body:Column(
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              context.push(AppRoutesName.occasion);
+            },
+            child: Text("ViEW ALL",style: TextStyle(color: context.colors.black[50]),),
+          ),
+          ElevatedButton(
         onPressed: () {
           context.push(AppRoutesName.bestSeller);
         },
         child: Text("ViEW ALL",style: TextStyle(color: context.colors.black[50]),),
       ),
-    );
+        ],
+      )
+      ,
+       
+      );
   }
 }
