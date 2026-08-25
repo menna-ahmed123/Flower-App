@@ -1,5 +1,4 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/core/di/app_environment.dart';
 import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/features/auth/forget_password/api/client/forget_password_api_client.dart';
 import 'package:flower_app/features/auth/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart';
@@ -11,7 +10,7 @@ import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_
 import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_response_model.dart';
 import 'package:injectable/injectable.dart';
 
-@Injectable(as: ForgetPasswordRemoteDataSource, env: [AppEnvironment.prod])
+@Injectable(as: ForgetPasswordRemoteDataSource)
 class ForgetPasswordRemoteDataSourceImpl
     implements ForgetPasswordRemoteDataSource {
   final ForgetPasswordApiClient forgetPasswordApiClient;

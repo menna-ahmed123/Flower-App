@@ -17,7 +17,9 @@ Future<void> main() async {
   await ApiEndpoints.loadBaseUrl();
   await configureDependencies();
   await getIt<LocaleController>().load();
+
   final initialLocation = await AppRouter.resolveInitialLocation();
+
   runApp(MyApp(initialLocation: initialLocation));
 }
 

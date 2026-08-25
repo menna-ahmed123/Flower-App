@@ -12,8 +12,8 @@ class ProductCard extends StatelessWidget {
     required this.name,
     required this.price,
     required this.onAddToCart,
-     this.oldPrice,
-     this.discount,
+    this.oldPrice,
+    this.discount,
     required this.onTap,
     this.isLoading = false,
   });
@@ -35,7 +35,7 @@ class ProductCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(10.r),
       child: Container(
         width: 163.w,
-      //  height: 229.h,
+        //  height: 229.h,
         decoration: BoxDecoration(
           color: colors.white,
           borderRadius: BorderRadius.circular(10.r),

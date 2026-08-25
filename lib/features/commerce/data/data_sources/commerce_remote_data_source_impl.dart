@@ -2,24 +2,54 @@ import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/features/commerce/api/commerce_api_client.dart';
 import 'package:flower_app/features/commerce/data/data_sources/commerce_remote_data_source.dart';
 import 'package:flower_app/features/commerce/data/models/catalog_items_response.dart';
+import 'package:flower_app/features/commerce/data/models/categories_response.dart';
 import 'package:flower_app/features/commerce/data/models/home_layout_response.dart';
+import 'package:flower_app/features/commerce/data/models/occasions_response.dart';
+import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart';
+import 'package:flower_app/features/commerce/data/models/product_response.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: CommerceRemoteDataSource)
 class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
-  CommerceRemoteDataSourceImpl(this.commerceApiClient);
+  final CommerceApiClient _commerceApiClient;
 
-  final CommerceApiClient commerceApiClient;
+  CommerceRemoteDataSourceImpl(this._commerceApiClient);
 
   @override
   Future<HomeLayoutResponse> getHomeLayout({String? storeId}) async {
-    final layout = await commerceApiClient.getHomeLayout(storeId: storeId);
+    final layout = await _commerceApiClient.getHomeLayout(storeId: storeId);
     return HomeLayoutResponse(
       isSuccess: layout.isSuccess,
       statusCode: layout.statusCode,
       message: layout.message,
       data: [for (final section in layout.data) await _hydrateSection(section)],
     );
+  }
+
+  @override
+  Future<ProductsResponse> getProducts({
+    String? occasionId,
+    String? categoryId,
+  }) {
+    return _commerceApiClient.getProducts(
+      occasionId: occasionId,
+      categoryId: categoryId,
+    );
+  }
+
+  @override
+  Future<CategoriesResponse> getAllCategories() {
+    return _commerceApiClient.getAllCategories();
+  }
+
+  @override
+  Future<OccasionsResponse> getAllOccasions() {
+    return _commerceApiClient.getAllOccasions();
+  }
+
+  @override
+  Future<ProductDetailsResponseModel> getProductDetails(String productId) {
+    return _commerceApiClient.getProductDetails(productId);
   }
 
   Future<HomeSectionDto> _hydrateSection(HomeSectionDto section) async {
@@ -33,17 +63,17 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
     final take = _take(section);
     return switch (section.type) {
       'category_rail' => _railItems(
-        () => commerceApiClient.getCategories(),
+        () => _commerceApiClient.getCategories(),
         take,
         _categoryItem,
       ),
       'occasion_rail' => _railItems(
-        () => commerceApiClient.getOccasions(),
+        () => _commerceApiClient.getOccasions(),
         take,
         _occasionItem,
       ),
       'product_rail' => _railItems(
-        () => commerceApiClient.getProducts(page: 1, pageSize: take),
+        () => _commerceApiClient.getCatalogProducts(page: 1, pageSize: take),
         take,
         _productItem,
       ),

@@ -1,7 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
+import 'package:flower_app/core/constants/api_query_params.dart';
 import 'package:flower_app/features/commerce/data/models/catalog_items_response.dart';
+import 'package:flower_app/features/commerce/data/models/categories_response.dart';
 import 'package:flower_app/features/commerce/data/models/home_layout_response.dart';
+import 'package:flower_app/features/commerce/data/models/occasions_response.dart';
+import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart';
+import 'package:flower_app/features/commerce/data/models/product_response.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'commerce_api_client.g.dart';
@@ -13,6 +18,22 @@ abstract class CommerceApiClient {
   @GET(ApiEndpoints.home)
   Future<HomeLayoutResponse> getHomeLayout({@Query('storeId') String? storeId});
 
+  @GET(ApiEndpoints.allProducts)
+  Future<ProductsResponse> getProducts({
+    @Query(ApiQueryParams.occasionId) String? occasionId,
+    @Query(ApiQueryParams.categoryId) String? categoryId,
+  });
+
+  @GET(ApiEndpoints.allOccasions)
+  Future<OccasionsResponse> getAllOccasions();
+
+  @GET(ApiEndpoints.productDetails)
+  Future<ProductDetailsResponseModel> getProductDetails(@Path(ApiQueryParams.id) String id);
+
+  /// Categories ///
+  @GET(ApiEndpoints.allCategories)
+  Future<CategoriesResponse> getAllCategories();
+
   @GET(ApiEndpoints.allCategories)
   Future<CatalogItemsResponse> getCategories();
 
@@ -20,7 +41,7 @@ abstract class CommerceApiClient {
   Future<CatalogItemsResponse> getOccasions();
 
   @GET(ApiEndpoints.allProducts)
-  Future<CatalogItemsResponse> getProducts({
+  Future<CatalogItemsResponse> getCatalogProducts({
     @Query('page') int? page,
     @Query('pageSize') int? pageSize,
   });
