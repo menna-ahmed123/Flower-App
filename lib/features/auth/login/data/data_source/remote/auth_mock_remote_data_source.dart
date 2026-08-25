@@ -1,4 +1,3 @@
-import 'package:flower_app/core/di/app_environment.dart';
 import 'package:flower_app/core/dummy/dummy_network.dart';
 import 'package:flower_app/features/auth/login/data/data_source/remote/auth_remote_data_source.dart';
 import 'package:flower_app/features/auth/login/data/models/login_request.dart';
@@ -6,7 +5,7 @@ import 'package:flower_app/features/auth/login/data/models/login_response.dart';
 import 'package:injectable/injectable.dart';
 
 /// Temporary login backend until [AppEnvironment.prod] is enabled.
-@Injectable(as: AuthRemoteDataSource, env: [AppEnvironment.mock])
+@Injectable(as: AuthRemoteDataSource)
 class AuthMockRemoteDataSource implements AuthRemoteDataSource {
   @override
   Future<LoginResponse> login(LoginRequest request) async {

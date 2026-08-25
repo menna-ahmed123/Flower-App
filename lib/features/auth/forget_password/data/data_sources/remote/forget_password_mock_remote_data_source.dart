@@ -1,5 +1,4 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/core/di/app_environment.dart';
 import 'package:flower_app/core/dummy/dummy_network.dart';
 import 'package:flower_app/features/auth/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart';
 import 'package:flower_app/features/auth/forget_password/data/models/forget_password_request_model.dart';
@@ -11,7 +10,7 @@ import 'package:flower_app/features/auth/forget_password/data/models/verify_otp_
 import 'package:injectable/injectable.dart';
 
 /// Temporary forgot-password backend until [AppEnvironment.prod] is enabled.
-@Injectable(as: ForgetPasswordRemoteDataSource, env: [AppEnvironment.mock])
+@Injectable(as: ForgetPasswordRemoteDataSource)
 class ForgetPasswordMockRemoteDataSource
     implements ForgetPasswordRemoteDataSource {
   @override
