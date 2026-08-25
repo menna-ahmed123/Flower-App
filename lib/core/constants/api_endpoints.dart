@@ -1,9 +1,10 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiEndpoints {
   ApiEndpoints._();
 
-  static const String baseUrl = 'http://localhost:5086/api/v1';
-  //// AUTH ////
-  static const String forgotPassword = '/identity/auth/forgot-password';
+ static final  baseUrl= dotenv.get('BASE_URL');
+   static const String forgotPassword = '/identity/auth/forgot-password';
   static const String verifyOtp = '/identity/auth/verify-otp';
   static const String resetPassword = '/identity/auth/reset-password';
   static const String login = '/identity/auth/login';
