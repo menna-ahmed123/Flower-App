@@ -4,6 +4,7 @@ import 'package:flower_app/features/commerce/domain/entities/product_entity.dart
 import 'package:flower_app/features/commerce/domain/use_cases/category_use_case.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/product_use_case.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_event.dart';
+import 'package:flower_app/features/commerce/presentation/category/view_model/category_state.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -34,20 +35,64 @@ void main() {
       );
 
       when(
-        productUseCase.getProductsByCategory('1'),
+        productUseCase(categoryId: '1'),
       ).thenAnswer((_) async => SuccessResponse<List<ProductEntity>>([]));
+
+      final future = expectLater(
+        categoryViewModel.stream,
+        emitsInOrder([
+          // Loading categories
+          isA<CategoryState>().having(
+            (state) => state.categoriesState.isLoading,
+            'isLoading',
+            true,
+          ),
+
+          // Categories loaded
+          isA<CategoryState>()
+              .having(
+                (state) => state.categoriesState.isLoading,
+                'isLoading',
+                false,
+              )
+              .having(
+                (state) => state.categoriesState.data,
+                'categories',
+                categories,
+              )
+              .having((state) => state.selectedTab, 'selectedTab', 'Flowers'),
+
+          // Loading products
+          isA<CategoryState>().having(
+            (state) => state.productsState.isLoading,
+            'isLoading',
+            true,
+          ),
+
+          // Products loaded
+          isA<CategoryState>()
+              .having(
+                (state) => state.productsState.isLoading,
+                'isLoading',
+                false,
+              )
+              .having(
+                (state) => state.productsState.data,
+                'products',
+                <ProductEntity>[],
+              ),
+        ]),
+      );
 
       // Act
       await categoryViewModel.onEvent(LoadCategories());
 
+      await future;
+
       // Assert
-      expect(categoryViewModel.state.categoriesState.data, categories);
-
-      expect(categoryViewModel.state.selectedTab, 'Flowers');
-
       verify(categoryUseCase.call()).called(1);
 
-      verify(productUseCase.getProductsByCategory('1')).called(1);
+      verify(productUseCase(categoryId: '1')).called(1);
     });
   });
 
@@ -60,20 +105,42 @@ void main() {
       final products = <ProductEntity>[];
 
       when(
-        productUseCase.getProductsByCategory(categoryId),
+        productUseCase(categoryId: categoryId),
       ).thenAnswer((_) async => SuccessResponse<List<ProductEntity>>(products));
+
+      final future = expectLater(
+        categoryViewModel.stream,
+        emitsInOrder([
+          // Loading
+          isA<CategoryState>()
+              .having(
+                (state) => state.productsState.isLoading,
+                'isLoading',
+                true,
+              )
+              .having((state) => state.selectedTab, 'selectedTab', tab),
+
+          // Success
+          isA<CategoryState>()
+              .having(
+                (state) => state.productsState.isLoading,
+                'isLoading',
+                false,
+              )
+              .having((state) => state.productsState.data, 'products', products)
+              .having((state) => state.selectedTab, 'selectedTab', tab),
+        ]),
+      );
 
       // Act
       await categoryViewModel.onEvent(
         SelectCategoryTab(categoryId: categoryId, tab: tab),
       );
 
+      await future;
+
       // Assert
-      expect(categoryViewModel.state.productsState.data, products);
-
-      expect(categoryViewModel.state.selectedTab, tab);
-
-      verify(productUseCase.getProductsByCategory(categoryId)).called(1);
+      verify(productUseCase(categoryId: categoryId)).called(1);
     });
   });
 }

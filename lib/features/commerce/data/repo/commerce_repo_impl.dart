@@ -18,9 +18,15 @@ class CommerceRepoImpl implements CommerceRepo {
   ///// Products //////
 
   @override
-  Future<BaseResponse<List<ProductEntity>>> getAllProducts() {
+  Future<BaseResponse<List<ProductEntity>>> getProducts({
+    String? occasionId,
+    String? categoryId,
+  }) {
     return safeCall.safeApiCall(() async {
-      final response = await commerceRemoteDataSource.getAllProducts();
+      final response = await commerceRemoteDataSource.getProducts(
+        occasionId: occasionId,
+        categoryId: categoryId,
+      );
 
       return response.data.items.map((product) => product.toDomain()).toList();
     });
@@ -37,19 +43,6 @@ class CommerceRepoImpl implements CommerceRepo {
     });
   }
 
-  @override
-  Future<BaseResponse<List<ProductEntity>>> getProductsByCategory(
-    String categoryId,
-  ) {
-    return safeCall.safeApiCall(() async {
-      final response = await commerceRemoteDataSource.getProductsByCategory(
-        categoryId,
-      );
-
-      return response.data.items.map((product) => product.toDomain()).toList();
-    });
-  }
-
   ///// Occasions //////
 
   @override
@@ -58,19 +51,6 @@ class CommerceRepoImpl implements CommerceRepo {
       final response = await commerceRemoteDataSource.getAllOccasions();
 
       return response.data;
-    });
-  }
-
-  @override
-  Future<BaseResponse<List<ProductEntity>>> getProductsByOccasion(
-    String occasionId,
-  ) {
-    return safeCall.safeApiCall(() async {
-      final response = await commerceRemoteDataSource.getProductsByOccasion(
-        occasionId,
-      );
-
-      return response.data.items.map((product) => product.toDomain()).toList();
     });
   }
 
@@ -85,7 +65,13 @@ class CommerceRepoImpl implements CommerceRepo {
         productId,
       );
 
-      return response.data!.toDomain();
+      final data = response.data;
+
+      if (data == null) {
+        throw Exception('Product details data is null');
+      }
+
+      return data.toDomain();
     });
   }
 }

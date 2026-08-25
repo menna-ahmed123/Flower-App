@@ -21,13 +21,18 @@ class CommerceMockRemoteDataSource implements CommerceRemoteDataSource {
       data: mockCategoriesData(),
     );
   }
-@override
-  Future<ProductsResponse> getProductsByCategory(String categoryId) async {
+
+  @override
+  Future<ProductsResponse> getProducts({
+    String? occasionId,
+    String? categoryId,
+  }) async {
     await DummyNetwork.wait();
-    final products = mockProductsData(categoryId);
+
+    final products = mockProductsData(categoryId ?? occasionId ?? 'all');
+
     return ProductsResponse(
       success: true,
-      // الأرجومنت المطلوب للـ Constructor
       statusCode: 200,
       message: 'Products loaded successfully',
       messageLocalized: 'تم تحميل المنتجات بنجاح',
@@ -40,16 +45,8 @@ class CommerceMockRemoteDataSource implements CommerceRemoteDataSource {
     );
   }
 
-
-  @override
-  Future<ProductsResponse> getAllProducts() async => throw UnimplementedError();
-
   @override
   Future<OccasionsResponse> getAllOccasions() async =>
-      throw UnimplementedError();
-
-  @override
-  Future<ProductsResponse> getProductsByOccasion(String occasionId) async =>
       throw UnimplementedError();
 
   @override
@@ -57,7 +54,6 @@ class CommerceMockRemoteDataSource implements CommerceRemoteDataSource {
     String productId,
   ) async => throw UnimplementedError();
 }
-
 
 List<CategoryModel> mockCategoriesData() {
   return const [

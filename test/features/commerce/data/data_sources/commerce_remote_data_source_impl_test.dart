@@ -57,14 +57,16 @@ void main() {
     ),
   );
 
-  // Arrange
   late MockCommerceApiClient commerceApiClient;
   late CommerceRemoteDataSourceImpl datasourceImpl;
 
-  setUpAll(() {
+  setUp(() {
     commerceApiClient = MockCommerceApiClient();
+
     datasourceImpl = CommerceRemoteDataSourceImpl(commerceApiClient);
   });
+
+  // ==================== getAllCategories ====================
 
   group('getAllCategories', () {
     test('should return categories response when api call succeeds', () async {
@@ -97,56 +99,70 @@ void main() {
       ).thenThrow(Exception('API Error'));
 
       // Act
-      final call = datasourceImpl.getAllCategories;
-
-      // Assert
-      expect(call, throwsException);
-    });
-  });
-
-  group('getProductsByCategory', () {
-    test('should return products response when api call succeeds', () async {
-      // Arrange
-      const categoryId = '1';
-
-      final response = ProductsResponse(
-        data: ProductsDataDto(page: 1, pageSize: 10, totalCount: 0, items: []),
-        statusCode: 200,
-        success: true,
-        message: 'Success',
-        messageLocalized: 'Success',
-      );
-
-      when(
-        commerceApiClient.getProductsByCategory(categoryId),
-      ).thenAnswer((_) async => response);
-
-      // Act
-      final result = await datasourceImpl.getProductsByCategory(categoryId);
-
-      // Assert
-      expect(result, response);
-
-      verify(commerceApiClient.getProductsByCategory(categoryId)).called(1);
-    });
-
-    test('should throw an exception when api call fails', () async {
-      // Arrange
-      const categoryId = '1';
-
-      when(
-        commerceApiClient.getProductsByCategory(categoryId),
-      ).thenThrow(Exception('API Error'));
-
-      // Act
-      Future<ProductsResponse> call() {
-        return datasourceImpl.getProductsByCategory(categoryId);
+      Future<CategoriesResponse> call() {
+        return datasourceImpl.getAllCategories();
       }
 
       // Assert
       expect(call, throwsException);
     });
   });
+
+  // ==================== getProducts by Category ====================
+
+  group('getProducts', () {
+    test(
+      'should return products response when filtering by category',
+      () async {
+        // Arrange
+        const categoryId = '1';
+
+        final response = ProductsResponse(
+          data: ProductsDataDto(
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            items: [],
+          ),
+          statusCode: 200,
+          success: true,
+          message: 'Success',
+          messageLocalized: 'Success',
+        );
+
+        when(
+          commerceApiClient.getProducts(categoryId: categoryId),
+        ).thenAnswer((_) async => response);
+
+        // Act
+        final result = await datasourceImpl.getProducts(categoryId: categoryId);
+
+        // Assert
+        expect(result, response);
+
+        verify(commerceApiClient.getProducts(categoryId: categoryId)).called(1);
+      },
+    );
+
+    test('should throw an exception when api call fails', () async {
+      // Arrange
+      const categoryId = '1';
+
+      when(
+        commerceApiClient.getProducts(categoryId: categoryId),
+      ).thenThrow(Exception('API Error'));
+
+      // Act
+      Future<ProductsResponse> call() {
+        return datasourceImpl.getProducts(categoryId: categoryId);
+      }
+
+      // Assert
+      expect(call, throwsException);
+    });
+  });
+
+  // ==================== getProductDetails ====================
 
   group('getProductDetails', () {
     test(

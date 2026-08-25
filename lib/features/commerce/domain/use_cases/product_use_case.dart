@@ -9,18 +9,13 @@ class ProductUseCase {
 
   ProductUseCase(this.commerceRepo);
 
-  Future<BaseResponse<List<ProductEntity>>> call() {
-    return commerceRepo.getAllProducts();
-  }
-
-  Future<BaseResponse<List<ProductEntity>>> getProductsByOccasion(
-    String occasionId,
-  ) {
-    return commerceRepo.getProductsByOccasion(occasionId);
-  }
-  Future<BaseResponse<List<ProductEntity>>> getProductsByCategory(
-    String categoryId,
-  ) {
-    return commerceRepo.getProductsByCategory(categoryId);
+  Future<BaseResponse<List<ProductEntity>>> call({
+    String? occasionId,
+    String? categoryId,
+  }) {
+    return commerceRepo.getProducts(
+      occasionId: occasionId,
+      categoryId: categoryId,
+    );
   }
 }

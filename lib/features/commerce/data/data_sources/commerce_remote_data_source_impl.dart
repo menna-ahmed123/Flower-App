@@ -13,8 +13,14 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   CommerceRemoteDataSourceImpl(this._commerceApiClient);
 
   @override
-  Future<ProductsResponse> getAllProducts() {
-    return _commerceApiClient.getAllProducts();
+  Future<ProductsResponse> getProducts({
+    String? occasionId,
+    String? categoryId,
+  }) {
+    return _commerceApiClient.getProducts(
+      occasionId: occasionId,
+      categoryId: categoryId,
+    );
   }
 
   @override
@@ -23,18 +29,8 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   }
 
   @override
-  Future<ProductsResponse> getProductsByCategory(String categoryId) {
-    return _commerceApiClient.getProductsByCategory(categoryId);
-  }
-
-  @override
   Future<OccasionsResponse> getAllOccasions() {
     return _commerceApiClient.getAllOccasions();
-  }
-
-  @override
-  Future<ProductsResponse> getProductsByOccasion(String occasionId) {
-    return _commerceApiClient.getProductsByOccasion(occasionId);
   }
 
   @override

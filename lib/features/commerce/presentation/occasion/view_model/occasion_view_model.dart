@@ -11,7 +11,7 @@ import 'package:injectable/injectable.dart';
 @injectable
 class OccasionViewModel extends Cubit<OccasionState> {
   OccasionViewModel(this.occasionUseCase, this.productUseCase)
-      : super(const OccasionState());
+    : super(const OccasionState());
 
   final OccasionUseCase occasionUseCase;
   final ProductUseCase productUseCase;
@@ -55,6 +55,7 @@ class OccasionViewModel extends Cubit<OccasionState> {
         if (firstOccasion != null) {
           await _loadProductsByOccasion(firstOccasion.id, firstOccasion.name);
         }
+
       case ErrorResponse<List<OccasionModel>>():
         emit(
           state.copyWith(
@@ -78,7 +79,7 @@ class OccasionViewModel extends Cubit<OccasionState> {
       ),
     );
 
-    final response = await productUseCase.getProductsByOccasion(occasionId);
+    final response = await productUseCase(occasionId: occasionId);
 
     switch (response) {
       case SuccessResponse<List<ProductEntity>>():
@@ -91,6 +92,7 @@ class OccasionViewModel extends Cubit<OccasionState> {
             ),
           ),
         );
+
       case ErrorResponse<List<ProductEntity>>():
         emit(
           state.copyWith(

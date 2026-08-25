@@ -6,7 +6,7 @@ import 'package:flower_app/features/commerce/presentation/prodect_details/view_m
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@Injectable()
 class ProductDetailsViewModel extends Cubit<ProductDetailsState> {
   final ProductDetailsUseCase _productDetailsUseCase;
 

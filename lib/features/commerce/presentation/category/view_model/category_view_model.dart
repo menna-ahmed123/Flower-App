@@ -16,7 +16,7 @@ class CategoryViewModel extends Cubit<CategoryState> {
   final CategoryUseCase categoryUseCase;
   final ProductUseCase productUseCase;
 
-   Future<void> onEvent(CategoryEvent event) async {
+  Future<void> onEvent(CategoryEvent event) async {
     switch (event) {
       case LoadCategories():
         await _loadCategories();
@@ -55,6 +55,7 @@ class CategoryViewModel extends Cubit<CategoryState> {
         if (firstCategory != null) {
           await _loadProductsByCategory(firstCategory.id, firstCategory.name);
         }
+
       case ErrorResponse<List<CategoryEntity>>():
         emit(
           state.copyWith(
@@ -78,7 +79,7 @@ class CategoryViewModel extends Cubit<CategoryState> {
       ),
     );
 
-    final response = await productUseCase.getProductsByCategory(categoryId);
+    final response = await productUseCase(categoryId: categoryId);
 
     switch (response) {
       case SuccessResponse<List<ProductEntity>>():
@@ -91,6 +92,7 @@ class CategoryViewModel extends Cubit<CategoryState> {
             ),
           ),
         );
+
       case ErrorResponse<List<ProductEntity>>():
         emit(
           state.copyWith(
