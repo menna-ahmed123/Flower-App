@@ -29,6 +29,23 @@ void main() {
     expect(data.sections.map((s) => s.type), ['category_rail']);
   });
 
+  test('returns ErrorResponse when isSuccess is false', () async {
+    when(remote.getHomeLayout()).thenAnswer((_) async {
+      return HomeLayoutResponse(
+        isSuccess: false,
+        statusCode: 400,
+        message: 'bad layout',
+        data: const [],
+      );
+    });
+    final result = await repo.getHomeLayout();
+    expect(result, isA<ErrorResponse<HomeLayoutEntity>>());
+    expect(
+      (result as ErrorResponse<HomeLayoutEntity>).errorMessage,
+      'bad layout',
+    );
+  });
+
   test('returns ErrorResponse when the data source throws', () async {
     when(remote.getHomeLayout()).thenThrow(Exception('network'));
     final result = await repo.getHomeLayout();

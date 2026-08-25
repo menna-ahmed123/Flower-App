@@ -31,6 +31,30 @@ void main() {
     expect(entity.sections.map((s) => s.type).toList(), ['banner']);
   });
 
+  test('parses empty data as no sections', () {
+    final response = HomeLayoutResponse.fromJson({'data': []});
+    expect(response.toDomain().sections, isEmpty);
+  });
+
+  test('reads success as isSuccess from the real API envelope', () {
+    final response = HomeLayoutResponse.fromJson({
+      'success': true,
+      'statusCode': 200,
+      'data': [_jsonSection('banner', 'b', 1)],
+    });
+    expect(response.isSuccess, isTrue);
+    expect(response.toDomain().sections.single.type, 'banner');
+  });
+
+  test('uses payload deepLink as view-all when viewAll is missing', () {
+    final dto = sectionDto(
+      type: 'category_rail',
+      id: 'c',
+      payload: const {'deepLink': '/categories'},
+    );
+    expect(dto.toDomain().viewAllDeepLink, '/categories');
+  });
+
   test('keeps unknown enabled types for the renderer to ignore', () {
     final dto = sectionDto(type: 'unknown_type', id: 'u', order: 1);
     expect(dto.toDomain().type, 'unknown_type');

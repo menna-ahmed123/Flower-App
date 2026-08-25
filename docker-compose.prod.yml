@@ -5,7 +5,6 @@
 services:
 
   sqlserver:
-    platform: linux/amd64
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: flower_sqlserver_team1
     restart: unless-stopped
@@ -79,6 +78,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
+      ReverseProxy__Routes__catalog-images-route__ClusterId: catalog-cluster
+      ReverseProxy__Routes__catalog-images-route__Match__Path: "/images/{**catch-all}"
     ports:
       - "8080:8080"
     networks:

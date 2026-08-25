@@ -21,8 +21,12 @@ class HomeLayoutResponse {
   @JsonKey(fromJson: homeSectionsFromJson, toJson: homeSectionsToJson)
   final List<HomeSectionDto> data;
 
-  factory HomeLayoutResponse.fromJson(Map<String, dynamic> json) =>
-      _$HomeLayoutResponseFromJson(json);
+  factory HomeLayoutResponse.fromJson(Map<String, dynamic> json) {
+    return _$HomeLayoutResponseFromJson({
+      ...json,
+      'isSuccess': json['isSuccess'] ?? json['success'] ?? true,
+    });
+  }
 
   Map<String, dynamic> toJson() => _$HomeLayoutResponseToJson(this);
 
@@ -74,7 +78,10 @@ class HomeSectionDto {
       imageUrl: payload['imageUrl']?.toString() ?? '',
       deepLink: payload['deepLink']?.toString() ?? '',
       viewAllLabel: _viewAll['label']?.toString() ?? '',
-      viewAllDeepLink: _viewAll['deepLink']?.toString() ?? '',
+      viewAllDeepLink:
+          _viewAll['deepLink']?.toString() ??
+          payload['deepLink']?.toString() ??
+          '',
       items: _items,
     );
   }

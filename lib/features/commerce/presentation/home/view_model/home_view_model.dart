@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/home_use_case.dart';
@@ -50,7 +51,24 @@ class HomeViewModel extends Cubit<HomeState> {
   Future<void> _load() async {
     _emitLoading();
     final response = await _homeUseCase();
+    if (response is SuccessResponse<HomeLayoutEntity>) {
+      await _dropStaleImages(response.data);
+    }
     _onResponse(response);
+  }
+
+  Future<void> _dropStaleImages(HomeLayoutEntity data) async {
+    for (final section in data.sections) {
+      await _dropCachedUrl(section.imageUrl);
+      for (final item in section.items) {
+        await _dropCachedUrl(item.imageUrl);
+      }
+    }
+  }
+
+  Future<void> _dropCachedUrl(String url) async {
+    if (url.isEmpty) return;
+    await CachedNetworkImage.evictFromCache(url);
   }
 
   void _emitLoading() {
