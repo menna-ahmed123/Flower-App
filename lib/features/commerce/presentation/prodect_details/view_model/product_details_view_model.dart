@@ -13,9 +13,10 @@ class ProductDetailsViewModel extends Cubit<ProductDetailsState> {
   ProductDetailsViewModel(this._productDetailsUseCase)
     : super(const ProductDetailsState());
 
- Future<void> onEvent(ProductDetailsEvent event) async {
-    if (event is GetProductDetailsEvent) {
-      await _getProductDetails(event.productId);
+  Future<void> onEvent(ProductDetailsEvent event) async {
+    switch (event) {
+      case GetProductDetailsEvent():
+        await _getProductDetails(event.productId);
     }
   }
 
