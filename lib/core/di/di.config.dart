@@ -19,8 +19,6 @@ import '../../features/auth/forget_password/api/client/forget_password_api_clien
     as _i597;
 import '../../features/auth/forget_password/api/data_source/forget_password_remote_data_source_impl.dart'
     as _i159;
-import '../../features/auth/forget_password/data/data_sources/remote/forget_password_mock_remote_data_source.dart'
-    as _i887;
 import '../../features/auth/forget_password/data/data_sources/remote/forget_password_remote_data_source.dart'
     as _i24;
 import '../../features/auth/forget_password/data/repos/forget_password_repo_impl.dart'
@@ -36,8 +34,6 @@ import '../../features/auth/forget_password/domain/use_cases/verify_otp_use_case
 import '../../features/auth/forget_password/presentation/view_model/forget_password_cubit.dart'
     as _i795;
 import '../../features/auth/login/data/api/auth_api_client.dart' as _i144;
-import '../../features/auth/login/data/data_source/remote/auth_mock_remote_data_source.dart'
-    as _i368;
 import '../../features/auth/login/data/data_source/remote/auth_remote_data_source.dart'
     as _i441;
 import '../../features/auth/login/data/data_source/remote/auth_remote_data_source_impl.dart'
@@ -49,8 +45,6 @@ import '../../features/auth/login/domain/use_case/logout_usecase.dart' as _i609;
 import '../../features/auth/login/presentation/view_model/login_view_model.dart'
     as _i188;
 import '../../features/auth/register/data/api/register_api_client.dart' as _i3;
-import '../../features/auth/register/data/data_source/remote/register_mock_remote_data_source.dart'
-    as _i620;
 import '../../features/auth/register/data/data_source/remote/register_remote_data_source.dart'
     as _i258;
 import '../../features/auth/register/data/data_source/remote/register_remote_data_source_impl.dart'
@@ -63,8 +57,6 @@ import '../../features/auth/register/domain/use_case/register_usecase.dart'
 import '../../features/auth/register/presentation/view_model/register_view_model.dart'
     as _i656;
 import '../../features/commerce/api/commerce_api_client.dart' as _i243;
-import '../../features/commerce/data/data_sources/category_mock_remote_data_source.dart'
-    as _i243;
 import '../../features/commerce/data/data_sources/commerce_remote_data_source.dart'
     as _i696;
 import '../../features/commerce/data/data_sources/commerce_remote_data_source_impl.dart'
@@ -99,9 +91,7 @@ import '../network/safe_call.dart' as _i185;
 import '../network/token_refresher.dart' as _i1058;
 import '../network/token_storage.dart' as _i964;
 
-const String _mock = 'mock';
 const String _prod = 'prod';
-const String _dev = 'dev';
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -121,22 +111,6 @@ extension GetItInjectableX on _i174.GetIt {
     await gh.lazySingletonAsync<_i460.SharedPreferences>(
       () => registerModule.prefs(),
       preResolve: true,
-    );
-    gh.factory<_i441.AuthRemoteDataSource>(
-      () => _i368.AuthMockRemoteDataSource(),
-      registerFor: {_mock},
-    );
-    gh.factory<_i696.CommerceRemoteDataSource>(
-      () => _i243.CommerceMockRemoteDataSource(),
-      registerFor: {_mock},
-    );
-    gh.factory<_i258.RegisterRemoteDataSource>(
-      () => _i620.RegisterMockRemoteDataSource(),
-      registerFor: {_mock},
-    );
-    gh.factory<_i24.ForgetPasswordRemoteDataSource>(
-      () => _i887.ForgetPasswordMockRemoteDataSource(),
-      registerFor: {_mock},
     );
     gh.lazySingleton<_i1058.TokenRefresher>(
       () => _i1058.UnconfiguredTokenRefresher(),
@@ -171,30 +145,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i243.CommerceApiClient>(
       () => apiModule.provideCommerceApiClient(gh<_i361.Dio>()),
     );
-    gh.factory<_i441.AuthRemoteDataSource>(
-      () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
-      registerFor: {_prod},
-    );
     gh.factory<_i696.CommerceRemoteDataSource>(
       () => _i1023.CommerceRemoteDataSourceImpl(gh<_i243.CommerceApiClient>()),
-      registerFor: {_dev, _prod},
-    );
-    gh.factory<_i258.RegisterRemoteDataSource>(
-      () => _i453.RegisterRemoteDataSourceImpl(gh<_i3.RegisterApiClient>()),
-      registerFor: {_prod},
     );
     gh.factory<_i24.ForgetPasswordRemoteDataSource>(
       () => _i159.ForgetPasswordRemoteDataSourceImpl(
         forgetPasswordApiClient: gh<_i597.ForgetPasswordApiClient>(),
         safeCall: gh<_i185.SafeCall>(),
-      ),
-      registerFor: {_prod},
-    );
-    gh.factory<_i483.AuthRepo>(
-      () => _i641.AuthRepositoryImpl(
-        gh<_i441.AuthRemoteDataSource>(),
-        gh<_i185.SafeCall>(),
-        gh<_i964.TokenStorage>(),
       ),
     );
     gh.lazySingleton<_i488.ForgetPasswordRepo>(
@@ -207,9 +164,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i696.CommerceRemoteDataSource>(),
         gh<_i185.SafeCall>(),
       ),
-    );
-    gh.factory<_i635.LoginUseCase>(
-      () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
     );
     gh.factory<_i913.ForgetPasswordUseCase>(
       () => _i913.ForgetPasswordUseCase(
@@ -226,32 +180,31 @@ extension GetItInjectableX on _i174.GetIt {
         forgetPasswordRepo: gh<_i488.ForgetPasswordRepo>(),
       ),
     );
-    gh.factory<_i926.RegisterRepo>(
-      () => _i934.RegisterRepositoryImpl(
-        gh<_i258.RegisterRemoteDataSource>(),
-        gh<_i185.SafeCall>(),
-      ),
-    );
     gh.factory<_i242.CategoryUseCase>(
       () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
     );
     gh.factory<_i682.OccasionUseCase>(
       () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
     );
-    gh.factory<_i609.LogoutUseCase>(
-      () => _i609.LogoutUseCase(gh<_i483.AuthRepo>()),
+    gh.factory<_i258.RegisterRemoteDataSource>(
+      () => _i453.RegisterRemoteDataSourceImpl(gh<_i3.RegisterApiClient>()),
+      registerFor: {_prod},
+    );
+    gh.factory<_i441.AuthRemoteDataSource>(
+      () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
+    );
+    gh.factory<_i483.AuthRepo>(
+      () => _i641.AuthRepositoryImpl(
+        gh<_i441.AuthRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+        gh<_i964.TokenStorage>(),
+      ),
     );
     gh.factory<_i172.ProductDetailsUseCase>(
       () => _i172.ProductDetailsUseCase(commerceRepo: gh<_i772.CommerceRepo>()),
     );
     gh.factory<_i613.ProductUseCase>(
       () => _i613.ProductUseCase(gh<_i772.CommerceRepo>()),
-    );
-    gh.factory<_i95.RegisterUseCase>(
-      () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
-    );
-    gh.factory<_i188.LoginViewModel>(
-      () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
     );
     gh.factory<_i795.ForgetPasswordCubit>(
       () => _i795.ForgetPasswordCubit(
@@ -260,14 +213,23 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i22.ResetPasswordUseCase>(),
       ),
     );
+    gh.factory<_i635.LoginUseCase>(
+      () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
+    );
     gh.factory<_i969.BestSellerViewModel>(
       () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
     );
-    gh.factory<_i656.RegisterViewModel>(
-      () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
+    gh.factory<_i926.RegisterRepo>(
+      () => _i934.RegisterRepositoryImpl(
+        gh<_i258.RegisterRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
     );
     gh.factory<_i784.ProductDetailsViewModel>(
       () => _i784.ProductDetailsViewModel(gh<_i172.ProductDetailsUseCase>()),
+    );
+    gh.factory<_i609.LogoutUseCase>(
+      () => _i609.LogoutUseCase(gh<_i483.AuthRepo>()),
     );
     gh.factory<_i605.CategoryViewModel>(
       () => _i605.CategoryViewModel(
@@ -280,6 +242,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i682.OccasionUseCase>(),
         gh<_i613.ProductUseCase>(),
       ),
+    );
+    gh.factory<_i95.RegisterUseCase>(
+      () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
+    );
+    gh.factory<_i188.LoginViewModel>(
+      () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
+    );
+    gh.factory<_i656.RegisterViewModel>(
+      () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
     );
     return this;
   }

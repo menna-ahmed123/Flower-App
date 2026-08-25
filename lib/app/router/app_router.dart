@@ -12,6 +12,7 @@ import 'package:flower_app/features/auth/login/presentation/view_model/login_vie
 import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
+import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_event.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
@@ -45,6 +46,13 @@ class AppRouter {
         _registerRoute(),
         _forgetPasswordShell(),
         _mainShell(),
+         GoRoute(
+            path: AppRoutesName.bestSeller,
+            builder: (context, state) => BlocProvider(
+              create: (_) => getIt<BestSellerViewModel>(),
+              child: const BestSellerScreen(),
+            ),
+          ),
         GoRoute(
           path: AppRoutesName.occasion,
           builder: (context, state) => BlocProvider(
@@ -57,6 +65,7 @@ class AppRouter {
           builder: (context, state) => const ProductDetailsScreen(),
         ),
       ],
+      
     );
   }
 
@@ -169,17 +178,7 @@ class AppRouter {
         GoRoute(
           path: AppRoutesName.home,
           builder: (context, state) => const HomeScreen(),
-        ),
-      ],
-    );
-  }
-
-  static StatefulShellBranch bestSellerBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.bestSeller,
-          builder: (context, state) => const BestSellerScreen(),
+        
         ),
       ],
     );

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 
 class Product extends Equatable {
   final String imageUrl;
@@ -16,7 +17,16 @@ class Product extends Equatable {
      this.discount,
     this.isOutOfStock = false,
   });
-
+// factory Product.fromEntity(ProductEntity product) {
+//   return Product(
+//     imageUrl: product.imageUrl,
+//     name: product.name,
+//     price: product.price.toString(),
+//     oldPrice: product..toString(),
+//     discount: product.discountPercent.toString(),
+//     isOutOfStock: product.isOutOfStock,
+//   );
+// }
   @override
   List<Object?> get props => [
     imageUrl,
