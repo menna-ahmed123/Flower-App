@@ -63,12 +63,22 @@ import '../../features/auth/register/domain/use_case/register_usecase.dart'
 import '../../features/auth/register/presentation/view_model/register_view_model.dart'
     as _i656;
 import '../../features/commerce/api/commerce_api_client.dart' as _i243;
+import '../../features/commerce/data/data_sources/category_mock_remote_data_source.dart'
+    as _i243;
 import '../../features/commerce/data/data_sources/commerce_remote_data_source.dart'
     as _i696;
 import '../../features/commerce/data/data_sources/commerce_remote_data_source_impl.dart'
     as _i1023;
 import '../../features/commerce/data/repo/commerce_repo_impl.dart' as _i861;
 import '../../features/commerce/domain/repo/commerce_repo.dart' as _i772;
+import '../../features/commerce/domain/use_cases/category_use_case.dart'
+    as _i242;
+import '../../features/commerce/domain/use_cases/occasion_use_case.dart'
+    as _i682;
+import '../../features/commerce/domain/use_cases/product_details_use_case.dart'
+    as _i172;
+import '../../features/commerce/domain/use_cases/product_use_case.dart'
+    as _i613;
 import '../../features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart'
     as _i969;
 import '../../features/commerce/presentation/category/view_model/category_view_model.dart'
@@ -91,6 +101,7 @@ import '../network/token_storage.dart' as _i964;
 
 const String _mock = 'mock';
 const String _prod = 'prod';
+const String _dev = 'dev';
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -103,13 +114,7 @@ extension GetItInjectableX on _i174.GetIt {
     final dioModule = _$DioModule();
     final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
-    gh.factory<_i969.BestSellerViewModel>(() => _i969.BestSellerViewModel());
-    gh.factory<_i605.CategoryViewModel>(() => _i605.CategoryViewModel());
     gh.factory<_i369.HomeViewModel>(() => _i369.HomeViewModel());
-    gh.factory<_i421.OccasionViewModel>(() => _i421.OccasionViewModel());
-    gh.factory<_i784.ProductDetailsViewModel>(
-      () => _i784.ProductDetailsViewModel(),
-    );
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
@@ -119,6 +124,10 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i441.AuthRemoteDataSource>(
       () => _i368.AuthMockRemoteDataSource(),
+      registerFor: {_mock},
+    );
+    gh.factory<_i696.CommerceRemoteDataSource>(
+      () => _i243.CommerceMockRemoteDataSource(),
       registerFor: {_mock},
     );
     gh.factory<_i258.RegisterRemoteDataSource>(
@@ -132,17 +141,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1058.TokenRefresher>(
       () => _i1058.UnconfiguredTokenRefresher(),
     );
-    gh.factory<_i696.CommerceRemoteDataSource>(
-      () => _i1023.CommerceRemoteDataSourceImpl(gh<_i243.CommerceApiClient>()),
-    );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
-    );
-    gh.factory<_i772.CommerceRepo>(
-      () => _i861.CommerceRepoImpl(
-        gh<_i696.CommerceRemoteDataSource>(),
-        gh<_i185.SafeCall>(),
-      ),
     );
     gh.lazySingleton<_i463.LocaleStorage>(
       () => _i463.PreferencesLocaleStorage(gh<_i460.SharedPreferences>()),
@@ -162,15 +162,22 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i597.ForgetPasswordApiClient>(
       () => apiModule.provideForgetPasswordApiClient(gh<_i361.Dio>()),
     );
-    gh.factory<_i144.AuthApiClient>(
-      () => apiModule.authApiClient(gh<_i361.Dio>()),
+    gh.singleton<_i144.AuthApiClient>(
+      () => apiModule.provideAuthApiClient(gh<_i361.Dio>()),
     );
-    gh.factory<_i3.RegisterApiClient>(
-      () => apiModule.registerApiClient(gh<_i361.Dio>()),
+    gh.singleton<_i3.RegisterApiClient>(
+      () => apiModule.provideRegisterApiClient(gh<_i361.Dio>()),
+    );
+    gh.singleton<_i243.CommerceApiClient>(
+      () => apiModule.provideCommerceApiClient(gh<_i361.Dio>()),
     );
     gh.factory<_i441.AuthRemoteDataSource>(
       () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
       registerFor: {_prod},
+    );
+    gh.factory<_i696.CommerceRemoteDataSource>(
+      () => _i1023.CommerceRemoteDataSourceImpl(gh<_i243.CommerceApiClient>()),
+      registerFor: {_dev, _prod},
     );
     gh.factory<_i258.RegisterRemoteDataSource>(
       () => _i453.RegisterRemoteDataSourceImpl(gh<_i3.RegisterApiClient>()),
@@ -193,6 +200,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i488.ForgetPasswordRepo>(
       () => _i769.ForgetPasswordRepoImpl(
         remoteDataSource: gh<_i24.ForgetPasswordRemoteDataSource>(),
+      ),
+    );
+    gh.factory<_i772.CommerceRepo>(
+      () => _i861.CommerceRepoImpl(
+        gh<_i696.CommerceRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
       ),
     );
     gh.factory<_i635.LoginUseCase>(
@@ -219,8 +232,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i185.SafeCall>(),
       ),
     );
+    gh.factory<_i242.CategoryUseCase>(
+      () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
+    );
+    gh.factory<_i682.OccasionUseCase>(
+      () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
+    );
     gh.factory<_i609.LogoutUseCase>(
       () => _i609.LogoutUseCase(gh<_i483.AuthRepo>()),
+    );
+    gh.factory<_i172.ProductDetailsUseCase>(
+      () => _i172.ProductDetailsUseCase(commerceRepo: gh<_i772.CommerceRepo>()),
+    );
+    gh.factory<_i613.ProductUseCase>(
+      () => _i613.ProductUseCase(gh<_i772.CommerceRepo>()),
     );
     gh.factory<_i95.RegisterUseCase>(
       () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
@@ -235,8 +260,26 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i22.ResetPasswordUseCase>(),
       ),
     );
+    gh.factory<_i969.BestSellerViewModel>(
+      () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
+    );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
+    );
+    gh.factory<_i784.ProductDetailsViewModel>(
+      () => _i784.ProductDetailsViewModel(gh<_i172.ProductDetailsUseCase>()),
+    );
+    gh.factory<_i605.CategoryViewModel>(
+      () => _i605.CategoryViewModel(
+        gh<_i242.CategoryUseCase>(),
+        gh<_i613.ProductUseCase>(),
+      ),
+    );
+    gh.factory<_i421.OccasionViewModel>(
+      () => _i421.OccasionViewModel(
+        gh<_i682.OccasionUseCase>(),
+        gh<_i613.ProductUseCase>(),
+      ),
     );
     return this;
   }

@@ -1,4 +1,4 @@
-import 'package:flower_app/core/utils/commerce_widgets/product_card.dart';
+import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
 

@@ -36,8 +36,7 @@ migrate_working_dir/
 /build/
 /coverage/
 
-# Test files
-/test/
+
 
 # Symbolication related
 app.*.symbols
