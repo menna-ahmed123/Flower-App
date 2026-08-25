@@ -2,15 +2,14 @@ import 'package:flower_app/app/layout/main_shell.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
-import 'package:flower_app/core/network/token_storage.dart';
-import 'package:flower_app/features/auth/login/presentation/view/pages/login_page.dart';
-import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
-import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
-import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/forget_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/reset_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/verification_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/view_model/forget_password_cubit.dart';
+import 'package:flower_app/features/auth/login/presentation/view/pages/login_page.dart';
+import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
+import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
+import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/screen/home_screen.dart';
@@ -24,20 +23,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/auth/domain/repos/auth_repository.dart';
 import 'app_routes.dart';
 
 class AppRouter {
   AppRouter._();
 
   static Future<String> resolveInitialLocation() async {
-    final isAuthenticated = await _hasSession();
-    return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
+    final isAuthenticated = await getIt<AuthRepository>().isAuthenticated();
+
+    return isAuthenticated
+        ? AppRoutesName.home
+        : AppRoutesName.login;
   }
 
   static GoRouter createRouter({String? initialLocation}) {
     return GoRouter(
       initialLocation: initialLocation ?? AppRoutesName.login,
-      redirect: _redirect,
       errorBuilder: _errorBuilder,
       routes: [
         _loginRoute(),
@@ -46,28 +48,6 @@ class AppRouter {
         _mainShell(),
       ],
     );
-  }
-
-  static Future<String?> _redirect(
-    BuildContext context,
-    GoRouterState state,
-  ) async {
-    final isLoginRoute = state.matchedLocation == AppRoutesName.login;
-    if (!isLoginRoute) {
-      return null;
-    }
-
-    final isAuthenticated = await _hasSession();
-    if (isAuthenticated) {
-      return AppRoutesName.home;
-    }
-
-    return null;
-  }
-
-  static Future<bool> _hasSession() async {
-    final token = await getIt<TokenStorage>().getAccessToken();
-    return token != null && token.isNotEmpty;
   }
 
   static Widget _errorBuilder(BuildContext context, GoRouterState state) {

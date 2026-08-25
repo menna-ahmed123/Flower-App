@@ -9,9 +9,9 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class LoginViewModel extends Cubit<LoginState> {
-  final LoginUseCase _loginUseCase;
-
   LoginViewModel(this._loginUseCase) : super(const LoginState());
+
+  final LoginUseCase _loginUseCase;
 
   void doEvent(LoginEvent event) {
     switch (event) {
@@ -30,7 +30,12 @@ class LoginViewModel extends Cubit<LoginState> {
         ),
       ),
     );
-    final request = LoginRequest(email: email, password: password);
+
+    final request = LoginRequest(
+      email: email,
+      password: password,
+    );
+
     final response = await _loginUseCase(request);
 
     switch (response) {
@@ -39,18 +44,19 @@ class LoginViewModel extends Cubit<LoginState> {
           state.copyWith(
             loginState: state.loginState.copyWith(
               isLoading: false,
-              data: (response as SuccessResponse).data,
+              data: response.data,
               errorMessage: '',
             ),
           ),
         );
         break;
+
       case ErrorResponse<AuthEntity>():
         emit(
           state.copyWith(
             loginState: state.loginState.copyWith(
               isLoading: false,
-              errorMessage: (response as ErrorResponse).errorMessage,
+              errorMessage: response.errorMessage,
             ),
           ),
         );
