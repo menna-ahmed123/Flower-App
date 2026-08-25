@@ -6,6 +6,7 @@ import 'package:flower_app/features/commerce/domain/use_cases/product_use_case.d
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_event.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_state.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -15,7 +16,6 @@ import 'best_seller_view_model_test.mocks.dart';
 @GenerateMocks([ProductUseCase])
 void main() {
   late MockProductUseCase productUseCase;
-  late BestSellerViewModel viewModel;
 
   final dummyProducts = [
     const ProductEntity(
@@ -40,20 +40,18 @@ void main() {
 
   setUp(() {
     productUseCase = MockProductUseCase();
-    viewModel = BestSellerViewModel(productUseCase);
-  });
-
-  tearDown(() {
-    viewModel.close();
   });
 
   group('BestSellerViewModel', () {
-    test('emits loading then success state when products load successfully', () async {
-      when(productUseCase.call()).thenAnswer((_) async => SuccessResponse(dummyProducts));
-
-      expectLater(
-        viewModel.stream,
-        emitsInOrder([
+    blocTest<BestSellerViewModel, BestSellerState>(
+      'emits loading then success state when products load successfully',
+      setUp: () {
+        when(productUseCase.call())
+            .thenAnswer((_) async => SuccessResponse(dummyProducts));
+      },
+      build: () => BestSellerViewModel(productUseCase),
+      act: (viewModel) => viewModel.doEvent(BestSeller()),
+      expect: () => [
           const BestSellerState(
             bestSellState: BaseState<List<ProductEntity>>(
               isLoading: true,
@@ -67,23 +65,21 @@ void main() {
               data: dummyProducts,
             ),
           ),
-        ]),
-      );
+      ],
+    );
 
-      viewModel.doEvent(BestSeller());
-      await Future<void>.delayed(Duration.zero);
-    });
-
-    test('emits loading then error state when products load fails', () async {
-      when(productUseCase.call()).thenAnswer(
-        (_) async => ErrorResponse<List<ProductEntity>>(
-          appError: BadResponseError('No Found Page'),
-        ),
-      );
-
-      expectLater(
-        viewModel.stream,
-        emitsInOrder([
+    blocTest<BestSellerViewModel, BestSellerState>(
+      'emits loading then error state when products load fails',
+      setUp: () {
+        when(productUseCase.call()).thenAnswer(
+          (_) async => ErrorResponse<List<ProductEntity>>(
+            appError: BadResponseError('No Found Page'),
+          ),
+        );
+      },
+      build: () => BestSellerViewModel(productUseCase),
+      act: (viewModel) => viewModel.doEvent(BestSeller()),
+      expect: () => [
           const BestSellerState(
             bestSellState: BaseState<List<ProductEntity>>(
               isLoading: true,
@@ -96,11 +92,7 @@ void main() {
               errorMessage: 'No Found Page',
             ),
           ),
-        ]),
-      );
-
-      viewModel.doEvent(BestSeller());
-      await Future<void>.delayed(Duration.zero);
-    });
+      ],
+    );
   });
 }

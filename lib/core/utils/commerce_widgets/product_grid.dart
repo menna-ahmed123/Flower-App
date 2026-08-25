@@ -18,10 +18,12 @@ childAspectRatio: 0.6,  ),
   itemBuilder: (context, index) {
     final product = products[index];
 
-  return ProductCard(
+ return ProductCard(
   imageUrl: product.imageUrl,
   name: product.name,
-  price: product.discountedPrice.toStringAsFixed(2),
+  price: product.discountedPrice > 0
+      ? product.discountedPrice.toStringAsFixed(2)
+      : 'N/A',
   oldPrice: product.price != product.discountedPrice
       ? product.price?.toStringAsFixed(2)
       : null,

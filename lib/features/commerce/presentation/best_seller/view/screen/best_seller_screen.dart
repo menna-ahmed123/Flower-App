@@ -35,8 +35,8 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
             SizedBox(
               height: 70.h,
               child: CommerceAppBar(
-                title: "Best seller",
-                des: "Bloom with our exquisite best sellers",
+                title:AppString.bestSellers,
+des:AppString.desSell,
               ),
             ),
       
@@ -113,7 +113,7 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No products found',
+                            AppString.notFound,
                             style: TextStyle(
                               fontSize: 16,
                               color: context.colors.grey.shade600,

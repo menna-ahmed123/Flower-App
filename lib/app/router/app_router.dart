@@ -161,31 +161,11 @@ class AppRouter {
         GoRoute(
           path: AppRoutesName.home,
           builder: (context, state) => const HomeScreen(),
-        //    routes: [
-        //   GoRoute(
-        //     path: AppRoutesName.bestSeller,
-        //     builder: (context, state) => BlocProvider(
-        //       create: (_) => getIt<BestSellerViewModel>(),
-        //       child: const BestSellerScreen(),
-        //     ),
-        //   ),
-        // ],
+        
         ),
       ],
     );
   }
-  //  static StatefulShellBranch bestSellerBranch() {
-  //   return StatefulShellBranch(
-  //     routes: [
-  //       GoRoute(
-  //         path: AppRoutesName.bestSeller,
-  //         builder: (context, state) => BlocProvider(
-  //           create: (_)=> getIt<BestSellerViewModel>(),
-  //           child: const BestSellerScreen()),
-  //       ),
-  //     ],
-  //   );
-  // }
     static StatefulShellBranch productDetailsBranch() {
     return StatefulShellBranch(
       routes: [

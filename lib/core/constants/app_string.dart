@@ -109,6 +109,8 @@ abstract class AppString {
   static const String viewAll = 'View All';
   static const String specialOffers = 'Special Offers';
   static const String popularFlowers = 'Popular Flowers';
+  static const String desSell = "Bloom with our exquisite best sellers";
+  static const String notFound = 'No products found';
 
   // ==================== Product Details ====================
   static const String addToCart = 'Add to cart';

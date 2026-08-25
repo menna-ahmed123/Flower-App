@@ -12,7 +12,7 @@ class BestSellerViewModel extends Cubit<BestSellerState> {
 
   BestSellerViewModel(this.productUseCase): super(const BestSellerState());
 
-void doEvent(BestSellerEvent event){
+void doEvent(BestSellerEvent event) {
   switch(event){
     case BestSeller():
     _getAllProducts();
@@ -28,29 +28,26 @@ void doEvent(BestSellerEvent event){
       )
     ));
     final response=await productUseCase();
-    switch(response){
-       case SuccessResponse<List<ProductEntity>>():
-        emit(
-          state.copyWith(
-            bestSellState: state.bestSellState.copyWith(
-              isLoading: false,
-              data: (response as SuccessResponse).data,
-              errorMessage: '',
-            ),
-          ),
-        );
-        break;
-      case ErrorResponse<List<ProductEntity>>():
-        emit(
-          state.copyWith(
-            bestSellState: state.bestSellState.copyWith(
-              isLoading: false,
-              errorMessage: (response as ErrorResponse).errorMessage,
-            ),
-          ),
-        );
+    switch (response) {
+  case SuccessResponse<List<ProductEntity>>():
+    emit(state.copyWith(
+      bestSellState: state.bestSellState.copyWith(
+        isLoading: false,
+        data: response.data,
+        errorMessage: '',
+      ),
+    ));
+    break;
 
-    }
+  case ErrorResponse():
+    emit(state.copyWith(
+      bestSellState: state.bestSellState.copyWith(
+        isLoading: false,
+        errorMessage: response.errorMessage,
+      ),
+    ));
+    break;
+}
   }
 
 }
