@@ -63,9 +63,12 @@ class _LoginPageState extends State<LoginPage> {
 
                 final authState = context.read<AuthCubit>().state;
 
-                if (!authState.requiresAuthentication && context.canPop()) {
+                if (authState.requiresAuthentication) {
+                  return;
+                }
+                if (context.canPop()) {
                   context.pop();
-                } else if (!authState.requiresAuthentication) {
+                } else {
                   context.go(AppRoutesName.home);
                 }
               } else if (state.loginState.errorMessage.isNotEmpty) {
