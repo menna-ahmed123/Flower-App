@@ -1,13 +1,12 @@
+import 'package:flower_app/core/auth/auth_extension.dart';
 import 'package:flower_app/core/auth/presentation/view/auth_bottom_sheet.dart';
+import 'package:flower_app/core/auth/presentation/view_model/auth_cubit.dart';
+import 'package:flower_app/core/auth/presentation/view_model/auth_state.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../core/auth/presentation/view_model/auth_cubit.dart';
-import '../../core/auth/presentation/view_model/auth_event.dart';
-import '../../core/auth/presentation/view_model/auth_state.dart';
 
 class MainShell extends StatelessWidget {
   const MainShell({
@@ -26,59 +25,50 @@ class MainShell extends StatelessWidget {
       listener: (context, state) {
         showLoginBottomSheet(context);
       },
-      child: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) {
-          return Scaffold(
-            body: navigationShell,
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: navigationShell.currentIndex,
-              onDestinationSelected: (index) async {
-                final authCubit = context.read<AuthCubit>();
-                final isAuthenticated = authCubit.state.isAuthenticated;
+      child: Scaffold(
+        body: navigationShell,
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: navigationShell.currentIndex,
+          onDestinationSelected: (index) async {
+            final isProtectedRoute = index == 2 || index == 3;
 
-                final isProtectedRoute = index == 2 || index == 3;
-
-                if (isProtectedRoute && !isAuthenticated) {
-                  await authCubit.doEvent(
-                    AuthEvent.authAuthenticationRequired(
-                      pendingAction: () async {
-                        navigationShell.goBranch(
-                          index,
-                          initialLocation: false,
-                        );
-                      },
-                    ),
+            if (isProtectedRoute) {
+              await context.requireAuth(
+                action: () async {
+                  navigationShell.goBranch(
+                    index,
+                    initialLocation: false,
                   );
+                },
+              );
 
-                  return;
-                }
+              return;
+            }
 
-                navigationShell.goBranch(
-                  index,
-                  initialLocation: index == navigationShell.currentIndex,
-                );
-              },
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(AppIcons.home),
-                  label: AppString.home,
-                ),
-                NavigationDestination(
-                  icon: Icon(AppIcons.storefront),
-                  label: AppString.categories,
-                ),
-                NavigationDestination(
-                  icon: Icon(AppIcons.shoppingCart),
-                  label: AppString.cart,
-                ),
-                NavigationDestination(
-                  icon: Icon(AppIcons.person),
-                  label: AppString.profile,
-                ),
-              ],
+            navigationShell.goBranch(
+              index,
+              initialLocation: index == navigationShell.currentIndex,
+            );
+          },
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(AppIcons.home),
+              label: AppString.home,
             ),
-          );
-        },
+            NavigationDestination(
+              icon: Icon(AppIcons.storefront),
+              label: AppString.categories,
+            ),
+            NavigationDestination(
+              icon: Icon(AppIcons.shoppingCart),
+              label: AppString.cart,
+            ),
+            NavigationDestination(
+              icon: Icon(AppIcons.person),
+              label: AppString.profile,
+            ),
+          ],
+        ),
       ),
     );
   }

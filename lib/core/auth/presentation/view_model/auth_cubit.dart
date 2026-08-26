@@ -36,13 +36,30 @@ class AuthCubit extends Cubit<AuthState> {
       case AuthLoginSucceeded():
         await _handleAuthenticationSuccess();
         break;
+
+      case AuthAuthenticationCancelled():
+        _cancelAuthentication();
+        break;
     }
   }
 
+  void _cancelAuthentication() {
+    _pendingAction = null;
+
+    emit(
+      state.copyWith(
+        requiresAuthentication: false,
+      ),
+    );
+  }
+
   void _continueAsGuest() {
+    _pendingAction = null;
+
     emit(
       state.copyWith(
         authState: const BaseState(data: false),
+        requiresAuthentication: false,
       ),
     );
   }
@@ -53,6 +70,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(
       state.copyWith(
         authState: BaseState(data: isAuthenticated),
+        requiresAuthentication: false,
       ),
     );
   }
@@ -75,11 +93,16 @@ class AuthCubit extends Cubit<AuthState> {
 
     emit(
       state.copyWith(
+        requiresAuthentication: false,
+      ),
+    );
+
+    emit(
+      state.copyWith(
         requiresAuthentication: true,
       ),
     );
   }
-
   Future<void> _handleAuthenticationSuccess() async {
     await _checkAuth();
 

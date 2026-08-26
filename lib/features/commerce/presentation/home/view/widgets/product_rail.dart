@@ -6,6 +6,8 @@ import 'package:flower_app/features/commerce/presentation/home/view/widgets/home
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../../core/auth/auth_extension.dart';
+
 class ProductRail extends StatelessWidget {
   const ProductRail({
     super.key,
@@ -58,7 +60,14 @@ class ProductRail extends StatelessWidget {
       price: item.price ?? '',
       oldPrice: item.oldPrice,
       discount: item.discount,
-      onAddToCart: () {},
+      onAddToCart: () async {
+        await context.requireAuth(
+          action: () async {
+            // TODO: Add product to cart.
+            // This action will be replayed after authentication.
+          },
+        );
+      },
       onTap: () => navigateToProductDetails(context, item.id),
     );
   }

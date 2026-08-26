@@ -17,4 +17,7 @@ abstract class AuthEvent with _$AuthEvent {
   }) = AuthAuthenticationRequired;
 
   const factory AuthEvent.authLoginSucceeded() = AuthLoginSucceeded;
+
+  const factory AuthEvent.authAuthenticationCancelled() =
+      AuthAuthenticationCancelled;
 }
