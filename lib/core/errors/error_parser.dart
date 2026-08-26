@@ -25,17 +25,31 @@ AppError _parseDioException(DioException exception) {
       'Invalid certificate, please try again later.',
     ),
     DioExceptionType.badResponse => _parseBadResponse(exception),
-    DioExceptionType.connectionError => NoInternetError(exception),
+    DioExceptionType.connectionError => _connectionError(exception),
     DioExceptionType.cancel ||
     DioExceptionType.unknown ||
     DioExceptionType.transformTimeout => IgnoreError(),
   };
 }
 
+AppError _connectionError(DioException exception) {
+  final detail = '${exception.message} ${exception.error}';
+  if (detail.contains('Connection refused') ||
+      detail.contains('Failed host lookup') ||
+      detail.contains('Network is unreachable') ||
+      detail.contains('Connection reset')) {
+    return BadResponseError(
+      'Cannot reach the server. Start the backend with ./setup.sh and retry.',
+    );
+  }
+  return NoInternetError(exception);
+}
+
 AppError _parseBadResponse(DioException exception) {
   final data = exception.response?.data;
   if (data is Map<String, dynamic>) {
-    final fieldErrors = fieldErrorsMessage(data['errors']);
+    final fieldErrors = fieldErrorsMessage(data['errors']) ??
+        fieldErrorsMessage(_validationFieldErrors(data['data']));
     if (fieldErrors != null) return BadResponseError(fieldErrors);
     if (data['message'] != null) {
       return BadResponseError(data['message'].toString());
@@ -46,6 +60,23 @@ AppError _parseBadResponse(DioException exception) {
   }
   if (exception.response?.statusCode == 401) return UnauthorizedError();
   return BadResponseError(statusCodeToMessage(exception.response?.statusCode));
+}
+
+/// Docker identity validation failures put field errors in `data`
+/// (e.g. Email / PhoneNumber), not in `errors`.
+Map<String, dynamic>? _validationFieldErrors(dynamic raw) {
+  if (raw is! Map) return null;
+  if (raw.containsKey('userId') ||
+      raw.containsKey('accessToken') ||
+      raw.containsKey('refreshToken')) {
+    return null;
+  }
+  final map = Map<String, dynamic>.from(raw);
+  if (map.isEmpty) return null;
+  final looksLikeFieldErrors = map.values.every(
+    (value) => value is List || value is String,
+  );
+  return looksLikeFieldErrors ? map : null;
 }
 
 String? fieldErrorsMessage(Map<String, dynamic>? errors) {

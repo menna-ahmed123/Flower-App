@@ -1,37 +1,51 @@
 import 'package:flower_app/app/layout/main_shell.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
-import 'package:flower_app/core/network/token_storage.dart';
-import 'package:flower_app/features/auth/login/presentation/view/pages/login_page.dart';
-import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
-import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
-import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
-import 'package:flower_app/features/cart/presentation/pages/cart_page.dart';
-import 'package:flower_app/features/categories/presentation/pages/categories_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/forget_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/reset_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/verification_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/view_model/forget_password_cubit.dart';
-import 'package:flower_app/features/home/presentation/pages/home_page.dart';
-import 'package:flower_app/features/profile/presentation/pages/profile_page.dart';
+import 'package:flower_app/features/auth/login/presentation/view/pages/login_page.dart';
+import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
+import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
+import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
+import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
+import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
+import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
+import 'package:flower_app/features/commerce/presentation/category/view_model/category_event.dart';
+import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
+import 'package:flower_app/features/commerce/presentation/home/view/screen/home_screen.dart';
+import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
+import 'package:flower_app/features/commerce/presentation/home/view_model/home_view_model.dart';
+import 'package:flower_app/features/commerce/presentation/occasion/view/screen/occasion_screen.dart';
+import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_view_model.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
+import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/auth/domain/repos/auth_repository.dart';
 import 'app_routes.dart';
 
 class AppRouter {
   AppRouter._();
 
   static Future<String> resolveInitialLocation() async {
-    final isAuthenticated = await _hasSession();
-    return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
+    final isAuthenticated = await getIt<AuthRepository>().isAuthenticated();
+
+    return isAuthenticated
+        ? AppRoutesName.home
+        : AppRoutesName.login;
   }
 
   static GoRouter createRouter({String? initialLocation}) {
     return GoRouter(
       initialLocation: initialLocation ?? AppRoutesName.login,
-      redirect: _redirect,
       errorBuilder: _errorBuilder,
       routes: [
         _loginRoute(),
@@ -42,30 +56,8 @@ class AppRouter {
     );
   }
 
-  static Future<String?> _redirect(
-    BuildContext context,
-    GoRouterState state,
-  ) async {
-    final isLoginRoute = state.matchedLocation == AppRoutesName.login;
-    if (!isLoginRoute) {
-      return null;
-    }
-
-    final isAuthenticated = await _hasSession();
-    if (isAuthenticated) {
-      return AppRoutesName.home;
-    }
-
-    return null;
-  }
-
-  static Future<bool> _hasSession() async {
-    final token = await getIt<TokenStorage>().getAccessToken();
-    return token != null && token.isNotEmpty;
-  }
-
   static Widget _errorBuilder(BuildContext context, GoRouterState state) {
-    return const Scaffold(body: Center(child: Text('Page Not Found')));
+    return const Scaffold(body: Center(child: Text(AppString.pageNotFound)));
   }
 
   static GoRoute _loginRoute() {
@@ -117,7 +109,7 @@ class AppRouter {
               },
             ),
             GoRoute(
-              path: AppRoutesName.resetPassword,
+              path: 'reset-password',
               builder: (context, state) {
                 return const ResetPasswordPage();
               },
@@ -135,7 +127,7 @@ class AppRouter {
       },
       branches: [
         _homeBranch(),
-        _categoriesBranch(),
+        categoryBranch(),
         _cartBranch(),
         _profileBranch(),
       ],
@@ -143,24 +135,83 @@ class AppRouter {
   }
 
   static StatefulShellBranch _homeBranch() {
+    return StatefulShellBranch(routes: _homeRoutes());
+  }
+
+  static List<RouteBase> _homeRoutes() {
+    return [
+      GoRoute(path: AppRoutesName.home, builder: _homeBuilder),
+      GoRoute(
+        path: AppRoutesName.bestSeller,
+        builder: _bestSellerBuilder,
+      ),
+      GoRoute(
+        path: AppRoutesName.occasion,
+        builder:_OccasionBuilder,
+      ),
+      GoRoute(
+        path: AppRoutesName.productDetails,
+        builder: _productDetailsBuilder,
+      ),
+    ];
+  }
+
+  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+      child: const HomeScreen(),
+    );
+  }
+
+   static Widget _bestSellerBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<BestSellerViewModel>(),
+      child: const BestSellerScreen(),
+    );
+  }
+
+  static Widget _productDetailsBuilder(
+  BuildContext context,
+  GoRouterState state,
+) {
+  final productId = state.pathParameters['productId'];
+  if (productId == null || productId.isEmpty) {
+    return const Scaffold(
+      body: Center(child: Text(AppString.pageNotFound)),
+    );
+  }
+
+  return BlocProvider(
+    create: (_) => getIt<ProductDetailsViewModel>()
+      ..onEvent(
+        GetProductDetailsEvent(productId: productId),
+      ),
+    child: const ProductDetailsScreen(),
+  );
+}
+
+  static Widget _OccasionBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<OccasionViewModel>(),
+      child: const OccasionScreen(),
+    );
+  }
+
+  static StatefulShellBranch categoryBranch() {
     return StatefulShellBranch(
       routes: [
         GoRoute(
-          path: AppRoutesName.home,
-          builder: (context, state) => const HomePage(),
+          path: AppRoutesName.category,
+          builder: _categoryBuilder,
         ),
       ],
     );
   }
 
-  static StatefulShellBranch _categoriesBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.categories,
-          builder: (context, state) => const CategoriesPage(),
-        ),
-      ],
+  static Widget _categoryBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<CategoryViewModel>()..onEvent(LoadCategories()),
+      child: const CategoryScreen(),
     );
   }
 
@@ -169,7 +220,7 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.cart,
-          builder: (context, state) => const CartPage(),
+          builder: (context, state) => const CartScreen(),
         ),
       ],
     );
@@ -180,7 +231,7 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.profile,
-          builder: (context, state) => const ProfilePage(),
+          builder: (context, state) => const ProfileScreen(),
         ),
       ],
     );

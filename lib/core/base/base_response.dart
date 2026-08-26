@@ -10,7 +10,7 @@ class SuccessResponse<T> extends BaseResponse<T> {
 class ErrorResponse<T> extends BaseResponse<T> {
   final AppError appError;
 
-  ErrorResponse({required this.appError});
+  ErrorResponse({required this.appError, });
 
   String get errorMessage => appError.message ;
 }

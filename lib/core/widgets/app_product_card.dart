@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -165,7 +166,7 @@ class AppProductCard extends StatelessWidget {
                       ),
                       SizedBox(width: 6.w),
                       Text(
-                        'Add to cart',
+                        AppString.addToCart,
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w500,

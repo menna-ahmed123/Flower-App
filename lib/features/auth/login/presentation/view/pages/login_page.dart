@@ -13,6 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../../core/auth/presentation/view_model/auth_cubit.dart';
+import '../../../../../../core/auth/presentation/view_model/auth_event.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -51,9 +53,24 @@ class _LoginPageState extends State<LoginPage> {
         body: BlocProvider(
           create: (context) => loginViewModel,
           child: BlocListener<LoginViewModel, LoginState>(
-            listener: (context, state) {
+            listener: (context, state) async {
               if (state.loginState.data != null) {
-                context.go(AppRoutesName.home);
+                await context.read<AuthCubit>().doEvent(
+                  const AuthLoginSucceeded(),
+                );
+
+                if (!context.mounted) return;
+
+                final authState = context.read<AuthCubit>().state;
+
+                if (authState.requiresAuthentication) {
+                  return;
+                }
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go(AppRoutesName.home);
+                }
               } else if (state.loginState.errorMessage.isNotEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -130,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                           );
                         },
                       ),
-              
+
                       SizedBox(height: 16.h),
                       SizedBox(
                         width: double.infinity,
@@ -159,17 +176,23 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
                       ),
-              
+
                       SizedBox(height: 16.h),
                       SizedBox(
                         width: double.infinity,
                         child: CustomButton(
-                          text: "Continue as guest",
+                          text: AppString.continueAsGuest,
                           color: context.colors.black[50] ?? Colors.grey,
                           backgroundColor: context.colors.white,
                           borderColor: context.colors.black,
-                          onTap: () {
-                            context.push(AppRoutesName.home);
+                          onTap: () async {
+                            await context.read<AuthCubit>().doEvent(
+                              const AuthGuestRequested(),
+                            );
+
+                            if (!context.mounted) return;
+
+                            context.go(AppRoutesName.home);
                           },
                         ),
                       ),

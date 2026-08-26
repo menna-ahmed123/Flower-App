@@ -19,8 +19,17 @@ class RegisterResponse {
     this.errors,
   });
 
-  factory RegisterResponse.fromJson(Map<String, dynamic> json) =>
-      _$RegisterResponseFromJson(json);
+  factory RegisterResponse.fromJson(Map<String, dynamic> json) {
+    final rawData = json['data'];
+    final looksLikeUser = rawData is Map && rawData['userId'] != null;
+    return _$RegisterResponseFromJson({
+      ...json,
+      'isSuccess': json['isSuccess'] ?? json['success'] ?? false,
+      if (!looksLikeUser) 'data': null,
+      if (!looksLikeUser && rawData is Map<String, dynamic>)
+        'errors': json['errors'] ?? rawData,
+    });
+  }
 
   Map<String, dynamic> toJson() => _$RegisterResponseToJson(this);
 }

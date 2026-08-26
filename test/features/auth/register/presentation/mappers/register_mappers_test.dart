@@ -53,6 +53,23 @@ void testResponseParsesApiContract() {
     expect(response.data?.role, 'Customer');
     expect(response.data?.status, 'Active');
   });
+
+  test('parses RegisterResponse Docker success alias', () {
+    final response = RegisterResponse.fromJson({
+      'success': true,
+      'statusCode': 201,
+      'message': 'Account registered successfully.',
+      'messageLocalized': 'Account registered successfully.',
+      'data': {
+        'userId': 'user-1',
+        'email': 'user@example.com',
+        'role': 'Customer',
+        'status': 'Active',
+      },
+    });
+    expect(response.isSuccess, isTrue);
+    expect(response.data?.userId, 'user-1');
+  });
 }
 
 void testResponseParsesErrors() {
