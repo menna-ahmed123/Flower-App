@@ -30,7 +30,7 @@ childAspectRatio: 0.6,  ),
       ? '${product.discountPercent!.toStringAsFixed(0)}%'
       : null,
   onAddToCart: () {},
-  onTap: () {},
+  onTap: () => onTap(product),
 );
   },
 );

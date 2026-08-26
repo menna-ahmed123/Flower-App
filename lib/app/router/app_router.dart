@@ -11,12 +11,18 @@ import 'package:flower_app/features/auth/login/presentation/view_model/login_vie
 import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
+import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
+import 'package:flower_app/features/commerce/presentation/category/view_model/category_event.dart';
+import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/screen/home_screen.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view/screen/occasion_screen.dart';
+import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
+import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -103,7 +109,7 @@ class AppRouter {
               },
             ),
             GoRoute(
-              path: AppRoutesName.resetPassword,
+              path: 'reset-password',
               builder: (context, state) {
                 return const ResetPasswordPage();
               },
@@ -137,15 +143,15 @@ class AppRouter {
       GoRoute(path: AppRoutesName.home, builder: _homeBuilder),
       GoRoute(
         path: AppRoutesName.bestSeller,
-        builder: (context, state) => const BestSellerScreen(),
+        builder: _bestSellerBuilder,
       ),
       GoRoute(
         path: AppRoutesName.occasion,
-        builder: (context, state) => const OccasionScreen(),
+        builder:_OccasionBuilder,
       ),
       GoRoute(
         path: AppRoutesName.productDetails,
-        builder: (context, state) => const ProductDetailsScreen(),
+        builder: _productDetailsBuilder,
       ),
     ];
   }
@@ -157,36 +163,37 @@ class AppRouter {
     );
   }
 
-  static StatefulShellBranch bestSellerBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.bestSeller,
-          builder: (context, state) => const BestSellerScreen(),
-        ),
-      ],
+   static Widget _bestSellerBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<BestSellerViewModel>(),
+      child: const BestSellerScreen(),
     );
   }
 
-  static StatefulShellBranch productDetailsBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.productDetails,
-          builder: (context, state) => const ProductDetailsScreen(),
-        ),
-      ],
+  static Widget _productDetailsBuilder(
+  BuildContext context,
+  GoRouterState state,
+) {
+  final productId = state.pathParameters['productId'];
+  if (productId == null || productId.isEmpty) {
+    return const Scaffold(
+      body: Center(child: Text(AppString.pageNotFound)),
     );
   }
 
-  static StatefulShellBranch occasionBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.occasion,
-          builder: (context, state) => const OccasionScreen(),
-        ),
-      ],
+  return BlocProvider(
+    create: (_) => getIt<ProductDetailsViewModel>()
+      ..onEvent(
+        GetProductDetailsEvent(productId: productId),
+      ),
+    child: const ProductDetailsScreen(),
+  );
+}
+
+  static Widget _OccasionBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<OccasionViewModel>(),
+      child: const OccasionScreen(),
     );
   }
 
@@ -195,9 +202,16 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutesName.category,
-          builder: (context, state) => const CategoryScreen(),
+          builder: _categoryBuilder,
         ),
       ],
+    );
+  }
+
+  static Widget _categoryBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<CategoryViewModel>()..onEvent(LoadCategories()),
+      child: const CategoryScreen(),
     );
   }
 

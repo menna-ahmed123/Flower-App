@@ -1,4 +1,5 @@
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/utils/commerce_widgets/product_grid.dart';
 import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
@@ -125,7 +126,12 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                     );
                   }
 
-                  return ProductGrid(products: products);
+                  return ProductGrid(
+  products: products,
+  onTap: (product) {
+    navigateToProductDetails(context, product.id);
+  },
+);
                 },
               ),
             ),

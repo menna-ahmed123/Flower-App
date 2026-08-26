@@ -1,4 +1,4 @@
-import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/features/commerce/core/widgets/custom_tab_bar.dart';
 import 'package:flower_app/features/commerce/core/widgets/product_grid.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
@@ -8,7 +8,6 @@ import 'package:flower_app/features/commerce/presentation/category/view_model/ca
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
 class CategoryBody extends StatelessWidget {
   const CategoryBody({super.key});
@@ -76,9 +75,7 @@ class CategoryBody extends StatelessWidget {
     return ProductGrid(
       products: products,
       onTap: (product) {
-        context.push(
-          AppRoutesName.productDetails.replaceFirst(':productId', product.id),
-        );
+        navigateToProductDetails(context, product.id);
       },
     );
   }

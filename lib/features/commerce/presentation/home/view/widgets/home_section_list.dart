@@ -69,11 +69,23 @@ void openHomeDeepLink(BuildContext context, String deepLink) {
 }
 
 String mapHomeDeepLink(String deepLink) {
-  final path = Uri.tryParse(deepLink)?.path.toLowerCase() ?? deepLink;
+  final uri = Uri.tryParse(deepLink);
+  final path = uri?.path.toLowerCase() ?? deepLink;
   if (path.contains('categor')) return AppRoutesName.category;
   if (path.contains('occasion')) return AppRoutesName.occasion;
   if (path.contains('product_details') || path.contains('/products/')) {
-    return AppRoutesName.productDetails;
+    final productId = uri?.queryParameters['productId'] ??
+        uri?.queryParameters['id'] ??
+        (uri != null && uri.pathSegments.isNotEmpty
+            ? uri.pathSegments.last
+            : null);
+    if (productId != null && productId.isNotEmpty) {
+      return AppRoutesName.productDetails.replaceFirst(
+        ':productId',
+        productId,
+      );
+    }
+    return AppRoutesName.bestSeller;
   }
   if (path.contains('product') || path.contains('best')) {
     return AppRoutesName.bestSeller;

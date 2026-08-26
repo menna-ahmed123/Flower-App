@@ -16,7 +16,11 @@ void main() {
       AppRoutesName.bestSeller,
     );
     expect(mapHomeDeepLink('/occasions'), AppRoutesName.occasion);
-    expect(mapHomeDeepLink('/product_details'), AppRoutesName.productDetails);
+    expect(mapHomeDeepLink('/product_details'), AppRoutesName.bestSeller);
+    expect(
+      mapHomeDeepLink('/product_details?id=flower-1'),
+      '/product-details/flower-1',
+    );
   });
 
   testWidgets('renders sections in API order and skips unknown types', (

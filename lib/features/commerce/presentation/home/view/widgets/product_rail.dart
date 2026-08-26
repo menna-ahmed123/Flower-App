@@ -1,4 +1,5 @@
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_section_header.dart';
@@ -58,7 +59,7 @@ class ProductRail extends StatelessWidget {
       oldPrice: item.oldPrice,
       discount: item.discount,
       onAddToCart: () {},
-      onTap: () => onDeepLink(item.deepLink ?? section.viewAllDeepLink),
+      onTap: () => navigateToProductDetails(context, item.id),
     );
   }
 }
