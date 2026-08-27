@@ -22,7 +22,7 @@ class CustomTabBar extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         scrollDirection: Axis.horizontal,
         itemCount: tabs.length,
-        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        separatorBuilder: (_, _) => SizedBox(width: 8.w),
         itemBuilder: (context, index) {
           final tab = tabs[index];
           final isSelected = selectedTab == tab;
