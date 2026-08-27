@@ -1,0 +1,3 @@
+class AddressEntity {
+  // TODO
+}

@@ -15,6 +15,13 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import '../../features/address/data/data_sources/address_remote_data_source.dart'
+    as _i581;
+import '../../features/address/data/data_sources/address_remote_data_source_impl.dart'
+    as _i784;
+import '../../features/address/data/repo/address_repo_impl.dart' as _i660;
+import '../../features/address/domain/repo/address_repo.dart' as _i366;
+import '../../features/address/domain/use_cases/address_use_case.dart' as _i57;
 import '../../features/auth/forget_password/api/client/forget_password_api_client.dart'
     as _i597;
 import '../../features/auth/forget_password/api/data_source/forget_password_remote_data_source_impl.dart'
@@ -106,6 +113,7 @@ extension GetItInjectableX on _i174.GetIt {
     final dioModule = _$DioModule();
     final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
+    gh.factory<_i57.GetAddressUseCase>(() => _i57.GetAddressUseCase());
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
@@ -115,6 +123,10 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1058.TokenRefresher>(
       () => _i1058.UnconfiguredTokenRefresher(),
+    );
+    gh.factory<_i366.AddressRepo>(() => _i660.AddressRepoImpl());
+    gh.factory<_i581.AddressRemoteDataSource>(
+      () => _i784.AddressRemoteDataSourceImpl(),
     );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
