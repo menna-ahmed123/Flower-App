@@ -6,6 +6,8 @@ import 'package:flower_app/features/commerce/presentation/prodect_details/view_m
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../../core/auth/auth_extension.dart';
+
 // The route already creates the cubit AND fires GetProductDetailsEvent
 // (see productDetailsBranch), so this screen just reads the state —
 // no BlocProvider, no initState, no event dispatch here.
@@ -41,8 +43,16 @@ class ProductDetailsScreen extends StatelessWidget {
                   return ProductDetailsBody(product: product,);
                 },
               ),
+            ), AppButton(
+              text: "Add to cart",
+              onPressed: () async {
+                await context.requireAuth(
+                  action: () async {
+                    // TODO: actual add-to-cart action
+                  },
+                );
+              },
             ),
-          AppButton(text: "Add to cart", onPressed: (){})
           ],
         ),
       ),
