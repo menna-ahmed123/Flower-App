@@ -146,12 +146,21 @@ abstract class AppString {
   // ==================== Address & Checkout ====================
   static const String shippingAddress = 'Shipping Address';
   static const String addAddress = 'Add Address';
+  static const String address = 'Address';
   static const String selectAddress = 'Select Address';
+  static const String enterAddress = "Enter the address";
+  static const String recipient = "Recipient name";
+  static const String enterRecipient = "Enter the recipient name";
   static const String fullName = 'Full Name';
   static const String streetName = 'Street Name';
   static const String buildingNumber = 'Building/Villa Number';
   static const String floorApartment = 'Floor/Apartment';
   static const String city = 'City';
+  static const String cairo = 'Cairo';
+  static const String area = 'Area';
+  static const String october = 'October';
+  static const String newAddress = 'Add New Address';
+
   static const String country = 'Country';
   static const String placeOrder = 'Place Order';
   static const String paymentMethod = 'Payment Method';
@@ -159,7 +168,6 @@ abstract class AppString {
   static const String creditCard = 'Credit Card';
   static const String orderPlacedSuccess = 'Order placed successfully!';
   static const String orderFailed = 'Order failed. Please try again.';
-
   // ==================== Orders ====================
   static const String myOrders = 'My Orders';
   static const String orderDetails = 'Order Details';

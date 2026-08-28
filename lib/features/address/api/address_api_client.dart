@@ -7,5 +7,4 @@ part 'address_api_client.g.dart';
 abstract class AddressApiClient {
   factory AddressApiClient(Dio dio, {String baseUrl}) = _AddressApiClient;
 
-  // TODO
 }
