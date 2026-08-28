@@ -193,4 +193,7 @@ abstract class AppString {
   static const String somethingWrong = 'Something went wrong';
   static const String retry = 'Retry';
   static const String noData = 'No data found';
+
+  static const String couldNotGetAddress = 'Could not get address from your location.';
+  static const String couldNotGetLocation = 'Could not get your current location. Please check your location settings.';
 }

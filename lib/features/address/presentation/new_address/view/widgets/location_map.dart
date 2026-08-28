@@ -6,7 +6,7 @@ import 'package:latlong2/latlong.dart';
 
 class LocationMap extends StatefulWidget {
   final LatLng initialLocation;
-  final Function(LatLng)? onLocationSelected;
+  final ValueChanged<LatLng>? onLocationSelected;
 
   const LocationMap({
     super.key,
@@ -19,7 +19,7 @@ class LocationMap extends StatefulWidget {
 }
 
 class _LocationMapState extends State<LocationMap> {
-  LatLng? selectedLocation;
+  late LatLng selectedLocation;
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _LocationMapState extends State<LocationMap> {
 
   @override
   Widget build(BuildContext context) {
-      final apiKey = dotenv.env['MAPTILER_API_KEY'];
+    final apiKey = dotenv.env['MAPTILER_API_KEY'];
 
     return FlutterMap(
       options: MapOptions(
@@ -44,46 +44,24 @@ class _LocationMapState extends State<LocationMap> {
         },
       ),
       children: [
-     
-TileLayer(
-  urlTemplate:
-      'https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=$apiKey&language=en',
-      // 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-
+        TileLayer(
+          urlTemplate:
+              'https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=$apiKey&language=en',
           userAgentPackageName: 'com.example.flower_app',
         ),
-        //====== for select my store======//
-        // PolygonLayer(
-        //     polygons: [
-        //       Polygon(
-        //         points: const [
-        //           LatLng(30.0500, 31.2300),
-        //           LatLng(30.0600, 31.2400),
-        //           LatLng(30.0500, 31.2500),
-        //           LatLng(30.0400, 31.2450),
-        //           LatLng(30.0350, 31.2350),
-        //         ],
-        //         color: Colors.pink.withOpacity(0.3),
-        //         borderColor: Colors.pink,
-        //         borderStrokeWidth: 3,
-        //       ),
-        //     ],
-        //   ),
         MarkerLayer(
-          markers: selectedLocation == null
-              ? []
-              : [
-                  Marker(
-                    point: selectedLocation!,
-                    width: 80,
-                    height: 80,
-                    child: Icon(
-                      Icons.location_pin,
-                      size: 50,
-                      color: context.colors.pink,
-                    ),
-                  ),
-                ],
+          markers: [
+            Marker(
+              point: selectedLocation,
+              width: 80,
+              height: 80,
+              child: Icon(
+                Icons.location_pin,
+                size: 50,
+                color: context.colors.pink,
+              ),
+            ),
+          ],
         ),
       ],
     );
