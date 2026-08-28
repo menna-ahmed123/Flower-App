@@ -4,18 +4,15 @@ import 'package:flower_app/features/commerce/domain/repo/commerce_repo.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class ProductUseCase {
+class SearchUseCase {
+  SearchUseCase(this.commerceRepo);
+
   final CommerceRepo commerceRepo;
 
-  ProductUseCase(this.commerceRepo);
-
   Future<BaseResponse<List<ProductEntity>>> call({
-    String? occasionId,
-    String? categoryId,
+    required String query,
+    String? storeId,
   }) {
-    return commerceRepo.getProducts(
-      occasionId: occasionId,
-      categoryId: categoryId,
-    );
+    return commerceRepo.searchProducts(query: query, storeId: storeId);
   }
 }

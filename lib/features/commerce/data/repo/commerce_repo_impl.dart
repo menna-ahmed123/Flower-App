@@ -81,4 +81,33 @@ class CommerceRepoImpl implements CommerceRepo {
       return data.toDomain();
     });
   }
+
+  @override
+  Future<BaseResponse<List<ProductEntity>>> searchProducts({
+    required String query,
+    String? storeId,
+  }) {
+    return safeCall.safeApiCall(() async {
+      final response = await commerceRemoteDataSource.getProducts();
+      final normalizedQuery = query.trim().toLowerCase();
+
+      return response.data.items
+          .map((product) => product.toDomain())
+          .where(
+            (product) => product.name.toLowerCase().contains(normalizedQuery),
+          )
+          .toList();
+
+      /// temporarily until search endpoint is ready
+
+      // final response = await commerceRemoteDataSource.searchProducts(
+      //   query: query,
+      //   storeId: storeId,
+      // );
+      //
+      // return response.data.items
+      //     .map((product) => product.toDomain())
+      //     .toList();
+    });
+  }
 }

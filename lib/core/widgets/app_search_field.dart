@@ -13,6 +13,9 @@ class AppSearchField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.onClear,
+    this.focusNode,
+    this.readOnly = false,
+    this.onTap,
   });
 
   final TextEditingController? controller;
@@ -20,6 +23,9 @@ class AppSearchField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final VoidCallback? onClear;
+  final FocusNode? focusNode;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   @override
   State<AppSearchField> createState() => _AppSearchFieldState();
@@ -66,6 +72,9 @@ class _AppSearchFieldState extends State<AppSearchField> {
         controller: _controller,
         onChanged: widget.onChanged,
         onSubmitted: widget.onSubmitted,
+        focusNode: widget.focusNode,
+        readOnly: widget.readOnly,
+        onTap: widget.onTap,
         textInputAction: TextInputAction.search,
         style: TextStyle(
           fontSize: 14.sp,
