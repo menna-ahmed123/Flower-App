@@ -18,17 +18,17 @@ class AddressViewModel extends Cubit<AddressState> {
     this.getAddressFromLocationUseCase,
   ) : super(const AddressState());
 
-  void doEvent(AddressEvent event) {
+  Future<void> doEvent(AddressEvent event) async {
     switch (event) {
       case GetCurrentAddress():
-        _getCurrentAddress();
+      await _getCurrentAddress();
         break;
 
       case LocationSelected(
         latitude: final latitude,
         longitude: final longitude,
       ):
-        _getAddressFromLocation(latitude: latitude, longitude: longitude);
+       await _getAddressFromLocation(latitude: latitude, longitude: longitude);
         break;
     }
   }
