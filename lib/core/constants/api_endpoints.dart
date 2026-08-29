@@ -73,6 +73,11 @@ class ApiEndpoints {
   static const String allOccasions = '/catalog/occasions';
   static const String allProducts = '/catalog/products';
   static const String productDetails = '/catalog/products/{id}';
+
+  //// Cart ////
+  static const String cart = '/cart';
+  static const String cartItems = '/cart/items';
+  static const String cartItem = '/cart/items/{id}';
 }
 
 Future<void> _ensureDotEnv() async {

@@ -1,4 +1,6 @@
 import 'package:flower_app/core/widgets/app_button.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/widgets/product_details_body.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_state.dart';
@@ -45,17 +47,28 @@ class ProductDetailsScreen extends StatelessWidget {
               ),
             ), AppButton(
               text: "Add to cart",
-              onPressed: () async {
-                await context.requireAuth(
-                  action: () async {
-                    // TODO: actual add-to-cart action
-                  },
-                );
-              },
+              onPressed: () => _addToCart(context),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _addToCart(BuildContext context) async {
+    final productId = context
+        .read<ProductDetailsViewModel>()
+        .state
+        .productDetailsState
+        .data
+        ?.id;
+    if (productId == null || productId.isEmpty) return;
+    await context.requireAuth(
+      action: () {
+        return context.read<CartViewModel>().doEvent(
+          AddCartItemEvent(productId: productId),
+        );
+      },
     );
   }
 }

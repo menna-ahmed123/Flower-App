@@ -56,6 +56,16 @@ import '../../features/auth/register/domain/use_case/register_usecase.dart'
     as _i95;
 import '../../features/auth/register/presentation/view_model/register_view_model.dart'
     as _i656;
+import '../../features/cart/api/cart_api_client.dart' as _i1046;
+import '../../features/cart/data/data_sources/cart_remote_data_source.dart'
+    as _i164;
+import '../../features/cart/data/data_sources/cart_remote_data_source_impl.dart'
+    as _i916;
+import '../../features/cart/data/repo/cart_repo_impl.dart' as _i234;
+import '../../features/cart/domain/repo/cart_repo.dart' as _i379;
+import '../../features/cart/domain/use_cases/cart_use_case.dart' as _i886;
+import '../../features/cart/presentation/view_model/cart_view_model.dart'
+    as _i572;
 import '../../features/commerce/api/commerce_api_client.dart' as _i243;
 import '../../features/commerce/data/data_sources/commerce_remote_data_source.dart'
     as _i696;
@@ -152,6 +162,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i243.CommerceApiClient>(
       () => apiModule.provideCommerceApiClient(gh<_i361.Dio>()),
     );
+    gh.singleton<_i1046.CartApiClient>(
+      () => apiModule.provideCartApiClient(gh<_i361.Dio>()),
+    );
     gh.factory<_i24.ForgetPasswordRemoteDataSource>(
       () => _i159.ForgetPasswordRemoteDataSourceImpl(
         forgetPasswordApiClient: gh<_i597.ForgetPasswordApiClient>(),
@@ -221,6 +234,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i613.ProductUseCase>(
       () => _i613.ProductUseCase(gh<_i772.CommerceRepo>()),
     );
+    gh.factory<_i164.CartRemoteDataSource>(
+      () => _i916.CartRemoteDataSourceImpl(gh<_i1046.CartApiClient>()),
+    );
     gh.factory<_i95.RegisterUseCase>(
       () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
     );
@@ -229,6 +245,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i913.ForgetPasswordUseCase>(),
         gh<_i722.VerifyOtpUseCase>(),
         gh<_i22.ResetPasswordUseCase>(),
+      ),
+    );
+    gh.factory<_i379.CartRepo>(
+      () => _i234.CartRepoImpl(
+        gh<_i164.CartRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
       ),
     );
     gh.factory<_i635.LoginUseCase>(
@@ -261,8 +283,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i613.ProductUseCase>(),
       ),
     );
+    gh.factory<_i886.CartUseCase>(
+      () => _i886.CartUseCase(gh<_i379.CartRepo>()),
+    );
     gh.factory<_i188.LoginViewModel>(
       () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
+    );
+    gh.lazySingleton<_i572.CartViewModel>(
+      () => _i572.CartViewModel(gh<_i886.CartUseCase>()),
     );
     return this;
   }

@@ -1,9 +1,12 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_section_header.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../../core/auth/auth_extension.dart';
@@ -60,15 +63,18 @@ class ProductRail extends StatelessWidget {
       price: item.price ?? '',
       oldPrice: item.oldPrice,
       discount: item.discount,
-      onAddToCart: () async {
-        await context.requireAuth(
-          action: () async {
-            // TODO: Add product to cart.
-            // This action will be replayed after authentication.
-          },
+      onAddToCart: () => _addToCart(context, item.id),
+      onTap: () => navigateToProductDetails(context, item.id),
+    );
+  }
+
+  Future<void> _addToCart(BuildContext context, String productId) {
+    return context.requireAuth(
+      action: () {
+        return context.read<CartViewModel>().doEvent(
+          AddCartItemEvent(productId: productId),
         );
       },
-      onTap: () => navigateToProductDetails(context, item.id),
     );
   }
 }
