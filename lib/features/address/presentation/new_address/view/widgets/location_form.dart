@@ -111,20 +111,26 @@ class _LocationFormState extends State<LocationForm> {
 
             SizedBox(height: 16.h),
 
-            LocationTextfield(
-              controller: _cityController,
-              labelText: AppString.city,
-              hintText: AppString.city,
-              validator: AppValidators.validateCity,
-            ),
-
-            SizedBox(height: 16.h),
-
-            LocationTextfield(
-              controller: _areaController,
-              labelText: AppString.area,
-              hintText: AppString.area,
-              validator: AppValidators.validateArea,
+            Row(
+              children: [
+                Expanded(
+                  child: LocationTextfield(
+                    controller: _cityController,
+                    labelText: AppString.city,
+                    hintText: AppString.city,
+                    validator: AppValidators.validateCity,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: LocationTextfield(
+                    controller: _areaController,
+                    labelText: AppString.area,
+                    hintText: AppString.area,
+                    validator: AppValidators.validateArea,
+                  ),
+                ),
+              ],
             ),
 
             SizedBox(height: 32.h),
