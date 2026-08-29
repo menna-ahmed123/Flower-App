@@ -73,6 +73,11 @@ class ApiEndpoints {
   static const String allOccasions = '/catalog/occasions';
   static const String allProducts = '/catalog/products';
   static const String productDetails = '/catalog/products/{id}';
+
+  ////Address///
+  static const String addAddress = '/users/me/addresses';
+  static const String addressById = '/users/me/addresses/{id}';
+
 }
 
 Future<void> _ensureDotEnv() async {

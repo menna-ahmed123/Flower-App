@@ -3,8 +3,8 @@ import 'package:flower_app/features/address/domain/entities/address_entity.dart'
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flower_app/features/address/domain/use_cases/get_address_from_location_use_case.dart';
 import 'package:flower_app/features/address/domain/use_cases/get_current_location_use_case.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_event.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_state.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 

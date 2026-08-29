@@ -1,13 +1,16 @@
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_event.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_view_model.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_state.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/location_form.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/location_map.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_state.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+
 class AddressScreen extends StatefulWidget {
   const AddressScreen({super.key});
 
@@ -20,9 +23,7 @@ class _AddressScreenState extends State<AddressScreen>
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addObserver(this);
-
     _getCurrentAddress();
   }
 
@@ -47,7 +48,12 @@ class _AddressScreenState extends State<AddressScreen>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: CustomAppBar(title: AppString.address),
+        appBar: CustomAppBar(
+          title: AppString.address,
+          onBack: () {
+            if (context.canPop()) context.pop();
+          },
+        ),
         body: BlocBuilder<AddressViewModel, AddressState>(
           builder: (context, state) {
             return SingleChildScrollView(
@@ -70,15 +76,12 @@ class _AddressScreenState extends State<AddressScreen>
                       ),
                     ),
                   ),
-
-                 LocationForm(
+                  LocationForm(
                     address: state.addressState.data,
                     onSave: (address) {
-                      // address.address
-                      // address.phoneNumber
-                      // address.recipientName
-                      // address.city
-                      // address.area
+                      if (context.canPop()) {
+                        context.pop(address);
+                      }
                     },
                   ),
                 ],

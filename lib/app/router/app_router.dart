@@ -4,9 +4,11 @@ import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
 
 import 'package:flower_app/features/address/presentation/new_address/view/screen/address_screen.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/screen/save_address_screen.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_event.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_view_model.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
+import 'package:flower_app/features/address/presentation/save_address/view/save_address_screen.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_event.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
 
 import 'package:flower_app/features/auth/forget_password/presentation/pages/forget_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/reset_password_page.dart';
@@ -246,6 +248,10 @@ class AppRouter {
   }
 
   static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
-    return const SaveAddressScreen();
+    return BlocProvider(
+      create: (_) =>
+          getIt<SaveAddressViewModel>()..doEvent(LoadSavedAddresses()),
+      child: const SaveAddressScreen(),
+    );
   }
 }

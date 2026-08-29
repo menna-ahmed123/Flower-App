@@ -1,8 +1,11 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
+import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/core/services/geocoding_service.dart';
 import 'package:flower_app/core/services/location_service.dart';
+import 'package:flower_app/features/address/data/data_sources/address_remote_data_source.dart';
+import 'package:flower_app/features/address/data/models/add_address_request.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flower_app/features/address/domain/repo/address_repo.dart';
@@ -12,8 +15,15 @@ import 'package:injectable/injectable.dart';
 class AddressRepositoryImpl implements AddressRepo {
   final LocationService _locationService;
   final GeocodingService _geocodingService;
+  final SafeCall safeCall;
+  final AddressRemoteDataSource remoteDataSource;
 
-  AddressRepositoryImpl(this._locationService, this._geocodingService);
+  AddressRepositoryImpl(
+    this._locationService,
+    this._geocodingService,
+    this.safeCall,
+    this.remoteDataSource,
+  );
 
   @override
   Future<BaseResponse<LocationEntity>> getCurrentLocation() async {
@@ -68,5 +78,31 @@ class AddressRepositoryImpl implements AddressRepo {
         appError: BadResponseError(AppString.couldNotGetAddress),
       );
     }
+  }
+
+  @override
+  Future<BaseResponse<List<AddressEntity>>> getAddresses() {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.getAddresses();
+      return response.toDomain();
+    });
+  }
+
+  @override
+  Future<BaseResponse<List<AddressEntity>>> addAddress(
+    AddAddressRequest request,
+  ) {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.addAddress(request);
+      return response.toDomain();
+    });
+  }
+
+  @override
+  Future<BaseResponse<bool>> deleteAddress(String id) {
+    return safeCall.safeApiCall(() async {
+      await remoteDataSource.deleteAddress(id);
+      return true;
+    });
   }
 }
