@@ -90,10 +90,11 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   }
 
   @override
-  Future<ProductsResponse> searchProducts(
-      {required String query, String? storeId}) {
-    // TODO: implement searchProducts
-    throw UnimplementedError();
+  Future<ProductsResponse> searchProducts({
+    required String query,
+    String? storeId,
+  }) {
+    return commerceApiClient.getProducts();
   }
 }
 

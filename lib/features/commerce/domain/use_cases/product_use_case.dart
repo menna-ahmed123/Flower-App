@@ -3,7 +3,7 @@ import 'package:flower_app/features/commerce/domain/entities/product_entity.dart
 import 'package:flower_app/features/commerce/domain/repo/commerce_repo.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@Injectable()
 class ProductUseCase {
   final CommerceRepo commerceRepo;
 

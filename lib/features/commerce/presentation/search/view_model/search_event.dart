@@ -1,3 +1,5 @@
+import '../../../domain/entities/product_entity.dart';
+
 sealed class SearchEvent {}
 
 class SearchQueryChanged extends SearchEvent {
@@ -13,3 +15,9 @@ class SearchSubmitted extends SearchEvent {
 }
 
 class SearchCleared extends SearchEvent {}
+
+class ProductSelected extends SearchEvent {
+  ProductSelected(this.product);
+
+  final ProductEntity product;
+}

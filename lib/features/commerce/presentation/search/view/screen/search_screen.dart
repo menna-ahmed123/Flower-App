@@ -60,37 +60,49 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             SizedBox(height: 8.h),
             Expanded(
-              child: BlocBuilder<SearchViewModel, SearchState>(
-                builder: (context, state) {
-                  final productsState = state.productsState;
-
-                  if (productsState.isLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (productsState.errorMessage.isNotEmpty) {
-                    return SearchStatusWidget(text: productsState.errorMessage);
-                  }
-
-                  if (productsState.data == null) {
-                    return const SearchStatusWidget(
-                      text: AppString.searchProducts,
-                    );
-                  }
-
-                  if (productsState.data!.isEmpty) {
-                    return const SearchStatusWidget(
-                      text: AppString.noResultsFound,
-                    );
-                  }
-
-                  return ProductGrid(
-                    products: productsState.data!,
-                    onTap: (product) {
-                      navigateToProductDetails(context, product.id);
-                    },
-                  );
+              child: BlocListener<SearchViewModel, SearchState>(
+                listenWhen: (previous, current) =>
+                    previous.selectedProduct != current.selectedProduct &&
+                    current.selectedProduct != null,
+                listener: (context, state) {
+                  navigateToProductDetails(context, state.selectedProduct!.id);
                 },
+                child: BlocBuilder<SearchViewModel, SearchState>(
+                  builder: (context, state) {
+                    final productsState = state.productsState;
+
+                    if (productsState.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (productsState.errorMessage.isNotEmpty) {
+                      return SearchStatusWidget(
+                        text: productsState.errorMessage,
+                      );
+                    }
+
+                    if (productsState.data == null) {
+                      return const SearchStatusWidget(
+                        text: AppString.searchProducts,
+                      );
+                    }
+
+                    if (productsState.data!.isEmpty) {
+                      return const SearchStatusWidget(
+                        text: AppString.noResultsFound,
+                      );
+                    }
+
+                    return ProductGrid(
+                      products: productsState.data!,
+                      onTap: (product) {
+                        context.read<SearchViewModel>().onEvent(
+                          ProductSelected(product),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ],

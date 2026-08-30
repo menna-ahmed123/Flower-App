@@ -27,6 +27,9 @@ class SearchViewModel extends Cubit<SearchState> {
 
       case SearchCleared():
         _onCleared();
+
+      case ProductSelected():
+        emit(state.copyWith(selectedProduct: event.product));
     }
   }
 
