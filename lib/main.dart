@@ -9,7 +9,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-
 import 'app/router/app_router.dart';
 import 'core/auth/presentation/view_model/auth_cubit.dart';
 import 'core/auth/presentation/view_model/auth_event.dart';

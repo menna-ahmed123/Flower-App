@@ -1,15 +1,17 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/core/helpers/app_validators.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/drop_down.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/location_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../../core/helpers/app_validators.dart';
 
 class LocationForm extends StatefulWidget {
-  final VoidCallback? onSave;
+  final ValueChanged<AddressEntity>? onSave;
+  final AddressEntity? address;
 
-  const LocationForm({super.key, this.onSave});
+  const LocationForm({super.key, this.onSave, this.address});
 
   @override
   State<LocationForm> createState() => _LocationFormState();
@@ -25,8 +27,35 @@ class _LocationFormState extends State<LocationForm> {
   String? _selectedCity;
   String? _selectedArea;
 
-  final List<String> _cities = ['Cairo', 'Giza', 'Alexandria'];
-  final List<String> _areas = ['October', 'Maadi', 'Zayed', 'Nasr City'];
+  final List<String> _cities = ['Cairo', 'Giza', 'Alexandria', 'Sohag'];
+
+  final List<String> _areas = ['Sohag', 'Akhnim', 'Girga', 'Tahta'];
+
+  @override
+  void initState() {
+    super.initState();
+    _fillForm(widget.address);
+  }
+
+  @override
+  void didUpdateWidget(covariant LocationForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.address != widget.address) {
+      _fillForm(widget.address);
+    }
+  }
+
+  void _fillForm(AddressEntity? address) {
+    if (address == null) return;
+
+    _addressController.text = address.address ?? '';
+    _phoneController.text = address.phoneNumber ?? '';
+    _nameController.text = address.recipientName ?? '';
+
+    _selectedCity = _cities.contains(address.city) ? address.city : null;
+    _selectedArea = _areas.contains(address.area) ? address.area : null;
+  }
 
   @override
   void dispose() {
@@ -38,7 +67,15 @@ class _LocationFormState extends State<LocationForm> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      widget.onSave?.call();
+      final address = AddressEntity(
+        address: _addressController.text,
+        phoneNumber: _phoneController.text,
+        recipientName: _nameController.text,
+        city: _selectedCity,
+        area: _selectedArea,
+      );
+
+      widget.onSave?.call(address);
     }
   }
 
@@ -51,16 +88,15 @@ class _LocationFormState extends State<LocationForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Address Custom Text Field
             LocationTextfield(
               controller: _addressController,
               labelText: AppString.address,
               hintText: AppString.enterAddress,
               validator: AppValidators.validateAddress,
             ),
+
             SizedBox(height: 16.h),
 
-            // Phone Number Custom Text Field
             LocationTextfield(
               controller: _phoneController,
               labelText: AppString.phoneNumber,
@@ -68,64 +104,70 @@ class _LocationFormState extends State<LocationForm> {
               keyboardType: TextInputType.phone,
               validator: AppValidators.validatePhone,
             ),
+
             SizedBox(height: 16.h),
 
-            // Recipient Name Custom Text Field
             LocationTextfield(
               controller: _nameController,
               labelText: AppString.recipient,
               hintText: AppString.enterRecipient,
               validator: AppValidators.validateRecipientName,
             ),
+
             SizedBox(height: 16.h),
 
-            // City & Area Dropdown Row
             Row(
               children: [
                 Expanded(
                   child: DropDown<String>(
-                    labelText: AppString.city,
-                    hintText: AppString.cairo,
                     value: _selectedCity,
-                    validator: AppValidators.validateCity,
+                    labelText: AppString.city,
+                    hintText: AppString.city,
                     items: _cities
                         .map(
-                          (city) =>
-                              DropdownMenuItem(value: city, child: Text(city)),
+                          (city) => DropdownMenuItem<String>(
+                            value: city,
+                            child: Text(city),
+                          ),
                         )
                         .toList(),
-                    onChanged: (val) {
+                    onChanged: (value) {
                       setState(() {
-                        _selectedCity = val;
+                        _selectedCity = value;
                       });
                     },
+                    validator: AppValidators.validateCity,
                   ),
                 ),
+
                 SizedBox(width: 12.w),
+
                 Expanded(
                   child: DropDown<String>(
-                    labelText: AppString.area,
-                    hintText: AppString.october,
                     value: _selectedArea,
-                    validator: AppValidators.validateArea,
+                    labelText: AppString.area,
+                    hintText: AppString.area,
                     items: _areas
                         .map(
-                          (area) =>
-                              DropdownMenuItem(value: area, child: Text(area)),
+                          (area) => DropdownMenuItem<String>(
+                            value: area,
+                            child: Text(area),
+                          ),
                         )
                         .toList(),
-                    onChanged: (val) {
+                    onChanged: (value) {
                       setState(() {
-                        _selectedArea = val;
+                        _selectedArea = value;
                       });
                     },
+                    validator: AppValidators.validateArea,
                   ),
                 ),
               ],
             ),
+
             SizedBox(height: 32.h),
 
-            // Save Address Action Button
             ElevatedButton(
               onPressed: _submitForm,
               child: Text(
