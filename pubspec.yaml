@@ -38,6 +38,10 @@ dependencies:
   freezed_annotation: ^3.1.0
   infinite_scroll_pagination: ^5.1.1
   flutter_dotenv: ^6.0.1
+  flutter_map: ^8.3.1
+  geocoding: ^5.0.0
+  latlong2: ^0.10.1
+  geolocator: ^14.0.3
 
 dev_dependencies:
   flutter_test:

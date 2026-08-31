@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 abstract class AppString {
   // ==================== Login ====================
 
@@ -146,12 +148,21 @@ abstract class AppString {
   // ==================== Address & Checkout ====================
   static const String shippingAddress = 'Shipping Address';
   static const String addAddress = 'Add Address';
+  static const String address = 'Address';
   static const String selectAddress = 'Select Address';
+  static const String enterAddress = "Enter the address";
+  static const String recipient = "Recipient name";
+  static const String enterRecipient = "Enter the recipient name";
   static const String fullName = 'Full Name';
   static const String streetName = 'Street Name';
   static const String buildingNumber = 'Building/Villa Number';
   static const String floorApartment = 'Floor/Apartment';
   static const String city = 'City';
+  static const String cairo = 'Cairo';
+  static const String area = 'Area';
+  static const String october = 'October';
+  static const String newAddress = 'Add New Address';
+
   static const String country = 'Country';
   static const String placeOrder = 'Place Order';
   static const String paymentMethod = 'Payment Method';
@@ -159,7 +170,6 @@ abstract class AppString {
   static const String creditCard = 'Credit Card';
   static const String orderPlacedSuccess = 'Order placed successfully!';
   static const String orderFailed = 'Order failed. Please try again.';
-
   // ==================== Orders ====================
   static const String myOrders = 'My Orders';
   static const String orderDetails = 'Order Details';
@@ -185,4 +195,41 @@ abstract class AppString {
   static const String somethingWrong = 'Something went wrong';
   static const String retry = 'Retry';
   static const String noData = 'No data found';
+
+  static const String couldNotGetAddress = 'Could not get address from your location.';
+  static const String couldNotGetLocation = 'Could not get your current location. Please check your location settings.';
+
+   // ==================== Map ====================
+
+  static final String mapTilerApiKey = dotenv.env['MAPTILER_API_KEY'] ?? '';
+
+  static const String mapTilerUrlTemplate =
+      'https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png';
+
+  static const String mapLanguage = 'en';
+
+  static const String userAgentPackageName = 'com.example.flower_app';
+static const String location = 'Location';
+
+  static const String locationServicesDisabled =
+      'Location services are disabled.';
+
+  static const String locationPermissionDenied =
+      'Location permission was denied.';
+
+  static const String locationPermissionPermanentlyDenied =
+      'Location permission is permanently denied.';
+
+  static const String locationPermissionDescription =
+      'We need your location permission to detect your current address.';
+
+  static const String enableLocationDescription =
+      'We need your location to detect your current address. '
+      'Please enable location services from settings.';
+
+  static const String openSettings = 'Open Settings';
+
+  static const String cancel = 'Cancel';
+
 }
+
