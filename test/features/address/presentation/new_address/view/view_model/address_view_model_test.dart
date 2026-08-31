@@ -1,23 +1,28 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
-import 'package:flower_app/features/address/domain/use_cases/get_address_from_location_use_case.dart';
-import 'package:flower_app/features/address/domain/use_cases/get_current_location_use_case.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_event.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_state.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/view_model/address_view_model.dart';
-import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mockito/mockito.dart';
 
 import 'address_view_model_test.mocks.dart';
 
-@GenerateMocks([
-  GetCurrentLocationUseCase,
-  GetAddressFromLocationUseCase,
-])
 void main() {
+  provideDummy<BaseResponse<bool>>(
+    const SuccessResponse<bool>(true),
+  );
+
+  provideDummy<BaseResponse<LocationPermission>>(
+    const SuccessResponse<LocationPermission>(
+      LocationPermission.whileInUse,
+    ),
+  );
+
   provideDummy<BaseResponse<LocationEntity>>(
     const SuccessResponse<LocationEntity>(
       LocationEntity(
@@ -39,16 +44,57 @@ void main() {
     ),
   );
 
-  late MockGetCurrentLocationUseCase getCurrentLocationUseCase;
-  late MockGetAddressFromLocationUseCase getAddressFromLocationUseCase;
+  late MockIsLocationServiceEnabledUseCase
+      isLocationServiceEnabledUseCase;
+
+  late MockCheckLocationPermissionUseCase
+      checkLocationPermissionUseCase;
+
+  late MockRequestLocationPermissionUseCase
+      requestLocationPermissionUseCase;
+
+  late MockOpenLocationSettingsUseCase
+      openLocationSettingsUseCase;
+
+  late MockOpenAppSettingsUseCase
+      openAppSettingsUseCase;
+
+  late MockGetCurrentLocationUseCase
+      getCurrentLocationUseCase;
+
+  late MockGetAddressFromLocationUseCase
+      getAddressFromLocationUseCase;
+
   late AddressViewModel addressViewModel;
 
   setUp(() {
-    getCurrentLocationUseCase = MockGetCurrentLocationUseCase();
+    isLocationServiceEnabledUseCase =
+        MockIsLocationServiceEnabledUseCase();
+
+    checkLocationPermissionUseCase =
+        MockCheckLocationPermissionUseCase();
+
+    requestLocationPermissionUseCase =
+        MockRequestLocationPermissionUseCase();
+
+    openLocationSettingsUseCase =
+        MockOpenLocationSettingsUseCase();
+
+    openAppSettingsUseCase =
+        MockOpenAppSettingsUseCase();
+
+    getCurrentLocationUseCase =
+        MockGetCurrentLocationUseCase();
+
     getAddressFromLocationUseCase =
         MockGetAddressFromLocationUseCase();
 
     addressViewModel = AddressViewModel(
+      isLocationServiceEnabledUseCase,
+      checkLocationPermissionUseCase,
+      requestLocationPermissionUseCase,
+      openLocationSettingsUseCase,
+      openAppSettingsUseCase,
       getCurrentLocationUseCase,
       getAddressFromLocationUseCase,
     );
@@ -60,8 +106,6 @@ void main() {
 
   group('GetCurrentAddress', () {
     test('should get current address successfully', () async {
-      // Arrange
-
       const location = LocationEntity(
         latitude: 27.18,
         longitude: 31.18,
@@ -75,9 +119,24 @@ void main() {
         area: 'Sohag',
       );
 
-      when(getCurrentLocationUseCase.call()).thenAnswer(
-        (_) async =>
-            const SuccessResponse<LocationEntity>(location),
+      when(
+        isLocationServiceEnabledUseCase.call(),
+      ).thenAnswer(
+        (_) async => const SuccessResponse<bool>(true),
+      );
+
+      when(
+        checkLocationPermissionUseCase.call(),
+      ).thenAnswer(
+        (_) async => const SuccessResponse<LocationPermission>(
+          LocationPermission.whileInUse,
+        ),
+      );
+
+      when(
+        getCurrentLocationUseCase.call(),
+      ).thenAnswer(
+        (_) async => const SuccessResponse<LocationEntity>(location),
       );
 
       when(
@@ -86,14 +145,12 @@ void main() {
           longitude: location.longitude,
         ),
       ).thenAnswer(
-        (_) async =>
-            const SuccessResponse<AddressEntity>(address),
+        (_) async => const SuccessResponse<AddressEntity>(address),
       );
 
       final future = expectLater(
         addressViewModel.stream,
         emitsInOrder([
-          // 1. Initial Loading
           isA<AddressState>()
               .having(
                 (state) => state.locationState.isLoading,
@@ -106,7 +163,6 @@ void main() {
                 true,
               ),
 
-          // 2. Location Success
           isA<AddressState>()
               .having(
                 (state) => state.locationState.isLoading,
@@ -124,7 +180,6 @@ void main() {
                 true,
               ),
 
-          // 3. Address Success
           isA<AddressState>()
               .having(
                 (state) => state.addressState.isLoading,
@@ -139,14 +194,20 @@ void main() {
         ]),
       );
 
-      // Act
       await addressViewModel.doEvent(
         GetCurrentAddress(),
       );
 
       await future;
 
-      // Assert
+      verify(
+        isLocationServiceEnabledUseCase.call(),
+      ).called(1);
+
+      verify(
+        checkLocationPermissionUseCase.call(),
+      ).called(1);
+
       verify(
         getCurrentLocationUseCase.call(),
       ).called(1);
@@ -159,21 +220,16 @@ void main() {
       ).called(1);
     });
 
-    test('should handle location error', () async {
-      // Arrange
-
-      final appError = NoInternetError(Exception());
-
-      when(getCurrentLocationUseCase.call()).thenAnswer(
-        (_) async => ErrorResponse<LocationEntity>(
-          appError: appError,
-        ),
+    test('should handle location service disabled', () async {
+      when(
+        isLocationServiceEnabledUseCase.call(),
+      ).thenAnswer(
+        (_) async => const SuccessResponse<bool>(false),
       );
 
       final future = expectLater(
         addressViewModel.stream,
         emitsInOrder([
-          // 1. Loading
           isA<AddressState>()
               .having(
                 (state) => state.locationState.isLoading,
@@ -186,7 +242,81 @@ void main() {
                 true,
               ),
 
-          // 2. Error
+          isA<AddressState>()
+              .having(
+                (state) => state.locationState.isLoading,
+                'location isLoading',
+                false,
+              )
+              .having(
+                (state) => state.locationState.errorMessage,
+                'location errorMessage',
+                AppString.locationServicesDisabled,
+              )
+              .having(
+                (state) => state.addressState.isLoading,
+                'address isLoading',
+                false,
+              )
+              .having(
+                (state) => state.addressState.errorMessage,
+                'address errorMessage',
+                AppString.locationServicesDisabled,
+              ),
+        ]),
+      );
+
+      await addressViewModel.doEvent(
+        GetCurrentAddress(),
+      );
+
+      await future;
+
+      verify(
+        isLocationServiceEnabledUseCase.call(),
+      ).called(1);
+
+      verifyNever(
+        checkLocationPermissionUseCase.call(),
+      );
+
+      verifyNever(
+        requestLocationPermissionUseCase.call(),
+      );
+
+      verifyNever(
+        getCurrentLocationUseCase.call(),
+      );
+    });
+
+    test('should handle location service check error', () async {
+      final appError = NoInternetError(
+        Exception(),
+      );
+
+      when(
+        isLocationServiceEnabledUseCase.call(),
+      ).thenAnswer(
+        (_) async => ErrorResponse<bool>(
+          appError: appError,
+        ),
+      );
+
+      final future = expectLater(
+        addressViewModel.stream,
+        emitsInOrder([
+          isA<AddressState>()
+              .having(
+                (state) => state.locationState.isLoading,
+                'location isLoading',
+                true,
+              )
+              .having(
+                (state) => state.addressState.isLoading,
+                'address isLoading',
+                true,
+              ),
+
           isA<AddressState>()
               .having(
                 (state) => state.locationState.isLoading,
@@ -211,122 +341,503 @@ void main() {
         ]),
       );
 
-      // Act
       await addressViewModel.doEvent(
         GetCurrentAddress(),
       );
 
       await future;
 
-      // Assert
       verify(
-        getCurrentLocationUseCase.call(),
+        isLocationServiceEnabledUseCase.call(),
       ).called(1);
 
       verifyNever(
-        getAddressFromLocationUseCase(
-          latitude: anyNamed('latitude'),
-          longitude: anyNamed('longitude'),
-        ),
-      );
-    });
-
-    test('should handle address error', () async {
-      // Arrange
-
-      const location = LocationEntity(
-        latitude: 27.18,
-        longitude: 31.18,
+        checkLocationPermissionUseCase.call(),
       );
 
-      final appError = BadResponseError(
-        'Failed to get address',
-      );
-
-      when(getCurrentLocationUseCase.call()).thenAnswer(
-        (_) async =>
-            const SuccessResponse<LocationEntity>(location),
-      );
-
-      when(
-        getAddressFromLocationUseCase(
-          latitude: location.latitude,
-          longitude: location.longitude,
-        ),
-      ).thenAnswer(
-        (_) async => ErrorResponse<AddressEntity>(
-          appError: appError,
-        ),
-      );
-
-      final future = expectLater(
-        addressViewModel.stream,
-        emitsInOrder([
-          // 1. Initial Loading
-          isA<AddressState>()
-              .having(
-                (state) => state.locationState.isLoading,
-                'location isLoading',
-                true,
-              )
-              .having(
-                (state) => state.addressState.isLoading,
-                'address isLoading',
-                true,
-              ),
-
-          // 2. Location Success
-          isA<AddressState>()
-              .having(
-                (state) => state.locationState.isLoading,
-                'location isLoading',
-                false,
-              )
-              .having(
-                (state) => state.locationState.data,
-                'location',
-                location,
-              )
-              .having(
-                (state) => state.addressState.isLoading,
-                'address isLoading',
-                true,
-              ),
-
-          // 3. Address Error
-          isA<AddressState>()
-              .having(
-                (state) => state.addressState.isLoading,
-                'address isLoading',
-                false,
-              )
-              .having(
-                (state) => state.addressState.errorMessage,
-                'address errorMessage',
-                appError.message,
-              ),
-        ]),
-      );
-
-      // Act
-      await addressViewModel.doEvent(
-        GetCurrentAddress(),
-      );
-
-      await future;
-
-      // Assert
-      verify(
+      verifyNever(
         getCurrentLocationUseCase.call(),
-      ).called(1);
-
-      verify(
-        getAddressFromLocationUseCase(
-          latitude: location.latitude,
-          longitude: location.longitude,
-        ),
-      ).called(1);
+      );
     });
+
+    test(
+      'should request permission when permission is denied',
+      () async {
+        const location = LocationEntity(
+          latitude: 27.18,
+          longitude: 31.18,
+        );
+
+        const address = AddressEntity(
+          address: '123 Street',
+          phoneNumber: '01000000000',
+          recipientName: 'Menna',
+          city: 'Sohag',
+          area: 'Sohag',
+        );
+
+        when(
+          isLocationServiceEnabledUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<bool>(true),
+        );
+
+        when(
+          checkLocationPermissionUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<LocationPermission>(
+            LocationPermission.denied,
+          ),
+        );
+
+        when(
+          requestLocationPermissionUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<LocationPermission>(
+            LocationPermission.whileInUse,
+          ),
+        );
+
+        when(
+          getCurrentLocationUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<LocationEntity>(
+            location,
+          ),
+        );
+
+        when(
+          getAddressFromLocationUseCase(
+            latitude: location.latitude,
+            longitude: location.longitude,
+          ),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<AddressEntity>(
+            address,
+          ),
+        );
+
+        final future = expectLater(
+          addressViewModel.stream,
+          emitsInOrder([
+            isA<AddressState>().having(
+              (state) => state.locationState.isLoading,
+              'location isLoading',
+              true,
+            ),
+
+            isA<AddressState>()
+                .having(
+                  (state) => state.locationState.isLoading,
+                  'location isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.locationState.data,
+                  'location',
+                  location,
+                ),
+
+            isA<AddressState>()
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.addressState.data,
+                  'address',
+                  address,
+                ),
+          ]),
+        );
+
+        await addressViewModel.doEvent(
+          GetCurrentAddress(),
+        );
+
+        await future;
+
+        verify(
+          isLocationServiceEnabledUseCase.call(),
+        ).called(1);
+
+        verify(
+          checkLocationPermissionUseCase.call(),
+        ).called(1);
+
+        verify(
+          requestLocationPermissionUseCase.call(),
+        ).called(1);
+
+        verify(
+          getCurrentLocationUseCase.call(),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should handle permission permanently denied',
+      () async {
+        when(
+          isLocationServiceEnabledUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<bool>(true),
+        );
+
+        when(
+          checkLocationPermissionUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<LocationPermission>(
+            LocationPermission.deniedForever,
+          ),
+        );
+
+        final future = expectLater(
+          addressViewModel.stream,
+          emitsInOrder([
+            isA<AddressState>()
+                .having(
+                  (state) => state.locationState.isLoading,
+                  'location isLoading',
+                  true,
+                )
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  true,
+                ),
+
+            isA<AddressState>()
+                .having(
+                  (state) => state.locationState.isLoading,
+                  'location isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.locationState.errorMessage,
+                  'location errorMessage',
+                  AppString.locationPermissionPermanentlyDenied,
+                )
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.addressState.errorMessage,
+                  'address errorMessage',
+                  AppString.locationPermissionPermanentlyDenied,
+                ),
+          ]),
+        );
+
+        await addressViewModel.doEvent(
+          GetCurrentAddress(),
+        );
+
+        await future;
+
+        verify(
+          isLocationServiceEnabledUseCase.call(),
+        ).called(1);
+
+        verify(
+          checkLocationPermissionUseCase.call(),
+        ).called(1);
+
+        verifyNever(
+          requestLocationPermissionUseCase.call(),
+        );
+
+        verifyNever(
+          getCurrentLocationUseCase.call(),
+        );
+      },
+    );
+
+    test(
+      'should handle permission denied after request',
+      () async {
+        when(
+          isLocationServiceEnabledUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<bool>(true),
+        );
+
+        when(
+          checkLocationPermissionUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<LocationPermission>(
+            LocationPermission.denied,
+          ),
+        );
+
+        when(
+          requestLocationPermissionUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<LocationPermission>(
+            LocationPermission.denied,
+          ),
+        );
+
+        final future = expectLater(
+          addressViewModel.stream,
+          emitsInOrder([
+            isA<AddressState>().having(
+              (state) => state.locationState.isLoading,
+              'location isLoading',
+              true,
+            ),
+
+            isA<AddressState>()
+                .having(
+                  (state) => state.locationState.isLoading,
+                  'location isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.locationState.errorMessage,
+                  'location errorMessage',
+                  AppString.locationPermissionDenied,
+                )
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  false,
+                ),
+          ]),
+        );
+
+        await addressViewModel.doEvent(
+          GetCurrentAddress(),
+        );
+
+        await future;
+
+        verify(
+          isLocationServiceEnabledUseCase.call(),
+        ).called(1);
+
+        verify(
+          checkLocationPermissionUseCase.call(),
+        ).called(1);
+
+        verify(
+          requestLocationPermissionUseCase.call(),
+        ).called(1);
+
+        verifyNever(
+          getCurrentLocationUseCase.call(),
+        );
+      },
+    );
+
+    test(
+      'should handle current location error',
+      () async {
+        final appError = NoInternetError(
+          Exception(),
+        );
+
+        when(
+          isLocationServiceEnabledUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<bool>(true),
+        );
+
+        when(
+          checkLocationPermissionUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<LocationPermission>(
+            LocationPermission.whileInUse,
+          ),
+        );
+
+        when(
+          getCurrentLocationUseCase.call(),
+        ).thenAnswer(
+          (_) async => ErrorResponse<LocationEntity>(
+            appError: appError,
+          ),
+        );
+
+        final future = expectLater(
+          addressViewModel.stream,
+          emitsInOrder([
+            isA<AddressState>()
+                .having(
+                  (state) => state.locationState.isLoading,
+                  'location isLoading',
+                  true,
+                )
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  true,
+                ),
+
+            isA<AddressState>()
+                .having(
+                  (state) => state.locationState.isLoading,
+                  'location isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.locationState.errorMessage,
+                  'location errorMessage',
+                  appError.message,
+                )
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.addressState.errorMessage,
+                  'address errorMessage',
+                  appError.message,
+                ),
+          ]),
+        );
+
+        await addressViewModel.doEvent(
+          GetCurrentAddress(),
+        );
+
+        await future;
+
+        verify(
+          isLocationServiceEnabledUseCase.call(),
+        ).called(1);
+
+        verify(
+          checkLocationPermissionUseCase.call(),
+        ).called(1);
+
+        verify(
+          getCurrentLocationUseCase.call(),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should handle address error',
+      () async {
+        const location = LocationEntity(
+          latitude: 27.18,
+          longitude: 31.18,
+        );
+
+        final appError = BadResponseError(
+          'Failed to get address',
+        );
+
+        when(
+          isLocationServiceEnabledUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<bool>(true),
+        );
+
+        when(
+          checkLocationPermissionUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<LocationPermission>(
+            LocationPermission.whileInUse,
+          ),
+        );
+
+        when(
+          getCurrentLocationUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<LocationEntity>(
+            location,
+          ),
+        );
+
+        when(
+          getAddressFromLocationUseCase(
+            latitude: location.latitude,
+            longitude: location.longitude,
+          ),
+        ).thenAnswer(
+          (_) async => ErrorResponse<AddressEntity>(
+            appError: appError,
+          ),
+        );
+
+        final future = expectLater(
+          addressViewModel.stream,
+          emitsInOrder([
+            isA<AddressState>()
+                .having(
+                  (state) => state.locationState.isLoading,
+                  'location isLoading',
+                  true,
+                )
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  true,
+                ),
+
+            isA<AddressState>()
+                .having(
+                  (state) => state.locationState.isLoading,
+                  'location isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.locationState.data,
+                  'location',
+                  location,
+                )
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  true,
+                ),
+
+            isA<AddressState>()
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.addressState.errorMessage,
+                  'address errorMessage',
+                  appError.message,
+                ),
+          ]),
+        );
+
+        await addressViewModel.doEvent(
+          GetCurrentAddress(),
+        );
+
+        await future;
+
+        verify(
+          isLocationServiceEnabledUseCase.call(),
+        ).called(1);
+
+        verify(
+          checkLocationPermissionUseCase.call(),
+        ).called(1);
+
+        verify(
+          getCurrentLocationUseCase.call(),
+        ).called(1);
+
+        verify(
+          getAddressFromLocationUseCase(
+            latitude: location.latitude,
+            longitude: location.longitude,
+          ),
+        ).called(1);
+      },
+    );
   });
 
   // ============================================================
@@ -337,8 +848,6 @@ void main() {
     test(
       'should get address successfully when location is selected',
       () async {
-        // Arrange
-
         const latitude = 27.18;
         const longitude = 31.18;
 
@@ -356,21 +865,20 @@ void main() {
             longitude: longitude,
           ),
         ).thenAnswer(
-          (_) async =>
-              const SuccessResponse<AddressEntity>(address),
+          (_) async => const SuccessResponse<AddressEntity>(
+            address,
+          ),
         );
 
         final future = expectLater(
           addressViewModel.stream,
           emitsInOrder([
-            // 1. Loading
             isA<AddressState>().having(
               (state) => state.addressState.isLoading,
               'address isLoading',
               true,
             ),
 
-            // 2. Success
             isA<AddressState>()
                 .having(
                   (state) => state.addressState.isLoading,
@@ -385,7 +893,6 @@ void main() {
           ]),
         );
 
-        // Act
         await addressViewModel.doEvent(
           LocationSelected(
             latitude: latitude,
@@ -395,7 +902,6 @@ void main() {
 
         await future;
 
-        // Assert
         verify(
           getAddressFromLocationUseCase(
             latitude: latitude,
@@ -406,18 +912,26 @@ void main() {
         verifyNever(
           getCurrentLocationUseCase.call(),
         );
+
+        verifyNever(
+          isLocationServiceEnabledUseCase.call(),
+        );
+
+        verifyNever(
+          checkLocationPermissionUseCase.call(),
+        );
       },
     );
 
     test(
       'should handle error when location is selected',
       () async {
-        // Arrange
-
         const latitude = 27.18;
         const longitude = 31.18;
 
-        final appError = NoInternetError(Exception());
+        final appError = NoInternetError(
+          Exception(),
+        );
 
         when(
           getAddressFromLocationUseCase(
@@ -433,14 +947,12 @@ void main() {
         final future = expectLater(
           addressViewModel.stream,
           emitsInOrder([
-            // 1. Loading
             isA<AddressState>().having(
               (state) => state.addressState.isLoading,
               'address isLoading',
               true,
             ),
 
-            // 2. Error
             isA<AddressState>()
                 .having(
                   (state) => state.addressState.isLoading,
@@ -455,7 +967,6 @@ void main() {
           ]),
         );
 
-        // Act
         await addressViewModel.doEvent(
           LocationSelected(
             latitude: latitude,
@@ -465,7 +976,6 @@ void main() {
 
         await future;
 
-        // Assert
         verify(
           getAddressFromLocationUseCase(
             latitude: latitude,
@@ -476,6 +986,54 @@ void main() {
         verifyNever(
           getCurrentLocationUseCase.call(),
         );
+
+        verifyNever(
+          isLocationServiceEnabledUseCase.call(),
+        );
+
+        verifyNever(
+          checkLocationPermissionUseCase.call(),
+        );
+      },
+    );
+  });
+
+  // ============================================================
+  // Settings
+  // ============================================================
+
+  group('Settings', () {
+    test(
+      'should open location settings',
+      () async {
+        when(
+          openLocationSettingsUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<bool>(true),
+        );
+
+        await addressViewModel.openLocationSettings();
+
+        verify(
+          openLocationSettingsUseCase.call(),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should open app settings',
+      () async {
+        when(
+          openAppSettingsUseCase.call(),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<bool>(true),
+        );
+
+        await addressViewModel.openAppSettings();
+
+        verify(
+          openAppSettingsUseCase.call(),
+        ).called(1);
       },
     );
   });

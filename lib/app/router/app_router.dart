@@ -240,9 +240,9 @@ class AppRouter {
 
   static Widget _addressBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
-      create: (_) => getIt<AddressViewModel>()..doEvent(GetCurrentAddress()),
-      child: AddressScreen(),
-    );
+  create: (_) => getIt<AddressViewModel>(),
+  child: const AddressScreen(),
+);
   }
 
   static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {

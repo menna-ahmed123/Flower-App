@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 abstract class AppString {
   // ==================== Login ====================
 
@@ -196,4 +198,38 @@ abstract class AppString {
 
   static const String couldNotGetAddress = 'Could not get address from your location.';
   static const String couldNotGetLocation = 'Could not get your current location. Please check your location settings.';
+
+   // ==================== Map ====================
+
+  static final String mapTilerApiKey = dotenv.env['MAPTILER_API_KEY'] ?? '';
+
+  static const String mapTilerUrlTemplate =
+      'https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png';
+
+  static const String mapLanguage = 'en';
+
+  static const String userAgentPackageName = 'com.example.flower_app';
+static const String location = 'Location';
+
+  static const String locationServicesDisabled =
+      'Location services are disabled.';
+
+  static const String locationPermissionDenied =
+      'Location permission was denied.';
+
+  static const String locationPermissionPermanentlyDenied =
+      'Location permission is permanently denied.';
+
+  static const String locationPermissionDescription =
+      'We need your location permission to detect your current address.';
+
+  static const String enableLocationDescription =
+      'We need your location to detect your current address. '
+      'Please enable location services from settings.';
+
+  static const String openSettings = 'Open Settings';
+
+  static const String cancel = 'Cancel';
+
 }
+

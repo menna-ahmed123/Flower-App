@@ -1,12 +1,13 @@
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class LocationMap extends StatefulWidget {
-  final LatLng initialLocation;
-  final ValueChanged<LatLng>? onLocationSelected;
+  final LocationEntity initialLocation;
+  final ValueChanged<LocationEntity>? onLocationSelected;
 
   const LocationMap({
     super.key,
@@ -24,30 +25,42 @@ class _LocationMapState extends State<LocationMap> {
   @override
   void initState() {
     super.initState();
-    selectedLocation = widget.initialLocation;
+
+    selectedLocation = LatLng(
+      widget.initialLocation.latitude,
+      widget.initialLocation.longitude,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final apiKey = dotenv.env['MAPTILER_API_KEY'];
-
     return FlutterMap(
       options: MapOptions(
-        initialCenter: widget.initialLocation,
+        initialCenter: LatLng(
+          widget.initialLocation.latitude,
+          widget.initialLocation.longitude,
+        ),
         initialZoom: 13,
         onTap: (tapPosition, point) {
           setState(() {
             selectedLocation = point;
           });
 
-          widget.onLocationSelected?.call(point);
+          widget.onLocationSelected?.call(
+            LocationEntity(
+              latitude: point.latitude,
+              longitude: point.longitude,
+            ),
+          );
         },
       ),
       children: [
         TileLayer(
           urlTemplate:
-              'https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=$apiKey&language=en',
-          userAgentPackageName: 'com.example.flower_app',
+              '${AppString.mapTilerUrlTemplate}'
+              '?key=${AppString.mapTilerApiKey}'
+              '&language=${AppString.mapLanguage}',
+          userAgentPackageName: AppString.userAgentPackageName,
         ),
         MarkerLayer(
           markers: [

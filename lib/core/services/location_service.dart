@@ -1,50 +1,33 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
+
 @injectable
 class LocationService {
+  final GeolocatorPlatform geolocator;
+
+  LocationService(this.geolocator);
+
   Future<bool> isLocationServiceEnabled() async {
-    return Geolocator.isLocationServiceEnabled();
+    return geolocator.isLocationServiceEnabled();
   }
 
   Future<LocationPermission> checkPermission() async {
-    return Geolocator.checkPermission();
+    return geolocator.checkPermission();
   }
 
   Future<LocationPermission> requestPermission() async {
-    return Geolocator.requestPermission();
+    return geolocator.requestPermission();
   }
 
   Future<bool> openAppSettings() async {
-    return Geolocator.openAppSettings();
+    return geolocator.openAppSettings();
   }
 
   Future<bool> openLocationSettings() async {
-    return Geolocator.openLocationSettings();
+    return geolocator.openLocationSettings();
   }
 
-  Future<Position?> getCurrentPosition() async {
-    final isEnabled = await isLocationServiceEnabled();
-
-    if (!isEnabled) {
-      await openLocationSettings();
-      return null;
-    }
-
-    var permission = await checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await requestPermission();
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      await openAppSettings();
-      return null;
-    }
-
-    if (permission == LocationPermission.denied) {
-      return null;
-    }
-
-    return Geolocator.getCurrentPosition();
+  Future<Position> getCurrentPosition() async {
+    return geolocator.getCurrentPosition();
   }
 }

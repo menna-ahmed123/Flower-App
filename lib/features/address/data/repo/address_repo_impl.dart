@@ -6,25 +6,85 @@ import 'package:flower_app/core/services/location_service.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flower_app/features/address/domain/repo/address_repo.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: AddressRepo)
-class AddressRepositoryImpl implements AddressRepo {
+class AddressRepoImpl implements AddressRepo {
   final LocationService _locationService;
   final GeocodingService _geocodingService;
 
-  AddressRepositoryImpl(this._locationService, this._geocodingService);
+  AddressRepoImpl(this._locationService, this._geocodingService);
+
+  @override
+  Future<BaseResponse<bool>> isLocationServiceEnabled() async {
+    try {
+      final isEnabled = await _locationService.isLocationServiceEnabled();
+
+      return SuccessResponse(isEnabled);
+    } catch (e) {
+      return ErrorResponse(
+        appError: BadResponseError(AppString.couldNotGetLocation),
+      );
+    }
+  }
+
+  @override
+  Future<BaseResponse<LocationPermission>> checkLocationPermission() async {
+    try {
+      final permission = await _locationService.checkPermission();
+
+      return SuccessResponse(permission);
+    } catch (e) {
+      return ErrorResponse(
+        appError: BadResponseError(AppString.couldNotGetLocation),
+      );
+    }
+  }
+
+  @override
+  Future<BaseResponse<LocationPermission>> requestLocationPermission() async {
+    try {
+      final permission = await _locationService.requestPermission();
+
+      return SuccessResponse(permission);
+    } catch (e) {
+      return ErrorResponse(
+        appError: BadResponseError(AppString.couldNotGetLocation),
+      );
+    }
+  }
+
+  @override
+  Future<BaseResponse<bool>> openLocationSettings() async {
+    try {
+      final result = await _locationService.openLocationSettings();
+
+      return SuccessResponse(result);
+    } catch (e) {
+      return ErrorResponse(
+        appError: BadResponseError(AppString.couldNotGetLocation),
+      );
+    }
+  }
+
+  @override
+  Future<BaseResponse<bool>> openAppSettings() async {
+    try {
+      final result = await _locationService.openAppSettings();
+
+      return SuccessResponse(result);
+    } catch (e) {
+      return ErrorResponse(
+        appError: BadResponseError(AppString.couldNotGetLocation),
+      );
+    }
+  }
 
   @override
   Future<BaseResponse<LocationEntity>> getCurrentLocation() async {
     try {
       final position = await _locationService.getCurrentPosition();
-
-      if (position == null) {
-        return ErrorResponse(
-          appError: BadResponseError(AppString.couldNotGetLocation),
-        );
-      }
 
       final location = LocationEntity(
         latitude: position.latitude,
