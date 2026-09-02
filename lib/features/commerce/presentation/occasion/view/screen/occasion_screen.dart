@@ -4,7 +4,6 @@ import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
 import 'package:flower_app/features/commerce/core/widgets/custom_tab_bar.dart';
 import 'package:flower_app/features/commerce/core/widgets/product_grid.dart';
-
 import 'package:flower_app/features/commerce/data/models/occasion_model.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_event.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_state.dart';
@@ -12,6 +11,8 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../../../../../core/widgets/app_shimmer/occasion_shimmer.dart';
 
 class OccasionScreen extends StatefulWidget {
   const OccasionScreen({super.key});
@@ -81,11 +82,11 @@ class _OccasionScreenState extends State<OccasionScreen> {
                   SizedBox(height: 16.h),
                   Expanded(
                     child: state.occasionsState.isLoading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const OccasionShimmer()
                         : state.occasionsState.errorMessage.isNotEmpty
                         ? Center(child: Text(state.occasionsState.errorMessage))
                         : state.productsState.isLoading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const OccasionShimmer()
                         : state.productsState.errorMessage.isNotEmpty
                         ? Center(child: Text(state.productsState.errorMessage))
                         : (state.productsState.data ?? const []).isEmpty

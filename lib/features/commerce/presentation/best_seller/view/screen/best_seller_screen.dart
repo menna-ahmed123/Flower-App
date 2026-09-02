@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../../core/widgets/app_shimmer/best_seller_shimmer.dart';
+
 class BestSellerScreen extends StatefulWidget {
   const BestSellerScreen({super.key});
   @override
@@ -47,11 +49,7 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                   final productState = state.bestSellState;
 
                   if (productState.isLoading) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: context.colors.pink,
-                      ),
-                    );
+                    return const BestSellerShimmer();
                   }
 
                   if (productState.errorMessage.isNotEmpty) {
