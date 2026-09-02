@@ -1,6 +1,6 @@
+import 'package:flower_app/core/constants/app_constants.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -29,8 +29,6 @@ class _LocationMapState extends State<LocationMap> {
 
   @override
   Widget build(BuildContext context) {
-    final apiKey = dotenv.env['MAPTILER_API_KEY'];
-
     return FlutterMap(
       options: MapOptions(
         initialCenter: widget.initialLocation,
@@ -45,9 +43,9 @@ class _LocationMapState extends State<LocationMap> {
       ),
       children: [
         TileLayer(
-          urlTemplate:
-              'https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=$apiKey&language=en',
-          userAgentPackageName: 'com.example.flower_app',
+        urlTemplate:
+    '${AppConstants.mapTilerBaseUrl}?key=${AppConstants.mapTilerApiKey}&language=en',
+      userAgentPackageName: AppConstants.mapUserAgentPackageName,
         ),
         MarkerLayer(
           markers: [

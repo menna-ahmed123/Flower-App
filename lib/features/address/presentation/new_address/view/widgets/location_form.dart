@@ -63,6 +63,8 @@ class _LocationFormState extends State<LocationForm> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final address = AddressEntity(
+        id: widget.address?.id,
+        label: widget.address?.label,
         address: _addressController.text,
         phoneNumber: _phoneController.text,
         recipientName: _nameController.text,
@@ -97,7 +99,7 @@ class _LocationFormState extends State<LocationForm> {
               labelText: AppString.phoneNumber,
               hintText: AppString.enterPhoneNumber,
               keyboardType: TextInputType.phone,
-              validator: AppValidators.validatePhone,
+              validator: AppValidators.phoneValidator,
             ),
 
             SizedBox(height: 16.h),

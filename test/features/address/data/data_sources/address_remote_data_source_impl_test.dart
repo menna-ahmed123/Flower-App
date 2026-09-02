@@ -85,26 +85,78 @@ void main() {
     });
   });
 
-  group('addAddress', () {
+  group('createAddress', () {
     test('returns AddressResponse when api call succeeds', () async {
       final response = successResponse();
       when(
-        addressApiClient.addAddress(request),
+        addressApiClient.createAddress(request),
       ).thenAnswer((_) async => response);
 
-      final result = await dataSource.addAddress(request);
+      final result = await dataSource.createAddress(request);
 
       expect(result, response);
       expect(result.success, isTrue);
-      verify(addressApiClient.addAddress(request)).called(1);
+      verify(addressApiClient.createAddress(request)).called(1);
     });
 
     test('throws when api call fails', () async {
       final exception = Exception('Add address failed');
-      when(addressApiClient.addAddress(request)).thenThrow(exception);
+      when(addressApiClient.createAddress(request)).thenThrow(exception);
 
-      expect(() => dataSource.addAddress(request), throwsA(exception));
-      verify(addressApiClient.addAddress(request)).called(1);
+      expect(() => dataSource.createAddress(request), throwsA(exception));
+      verify(addressApiClient.createAddress(request)).called(1);
+    });
+  });
+
+  group('addressDetails', () {
+    const addressId = 'addr-1';
+
+    test('returns AddressResponse when api call succeeds', () async {
+      final response = successResponse();
+      when(
+        addressApiClient.addressDetails(addressId),
+      ).thenAnswer((_) async => response);
+
+      final result = await dataSource.addressDetails(addressId);
+
+      expect(result, response);
+      expect(result.data.first.id, 'addr-1');
+      verify(addressApiClient.addressDetails(addressId)).called(1);
+    });
+
+    test('throws when api call fails', () async {
+      final exception = Exception('Get address details failed');
+      when(addressApiClient.addressDetails(addressId)).thenThrow(exception);
+
+      expect(() => dataSource.addressDetails(addressId), throwsA(exception));
+      verify(addressApiClient.addressDetails(addressId)).called(1);
+    });
+  });
+
+  group('updateAddress', () {
+    const addressId = 'addr-1';
+
+    test('completes when api call succeeds', () async {
+      when(
+        addressApiClient.updateAddress(addressId, request),
+      ).thenAnswer((_) async {});
+
+      await dataSource.updateAddress(addressId, request);
+
+      verify(addressApiClient.updateAddress(addressId, request)).called(1);
+    });
+
+    test('throws when api call fails', () async {
+      final exception = Exception('Update address failed');
+      when(
+        addressApiClient.updateAddress(addressId, request),
+      ).thenThrow(exception);
+
+      expect(
+        () => dataSource.updateAddress(addressId, request),
+        throwsA(exception),
+      );
+      verify(addressApiClient.updateAddress(addressId, request)).called(1);
     });
   });
 

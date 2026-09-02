@@ -16,7 +16,18 @@ class GetAddressUseCase {
   Future<BaseResponse<List<AddressEntity>>> addAddress(
     AddAddressRequest request,
   ) {
-    return repo.addAddress(request);
+    return repo.createAddress(request);
+  }
+
+  Future<BaseResponse<AddressEntity>> addressDetails(String id) {
+    return repo.addressDetails(id);
+  }
+
+  Future<BaseResponse<List<AddressEntity>>> updateAddress(
+    String id,
+    AddAddressRequest request,
+  ) {
+    return repo.updateAddress(id, request);
   }
 
   Future<BaseResponse<bool>> deleteAddress(String id) {

@@ -59,7 +59,6 @@ class ApiEndpoints {
     final origin = Uri.parse(_resolvedBaseUrl).origin;
     return path.startsWith('/') ? '$origin$path' : '$origin/$path';
   }
-
   //// AUTH ////
   static const String forgotPassword = '/identity/auth/forgot-password';
   static const String verifyOtp = '/identity/auth/verify-otp';

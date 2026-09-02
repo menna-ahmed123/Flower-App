@@ -20,9 +20,15 @@ class AuthRepositoryImpl implements AuthRepo {
     return safeCall.safeApiCall(() async {
       final response = await remoteDatasource.login(request);
       await tokenStorage.saveTokens(
-        accessToken: response.data.accessToken,
-        refreshToken: response.data.refreshToken,
-      );
+  accessToken: response.data.accessToken,
+  refreshToken: response.data.refreshToken,
+);
+
+final savedToken = await tokenStorage.getAccessToken();
+
+print('TOKEN SAVED SUCCESSFULLY: ${savedToken != null && savedToken.isNotEmpty}');
+      print('ACCESS TOKEN SAVED: ${await tokenStorage.getAccessToken()}');
+print('REFRESH TOKEN SAVED: ${await tokenStorage.getRefreshToken()}');
       return response.data.toDomain();
     });
   }

@@ -13,9 +13,16 @@ abstract interface class AddressRepo {
 
   Future<BaseResponse<List<AddressEntity>>> getAddresses();
 
-  Future<BaseResponse<List<AddressEntity>>> addAddress(
+  Future<BaseResponse<List<AddressEntity>>> createAddress(
     AddAddressRequest request,
   );
+
+  Future<BaseResponse<List<AddressEntity>>> updateAddress(
+    String id,
+    AddAddressRequest request,
+  );
+
+  Future<BaseResponse<AddressEntity>> addressDetails(String id);
 
   Future<BaseResponse<bool>> deleteAddress(String id);
 }

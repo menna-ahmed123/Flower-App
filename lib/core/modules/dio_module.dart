@@ -40,7 +40,7 @@ abstract class DioModule {
 
     dio.interceptors.add(
       PrettyDioLogger(
-        requestHeader: false,
+        requestHeader: true,
         requestBody: true,
         responseBody: true,
         responseHeader: false,

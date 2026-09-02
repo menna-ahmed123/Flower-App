@@ -1,5 +1,4 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/features/address/data/models/add_address_request.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/use_cases/address_use_case.dart';
 import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_event.dart';
@@ -19,13 +18,8 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
       case LoadSavedAddresses():
         _loadAddresses();
         break;
-      case AddSavedAddress():
-        _addAddress(event.address);
-        break;
       case DeleteSavedAddress():
         _deleteAddress(event.id);
-        break;
-      case EditSavedAddress():
         break;
     }
   }
@@ -66,54 +60,6 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
     }
   }
 
-  Future<void> _addAddress(AddressEntity address) async {
-    emit(
-      state.copyWith(
-        addressesState: state.addressesState.copyWith(
-          isLoading: true,
-          errorMessage: '',
-        ),
-        actionError: '',
-      ),
-    );
-
-    final response = await _getAddressUseCase.addAddress(
-      AddAddressRequest(
-        recipientName: address.recipientName ?? '',
-        phone: address.phoneNumber ?? '',
-        addressLine: address.address ?? '',
-        city: address.city ?? '',
-        area: address.area ?? '',
-        label: address.label ?? 'Home',
-      ),
-    );
-
-    switch (response) {
-      case SuccessResponse<List<AddressEntity>>():
-        if (response.data.isNotEmpty) {
-          emit(
-            state.copyWith(
-              addressesState: state.addressesState.copyWith(
-                isLoading: false,
-                data: response.data,
-                errorMessage: '',
-              ),
-            ),
-          );
-          break;
-        }
-        await _loadAddresses();
-        break;
-      case ErrorResponse<List<AddressEntity>>():
-        emit(
-          state.copyWith(
-            addressesState: state.addressesState.copyWith(isLoading: false),
-            actionError: response.errorMessage,
-          ),
-        );
-        break;
-    }
-  }
 
   Future<void> _deleteAddress(String id) async {
     emit(state.copyWith(deletingId: id, actionError: ''));

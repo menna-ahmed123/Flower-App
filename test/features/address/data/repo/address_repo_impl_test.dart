@@ -111,34 +111,96 @@ void main() {
     });
   });
 
-  group('addAddress', () {
+  group('createAddress', () {
     test('returns SuccessResponse when data source succeeds', () async {
-      when(remoteDataSource.addAddress(request)).thenAnswer(
+      when(remoteDataSource.createAddress(request)).thenAnswer(
         (_) async => successResponse(),
       );
 
-      final result = await repo.addAddress(request);
+      final result = await repo.createAddress(request);
 
       expect(result, isA<SuccessResponse<List<AddressEntity>>>());
       final data = (result as SuccessResponse<List<AddressEntity>>).data;
       expect(data.first.recipientName, 'Joudy');
       expect(data.first.label, 'Home');
-      verify(remoteDataSource.addAddress(request)).called(1);
+      verify(remoteDataSource.createAddress(request)).called(1);
     });
 
     test('returns ErrorResponse when data source fails', () async {
-      when(remoteDataSource.addAddress(request)).thenThrow(
+      when(remoteDataSource.createAddress(request)).thenThrow(
         ApiException(message: 'Add address failed'),
       );
 
-      final result = await repo.addAddress(request);
+      final result = await repo.createAddress(request);
 
       expect(result, isA<ErrorResponse<List<AddressEntity>>>());
       expect(
         (result as ErrorResponse<List<AddressEntity>>).errorMessage,
         'Add address failed',
       );
-      verify(remoteDataSource.addAddress(request)).called(1);
+      verify(remoteDataSource.createAddress(request)).called(1);
+    });
+  });
+
+  group('addressDetails', () {
+    const addressId = 'addr-1';
+
+    test('returns SuccessResponse with first address when data source succeeds', () async {
+      when(remoteDataSource.addressDetails(addressId)).thenAnswer(
+        (_) async => successResponse(),
+      );
+
+      final result = await repo.addressDetails(addressId);
+
+      expect(result, isA<SuccessResponse<AddressEntity>>());
+      expect((result as SuccessResponse<AddressEntity>).data.id, 'addr-1');
+      verify(remoteDataSource.addressDetails(addressId)).called(1);
+    });
+
+    test('returns ErrorResponse when data source fails', () async {
+      when(remoteDataSource.addressDetails(addressId)).thenThrow(
+        ApiException(message: 'Get address details failed'),
+      );
+
+      final result = await repo.addressDetails(addressId);
+
+      expect(result, isA<ErrorResponse<AddressEntity>>());
+      expect(
+        (result as ErrorResponse<AddressEntity>).errorMessage,
+        'Get address details failed',
+      );
+      verify(remoteDataSource.addressDetails(addressId)).called(1);
+    });
+  });
+
+  group('updateAddress', () {
+    const addressId = 'addr-1';
+
+    test('returns SuccessResponse when data source succeeds', () async {
+      when(remoteDataSource.updateAddress(addressId, request)).thenAnswer(
+        (_) async {},
+      );
+
+      final result = await repo.updateAddress(addressId, request);
+
+      expect(result, isA<SuccessResponse<List<AddressEntity>>>());
+      expect((result as SuccessResponse<List<AddressEntity>>).data, isEmpty);
+      verify(remoteDataSource.updateAddress(addressId, request)).called(1);
+    });
+
+    test('returns ErrorResponse when data source fails', () async {
+      when(remoteDataSource.updateAddress(addressId, request)).thenThrow(
+        ApiException(message: 'Update address failed'),
+      );
+
+      final result = await repo.updateAddress(addressId, request);
+
+      expect(result, isA<ErrorResponse<List<AddressEntity>>>());
+      expect(
+        (result as ErrorResponse<List<AddressEntity>>).errorMessage,
+        'Update address failed',
+      );
+      verify(remoteDataSource.updateAddress(addressId, request)).called(1);
     });
   });
 

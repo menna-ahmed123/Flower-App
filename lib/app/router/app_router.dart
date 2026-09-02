@@ -4,7 +4,6 @@ import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
 
 import 'package:flower_app/features/address/presentation/new_address/view/screen/address_screen.dart';
-import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
 import 'package:flower_app/features/address/presentation/save_address/view/save_address_screen.dart';
 import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_event.dart';
@@ -61,6 +60,14 @@ class AppRouter {
         _registerRoute(),
         _forgetPasswordShell(),
         _mainShell(),
+         GoRoute(
+        path: AppRoutesName.address,
+        builder: _addressBuilder,
+      ),
+      GoRoute(
+        path: AppRoutesName.saveAddress,
+        builder: _saveAddressBuilder,
+      ),
       ],
     );
   }
@@ -214,44 +221,53 @@ class AppRouter {
   }
 
   static StatefulShellBranch _cartBranch() {
-    return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.cart,
-          builder: (context, state) => const CartScreen(),
-        ),
-      ],
-    );
-  }
+  return StatefulShellBranch(
+    routes: [
+      GoRoute(
+        path: AppRoutesName.cart,
+        builder: (context, state) => const CartScreen(),
+      ),
+    ],
+  );
+}
 
-  static StatefulShellBranch _profileBranch() {
-    return StatefulShellBranch(routes: _profileRoutes());
-  }
+static StatefulShellBranch _profileBranch() {
+  return StatefulShellBranch(
+    routes: [
+      GoRoute(
+        path: AppRoutesName.profile,
+        builder: _profileBuilder,
+      ),
+    ],
+  );
+}
 
-  static List<RouteBase> _profileRoutes() {
-    return [
-      GoRoute(path: AppRoutesName.profile, builder: _profileBuilder),
-      GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
-      GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
-    ];
-  }
+static Widget _profileBuilder(
+  BuildContext context,
+  GoRouterState state,
+) {
+  return const ProfileScreen();
+}
 
-  static Widget _profileBuilder(BuildContext context, GoRouterState state) {
-    return const ProfileScreen();
-  }
+static Widget _addressBuilder(
+  BuildContext context,
+  GoRouterState state,
+) {
+  return BlocProvider(
+    create: (_) => getIt<AddressViewModel>(),
+    child: AddAddressScreen(),
+  );
+}
 
-  static Widget _addressBuilder(BuildContext context, GoRouterState state) {
-    return BlocProvider(
-      create: (_) => getIt<AddressViewModel>()..doEvent(GetCurrentAddress()),
-      child: AddressScreen(),
-    );
-  }
+static Widget _saveAddressBuilder(
+  BuildContext context,
+  GoRouterState state,
+) {
+  return BlocProvider(
+    create: (_) =>
+        getIt<SaveAddressViewModel>()..doEvent(LoadSavedAddresses()),
+    child: const SavedAddressesScreen(),
+  );
 
-  static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
-    return BlocProvider(
-      create: (_) =>
-          getIt<SaveAddressViewModel>()..doEvent(LoadSavedAddresses()),
-      child: const SaveAddressScreen(),
-    );
   }
 }

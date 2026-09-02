@@ -3,16 +3,18 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/save_address/view/widgets/address_card.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_state.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class SavedAddressBody extends StatelessWidget {
-  const SavedAddressBody({
+class SavedAddressesBody extends StatelessWidget {
+  const SavedAddressesBody({
     super.key,
     required this.isLoading,
     required this.errorMessage,
     required this.addresses,
-    required this.deletingId,
     required this.onRetry,
     required this.onDelete,
     required this.onEdit,
@@ -22,8 +24,6 @@ class SavedAddressBody extends StatelessWidget {
   final bool isLoading;
   final String errorMessage;
   final List<AddressEntity> addresses;
-  final String deletingId;
-
   final VoidCallback onRetry;
   final ValueChanged<String> onDelete;
   final ValueChanged<AddressEntity> onEdit;
@@ -68,12 +68,19 @@ class SavedAddressBody extends StatelessWidget {
                     final address = addresses[index];
                     final id = address.id ?? '';
 
-                    return AddressCard(
-                      address: address,
-                      isDeleting: deletingId == id && id.isNotEmpty,
-                      onDelete: id.isEmpty ? null : () => onDelete(id),
-                      onEdit: () => onEdit(address),
-                    );
+                   return BlocSelector<SaveAddressViewModel, SaveAddressState, bool>(
+  selector: (state) {
+    return state.deletingId == id && id.isNotEmpty;
+  },
+  builder: (context, isDeleting) {
+    return AddressCard(
+      address: address,
+      isDeleting: isDeleting,
+      onDelete: id.isEmpty ? null : () => onDelete(id),
+      onEdit: () => onEdit(address),
+    );
+  },
+);
                   },
                 ),
         ),

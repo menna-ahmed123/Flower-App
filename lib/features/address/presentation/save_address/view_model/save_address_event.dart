@@ -4,11 +4,11 @@ sealed class SaveAddressEvent {}
 
 class LoadSavedAddresses extends SaveAddressEvent {}
 
-class AddSavedAddress extends SaveAddressEvent {
-  final AddressEntity address;
+// class AddSavedAddress extends SaveAddressEvent {
+//   final AddressEntity address;
 
-  AddSavedAddress(this.address);
-}
+//   AddSavedAddress(this.address);
+// }
 
 class DeleteSavedAddress extends SaveAddressEvent {
   final String id;
@@ -16,8 +16,8 @@ class DeleteSavedAddress extends SaveAddressEvent {
   DeleteSavedAddress(this.id);
 }
 
-class EditSavedAddress extends SaveAddressEvent {
-  final String id;
+// class EditSavedAddress extends SaveAddressEvent {
+//   final AddressEntity address;
 
-  EditSavedAddress(this.id);
-}
+//   EditSavedAddress(this.address);
+// }

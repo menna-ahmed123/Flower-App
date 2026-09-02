@@ -16,12 +16,22 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
   }
 
   @override
-  Future<AddressResponse> addAddress(AddAddressRequest request) {
-    return addressApiClient.addAddress(request);
+  Future<AddressResponse> createAddress(AddAddressRequest request) {
+    return addressApiClient.createAddress(request);
   }
 
   @override
   Future<void> deleteAddress(String id) {
     return addressApiClient.deleteAddress(id);
+  }
+
+  @override
+  Future<AddressResponse> addressDetails(String id) {
+    return addressApiClient.addressDetails(id);
+  }
+
+  @override
+  Future<void> updateAddress(String id, AddAddressRequest request) {
+    return addressApiClient.updateAddress(id, request);
   }
 }
