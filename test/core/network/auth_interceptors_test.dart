@@ -1,11 +1,13 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/errors/app_error.dart';
+import 'package:flower_app/core/localization/locale_controller.dart';
+import 'package:flower_app/core/localization/locale_storage.dart';
 import 'package:flower_app/core/network/auth_interceptors.dart';
 import 'package:flower_app/core/network/token_refresher.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fake_token_storage.dart';
@@ -15,15 +17,21 @@ void main() {
   late _ScriptedRefresher refresher;
   late AuthInterceptors interceptor;
   late Dio dio;
+  late _ScriptedAdapter adapter;
 
   setUp(() {
     storage = FakeTokenStorage()
       ..accessToken = 'old-access'
       ..refreshToken = 'refresh-1';
     refresher = _ScriptedRefresher();
-    interceptor = AuthInterceptors(storage, refresher);
+    interceptor = AuthInterceptors(
+      storage,
+      refresher,
+      LocaleController(_MemoryLocaleStorage()),
+    );
+    adapter = _ScriptedAdapter();
     dio = Dio(BaseOptions(baseUrl: 'http://test'));
-    dio.httpClientAdapter = _ScriptedAdapter();
+    dio.httpClientAdapter = adapter;
     interceptor.attachDio(dio);
     dio.interceptors.add(interceptor);
   });
@@ -41,6 +49,9 @@ void main() {
     expect(refresher.calls, 1);
     expect(storage.accessToken, 'new-access');
     expect(storage.refreshToken, 'refresh-2');
+    expect(adapter.capturedHeaders.first['Authorization'], 'Bearer old-access');
+    expect(adapter.capturedHeaders.first['Accept-Language'], 'en');
+    expect(adapter.capturedHeaders.last['Authorization'], 'Bearer new-access');
   });
 
   test('concurrent 401s share a single refresh call', () async {
@@ -95,6 +106,17 @@ void main() {
   });
 }
 
+class _MemoryLocaleStorage implements LocaleStorage {
+  @override
+  Future<Locale?> readLocale() async => null;
+
+  @override
+  Future<void> saveLocale(Locale locale) async {}
+
+  @override
+  Future<void> clearLocale() async {}
+}
+
 class _ScriptedRefresher implements TokenRefresher {
   AuthTokens? tokens;
   Object? error;
@@ -116,12 +138,15 @@ class _ScriptedRefresher implements TokenRefresher {
 }
 
 class _ScriptedAdapter implements HttpClientAdapter {
+  final capturedHeaders = <Map<String, dynamic>>[];
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    capturedHeaders.add(Map<String, dynamic>.from(options.headers));
     if (options.extra[AuthRequestExtra.retried] == true) {
       return ResponseBody.fromString(
         jsonEncode({'ok': true}),

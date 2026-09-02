@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/api_query_params.dart';
 import 'package:flower_app/features/cart/api/cart_api_client.dart';
 import 'package:flower_app/features/cart/data/data_sources/cart_remote_data_source.dart';
 import 'package:flower_app/features/cart/data/models/cart_models.dart';
@@ -11,7 +12,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
 
   @override
   Future<CartResponse> getCart() {
-    return cartApiClient.getCart();
+    return cartApiClient.getCart(ApiQueryParams.defaultStoreId);
   }
 
   @override
@@ -29,6 +30,9 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
 
   @override
   Future<void> removeCartItem(String itemId) {
-    return cartApiClient.removeCartItem(itemId);
+    return cartApiClient.removeCartItem(
+      itemId,
+      ApiQueryParams.defaultStoreId,
+    );
   }
 }

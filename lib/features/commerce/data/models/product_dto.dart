@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -32,7 +33,7 @@ class ProductDto {
     return ProductEntity(
       id: id,
       name: name,
-      imageUrl: imageUrl,
+      imageUrl: ApiEndpoints.mediaUrl(imageUrl),
       price: price ?? 0,
       discountedPrice: discountedPrice ?? price ?? 0,
       discountPercent: discountPercent ?? 0,

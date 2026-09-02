@@ -135,14 +135,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i420.AuthRepository>(
       () => _i874.AuthRepositoryImpl(gh<_i964.TokenStorage>()),
     );
+    gh.lazySingleton<_i1066.LocaleController>(
+      () => _i1066.LocaleController(gh<_i463.LocaleStorage>()),
+    );
     gh.lazySingleton<_i466.AuthInterceptors>(
       () => _i466.AuthInterceptors(
         gh<_i964.TokenStorage>(),
         gh<_i1058.TokenRefresher>(),
+        gh<_i1066.LocaleController>(),
       ),
-    );
-    gh.lazySingleton<_i1066.LocaleController>(
-      () => _i1066.LocaleController(gh<_i463.LocaleStorage>()),
     );
     gh.lazySingleton<_i4.AuthCubit>(
       () => _i4.AuthCubit(gh<_i420.AuthRepository>()),

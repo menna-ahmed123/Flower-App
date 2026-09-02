@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -67,7 +68,7 @@ class ProductDetailsModel {
       id: id,
       name: name,
       description: description,
-      imageUrls: imageUrls,
+      imageUrls: imageUrls?.map(ApiEndpoints.mediaUrl).toList(),
       includedItems: includedItems?.map((item) => item.toDomain()).toList(),
       price: price,
       discountedPrice: discountedPrice,

@@ -1,4 +1,5 @@
 import 'package:flower_app/core/constants/api_endpoints.dart';
+import 'package:flower_app/core/constants/api_query_params.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -45,7 +46,7 @@ class CartDataModel {
   });
 
   factory CartDataModel.fromJson(Map<String, dynamic> json) =>
-      _$CartDataModelFromJson(json);
+      _$CartDataModelFromJson(_normalizeCartDataJson(json));
 
   Map<String, dynamic> toJson() => _$CartDataModelToJson(this);
 
@@ -115,8 +116,13 @@ class CartItemModel {
 class AddCartItemRequest {
   final String productId;
   final int quantity;
+  final String storeId;
 
-  const AddCartItemRequest({required this.productId, this.quantity = 1});
+  const AddCartItemRequest({
+    required this.productId,
+    this.quantity = 1,
+    this.storeId = ApiQueryParams.defaultStoreId,
+  });
 
   factory AddCartItemRequest.fromJson(Map<String, dynamic> json) =>
       _$AddCartItemRequestFromJson(json);
@@ -127,11 +133,23 @@ class AddCartItemRequest {
 @JsonSerializable()
 class UpdateCartItemRequest {
   final int quantity;
+  final String storeId;
 
-  const UpdateCartItemRequest({required this.quantity});
+  const UpdateCartItemRequest({
+    required this.quantity,
+    this.storeId = ApiQueryParams.defaultStoreId,
+  });
 
   factory UpdateCartItemRequest.fromJson(Map<String, dynamic> json) =>
       _$UpdateCartItemRequestFromJson(json);
 
   Map<String, dynamic> toJson() => _$UpdateCartItemRequestToJson(this);
+}
+
+Map<String, dynamic> _normalizeCartDataJson(Map<String, dynamic> json) {
+  return {
+    ...json,
+    'items': json['items'] ?? json['lines'],
+    'itemsCount': json['itemsCount'] ?? json['itemCount'],
+  };
 }

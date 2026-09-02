@@ -11,17 +11,22 @@ abstract class CartApiClient {
   factory CartApiClient(Dio dio, {String baseUrl}) = _CartApiClient;
 
   @GET(ApiEndpoints.cart)
-  Future<CartResponse> getCart();
+  Future<CartResponse> getCart(
+    @Query(ApiQueryParams.storeId) String storeId,
+  );
 
   @POST(ApiEndpoints.cartItems)
   Future<CartResponse> addCartItem(@Body() AddCartItemRequest request);
 
-  @PATCH(ApiEndpoints.cartItem)
+  @PUT(ApiEndpoints.cartItem)
   Future<CartResponse> updateCartItem(
     @Path(ApiQueryParams.id) String id,
     @Body() UpdateCartItemRequest request,
   );
 
   @DELETE(ApiEndpoints.cartItem)
-  Future<void> removeCartItem(@Path(ApiQueryParams.id) String id);
+  Future<void> removeCartItem(
+    @Path(ApiQueryParams.id) String id,
+    @Query(ApiQueryParams.storeId) String storeId,
+  );
 }
