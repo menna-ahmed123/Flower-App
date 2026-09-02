@@ -123,7 +123,10 @@ class AppRouter {
   static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return MainShell(navigationShell: navigationShell);
+        return MainShell(
+          navigationShell: navigationShell,
+          location: state.uri.path,
+        );
       },
       branches: [
         _homeBranch(),

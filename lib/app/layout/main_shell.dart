@@ -1,3 +1,4 @@
+import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/auth/auth_extension.dart';
 import 'package:flower_app/core/auth/presentation/view/auth_bottom_sheet.dart';
 import 'package:flower_app/core/auth/presentation/view_model/auth_cubit.dart';
@@ -16,9 +17,13 @@ class MainShell extends StatelessWidget {
   const MainShell({
     super.key,
     required this.navigationShell,
+    required this.location,
   });
 
   final StatefulNavigationShell navigationShell;
+  final String location;
+
+  bool get _showBottomBar => AppRoutesName.isMainTab(location);
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +57,7 @@ class MainShell extends StatelessWidget {
           },
           child: Scaffold(
             body: navigationShell,
-            bottomNavigationBar: NavigationBar(
+            bottomNavigationBar: _showBottomBar ? NavigationBar(
               selectedIndex: navigationShell.currentIndex,
               onDestinationSelected: (index) async {
                 final isProtectedRoute = index == 2 || index == 3;
@@ -96,7 +101,8 @@ class MainShell extends StatelessWidget {
                   label: AppString.profile,
                 ),
               ],
-            ),
+            )
+                : null,
           ),
         ),
       ),
