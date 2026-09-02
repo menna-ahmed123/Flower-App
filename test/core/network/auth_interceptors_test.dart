@@ -14,22 +14,22 @@ import 'fake_token_storage.dart';
 
 void main() {
   late FakeTokenStorage storage;
-  late _ScriptedRefresher refresher;
+  late ScriptedRefresher refresher;
   late AuthInterceptors interceptor;
   late Dio dio;
-  late _ScriptedAdapter adapter;
+  late ScriptedAdapter adapter;
 
   setUp(() {
     storage = FakeTokenStorage()
       ..accessToken = 'old-access'
       ..refreshToken = 'refresh-1';
-    refresher = _ScriptedRefresher();
+    refresher = ScriptedRefresher();
     interceptor = AuthInterceptors(
       storage,
       refresher,
-      LocaleController(_MemoryLocaleStorage()),
+      LocaleController(MemoryLocaleStorage()),
     );
-    adapter = _ScriptedAdapter();
+    adapter = ScriptedAdapter();
     dio = Dio(BaseOptions(baseUrl: 'http://test'));
     dio.httpClientAdapter = adapter;
     interceptor.attachDio(dio);
@@ -106,7 +106,7 @@ void main() {
   });
 }
 
-class _MemoryLocaleStorage implements LocaleStorage {
+class MemoryLocaleStorage implements LocaleStorage {
   @override
   Future<Locale?> readLocale() async => null;
 
@@ -117,7 +117,7 @@ class _MemoryLocaleStorage implements LocaleStorage {
   Future<void> clearLocale() async {}
 }
 
-class _ScriptedRefresher implements TokenRefresher {
+class ScriptedRefresher implements TokenRefresher {
   AuthTokens? tokens;
   Object? error;
   Duration delay = Duration.zero;
@@ -137,7 +137,7 @@ class _ScriptedRefresher implements TokenRefresher {
   }
 }
 
-class _ScriptedAdapter implements HttpClientAdapter {
+class ScriptedAdapter implements HttpClientAdapter {
   final capturedHeaders = <Map<String, dynamic>>[];
 
   @override

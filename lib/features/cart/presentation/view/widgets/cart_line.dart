@@ -140,13 +140,14 @@ class CartLine extends StatelessWidget {
 Future<bool> _confirmRemoval(BuildContext context) async {
   final result = await showDialog<bool>(
     context: context,
-    builder: (dialogContext) => _RemoveCartItemDialog(dialogContext: dialogContext),
+    builder: (dialogContext) =>
+        RemoveCartItemDialog(dialogContext: dialogContext),
   );
   return result ?? false;
 }
 
-class _RemoveCartItemDialog extends StatelessWidget {
-  const _RemoveCartItemDialog({required this.dialogContext});
+class RemoveCartItemDialog extends StatelessWidget {
+  const RemoveCartItemDialog({super.key, required this.dialogContext});
 
   final BuildContext dialogContext;
 

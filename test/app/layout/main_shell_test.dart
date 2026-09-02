@@ -21,8 +21,8 @@ void main() {
   late GoRouter router;
 
   setUp(() {
-    authCubit = AuthCubit(_FakeAuthRepository());
-    cartViewModel = CartViewModel(CartUseCase(_EmptyCartRepo()));
+    authCubit = AuthCubit(FakeAuthRepository());
+    cartViewModel = CartViewModel(CartUseCase(EmptyCartRepo()));
     router = _testRouter();
   });
 
@@ -158,7 +158,7 @@ GoRouter _testRouter() {
   );
 }
 
-class _FakeAuthRepository implements AuthRepository {
+class FakeAuthRepository implements AuthRepository {
   @override
   Future<bool> isAuthenticated() async => true;
 
@@ -166,7 +166,7 @@ class _FakeAuthRepository implements AuthRepository {
   Future<void> logout() async {}
 }
 
-class _EmptyCartRepo implements CartRepo {
+class EmptyCartRepo implements CartRepo {
   @override
   Future<BaseResponse<CartEntity>> getCart() async {
     return const SuccessResponse(CartEntity.empty());
