@@ -142,6 +142,10 @@ abstract class AppString {
   static const String promoCode = 'Promo Code';
   static const String apply = 'Apply';
   static const String applyPromoCodeHint = 'Enter promo code';
+  static const String cancel = 'Cancel';
+  static const String remove = 'Remove';
+  static const String removeItem = 'Remove item';
+  static const String removeItemConfirm = 'Remove this item from your cart?';
 
   // ==================== Address & Checkout ====================
   static const String shippingAddress = 'Shipping Address';

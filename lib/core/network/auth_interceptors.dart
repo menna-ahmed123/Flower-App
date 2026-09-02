@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/errors/app_error.dart';
+import 'package:flower_app/core/localization/locale_controller.dart';
 import 'package:flower_app/core/network/token_refresher.dart';
 import 'package:flower_app/core/network/token_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -17,15 +18,20 @@ abstract final class AuthRequestExtra {
   static const skipRefresh = 'skip_auth_refresh';
 }
 
-/// Attaches the access token and transparently refreshes on 401.
+/// Attaches JWT, Accept-Language, and transparently refreshes on 401.
 ///
-/// Header contract matches the existing project: `token: <accessToken>`.
+/// Header contract matches Team 1 Postman: `Authorization: Bearer <token>`.
 @lazySingleton
 class AuthInterceptors extends Interceptor {
-  AuthInterceptors(this._tokenStorage, this._tokenRefresher);
+  AuthInterceptors(
+    this._tokenStorage,
+    this._tokenRefresher,
+    this._localeController,
+  );
 
   final TokenStorage _tokenStorage;
   final TokenRefresher _tokenRefresher;
+  final LocaleController _localeController;
 
   /// Set by [DioModule] after Dio is created to avoid a DI cycle.
   Dio? _dio;
@@ -41,9 +47,10 @@ class AuthInterceptors extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    options.headers['Accept-Language'] = _acceptLanguage;
     final token = await _tokenStorage.getAccessToken();
     if (token != null && token.isNotEmpty) {
-      options.headers['token'] = token;
+      _applyBearer(options, token);
     }
     handler.next(options);
   }
@@ -164,7 +171,7 @@ class AuthInterceptors extends Interceptor {
       throw StateError('AuthInterceptors.attachDio was not called');
     }
 
-    options.headers['token'] = accessToken;
+    _applyBearer(options, accessToken);
     options.extra[AuthRequestExtra.retried] = true;
 
     return dio.fetch<dynamic>(options);
@@ -183,6 +190,15 @@ class AuthInterceptors extends Interceptor {
       error: ForceLogin(),
       message: 'Session expired',
     );
+  }
+
+  String get _acceptLanguage {
+    return _localeController.resolvedLocale.languageCode;
+  }
+
+  void _applyBearer(RequestOptions options, String token) {
+    options.headers['Authorization'] = 'Bearer $token';
+    options.headers.remove('token');
   }
 
   void _log(String message) {

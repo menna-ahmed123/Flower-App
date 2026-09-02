@@ -23,7 +23,7 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
-import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,7 +123,10 @@ class AppRouter {
   static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return MainShell(navigationShell: navigationShell);
+        return MainShell(
+          navigationShell: navigationShell,
+          location: state.uri.path,
+        );
       },
       branches: [
         _homeBranch(),

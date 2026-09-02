@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'app/router/app_router.dart';
 import 'core/auth/presentation/view_model/auth_cubit.dart';
 import 'core/auth/presentation/view_model/auth_event.dart';
+import 'features/cart/presentation/view_model/cart_view_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,9 +46,14 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final controller = widget.localeController ?? getIt<LocaleController>();
 
-    return BlocProvider(
-      create: (_) =>
-          getIt<AuthCubit>()..doEvent(const AuthEvent.authCheckRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              getIt<AuthCubit>()..doEvent(const AuthEvent.authCheckRequested()),
+        ),
+        BlocProvider(create: (_) => getIt<CartViewModel>()),
+      ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
         minTextAdapt: true,
