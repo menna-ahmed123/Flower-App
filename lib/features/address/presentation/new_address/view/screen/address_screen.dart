@@ -14,7 +14,7 @@ import 'package:latlong2/latlong.dart';
 class AddAddressScreen extends StatefulWidget {
   const AddAddressScreen({super.key, this.address});
 
- final AddressEntity? address;
+  final AddressEntity? address;
   @override
   State<AddAddressScreen> createState() => _AddressScreenState();
 }
@@ -34,29 +34,26 @@ class _AddressScreenState extends State<AddAddressScreen>
     super.dispose();
   }
 
- @override
-void didChangeAppLifecycleState(AppLifecycleState state) {
-  if (state == AppLifecycleState.resumed) {
-    if (widget.address != null) return;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (widget.address != null) return;
 
-    _getCurrentAddress();
-  }
-}
-
- void _getCurrentAddress() {
-  final address = widget.address;
-
-  if (address != null) {
-    context.read<AddressViewModel>().doEvent(
-      LoadAddressDetails(address.id!),
-    );
-    return;
+      _getCurrentAddress();
+    }
   }
 
-  context.read<AddressViewModel>().doEvent(
-    GetCurrentAddress(),
-  );
-}
+  void _getCurrentAddress() {
+    final address = widget.address;
+
+    if (address != null) {
+      context.read<AddressViewModel>().doEvent(LoadAddressDetails(address.id!));
+      return;
+    }
+
+    context.read<AddressViewModel>().doEvent(GetCurrentAddress());
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -67,57 +64,71 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
             if (context.canPop()) context.pop();
           },
         ),
-       body: BlocListener<AddressViewModel, AddressState>(
-  listener: (context, state) {
-   if (state.isSaved) {
-  context.pop(true);
-}
-  },
-  child: BlocBuilder<AddressViewModel, AddressState>(
-    builder: (context, state) {
-      return SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 250,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: LocationMap(
-                  initialLocation: const LatLng(30.0444, 31.2357),
-                  onLocationSelected: (location) {
-                    context.read<AddressViewModel>().doEvent(
-                      LocationSelected(
-                        latitude: location.latitude,
-                        longitude: location.longitude,
-                      ),
+        body: BlocListener<AddressViewModel, AddressState>(
+          listener: (context, state) {
+            if (state.isSaved) {
+              context.pop(true);
+            }
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                BlocBuilder<AddressViewModel, AddressState>(
+                  buildWhen: (previous, current) =>
+                      previous.locationState.isLoading !=
+                      current.locationState.isLoading,
+                  builder: (context, state) {
+                    if (state.locationState.isLoading) {
+                      return const LinearProgressIndicator();
+                    }
+
+                    return const SizedBox.shrink();
+                  },
+                ),
+
+                SizedBox(
+                  height: 250,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: LocationMap(
+                      initialLocation: const LatLng(30.0444, 31.2357),
+                      onLocationSelected: (location) {
+                        context.read<AddressViewModel>().doEvent(
+                          LocationSelected(
+                            latitude: location.latitude,
+                            longitude: location.longitude,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                BlocBuilder<AddressViewModel, AddressState>(
+                  buildWhen: (previous, current) =>
+                      previous.addressState.data != current.addressState.data,
+                  builder: (context, state) {
+                    return LocationForm(
+                      address: state.addressState.data,
+                      onSave: (address) {
+                        if (widget.address == null) {
+                          context.read<AddressViewModel>().doEvent(
+                            AddAddress(address),
+                          );
+                        } else {
+                          context.read<AddressViewModel>().doEvent(
+                            EditAddress(address),
+                          );
+                        }
+                      },
                     );
                   },
                 ),
-              ),
+              ],
             ),
-
-            LocationForm(
-              address: state.addressState.data,
-              onSave: (address) {
-                if (widget.address == null) {
-                  context.read<AddressViewModel>().doEvent(
-                    AddAddress(address),
-                  );
-                } else {
-                  context.read<AddressViewModel>().doEvent(
-                    EditAddress(address),
-                  );
-                }
-              },
-            ),
-          ],
+          ),
         ),
-      );
-    },
-  ),
-),
       ),
     );
-
   }
 }

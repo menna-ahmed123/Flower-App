@@ -28,11 +28,21 @@ class AddressCard extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: colors.grey.shade600),
-      ),
+     decoration: BoxDecoration(
+  color: colors.white,
+  borderRadius: BorderRadius.circular(12.r),
+  border: Border.all(
+    color: colors.grey.shade300,
+  ),
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.08),
+      blurRadius: 10.r,
+      spreadRadius: 1.r,
+      offset: Offset(0, 4.h),
+    ),
+  ],
+),
       child: Row(
         children: [
           Icon(AppIcons.locationFilled, color: colors.black, size: 24.w),

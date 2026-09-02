@@ -1,7 +1,7 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/core/utils/commerce_widgets/product_grid.dart';
+import 'package:flower_app/core/utils/commerce_widgets/widgets/product_grid.dart';
 import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_event.dart';

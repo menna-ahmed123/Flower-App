@@ -2,9 +2,11 @@ import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/address/data/models/add_address_request.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
-import 'package:flower_app/features/address/domain/use_cases/address_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/get_add_address_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/get_address_details_use_case.dart';
 import 'package:flower_app/features/address/domain/use_cases/get_address_from_location_use_case.dart';
 import 'package:flower_app/features/address/domain/use_cases/get_current_location_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/get_update_address_use_case.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,12 +16,13 @@ import 'package:injectable/injectable.dart';
 class AddressViewModel extends Cubit<AddressState> {
   final GetCurrentLocationUseCase getCurrentLocationUseCase;
   final GetAddressFromLocationUseCase getAddressFromLocationUseCase;
-  final GetAddressUseCase getAddressUseCase;
+ final  GetAddressDetailsUseCase getAddressDetailsUseCase;
+ final  GetAddAddressUseCase getAddAddressUseCase;
+final GetUpdateAddressUseCase getUpdateAddressUseCase;
 
   AddressViewModel(
     this.getCurrentLocationUseCase,
-    this.getAddressFromLocationUseCase,
-    this.getAddressUseCase,
+    this.getAddressFromLocationUseCase, this.getAddressDetailsUseCase, this.getAddAddressUseCase, this.getUpdateAddressUseCase,
   ) : super(const AddressState());
 
   void doEvent(AddressEvent event) {
@@ -38,13 +41,13 @@ class AddressViewModel extends Cubit<AddressState> {
       ):
         _getAddressFromLocation(latitude: latitude, longitude: longitude);
         break;
-        case AddAddress():
-  _addAddress(event.address);
-  break;
+      case AddAddress():
+        _addAddress(event.address);
+        break;
 
-case EditAddress():
-  _updateAddress(event.address);
-  break;
+      case EditAddress():
+        _updateAddress(event.address);
+        break;
     }
   }
 
@@ -161,7 +164,7 @@ case EditAddress():
       ),
     );
 
-    final response = await getAddressUseCase.addressDetails(id);
+    final response = await getAddressDetailsUseCase.addressDetails(id);
 
     switch (response) {
       case SuccessResponse<AddressEntity>():
@@ -187,102 +190,101 @@ case EditAddress():
         break;
     }
   }
- Future<void> _addAddress(AddressEntity address) async {
-  emit(
-    state.copyWith(
-      isSaved: false,
-      addressState: state.addressState.copyWith(
-        isLoading: true,
-        errorMessage: '',
+
+  Future<void> _addAddress(AddressEntity address) async {
+    emit(
+      state.copyWith(
+        isSaved: false,
+        addressState: state.addressState.copyWith(
+          isLoading: true,
+          errorMessage: '',
+        ),
       ),
-    ),
-  );
+    );
 
-  final response = await getAddressUseCase.addAddress(
-    _toRequest(address),
-  );
-
-  switch (response) {
-    case SuccessResponse<List<AddressEntity>>():
-      emit(
-        state.copyWith(
-          isSaved: true,
-          addressState: state.addressState.copyWith(
-            isLoading: false,
-            errorMessage: '',
+    final response = await getAddAddressUseCase.addAddress(_toRequest(address));
+    switch (response) {
+      case SuccessResponse<List<AddressEntity>>():
+        emit(
+          state.copyWith(
+            isSaved: true,
+            addressState: state.addressState.copyWith(
+              isLoading: false,
+              errorMessage: '',
+            ),
           ),
-        ),
-      );
-      break;
+        );
+        break;
 
-    case ErrorResponse<List<AddressEntity>>():
-      emit(
-        state.copyWith(
-          isSaved: false,
-          addressState: state.addressState.copyWith(
-            isLoading: false,
-            errorMessage: response.errorMessage,
+      case ErrorResponse<List<AddressEntity>>():
+        emit(
+          state.copyWith(
+            isSaved: false,
+            addressState: state.addressState.copyWith(
+              isLoading: false,
+              errorMessage: response.errorMessage,
+            ),
           ),
-        ),
-      );
-      break;
+        );
+        break;
+    }
   }
-}
-Future<void> _updateAddress(AddressEntity address) async {
-  final id = address.id;
 
-  if (id == null || id.isEmpty) return;
+  Future<void> _updateAddress(AddressEntity address) async {
+    final id = address.id;
 
-  emit(
-    state.copyWith(
-      isSaved: false,
-      addressState: state.addressState.copyWith(
-        isLoading: true,
-        errorMessage: '',
+    if (id == null || id.isEmpty) return;
+
+    emit(
+      state.copyWith(
+        isSaved: false,
+        addressState: state.addressState.copyWith(
+          isLoading: true,
+          errorMessage: '',
+        ),
       ),
-    ),
-  );
+    );
 
-  final response = await getAddressUseCase.updateAddress(
-    id,
-    _toRequest(address),
-  );
+    final response = await getUpdateAddressUseCase.updateAddress(
+      id,
+      _toRequest(address),
+    );
 
-  switch (response) {
-    case SuccessResponse<List<AddressEntity>>():
-      emit(
-        state.copyWith(
-          isSaved: true,
-          addressState: state.addressState.copyWith(
-            isLoading: false,
-            errorMessage: '',
+    switch (response) {
+      case SuccessResponse<List<AddressEntity>>():
+        emit(
+          state.copyWith(
+            isSaved: true,
+            addressState: state.addressState.copyWith(
+              isLoading: false,
+              errorMessage: '',
+            ),
           ),
-        ),
-      );
-      break;
+        );
+        break;
 
-    case ErrorResponse<List<AddressEntity>>():
-      emit(
-        state.copyWith(
-          isSaved: false,
-          addressState: state.addressState.copyWith(
-            isLoading: false,
-            errorMessage: response.errorMessage,
+      case ErrorResponse<List<AddressEntity>>():
+        emit(
+          state.copyWith(
+            isSaved: false,
+            addressState: state.addressState.copyWith(
+              isLoading: false,
+              errorMessage: response.errorMessage,
+            ),
           ),
-        ),
-      );
-      break;
+        );
+        break;
+    }
   }
-}
-AddAddressRequest _toRequest(AddressEntity address) {
-  return AddAddressRequest(
-    recipientName: address.recipientName ?? '',
-    phone: address.phoneNumber ?? '',
-    addressLine: address.address ?? '',
-    city: address.city ?? '',
-    area: address.area ?? '',
-    label: address.label ?? 'Home',
-  );
-}
 
+  AddAddressRequest _toRequest(AddressEntity address) {
+    return AddAddressRequest(
+      recipientName: address.recipientName ?? '',
+      phone: address.phoneNumber ?? '',
+      addressLine: address.address ?? '',
+      city: address.city ?? '',
+      area: address.area ?? '',
+      label: address.label ?? 'Home',
+    );
+  }
 }
