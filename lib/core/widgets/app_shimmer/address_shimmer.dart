@@ -13,12 +13,12 @@ class AddressShimmer extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
         child: Column(
           children: [
-            Expanded(
-              child: ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 4,
-                separatorBuilder: (context, index) => SizedBox(height: 16.h),
-                itemBuilder: (context, index) => _addressCardSkeleton(),
+            ...List.generate(
+              4,
+                  (_) =>
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 16.h),
+                    child: _addressCardSkeleton(),
               ),
             ),
             SizedBox(height: 16.h),
@@ -37,9 +37,12 @@ class AddressShimmer extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white, // Solid color needed for shimmer mask
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade200, width: 1.w),
+        border: Border.all(
+          color: Colors.grey.shade200,
+          width: 1.w,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +51,11 @@ class AddressShimmer extends StatelessWidget {
             children: [
               ShimmerBox.circle(size: 20.w),
               SizedBox(width: 8.w),
-              ShimmerBox(width: 80.w, height: 16.h, borderRadius: 4.r),
+              ShimmerBox(
+                width: 80.w,
+                height: 16.h,
+                borderRadius: 4.r,
+              ),
               const Spacer(),
               ShimmerBox.circle(size: 20.w),
               SizedBox(width: 12.w),
@@ -56,7 +63,11 @@ class AddressShimmer extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16.h),
-          ShimmerBox(width: 200.w, height: 14.h, borderRadius: 4.r),
+          ShimmerBox(
+            width: 200.w,
+            height: 14.h,
+            borderRadius: 4.r,
+          ),
         ],
       ),
     );
