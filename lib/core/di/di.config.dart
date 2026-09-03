@@ -72,6 +72,7 @@ import '../../features/commerce/domain/use_cases/product_details_use_case.dart'
     as _i172;
 import '../../features/commerce/domain/use_cases/product_use_case.dart'
     as _i613;
+import '../../features/commerce/domain/use_cases/search_use_case.dart' as _i864;
 import '../../features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart'
     as _i969;
 import '../../features/commerce/presentation/category/view_model/category_view_model.dart'
@@ -82,6 +83,8 @@ import '../../features/commerce/presentation/occasion/view_model/occasion_view_m
     as _i421;
 import '../../features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart'
     as _i784;
+import '../../features/commerce/presentation/search/view_model/search_view_model.dart'
+    as _i1068;
 import '../auth/data/repos/auth_repository_impl.dart' as _i874;
 import '../auth/domain/repos/auth_repository.dart' as _i420;
 import '../auth/presentation/view_model/auth_cubit.dart' as _i4;
@@ -205,6 +208,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i682.OccasionUseCase>(
       () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
     );
+    gh.factory<_i864.SearchUseCase>(
+      () => _i864.SearchUseCase(gh<_i772.CommerceRepo>()),
+    );
     gh.factory<_i441.AuthRemoteDataSource>(
       () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
     );
@@ -217,6 +223,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i172.ProductDetailsUseCase>(
       () => _i172.ProductDetailsUseCase(commerceRepo: gh<_i772.CommerceRepo>()),
+    );
+    gh.factory<_i1068.SearchViewModel>(
+      () => _i1068.SearchViewModel(gh<_i864.SearchUseCase>()),
     );
     gh.factory<_i613.ProductUseCase>(
       () => _i613.ProductUseCase(gh<_i772.CommerceRepo>()),

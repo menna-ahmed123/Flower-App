@@ -128,4 +128,27 @@ class MockCommerceRepo extends _i1.Mock implements _i2.CommerceRepo {
                 ),
           )
           as _i3.Future<_i4.BaseResponse<List<_i10.CategoryEntity>>>);
+
+  @override
+  _i3.Future<_i4.BaseResponse<List<_i7.ProductEntity>>> searchProducts({
+    required String? query,
+    String? storeId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchProducts, [], {
+              #query: query,
+              #storeId: storeId,
+            }),
+            returnValue:
+                _i3.Future<_i4.BaseResponse<List<_i7.ProductEntity>>>.value(
+                  _i6.dummyValue<_i4.BaseResponse<List<_i7.ProductEntity>>>(
+                    this,
+                    Invocation.method(#searchProducts, [], {
+                      #query: query,
+                      #storeId: storeId,
+                    }),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.BaseResponse<List<_i7.ProductEntity>>>);
 }

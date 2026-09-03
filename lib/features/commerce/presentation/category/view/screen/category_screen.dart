@@ -4,6 +4,9 @@ import 'package:flower_app/core/widgets/app_search_field.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/widgets/category_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../../../app/router/app_routes.dart';
 
 class CategoryScreen extends StatelessWidget {
   const CategoryScreen({super.key});
@@ -22,8 +25,9 @@ class CategoryScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: AppSearchField(
-                    onChanged: (value) {
-                      // handle search query
+                    readOnly: true,
+                    onTap: () {
+                      context.push(AppRoutesName.search);
                     },
                   ),
                 ),

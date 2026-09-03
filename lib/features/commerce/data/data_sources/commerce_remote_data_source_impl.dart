@@ -88,6 +88,14 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
       _ => Future.value(const []),
     };
   }
+
+  @override
+  Future<ProductsResponse> searchProducts({
+    required String query,
+    String? storeId,
+  }) {
+    return commerceApiClient.getProducts();
+  }
 }
 
 int _take(HomeSectionDto section) {
