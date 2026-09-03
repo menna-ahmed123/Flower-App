@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../../core/widgets/app_shimmer/category_shimmer.dart';
+
 class CategoryBody extends StatelessWidget {
   const CategoryBody({super.key});
 
@@ -51,7 +53,7 @@ class CategoryBody extends StatelessWidget {
 
   Widget _buildProductsBody(BuildContext context, CategoryState state) {
     if (state.categoriesState.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const CategoryShimmer();
     }
 
     if (state.categoriesState.errorMessage.isNotEmpty) {
@@ -59,7 +61,7 @@ class CategoryBody extends StatelessWidget {
     }
 
     if (state.productsState.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const CategoryShimmer();
     }
 
     if (state.productsState.errorMessage.isNotEmpty) {

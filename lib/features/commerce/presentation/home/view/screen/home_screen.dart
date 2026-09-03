@@ -1,5 +1,4 @@
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_section_list.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_state.dart';
@@ -7,6 +6,8 @@ import 'package:flower_app/features/commerce/presentation/home/view_model/home_v
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../../../../../core/widgets/app_shimmer/home_shimmer.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -35,7 +36,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _loading(BuildContext context) {
-    return Center(child: CircularProgressIndicator(color: context.colors.pink));
+    return const HomeShimmer();
   }
 
   Widget _error(BuildContext context, String message) {
