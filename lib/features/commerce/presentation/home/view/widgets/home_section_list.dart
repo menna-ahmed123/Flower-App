@@ -43,9 +43,18 @@ class HomeSectionView extends StatelessWidget {
   Widget _section(ValueChanged<String> onDeepLink) {
     return switch (section.type) {
       'banner' => HomeBanner(section: section, onDeepLink: onDeepLink),
-      'category_rail' => CategoryRail(section: section, onDeepLink: onDeepLink),
-      'product_rail' => ProductRail(section: section, onDeepLink: onDeepLink),
-      'occasion_rail' => OccasionRail(section: section, onDeepLink: onDeepLink),
+      'category_rail' || 'Categories' => CategoryRail(
+        section: section,
+        onDeepLink: onDeepLink,
+      ),
+      'product_rail' || 'BestSeller' || 'ProductsCarousel' => ProductRail(
+        section: section,
+        onDeepLink: onDeepLink,
+      ),
+      'occasion_rail' || 'Occasions' => OccasionRail(
+        section: section,
+        onDeepLink: onDeepLink,
+      ),
       _ => _unknownSection(section.type),
     };
   }

@@ -30,7 +30,11 @@ class HomeViewModel extends Cubit<HomeState> {
   }
 
   HomeSectionEntity _filterSection(HomeSectionEntity section, String query) {
-    if (section.type != 'product_rail') return section;
+    if (section.type != 'product_rail' &&
+        section.type != 'BestSeller' &&
+        section.type != 'ProductsCarousel') {
+      return section;
+    }
     final q = query.toLowerCase();
     return HomeSectionEntity(
       type: section.type,
