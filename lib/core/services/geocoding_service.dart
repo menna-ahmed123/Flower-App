@@ -1,4 +1,3 @@
-
 import 'package:geocoding/geocoding.dart';
 import 'package:injectable/injectable.dart';
 
@@ -8,20 +7,17 @@ class GeocodingService {
     required double latitude,
     required double longitude,
   }) async {
-    try {
-      final geocoding = Geocoding();
+    final geocoding = Geocoding();
 
-      final placemarks = await geocoding.placemarkFromCoordinates(
-        latitude,
-        longitude,
-      );
-      if (placemarks.isEmpty) {
-        return null;
-      }
+    final placemarks = await geocoding.placemarkFromCoordinates(
+      latitude,
+      longitude,
+    );
 
-      return placemarks.first;
-    } catch (e) {
+    if (placemarks.isEmpty) {
       return null;
     }
+
+    return placemarks.first;
   }
 }

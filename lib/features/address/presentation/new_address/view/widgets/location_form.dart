@@ -157,32 +157,19 @@ class _LocationFormState extends State<LocationForm> {
             BlocBuilder<AddressViewModel, AddressState>(
               builder: (context, state) {
                 final isLoadingLocation = state.locationState.isLoading;
-                final isSaving = state.addressState.isLoading;
                 final isUpdateWithNoChanges =
                     widget.address != null && !_hasFormChanges;
-
-                final isDisabled =
-                    isLoadingLocation || isSaving || isUpdateWithNoChanges;
-
+                final isDisabled = isLoadingLocation || isUpdateWithNoChanges;
                 return ElevatedButton(
                   onPressed: isDisabled ? null : _submitForm,
-                  child: isSaving
-                      ? SizedBox(
-                          width: 20.w,
-                          height: 20.h,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: context.colors.white,
-                          ),
-                        )
-                      : Text(
-                          AppString.savedAddresses,
-                          style: TextStyle(
-                            color: context.colors.white,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                  child: Text(
+                    AppString.savedAddresses,
+                    style: TextStyle(
+                      color: context.colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 );
               },
             ),

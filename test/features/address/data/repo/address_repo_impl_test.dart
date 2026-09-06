@@ -232,4 +232,182 @@ void main() {
       verify(remoteDataSource.deleteAddress(addressId)).called(1);
     });
   });
+   group('getCurrentLocation', () {
+    test('should return location successfully', () async {
+      // Arrange
+      final position = Position(
+        latitude: 27.18,
+        longitude: 31.18,
+        timestamp: DateTime.now(),
+        accuracy: 10,
+        altitude: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        headingAccuracy: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      );
+
+      when(
+        locationService.getCurrentPosition(),
+      ).thenAnswer((_) async => position);
+
+      // Act
+      final result = await addressRepository.getCurrentLocation();
+
+      // Assert
+      expect(result, isA<SuccessResponse<LocationEntity>>());
+
+      final successResult = result as SuccessResponse<LocationEntity>;
+
+      expect(successResult.data.latitude, position.latitude);
+
+      expect(successResult.data.longitude, position.longitude);
+
+      verify(locationService.getCurrentPosition()).called(1);
+    });
+
+    test(
+      'should return error when getting position throws exception',
+      () async {
+        // Arrange
+        when(locationService.getCurrentPosition()).thenThrow(Exception());
+
+        // Act
+        final result = await addressRepository.getCurrentLocation();
+
+        // Assert
+        expect(result, isA<ErrorResponse<LocationEntity>>());
+
+        final errorResult = result as ErrorResponse<LocationEntity>;
+
+        expect(errorResult.appError, isA<BadResponseError>());
+
+        expect(errorResult.errorMessage, AppString.couldNotGetLocation);
+
+        verify(locationService.getCurrentPosition()).called(1);
+      },
+    );
+  });
+
+  // ============================================================
+  // getAddressFromLocation
+  // ============================================================
+
+  group('getAddressFromLocation', () {
+    test('should return address successfully', () async {
+      // Arrange
+      const latitude = 27.18;
+      const longitude = 31.18;
+
+      final placemark = Placemark(
+        street: '123 Street',
+        locality: 'Sohag',
+        subLocality: 'Sohag',
+      );
+
+      when(
+        geocodingService.getAddressFromCoordinates(
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      ).thenAnswer((_) async => placemark);
+
+      // Act
+      final result = await addressRepository.getAddressFromLocation(
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+      // Assert
+      expect(result, isA<SuccessResponse<AddressEntity>>());
+
+      final successResult = result as SuccessResponse<AddressEntity>;
+
+      expect(successResult.data.address, placemark.street);
+
+      expect(successResult.data.city, placemark.locality);
+
+      expect(successResult.data.area, placemark.subLocality);
+
+      verify(
+        geocodingService.getAddressFromCoordinates(
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      ).called(1);
+    });
+
+    test('should return error when placemark is null', () async {
+      // Arrange
+      const latitude = 27.18;
+      const longitude = 31.18;
+
+      when(
+        geocodingService.getAddressFromCoordinates(
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      ).thenAnswer((_) async => null);
+
+      // Act
+      final result = await addressRepository.getAddressFromLocation(
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+      // Assert
+      expect(result, isA<ErrorResponse<AddressEntity>>());
+
+      final errorResult = result as ErrorResponse<AddressEntity>;
+
+      expect(errorResult.appError, isA<BadResponseError>());
+
+      expect(errorResult.errorMessage, AppString.couldNotGetAddress);
+
+      verify(
+        geocodingService.getAddressFromCoordinates(
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      ).called(1);
+    });
+
+    test('should return error when geocoding throws exception', () async {
+      // Arrange
+      const latitude = 27.18;
+      const longitude = 31.18;
+
+      when(
+        geocodingService.getAddressFromCoordinates(
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      ).thenThrow(Exception());
+
+      // Act
+      final result = await addressRepository.getAddressFromLocation(
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+      // Assert
+      expect(result, isA<ErrorResponse<AddressEntity>>());
+
+      final errorResult = result as ErrorResponse<AddressEntity>;
+
+      expect(errorResult.appError, isA<BadResponseError>());
+
+      expect(errorResult.errorMessage, AppString.couldNotGetAddress);
+
+      verify(
+        geocodingService.getAddressFromCoordinates(
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      ).called(1);
+    });
+  });
 }
+
+

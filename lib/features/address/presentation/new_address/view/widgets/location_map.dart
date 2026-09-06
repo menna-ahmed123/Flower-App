@@ -2,6 +2,7 @@ import 'package:flower_app/core/constants/app_constants.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_state.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
+import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,8 +10,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
 
 class LocationMap extends StatefulWidget {
-  final LatLng initialLocation;
-  final ValueChanged<LatLng>? onLocationSelected;
+  final LocationEntity initialLocation;
+  final ValueChanged<LocationEntity>? onLocationSelected;
 
   const LocationMap({
     super.key,
@@ -28,7 +29,11 @@ class _LocationMapState extends State<LocationMap> {
   @override
   void initState() {
     super.initState();
-    selectedLocation = widget.initialLocation;
+
+    selectedLocation = LatLng(
+      widget.initialLocation.latitude,
+      widget.initialLocation.longitude,
+    );
   }
 
   @override
@@ -37,21 +42,30 @@ class _LocationMapState extends State<LocationMap> {
       children: [
         FlutterMap(
           options: MapOptions(
-            initialCenter: widget.initialLocation,
+            initialCenter: LatLng(
+              widget.initialLocation.latitude,
+              widget.initialLocation.longitude,
+            ),
             initialZoom: 13,
             onTap: (tapPosition, point) {
               setState(() {
                 selectedLocation = point;
               });
 
-              widget.onLocationSelected?.call(point);
+              widget.onLocationSelected?.call(
+                LocationEntity(
+                  latitude: point.latitude,
+                  longitude: point.longitude,
+                ),
+              );
             },
           ),
           children: [
             TileLayer(
               urlTemplate:
                   '${AppConstants.mapTilerBaseUrl}?key=${AppConstants.mapTilerApiKey}&language=en',
-              userAgentPackageName: AppConstants.mapUserAgentPackageName,
+              userAgentPackageName:
+                  AppConstants.mapUserAgentPackageName,
             ),
             MarkerLayer(
               markers: [
@@ -78,7 +92,7 @@ class _LocationMapState extends State<LocationMap> {
             if (!state.locationState.isLoading) {
               return const SizedBox.shrink();
             }
-            
+
             return Positioned.fill(
               child: Container(
                 color: Colors.black.withOpacity(0.15),
