@@ -1,15 +1,19 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/widgets/drop_down.dart';
+import 'package:flower_app/core/helpers/app_validators.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/location_textfield.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_state.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../../core/helpers/app_validators.dart';
 
 class LocationForm extends StatefulWidget {
-  final VoidCallback? onSave;
+  final ValueChanged<AddressEntity>? onSave;
+  final AddressEntity? address;
 
-  const LocationForm({super.key, this.onSave});
+  const LocationForm({super.key, this.onSave, this.address});
 
   @override
   State<LocationForm> createState() => _LocationFormState();
@@ -21,24 +25,71 @@ class _LocationFormState extends State<LocationForm> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _areaController = TextEditingController();
 
-  String? _selectedCity;
-  String? _selectedArea;
+  @override
+  void initState() {
+    super.initState();
+    _fillForm(widget.address);
+  }
 
-  final List<String> _cities = ['Cairo', 'Giza', 'Alexandria'];
-  final List<String> _areas = ['October', 'Maadi', 'Zayed', 'Nasr City'];
+  @override
+  void didUpdateWidget(covariant LocationForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.address != widget.address) {
+      _fillForm(widget.address);
+    }
+  }
+
+  void _fillForm(AddressEntity? address) {
+    if (address == null) return;
+
+    _addressController.text = address.address ?? '';
+    _phoneController.text = address.phoneNumber ?? '';
+    _nameController.text = address.recipientName ?? '';
+    _cityController.text = address.city ?? '';
+    _areaController.text = address.area ?? '';
+  }
+
+  bool get _hasFormChanges {
+    final original = widget.address;
+
+    if (original == null) {
+      return true;
+    }
+
+    return _addressController.text != (original.address ?? '') ||
+        _phoneController.text != (original.phoneNumber ?? '') ||
+        _nameController.text != (original.recipientName ?? '') ||
+        _cityController.text != (original.city ?? '') ||
+        _areaController.text != (original.area ?? '');
+  }
 
   @override
   void dispose() {
     _addressController.dispose();
     _phoneController.dispose();
     _nameController.dispose();
+    _cityController.dispose();
+    _areaController.dispose();
     super.dispose();
   }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      widget.onSave?.call();
+      final address = AddressEntity(
+        id: widget.address?.id,
+        label: widget.address?.label,
+        address: _addressController.text,
+        phoneNumber: _phoneController.text,
+        recipientName: _nameController.text,
+        city: _cityController.text,
+        area: _areaController.text,
+      );
+
+      widget.onSave?.call(address);
     }
   }
 
@@ -51,91 +102,76 @@ class _LocationFormState extends State<LocationForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Address Custom Text Field
             LocationTextfield(
               controller: _addressController,
               labelText: AppString.address,
               hintText: AppString.enterAddress,
               validator: AppValidators.validateAddress,
             ),
+
             SizedBox(height: 16.h),
 
-            // Phone Number Custom Text Field
             LocationTextfield(
               controller: _phoneController,
               labelText: AppString.phoneNumber,
               hintText: AppString.enterPhoneNumber,
               keyboardType: TextInputType.phone,
-              validator: AppValidators.validatePhone,
+              validator: AppValidators.phoneValidator,
             ),
+
             SizedBox(height: 16.h),
 
-            // Recipient Name Custom Text Field
             LocationTextfield(
               controller: _nameController,
               labelText: AppString.recipient,
               hintText: AppString.enterRecipient,
               validator: AppValidators.validateRecipientName,
             ),
+
             SizedBox(height: 16.h),
 
-            // City & Area Dropdown Row
             Row(
               children: [
                 Expanded(
-                  child: DropDown<String>(
+                  child: LocationTextfield(
+                    controller: _cityController,
                     labelText: AppString.city,
-                    hintText: AppString.cairo,
-                    value: _selectedCity,
+                    hintText: AppString.city,
                     validator: AppValidators.validateCity,
-                    items: _cities
-                        .map(
-                          (city) =>
-                              DropdownMenuItem(value: city, child: Text(city)),
-                        )
-                        .toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedCity = val;
-                      });
-                    },
                   ),
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
-                  child: DropDown<String>(
+                  child: LocationTextfield(
+                    controller: _areaController,
                     labelText: AppString.area,
-                    hintText: AppString.october,
-                    value: _selectedArea,
+                    hintText: AppString.area,
                     validator: AppValidators.validateArea,
-                    items: _areas
-                        .map(
-                          (area) =>
-                              DropdownMenuItem(value: area, child: Text(area)),
-                        )
-                        .toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedArea = val;
-                      });
-                    },
                   ),
                 ),
               ],
             ),
+
             SizedBox(height: 32.h),
 
-            // Save Address Action Button
-            ElevatedButton(
-              onPressed: _submitForm,
-              child: Text(
-                AppString.savedAddresses,
-                style: TextStyle(
-                  color: context.colors.white,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+            BlocBuilder<AddressViewModel, AddressState>(
+              builder: (context, state) {
+                final isLoadingLocation = state.locationState.isLoading;
+                final isUpdateWithNoChanges =
+                    widget.address != null && !_hasFormChanges;
+                final isDisabled = isLoadingLocation || isUpdateWithNoChanges;
+                return ElevatedButton(
+                  onPressed: isDisabled ? null : _submitForm,
+                  child: Text(
+                    AppString.savedAddresses,
+                    style: TextStyle(
+                      color: context.colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),

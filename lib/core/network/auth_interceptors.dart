@@ -38,12 +38,12 @@ class AuthInterceptors extends Interceptor {
 
   @override
   Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
+      RequestOptions options,
+      RequestInterceptorHandler handler,
+      ) async {
     final token = await _tokenStorage.getAccessToken();
     if (token != null && token.isNotEmpty) {
-      options.headers['token'] = token;
+      options.headers['Authorization'] = 'Bearer $token';
     }
     handler.next(options);
   }
@@ -104,7 +104,7 @@ class AuthInterceptors extends Interceptor {
       }
 
       _log('Token refresh failed: network or server error');
-      return handler.next(refreshError);
+      return handler.next(err);
     } catch (_) {
       _log('Token refresh failed: unexpected error');
       await _expireSession();

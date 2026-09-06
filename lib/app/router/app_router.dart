@@ -2,8 +2,15 @@ import 'package:flower_app/app/layout/main_shell.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/screen/address_screen.dart';
-import 'package:flower_app/features/address/presentation/new_address/view/screen/save_address_screen.dart';
+import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_event.dart';
+import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
+
+import 'package:flower_app/features/address/presentation/new_address/view/screen/add_address_screen.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
+import 'package:flower_app/features/address/presentation/save_address/view/save_address_screen.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
+
 import 'package:flower_app/features/auth/forget_password/presentation/pages/forget_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/reset_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/verification_page.dart';
@@ -12,6 +19,7 @@ import 'package:flower_app/features/auth/login/presentation/view/pages/login_pag
 import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
+
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
@@ -25,8 +33,10 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
+
 import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -52,6 +62,8 @@ class AppRouter {
         _registerRoute(),
         _forgetPasswordShell(),
         _mainShell(),
+        GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
+        GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
       ],
     );
   }
@@ -169,6 +181,7 @@ class AppRouter {
     GoRouterState state,
   ) {
     final productId = state.pathParameters['productId'];
+
     if (productId == null || productId.isEmpty) {
       return const Scaffold(body: Center(child: Text(AppString.pageNotFound)));
     }
@@ -215,16 +228,9 @@ class AppRouter {
   }
 
   static StatefulShellBranch _profileBranch() {
-    return StatefulShellBranch(routes: _profileRoutes());
-  }
-
-  static List<RouteBase> _profileRoutes() {
-    return [
-      GoRoute(path: AppRoutesName.profile, builder: _profileBuilder),
-
-      GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
-      GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
-    ];
+    return StatefulShellBranch(
+      routes: [GoRoute(path: AppRoutesName.profile, builder: _profileBuilder)],
+    );
   }
 
   static Widget _profileBuilder(BuildContext context, GoRouterState state) {
@@ -232,10 +238,29 @@ class AppRouter {
   }
 
   static Widget _addressBuilder(BuildContext context, GoRouterState state) {
-    return const AddressScreen();
+    final address = state.extra as AddressEntity?;
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<SaveAddressViewModel>(
+          create: (_) => getIt<SaveAddressViewModel>(),
+        ),
+        BlocProvider<AddressViewModel>(
+          create: (_) => getIt<AddressViewModel>(),
+        ),
+      ],
+      child: AddAddressScreen(address: address),
+    );
   }
 
   static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
-    return const SaveAddressScreen();
+    final defaultAddressViewModel = getIt<DefaultAddressViewModel>();
+
+    defaultAddressViewModel.doEvent(LoadSavedAddresses());
+
+    return BlocProvider(
+      create: (_) => getIt<DefaultAddressViewModel>(),
+      child: SavedAddressesScreen(),
+    );
   }
 }
