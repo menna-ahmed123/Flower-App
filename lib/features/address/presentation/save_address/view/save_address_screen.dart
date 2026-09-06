@@ -4,9 +4,6 @@ import 'package:flower_app/core/utils/commerce_widgets/default_address_view_mode
 import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_state.dart';
 import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_view_model.dart';
 import 'package:flower_app/features/address/presentation/save_address/view/widgets/saved_address_body.dart';
-import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_event.dart';
-import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_state.dart';
-import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,25 +26,25 @@ class SavedAddressesScreen extends StatelessWidget {
         },
       ),
       body: SafeArea(
-        child: BlocListener<SaveAddressViewModel, SaveAddressState>(
+        child: BlocListener<DefaultAddressViewModel, DefaultAddressState>(
           listener: (context, state) {
-            if (state.actionError.isNotEmpty) {
+            if (state.defaultAddressesState.errorMessage.isNotEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(state.actionError),
+                  content: Text(state.defaultAddressesState.errorMessage),
                 ),
               );
             }
           },
           child: BlocBuilder<DefaultAddressViewModel, DefaultAddressState>(
             buildWhen: (previous, current) {
-              return previous.addressesState != current.addressesState;
+              return previous.defaultAddressesState != current.defaultAddressesState;
             },
             builder: (context, state) {
               return SavedAddressesBody(
-                isLoading: state.addressesState.isLoading,
-                errorMessage: state.addressesState.errorMessage,
-                addresses: state.addressesState.data ?? [],
+                isLoading: state.defaultAddressesState.isLoading,
+                errorMessage: state.defaultAddressesState.errorMessage,
+                addresses: state.defaultAddressesState.data ?? [],
 
                 // Retry
                 onRetry: () {
@@ -58,7 +55,7 @@ class SavedAddressesScreen extends StatelessWidget {
 
                 // Delete
                 onDelete: (id) {
-                  context.read<SaveAddressViewModel>().doEvent(
+                  context.read<DefaultAddressViewModel>().doEvent(
                         DeleteSavedAddress(id),
                       );
                 },

@@ -1,7 +1,7 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/address/domain/repo/address_repo.dart';
-import 'package:flower_app/features/address/domain/use_cases/get_delete_address_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/delete_address_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -11,12 +11,12 @@ import 'get_delete_address_use_case_test.mocks.dart';
 @GenerateMocks([AddressRepo])
 void main() {
   late AddressRepo addressRepo;
-  late GetDeleteAddressUseCase getDeleteAddressUseCase;
+  late DeleteAddressUseCase getDeleteAddressUseCase;
 
   setUp(() {
     addressRepo = MockAddressRepo();
 
-    getDeleteAddressUseCase = GetDeleteAddressUseCase(
+    getDeleteAddressUseCase = DeleteAddressUseCase(
       repo: addressRepo,
     );
   });

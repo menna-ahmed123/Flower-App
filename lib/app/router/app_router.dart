@@ -6,7 +6,7 @@ import 'package:flower_app/core/utils/commerce_widgets/default_address_view_mode
 import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_view_model.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 
-import 'package:flower_app/features/address/presentation/new_address/view/screen/address_screen.dart';
+import 'package:flower_app/features/address/presentation/new_address/view/screen/add_address_screen.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
 import 'package:flower_app/features/address/presentation/save_address/view/save_address_screen.dart';
 import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
@@ -240,32 +240,27 @@ class AppRouter {
   static Widget _addressBuilder(BuildContext context, GoRouterState state) {
     final address = state.extra as AddressEntity?;
 
-    return BlocProvider(
-      create: (_) => getIt<AddressViewModel>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<SaveAddressViewModel>(
+          create: (_) => getIt<SaveAddressViewModel>(),
+        ),
+        BlocProvider<AddressViewModel>(
+          create: (_) => getIt<AddressViewModel>(),
+        ),
+      ],
       child: AddAddressScreen(address: address),
     );
   }
 
-static Widget _saveAddressBuilder(
-  BuildContext context,
-  GoRouterState state,
-) {
-  final defaultAddressViewModel = getIt<DefaultAddressViewModel>();
+  static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
+    final defaultAddressViewModel = getIt<DefaultAddressViewModel>();
 
-  defaultAddressViewModel.doEvent(
-    LoadSavedAddresses(),
-  );
+    defaultAddressViewModel.doEvent(LoadSavedAddresses());
 
-  return MultiBlocProvider(
-    providers: [
-      BlocProvider<SaveAddressViewModel>(
-        create: (_) => getIt<SaveAddressViewModel>(),
-      ),
-      BlocProvider<DefaultAddressViewModel>.value(
-        value: defaultAddressViewModel,
-      ),
-    ],
-    child: const SavedAddressesScreen(),
-  );
-}
+    return BlocProvider(
+      create: (_) => getIt<DefaultAddressViewModel>(),
+      child: SavedAddressesScreen(),
+    );
+  }
 }

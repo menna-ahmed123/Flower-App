@@ -3,7 +3,7 @@ import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/address/data/models/add_address_request.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/repo/address_repo.dart';
-import 'package:flower_app/features/address/domain/use_cases/get_update_address_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/update_address_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -13,12 +13,12 @@ import 'get_update_address_use_case_test.mocks.dart';
 @GenerateMocks([AddressRepo])
 void main() {
   late AddressRepo addressRepo;
-  late GetUpdateAddressUseCase getUpdateAddressUseCase;
+  late UpdateAddressUseCase getUpdateAddressUseCase;
 
   setUp(() {
     addressRepo = MockAddressRepo();
 
-    getUpdateAddressUseCase = GetUpdateAddressUseCase(
+    getUpdateAddressUseCase = UpdateAddressUseCase(
       repo: addressRepo,
     );
   });

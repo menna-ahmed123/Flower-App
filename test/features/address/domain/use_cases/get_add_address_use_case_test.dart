@@ -12,11 +12,11 @@ import 'get_address_details_use_case_test.mocks.dart';
 @GenerateMocks([AddressRepo])
 void main() {
   late AddressRepo addressRepo;
-  late GetAddressUseCase getAddressUseCase;
+  late GetAddressesUseCase getAddressUseCase;
 
   setUpAll(() {
     addressRepo = MockAddressRepo();
-    getAddressUseCase = GetAddressUseCase(repo:addressRepo );
+    getAddressUseCase = GetAddressesUseCase(repo:addressRepo );
   });
 
   const addressList = [

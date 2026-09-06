@@ -3,7 +3,10 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/location_textfield.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_state.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LocationForm extends StatefulWidget {
@@ -48,6 +51,20 @@ class _LocationFormState extends State<LocationForm> {
     _nameController.text = address.recipientName ?? '';
     _cityController.text = address.city ?? '';
     _areaController.text = address.area ?? '';
+  }
+
+  bool get _hasFormChanges {
+    final original = widget.address;
+
+    if (original == null) {
+      return true;
+    }
+
+    return _addressController.text != (original.address ?? '') ||
+        _phoneController.text != (original.phoneNumber ?? '') ||
+        _nameController.text != (original.recipientName ?? '') ||
+        _cityController.text != (original.city ?? '') ||
+        _areaController.text != (original.area ?? '');
   }
 
   @override
@@ -137,16 +154,37 @@ class _LocationFormState extends State<LocationForm> {
 
             SizedBox(height: 32.h),
 
-            ElevatedButton(
-              onPressed: _submitForm,
-              child: Text(
-                AppString.savedAddresses,
-                style: TextStyle(
-                  color: context.colors.white,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+            BlocBuilder<AddressViewModel, AddressState>(
+              builder: (context, state) {
+                final isLoadingLocation = state.locationState.isLoading;
+                final isSaving = state.addressState.isLoading;
+                final isUpdateWithNoChanges =
+                    widget.address != null && !_hasFormChanges;
+
+                final isDisabled =
+                    isLoadingLocation || isSaving || isUpdateWithNoChanges;
+
+                return ElevatedButton(
+                  onPressed: isDisabled ? null : _submitForm,
+                  child: isSaving
+                      ? SizedBox(
+                          width: 20.w,
+                          height: 20.h,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: context.colors.white,
+                          ),
+                        )
+                      : Text(
+                          AppString.savedAddresses,
+                          style: TextStyle(
+                            color: context.colors.white,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                );
+              },
             ),
           ],
         ),

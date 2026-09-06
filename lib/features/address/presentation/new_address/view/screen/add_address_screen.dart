@@ -5,6 +5,9 @@ import 'package:flower_app/features/address/presentation/new_address/view/widget
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_state.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_event.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_state.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,7 +67,7 @@ class _AddressScreenState extends State<AddAddressScreen>
             if (context.canPop()) context.pop();
           },
         ),
-        body: BlocListener<AddressViewModel, AddressState>(
+        body: BlocListener<SaveAddressViewModel, SaveAddressState>(
           listener: (context, state) {
             if (state.isSaved) {
               context.pop(true);
@@ -112,11 +115,11 @@ class _AddressScreenState extends State<AddAddressScreen>
                       address: state.addressState.data,
                       onSave: (address) {
                         if (widget.address == null) {
-                          context.read<AddressViewModel>().doEvent(
+                          context.read<SaveAddressViewModel>().doEvent(
                             AddAddress(address),
                           );
                         } else {
-                          context.read<AddressViewModel>().doEvent(
+                          context.read<SaveAddressViewModel>().doEvent(
                             EditAddress(address),
                           );
                         }

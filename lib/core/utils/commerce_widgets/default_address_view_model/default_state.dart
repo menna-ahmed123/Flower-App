@@ -3,16 +3,27 @@ import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 
 class DefaultAddressState extends Equatable {
-  final BaseState<List<AddressEntity>> addressesState;
-  const DefaultAddressState({this.addressesState = const BaseState()});
+  final BaseState<List<AddressEntity>> defaultAddressesState;
+  final String deletingId;
+  final String actionError;
+  const DefaultAddressState({
+    this.deletingId = "",
+    this.actionError = "",
+    this.defaultAddressesState = const BaseState(),
+  });
+
   DefaultAddressState copyWith({
-    BaseState<List<AddressEntity>>? addressesState,
+    BaseState<List<AddressEntity>>? defaultAddressesState,
+    String? deletingId,
+    String? actionError,
   }) {
     return DefaultAddressState(
-      addressesState: addressesState ?? this.addressesState,
+      deletingId: deletingId ?? this.deletingId,
+      actionError: actionError ?? this.actionError,
+      defaultAddressesState: defaultAddressesState ?? this.defaultAddressesState,
     );
   }
 
   @override
-  List<Object?> get props => [addressesState];
+  List<Object?> get props => [defaultAddressesState, deletingId, actionError];
 }

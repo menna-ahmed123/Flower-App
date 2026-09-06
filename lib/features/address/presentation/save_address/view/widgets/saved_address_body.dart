@@ -1,10 +1,10 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_state.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/save_address/view/widgets/address_card.dart';
-import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_state.dart';
-import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -68,7 +68,7 @@ class SavedAddressesBody extends StatelessWidget {
                     final address = addresses[index];
                     final id = address.id ?? '';
 
-                   return BlocSelector<SaveAddressViewModel, SaveAddressState, bool>(
+                   return BlocSelector<DefaultAddressViewModel, DefaultAddressState, bool>(
   selector: (state) {
     return state.deletingId == id && id.isNotEmpty;
   },

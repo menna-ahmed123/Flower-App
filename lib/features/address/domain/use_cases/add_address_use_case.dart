@@ -6,14 +6,12 @@ import 'package:flower_app/features/address/domain/repo/address_repo.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class GetUpdateAddressUseCase {
+class AddAddressUseCase {
   final AddressRepo repo;
-  GetUpdateAddressUseCase({required this.repo});
-  
-  Future<BaseResponse<List<AddressEntity>>> updateAddress(
-    String id,
+  AddAddressUseCase({required this.repo});
+  Future<BaseResponse<List<AddressEntity>>> addAddress(
     AddAddressRequest request,
   ) {
-    return repo.updateAddress(id, request);
+    return repo.createAddress(request);
   }
 }

@@ -18,14 +18,3 @@ class LocationSelected extends AddressEvent {
     required this.longitude,
   });
 }
-class AddAddress extends AddressEvent {
-  final AddressEntity address;
-
-  AddAddress(this.address);
-}
-
-class EditAddress extends AddressEvent {
-  final AddressEntity address;
-
-  EditAddress(this.address);
-}

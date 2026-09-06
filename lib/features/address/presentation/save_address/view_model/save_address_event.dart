@@ -1,7 +1,15 @@
 
-sealed class SaveAddressEvent {}
-class DeleteSavedAddress extends SaveAddressEvent {
-  final String id;
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 
-  DeleteSavedAddress(this.id);
+sealed class SaveAddressEvent {}
+class AddAddress extends SaveAddressEvent {
+  final AddressEntity address;
+
+  AddAddress(this.address);
+}
+
+class EditAddress extends SaveAddressEvent {
+  final AddressEntity address;
+
+  EditAddress(this.address);
 }

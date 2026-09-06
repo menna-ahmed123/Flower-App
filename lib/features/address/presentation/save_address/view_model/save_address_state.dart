@@ -3,28 +3,25 @@ import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 
 class SaveAddressState extends Equatable {
-  final BaseState<List<AddressEntity>> addressesState;
-  final String deletingId;
-  final String actionError;
+    final BaseState<AddressEntity> saveAddressState;
+  final bool isSaved;
 
   const SaveAddressState({
-    this.addressesState = const BaseState(),
-    this.deletingId = '',
-    this.actionError = '',
+   this.saveAddressState= const BaseState(),
+   this.isSaved = false,
   });
 
   SaveAddressState copyWith({
-    BaseState<List<AddressEntity>>? addressesState,
-    String? deletingId,
-    String? actionError,
+    BaseState<AddressEntity>? saveAddressState,
+    bool? isSaved,
   }) {
     return SaveAddressState(
-      addressesState: addressesState ?? this.addressesState,
-      deletingId: deletingId ?? this.deletingId,
-      actionError: actionError ?? this.actionError,
+      saveAddressState: saveAddressState ?? this.saveAddressState,
+      isSaved: isSaved ?? this.isSaved,
+
     );
   }
 
   @override
-  List<Object?> get props => [addressesState, deletingId, actionError];
+  List<Object?> get props => [saveAddressState, isSaved];
 }
