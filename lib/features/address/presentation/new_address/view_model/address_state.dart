@@ -12,16 +12,18 @@ class AddressState extends Equatable {
     this.addressState = const BaseState(),
   });
 
-  @override
-  List<Object?> get props => [locationState, addressState];
-
   AddressState copyWith({
     BaseState<LocationEntity>? locationState,
     BaseState<AddressEntity>? addressState,
+    BaseState<AddressEntity>? saveAddressState,
+    bool? isSaved,
   }) {
     return AddressState(
       locationState: locationState ?? this.locationState,
       addressState: addressState ?? this.addressState,
     );
   }
+
+  @override
+  List<Object?> get props => [locationState, addressState];
 }

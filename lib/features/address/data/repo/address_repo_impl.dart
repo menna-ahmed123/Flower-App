@@ -1,8 +1,12 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/errors/api_exception.dart';
 import 'package:flower_app/core/errors/app_error.dart';
+import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/core/services/geocoding_service.dart';
 import 'package:flower_app/core/services/location_service.dart';
+import 'package:flower_app/features/address/data/data_sources/address_remote_data_source.dart';
+import 'package:flower_app/features/address/data/models/add_address_request.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flower_app/features/address/domain/repo/address_repo.dart';
@@ -13,8 +17,15 @@ import 'package:injectable/injectable.dart';
 class AddressRepoImpl implements AddressRepo {
   final LocationService _locationService;
   final GeocodingService _geocodingService;
+  final SafeCall safeCall;
+  final AddressRemoteDataSource remoteDataSource;
 
-  AddressRepoImpl(this._locationService, this._geocodingService);
+   AddressRepoImpl(
+    this._locationService,
+    this._geocodingService,
+    this.safeCall,
+    this.remoteDataSource,
+  );
 
   @override
   Future<BaseResponse<bool>> isLocationServiceEnabled() async {
@@ -81,6 +92,7 @@ class AddressRepoImpl implements AddressRepo {
     }
   }
 
+
   @override
   Future<BaseResponse<LocationEntity>> getCurrentLocation() async {
     try {
@@ -128,5 +140,54 @@ class AddressRepoImpl implements AddressRepo {
         appError: BadResponseError(AppString.couldNotGetAddress),
       );
     }
+  }
+
+  @override
+  Future<BaseResponse<List<AddressEntity>>> getAddresses() {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.getAddresses();
+      return response.toDomain();
+    });
+  }
+
+  @override
+  Future<BaseResponse<List<AddressEntity>>> createAddress(
+    AddAddressRequest request,
+  ) {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.createAddress(request);
+      return response.toDomain();
+    });
+  }
+
+  @override
+  Future<BaseResponse<bool>> deleteAddress(String id) {
+    return safeCall.safeApiCall(() async {
+      await remoteDataSource.deleteAddress(id);
+      return true;
+    });
+  }
+
+  @override
+  Future<BaseResponse<AddressEntity>> addressDetails(String id) {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.addressDetails(id);
+      final addresses = response.toDomain();
+      if (addresses.isEmpty) {
+        throw ApiException(message: AppString.couldNotGetAddress);
+      }
+      return addresses.first;
+    });
+  }
+
+  @override
+  Future<BaseResponse<List<AddressEntity>>> updateAddress(
+    String id,
+    AddAddressRequest request,
+  ) {
+    return safeCall.safeApiCall(() async {
+      await remoteDataSource.updateAddress(id, request);
+      return const <AddressEntity>[];
+    });
   }
 }

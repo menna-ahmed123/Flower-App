@@ -39,7 +39,6 @@ class HomeSectionView extends StatelessWidget {
   Widget build(BuildContext context) {
     return _section((link) => openHomeDeepLink(context, link));
   }
-
   Widget _section(ValueChanged<String> onDeepLink) {
     return switch (section.type) {
       'banner' => HomeBanner(section: section, onDeepLink: onDeepLink),
