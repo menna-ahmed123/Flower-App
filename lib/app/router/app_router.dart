@@ -17,7 +17,6 @@ import 'package:flower_app/features/auth/login/presentation/view/pages/login_pag
 import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
-import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
@@ -31,8 +30,8 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
+import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -253,13 +252,10 @@ class AppRouter {
   }
 
   static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
-    final defaultAddressViewModel = getIt<DefaultAddressViewModel>();
-
-    defaultAddressViewModel.doEvent(LoadSavedAddresses());
-
     return BlocProvider(
-      create: (_) => getIt<DefaultAddressViewModel>(),
-      child: SavedAddressesScreen(),
+      create: (_) =>
+          getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
+      child: const SavedAddressesScreen(),
     );
   }
 }

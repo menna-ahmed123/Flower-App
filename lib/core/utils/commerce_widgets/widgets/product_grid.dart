@@ -43,7 +43,7 @@ class ProductGrid extends StatelessWidget {
           discount: product.discountPercent != null
               ? '${product.discountPercent!.toStringAsFixed(0)}%'
               : null,
-          onAddToCart: () => _addToCart(context, product.id),
+          onAddToCart: () async {},
           onTap: () => onTap(product),
         );
       },

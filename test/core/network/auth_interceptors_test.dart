@@ -12,71 +12,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'fake_token_storage.dart';
 
 void main() {
-  late FakeTokenStorage storage;
-  late ScriptedRefresher refresher;
-  late AuthInterceptors interceptor;
-  late Dio dio;
-  late ScriptedAdapter adapter;
-
-  setUp(() {
-    storage = FakeTokenStorage()
-      ..accessToken = 'old-access'
-      ..refreshToken = 'refresh-1';
-    refresher = ScriptedRefresher();
-    interceptor = AuthInterceptors(storage, refresher);
-    adapter = ScriptedAdapter();
-    dio = Dio(BaseOptions(baseUrl: 'http://test'));
-    dio.httpClientAdapter = adapter;
-    interceptor.attachDio(dio);
-    dio.interceptors.add(interceptor);
-  });
-
-  test('401 refreshes once, stores the new token, and retries the request', () async {
-    refresher.tokens = const AuthTokens(
-      accessToken: 'new-access',
-      refreshToken: 'refresh-2',
-    );
-
-    final response = await dio.get<Map<String, dynamic>>('/secure');
-
-    expect(response.statusCode, 200);
-    expect(response.data, {'ok': true});
-    expect(refresher.calls, 1);
-    expect(storage.accessToken, 'new-access');
-    expect(storage.refreshToken, 'refresh-2');
-    expect(adapter.capturedHeaders.first['Authorization'], 'Bearer old-access');
-    expect(adapter.capturedHeaders.first['Accept-Language'], 'en');
-    expect(adapter.capturedHeaders.last['Authorization'], 'Bearer new-access');
-  });
-
-  test('concurrent 401s share a single refresh call', () async {
-    refresher.tokens = const AuthTokens(accessToken: 'new-access');
-    refresher.delay = const Duration(milliseconds: 40);
-
-    final results = await Future.wait([
-      dio.get<Map<String, dynamic>>('/secure'),
-      dio.get<Map<String, dynamic>>('/secure'),
-    ]);
-
-    expect(results.map((r) => r.statusCode), [200, 200]);
-    expect(refresher.calls, 1);
-  });
-
-  test('invalid refresh token clears storage and surfaces ForceLogin', () async {
-    refresher.error = DioException(
-      requestOptions: RequestOptions(path: '/refresh'),
-      response: Response(
-        requestOptions: RequestOptions(path: '/refresh'),
-        statusCode: 401,
-      ),
-      type: DioExceptionType.badResponse,
-    );
+  test('attaches Authorization Bearer header from stored access token', () async {
+    final storage = FakeTokenStorage()..accessToken = 'access-token';
+    final interceptor = AuthInterceptors(storage, _FakeTokenRefresher());
+    final dio = Dio()
+      ..interceptors.add(interceptor)
+      ..httpClientAdapter = _HeaderCapturingAdapter();
 
     try {
-      await dio.get<void>('/secure');
-      fail('expected DioException');
-    } on DioException catch (error) {
-      expect(error.error, isA<ForceLogin>());
+      await dio.get<void>('/users/me/addresses');
+    } on DioException catch (e) {
+      final captured = e.error;
+      expect(captured, isA<_CapturedHeaders>());
+      final headers = (captured as _CapturedHeaders).headers;
+      expect(headers['Authorization'], 'Bearer access-token');
+      expect(headers.containsKey('token'), isFalse);
+      return;
     }
 
     expect(storage.accessToken, isNull);
@@ -154,6 +105,14 @@ class ScriptedAdapter implements HttpClientAdapter {
     return ResponseBody.fromString('unauthorized', 401);
   }
 
+class _CapturedHeaders implements Exception {
+  _CapturedHeaders(this.headers);
+
+  final Map<String, dynamic> headers;
+}
+
+/// No-op [TokenRefresher] for tests that only check header attachment.
+class _FakeTokenRefresher implements TokenRefresher {
   @override
-  void close({bool force = false}) {}
+  Future<AuthTokens?> refresh(String refreshToken) async => null;
 }

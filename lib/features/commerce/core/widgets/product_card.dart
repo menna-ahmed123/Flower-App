@@ -24,7 +24,7 @@ class ProductCard extends StatelessWidget {
   final String? oldPrice;
   final String? discount;
   final VoidCallback onTap;
-  final VoidCallback onAddToCart;
+  final Future<void> Function() onAddToCart;
   final bool isLoading;
 
   @override
@@ -134,7 +134,7 @@ class ProductCard extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : onAddToCart,
+                  onPressed: isLoading ? null : () => onAddToCart(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.pink,
                     foregroundColor: colors.white,
