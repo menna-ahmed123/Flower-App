@@ -190,4 +190,15 @@ class AddressRepoImpl implements AddressRepo {
       return const <AddressEntity>[];
     });
   }
+  @override
+  Future<BaseResponse<AddressEntity>> setDefaultAddress(String addressId) {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.setDefaultAddress(addressId);
+      final addresses = response.toDomain();
+      if (addresses.isEmpty) {
+        throw ApiException(message: AppString.couldNotGetAddress);
+      }
+      return addresses.first;
+    });
+  }
 }

@@ -1,9 +1,9 @@
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
-
 part 'address_dto.g.dart';
 
-@JsonSerializable(createFactory: false)
+
+@JsonSerializable()
 class AddressDto {
   final String id;
   final String recipientName;
@@ -37,24 +37,8 @@ class AddressDto {
     this.lastUsedAtUtc,
   });
 
-  factory AddressDto.fromJson(Map<String, dynamic> json) {
-    return AddressDto(
-      id: _string(json['id']),
-      recipientName: _string(json['recipientName']),
-      phone: _string(json['phone']),
-      addressLine: _string(json['addressLine'] ?? json['address']),
-      city: _string(json['city']),
-      area: _string(json['area']),
-      lat: _double(json['lat']),
-      lng: _double(json['lng']),
-      label: _string(json['label']),
-      servingStoreId: _string(json['servingStoreId']),
-      isServiceable: json['isServiceable'] as bool? ?? true,
-      isDefault: json['isDefault'] as bool? ?? false,
-      createdAtUtc: _date(json['createdAtUtc']),
-      lastUsedAtUtc: _date(json['lastUsedAtUtc']),
-    );
-  }
+  factory AddressDto.fromJson(Map<String, dynamic> json) =>
+      _$AddressDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$AddressDtoToJson(this);
 
@@ -67,18 +51,7 @@ class AddressDto {
       city: city,
       area: area,
       label: label,
+      isDefault: isDefault,
     );
   }
-}
-
-String _string(dynamic value) => value?.toString() ?? '';
-
-double _double(dynamic value) {
-  if (value is num) return value.toDouble();
-  return double.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-DateTime? _date(dynamic value) {
-  if (value == null) return null;
-  return DateTime.tryParse(value.toString());
 }

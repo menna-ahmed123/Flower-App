@@ -6,3 +6,8 @@ class DeleteSavedAddress extends DefaultAddressEvent {
 
   DeleteSavedAddress(this.id);
 }
+class SetDefaultAddress extends DefaultAddressEvent {
+  final String id;
+
+  SetDefaultAddress(this.id);
+}

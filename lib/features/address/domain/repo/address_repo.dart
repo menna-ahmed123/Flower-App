@@ -36,4 +36,5 @@ abstract interface class AddressRepo {
   Future<BaseResponse<AddressEntity>> addressDetails(String id);
 
   Future<BaseResponse<bool>> deleteAddress(String id);
+   Future<BaseResponse<AddressEntity>> setDefaultAddress(String addressId);
 }

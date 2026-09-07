@@ -28,4 +28,8 @@ abstract class AddressApiClient {
     @Path(ApiQueryParams.id) String id,
     @Body() AddAddressRequest request,
   );
+  @PATCH(ApiEndpoints.setDefaultAddress)
+Future<AddressResponse> setDefaultAddress(
+  @Path('addressId') String addressId,
+);
 }
