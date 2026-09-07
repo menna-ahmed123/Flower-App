@@ -3,7 +3,6 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/errors/app_error.dart';
-import 'package:flower_app/core/localization/locale_controller.dart';
 import 'package:flower_app/core/network/token_refresher.dart';
 import 'package:flower_app/core/network/token_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -15,23 +14,23 @@ abstract final class AuthRequestExtra {
   static const retried = 'auth_retried';
 
   /// Marks the refresh-token HTTP call so it never triggers another refresh.
+  ///
+  /// Currently unused: [ApiTokenRefresher] performs the refresh call on its
+  /// own [Dio] instance (no [AuthInterceptors] attached), so it can never
+  /// re-enter this interceptor. Kept for forward compatibility in case the
+  /// refresh call is ever routed through the main Dio instance.
   static const skipRefresh = 'skip_auth_refresh';
 }
 
-/// Attaches JWT, Accept-Language, and transparently refreshes on 401.
+/// Attaches the access token and transparently refreshes on 401.
 ///
-/// Header contract matches Team 1 Postman: `Authorization: Bearer <token>`.
+/// Header contract: `Authorization: Bearer <accessToken>`.
 @lazySingleton
 class AuthInterceptors extends Interceptor {
-  AuthInterceptors(
-    this._tokenStorage,
-    this._tokenRefresher,
-    this._localeController,
-  );
+  AuthInterceptors(this._tokenStorage, this._tokenRefresher);
 
   final TokenStorage _tokenStorage;
   final TokenRefresher _tokenRefresher;
-  final LocaleController _localeController;
 
   /// Set by [DioModule] after Dio is created to avoid a DI cycle.
   Dio? _dio;
@@ -44,22 +43,21 @@ class AuthInterceptors extends Interceptor {
 
   @override
   Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
-    options.headers['Accept-Language'] = _acceptLanguage;
+      RequestOptions options,
+      RequestInterceptorHandler handler,
+      ) async {
     final token = await _tokenStorage.getAccessToken();
     if (token != null && token.isNotEmpty) {
-      _applyBearer(options, token);
+      options.headers['Authorization'] = 'Bearer $token';
     }
     handler.next(options);
   }
 
   @override
   void onResponse(
-    Response<dynamic> response,
-    ResponseInterceptorHandler handler,
-  ) {
+      Response<dynamic> response,
+      ResponseInterceptorHandler handler,
+      ) {
     handler.next(response);
   }
 
@@ -69,9 +67,9 @@ class AuthInterceptors extends Interceptor {
   }
 
   Future<void> _handleError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+      DioException err,
+      ErrorInterceptorHandler handler,
+      ) async {
     final options = err.requestOptions;
     final statusCode = err.response?.statusCode;
     final skipRefresh = options.extra[AuthRequestExtra.skipRefresh] == true;
@@ -91,9 +89,10 @@ class AuthInterceptors extends Interceptor {
       _log('Token refresh started');
       final tokens = await _refreshTokens(refreshToken);
       if (tokens == null) {
-        // Refresher not wired to a backend yet — do not invent an API call
-        // or clear a still-valid session; surface the original 401.
-        _log('Token refresh skipped: refresher not configured');
+        // Backend reported failure (or refresher not configured) without a
+        // transport-level error — do not clear a potentially still-valid
+        // session; surface the original 401.
+        _log('Token refresh skipped: no tokens returned');
         return handler.next(err);
       }
 
@@ -111,7 +110,7 @@ class AuthInterceptors extends Interceptor {
       }
 
       _log('Token refresh failed: network or server error');
-      return handler.next(refreshError);
+      return handler.next(err);
     } catch (_) {
       _log('Token refresh failed: unexpected error');
       await _expireSession();
@@ -148,9 +147,9 @@ class AuthInterceptors extends Interceptor {
   }
 
   Future<void> _persistTokens(
-    AuthTokens tokens,
-    String currentRefreshToken,
-  ) async {
+      AuthTokens tokens,
+      String currentRefreshToken,
+      ) async {
     final newRefresh = tokens.refreshToken;
     if (newRefresh != null && newRefresh.isNotEmpty) {
       await _tokenStorage.saveTokens(
@@ -163,15 +162,15 @@ class AuthInterceptors extends Interceptor {
   }
 
   Future<Response<dynamic>> _retryRequest(
-    RequestOptions options,
-    String accessToken,
-  ) {
+      RequestOptions options,
+      String accessToken,
+      ) {
     final dio = _dio;
     if (dio == null) {
       throw StateError('AuthInterceptors.attachDio was not called');
     }
 
-    _applyBearer(options, accessToken);
+    options.headers['Authorization'] = 'Bearer $accessToken';
     options.extra[AuthRequestExtra.retried] = true;
 
     return dio.fetch<dynamic>(options);
@@ -190,15 +189,6 @@ class AuthInterceptors extends Interceptor {
       error: ForceLogin(),
       message: 'Session expired',
     );
-  }
-
-  String get _acceptLanguage {
-    return _localeController.resolvedLocale.languageCode;
-  }
-
-  void _applyBearer(RequestOptions options, String token) {
-    options.headers['Authorization'] = 'Bearer $token';
-    options.headers.remove('token');
   }
 
   void _log(String message) {

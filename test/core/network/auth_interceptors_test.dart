@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/errors/app_error.dart';
-import 'package:flower_app/core/localization/locale_controller.dart';
 import 'package:flower_app/core/localization/locale_storage.dart';
 import 'package:flower_app/core/network/auth_interceptors.dart';
 import 'package:flower_app/core/network/token_refresher.dart';
@@ -24,11 +23,7 @@ void main() {
       ..accessToken = 'old-access'
       ..refreshToken = 'refresh-1';
     refresher = ScriptedRefresher();
-    interceptor = AuthInterceptors(
-      storage,
-      refresher,
-      LocaleController(MemoryLocaleStorage()),
-    );
+    interceptor = AuthInterceptors(storage, refresher);
     adapter = ScriptedAdapter();
     dio = Dio(BaseOptions(baseUrl: 'http://test'));
     dio.httpClientAdapter = adapter;

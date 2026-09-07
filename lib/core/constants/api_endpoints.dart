@@ -59,7 +59,6 @@ class ApiEndpoints {
     final origin = Uri.parse(_resolvedBaseUrl).origin;
     return path.startsWith('/') ? '$origin$path' : '$origin/$path';
   }
-
   //// AUTH ////
   static const String forgotPassword = '/identity/auth/forgot-password';
   static const String verifyOtp = '/identity/auth/verify-otp';
@@ -73,6 +72,11 @@ class ApiEndpoints {
   static const String allOccasions = '/catalog/occasions';
   static const String allProducts = '/catalog/products';
   static const String productDetails = '/catalog/products/{id}';
+
+  ////Address///
+  static const String addAddress = '/users/me/addresses';
+  static const String addressById = '/users/me/addresses/{id}';
+
 
   //// Cart ////
   static const String cart = '/cart';
