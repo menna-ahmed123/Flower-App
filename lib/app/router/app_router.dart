@@ -17,6 +17,7 @@ import 'package:flower_app/features/auth/login/presentation/view/pages/login_pag
 import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
@@ -30,7 +31,6 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
-import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -159,13 +159,24 @@ class AppRouter {
       ),
     ];
   }
-
-  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
-    return BlocProvider(
-      create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
-      child: const HomeScreen(),
-    );
-  }
+static Widget _homeBuilder(
+  BuildContext context,
+  GoRouterState state,
+) {
+  return MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) => getIt<HomeViewModel>()
+          ..doEvent(HomeRequested()),
+      ),
+      BlocProvider(
+        create: (_) => getIt<DefaultAddressViewModel>()
+          ..doEvent(LoadSavedAddresses()),
+      ),
+    ],
+    child: const HomeScreen(),
+  );
+}
 
   static Widget _bestSellerBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
