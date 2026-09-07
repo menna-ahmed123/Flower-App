@@ -179,6 +179,7 @@ abstract class AppString {
   static const String statusPending = 'Pending';
   static const String statusDelivered = 'Delivered';
   static const String statusCancelled = 'Cancelled';
+  static const String gettingLocation = 'Getting your location...';
 
   // ==================== Profile & Settings ====================
   static const String profile = 'Profile';
