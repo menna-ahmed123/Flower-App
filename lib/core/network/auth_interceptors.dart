@@ -14,12 +14,17 @@ abstract final class AuthRequestExtra {
   static const retried = 'auth_retried';
 
   /// Marks the refresh-token HTTP call so it never triggers another refresh.
+  ///
+  /// Currently unused: [ApiTokenRefresher] performs the refresh call on its
+  /// own [Dio] instance (no [AuthInterceptors] attached), so it can never
+  /// re-enter this interceptor. Kept for forward compatibility in case the
+  /// refresh call is ever routed through the main Dio instance.
   static const skipRefresh = 'skip_auth_refresh';
 }
 
 /// Attaches the access token and transparently refreshes on 401.
 ///
-/// Header contract matches the existing project: `token: <accessToken>`.
+/// Header contract: `Authorization: Bearer <accessToken>`.
 @lazySingleton
 class AuthInterceptors extends Interceptor {
   AuthInterceptors(this._tokenStorage, this._tokenRefresher);
@@ -50,9 +55,9 @@ class AuthInterceptors extends Interceptor {
 
   @override
   void onResponse(
-    Response<dynamic> response,
-    ResponseInterceptorHandler handler,
-  ) {
+      Response<dynamic> response,
+      ResponseInterceptorHandler handler,
+      ) {
     handler.next(response);
   }
 
@@ -62,9 +67,9 @@ class AuthInterceptors extends Interceptor {
   }
 
   Future<void> _handleError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+      DioException err,
+      ErrorInterceptorHandler handler,
+      ) async {
     final options = err.requestOptions;
     final statusCode = err.response?.statusCode;
     final skipRefresh = options.extra[AuthRequestExtra.skipRefresh] == true;
@@ -84,9 +89,10 @@ class AuthInterceptors extends Interceptor {
       _log('Token refresh started');
       final tokens = await _refreshTokens(refreshToken);
       if (tokens == null) {
-        // Refresher not wired to a backend yet — do not invent an API call
-        // or clear a still-valid session; surface the original 401.
-        _log('Token refresh skipped: refresher not configured');
+        // Backend reported failure (or refresher not configured) without a
+        // transport-level error — do not clear a potentially still-valid
+        // session; surface the original 401.
+        _log('Token refresh skipped: no tokens returned');
         return handler.next(err);
       }
 
@@ -141,9 +147,9 @@ class AuthInterceptors extends Interceptor {
   }
 
   Future<void> _persistTokens(
-    AuthTokens tokens,
-    String currentRefreshToken,
-  ) async {
+      AuthTokens tokens,
+      String currentRefreshToken,
+      ) async {
     final newRefresh = tokens.refreshToken;
     if (newRefresh != null && newRefresh.isNotEmpty) {
       await _tokenStorage.saveTokens(
@@ -156,15 +162,15 @@ class AuthInterceptors extends Interceptor {
   }
 
   Future<Response<dynamic>> _retryRequest(
-    RequestOptions options,
-    String accessToken,
-  ) {
+      RequestOptions options,
+      String accessToken,
+      ) {
     final dio = _dio;
     if (dio == null) {
       throw StateError('AuthInterceptors.attachDio was not called');
     }
 
-    options.headers['token'] = accessToken;
+    options.headers['Authorization'] = 'Bearer $accessToken';
     options.extra[AuthRequestExtra.retried] = true;
 
     return dio.fetch<dynamic>(options);

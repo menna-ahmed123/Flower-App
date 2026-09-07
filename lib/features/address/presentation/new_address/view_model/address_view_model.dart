@@ -1,7 +1,6 @@
 
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
-
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flower_app/features/address/domain/use_cases/check_location_permission_use_case.dart';
@@ -158,83 +157,99 @@ class AddressViewModel extends Cubit<AddressState> {
   }
 
   Future<void> _getLocation() async {
-    final locationResponse =
-        await getCurrentLocationUseCase();
+  final locationResponse =
+      await getCurrentLocationUseCase();
 
-    switch (locationResponse) {
-      case SuccessResponse<LocationEntity>():
-        final location = locationResponse.data;
+  if (isClosed) return;
 
-        emit(
-          state.copyWith(
-            locationState: state.locationState.copyWith(
-              isLoading: false,
-              data: location,
-              errorMessage: '',
-            ),
+  switch (locationResponse) {
+    case SuccessResponse<LocationEntity>():
+      final location = locationResponse.data;
+
+      if (isClosed) return;
+
+      emit(
+        state.copyWith(
+          locationState: state.locationState.copyWith(
+            isLoading: false,
+            data: location,
+            errorMessage: '',
           ),
-        );
-
-        await _getAddressFromLocation(
-          latitude: location.latitude,
-          longitude: location.longitude,
-        );
-
-      case ErrorResponse():
-        _emitLocationError(
-          locationResponse.errorMessage,
-        );
-    }
-  }
-
-  Future<void> _getAddressFromLocation({
-    required double latitude,
-    required double longitude,
-  }) async {
-    emit(
-      state.copyWith(
-        addressState: state.addressState.copyWith(
-          isLoading: true,
-          errorMessage: '',
         ),
-      ),
-    );
+      );
 
-    final response = await getAddressFromLocationUseCase(
-      latitude: latitude,
-      longitude: longitude,
-    );
+      if (isClosed) return;
 
-    switch (response) {
-      case SuccessResponse<AddressEntity>():
-        final current = state.addressState.data;
+      await _getAddressFromLocation(
+        latitude: location.latitude,
+        longitude: location.longitude,
+      );
 
-        emit(
-          state.copyWith(
-            addressState: state.addressState.copyWith(
-              isLoading: false,
-              data: response.data.copyWith(
-                id: current?.id,
-                phoneNumber: current?.phoneNumber,
-                recipientName: current?.recipientName,
-                label: current?.label,
-              ),
-              errorMessage: '',
-            ),
-          ),
-        );
+    case ErrorResponse():
+      if (isClosed) return;
 
-      case ErrorResponse():
-        emit(
-          state.copyWith(
-            addressState: state.addressState.copyWith(
-              isLoading: false,
-              errorMessage: response.errorMessage,
-            ),
-          ),
-        );
-    }
+      _emitLocationError(
+        locationResponse.errorMessage,
+      );
   }
+}
+
+Future<void> _getAddressFromLocation({
+  required double latitude,
+  required double longitude,
+}) async {
+  if (isClosed) return;
+
+  emit(
+    state.copyWith(
+      addressState: state.addressState.copyWith(
+        isLoading: true,
+        errorMessage: '',
+      ),
+    ),
+  );
+
+  final response = await getAddressFromLocationUseCase(
+    latitude: latitude,
+    longitude: longitude,
+  );
+
+  if (isClosed) return;
+
+  switch (response) {
+    case SuccessResponse<AddressEntity>():
+      final current = state.addressState.data;
+
+      if (isClosed) return;
+
+      emit(
+        state.copyWith(
+          addressState: state.addressState.copyWith(
+            isLoading: false,
+            data: response.data.copyWith(
+              id: current?.id,
+              phoneNumber: current?.phoneNumber,
+              recipientName: current?.recipientName,
+              label: current?.label,
+            ),
+            errorMessage: '',
+          ),
+        ),
+      );
+
+    case ErrorResponse():
+      if (isClosed) return;
+
+      emit(
+        state.copyWith(
+          addressState: state.addressState.copyWith(
+            isLoading: false,
+            errorMessage: response.errorMessage,
+          ),
+        ),
+      );
+  }
+}
 
   void _emitLocationError(String message) {
     emit(

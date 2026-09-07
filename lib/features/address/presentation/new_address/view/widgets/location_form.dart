@@ -13,7 +13,11 @@ class LocationForm extends StatefulWidget {
   final ValueChanged<AddressEntity>? onSave;
   final AddressEntity? address;
 
-  const LocationForm({super.key, this.onSave, this.address});
+  const LocationForm({
+    super.key,
+    this.onSave,
+    this.address,
+  });
 
   @override
   State<LocationForm> createState() => _LocationFormState();
@@ -22,16 +26,37 @@ class LocationForm extends StatefulWidget {
 class _LocationFormState extends State<LocationForm> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _areaController = TextEditingController();
+  final TextEditingController _addressController =
+      TextEditingController();
+
+  final TextEditingController _phoneController =
+      TextEditingController();
+
+  final TextEditingController _nameController =
+      TextEditingController();
+
+  final TextEditingController _cityController =
+      TextEditingController();
+
+  final TextEditingController _areaController =
+      TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
     _fillForm(widget.address);
+
+    // Listen for any changes in the form
+    _addressController.addListener(_onFormChanged);
+    _phoneController.addListener(_onFormChanged);
+    _nameController.addListener(_onFormChanged);
+    _cityController.addListener(_onFormChanged);
+    _areaController.addListener(_onFormChanged);
+  }
+
+  void _onFormChanged() {
+    setState(() {});
   }
 
   @override
@@ -56,6 +81,7 @@ class _LocationFormState extends State<LocationForm> {
   bool get _hasFormChanges {
     final original = widget.address;
 
+    // New address
     if (original == null) {
       return true;
     }
@@ -74,6 +100,7 @@ class _LocationFormState extends State<LocationForm> {
     _nameController.dispose();
     _cityController.dispose();
     _areaController.dispose();
+
     super.dispose();
   }
 
@@ -140,7 +167,9 @@ class _LocationFormState extends State<LocationForm> {
                     validator: AppValidators.validateCity,
                   ),
                 ),
+
                 SizedBox(width: 12.w),
+
                 Expanded(
                   child: LocationTextfield(
                     controller: _areaController,
@@ -154,25 +183,23 @@ class _LocationFormState extends State<LocationForm> {
 
             SizedBox(height: 32.h),
 
-            BlocBuilder<AddressViewModel, AddressState>(
-              builder: (context, state) {
-                final isLoadingLocation = state.locationState.isLoading;
-                final isUpdateWithNoChanges =
-                    widget.address != null && !_hasFormChanges;
-                final isDisabled = isLoadingLocation || isUpdateWithNoChanges;
-                return ElevatedButton(
-                  onPressed: isDisabled ? null : _submitForm,
-                  child: Text(
-                    AppString.savedAddresses,
-                    style: TextStyle(
-                      color: context.colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                );
-              },
-            ),
+           BlocBuilder<AddressViewModel, AddressState>(
+  builder: (context, state) {
+    final isLoadingLocation = state.locationState.isLoading;
+
+    return ElevatedButton(
+      onPressed: isLoadingLocation ? null : _submitForm,
+      child: Text(
+        AppString.savedAddresses,
+        style: TextStyle(
+          color: context.colors.white,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  },
+),
           ],
         ),
       ),

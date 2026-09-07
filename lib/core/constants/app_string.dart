@@ -144,6 +144,10 @@ abstract class AppString {
   static const String promoCode = 'Promo Code';
   static const String apply = 'Apply';
   static const String applyPromoCodeHint = 'Enter promo code';
+  static const String cancel = 'Cancel';
+  static const String remove = 'Remove';
+  static const String removeItem = 'Remove item';
+  static const String removeItemConfirm = 'Remove this item from your cart?';
 
   // ==================== Address & Checkout ====================
   static const String shippingAddress = 'Shipping Address';
@@ -179,6 +183,7 @@ abstract class AppString {
   static const String statusPending = 'Pending';
   static const String statusDelivered = 'Delivered';
   static const String statusCancelled = 'Cancelled';
+  static const String gettingLocation = 'Getting your location...';
 
   // ==================== Profile & Settings ====================
   static const String profile = 'Profile';
@@ -229,7 +234,6 @@ static const String location = 'Location';
 
   static const String openSettings = 'Open Settings';
 
-  static const String cancel = 'Cancel';
 
 }
 

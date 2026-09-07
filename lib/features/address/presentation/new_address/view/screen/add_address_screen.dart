@@ -121,8 +121,8 @@ class _AddressScreenState extends State<AddAddressScreen>
                   state.locationState.data ??
                   const LocationEntity(latitude: 30.0444, longitude: 31.2357);
 
-              final isLoading =
-                  state.locationState.isLoading || state.addressState.isLoading;
+              // final isLoading =
+              //     state.locationState.isLoading || state.addressState.isLoading;
        
           return SingleChildScrollView(
             child: Column(
