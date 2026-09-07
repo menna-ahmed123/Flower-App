@@ -6,7 +6,6 @@ services:
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    platform: linux/amd64
     container_name: flower_sqlserver_team1
     restart: unless-stopped
     environment:
@@ -18,11 +17,11 @@ services:
     ports:
       - "127.0.0.1:1433:1433"
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"${MSSQL_SA_PASSWORD:-Password123!}\" -C -Q \"SELECT 1\" || exit 1" ]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1 -U sa -P \"${MSSQL_SA_PASSWORD:-Password123!}\" -C -Q \"SELECT 1\" || exit 1"]
       interval: 10s
-      timeout: 10s
-      retries: 18
-      start_period: 90s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - flower_net_team1
 
@@ -37,7 +36,7 @@ services:
       - "127.0.0.1:5672:5672"
       - "127.0.0.1:15672:15672"
     healthcheck:
-      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q ping" ]
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -61,7 +60,9 @@ services:
 
   apigateway:
     image: ${DOCKER_USERNAME:-amr0110}/flower-apigateway-team1:latest
-    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: API Gateway/Dockerfile
     container_name: flower_apigateway_team1
     restart: unless-stopped
     depends_on:
@@ -80,8 +81,6 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
-      ReverseProxy__Routes__catalog-images-route__ClusterId: catalog-cluster
-      ReverseProxy__Routes__catalog-images-route__Match__Path: "/images/{**catch-all}"
     ports:
       - "8080:8080"
     networks:
@@ -89,7 +88,9 @@ services:
 
   identityservice:
     image: ${DOCKER_USERNAME:-amr0110}/flower-identity-service-team1:latest
-    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Identity service/Dockerfile
     container_name: flower_identity_service_team1
     restart: unless-stopped
     depends_on:
@@ -110,6 +111,13 @@ services:
       JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
       JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
       JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
+      Email__Host: ${EMAIL_HOST:-smtp.gmail.com}
+      Email__Port: ${EMAIL_PORT:-587}
+      Email__UseStartTls: ${EMAIL_USE_START_TLS:-true}
+      Email__Username: ${EMAIL_USERNAME:-testamr124@gmail.com}
+      Email__Password: ${EMAIL_PASSWORD:-exlu nsgy vvsf nhup}
+      Email__FromAddress: ${EMAIL_FROM_ADDRESS:-testamr124@gmail.com}
+      Email__FromName: ${EMAIL_FROM_NAME:-Flower Delivery}
     ports:
       - "5022:8080"
     networks:
@@ -117,7 +125,9 @@ services:
 
   catalogservice:
     image: ${DOCKER_USERNAME:-amr0110}/flower-catalog-service-team1:latest
-    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Catalog Service/Dockerfile
     container_name: flower_catalog_service_team1
     restart: unless-stopped
     depends_on:
@@ -128,6 +138,12 @@ services:
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FlowerCatalogDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
       DatabaseInitialization__ResetOnStartup: "false"
+      Jwt__Key: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      Jwt__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      Jwt__Audience: ${JWT_AUDIENCE:-FlowersApp}
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
     ports:
       - "5129:8080"
     networks:
@@ -135,7 +151,9 @@ services:
 
   cartservice:
     image: ${DOCKER_USERNAME:-amr0110}/flower-cart-service-team1:latest
-    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Cart Service/Dockerfile
     container_name: flower_cart_service_team1
     restart: unless-stopped
     depends_on:
@@ -145,6 +163,13 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FlowerCartDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      Jwt__Key: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      Jwt__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      Jwt__Audience: ${JWT_AUDIENCE:-FlowersApp}
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
+      Catalog__BaseUrl: "http://catalogservice:8080"
     ports:
       - "5292:8080"
     networks:
@@ -152,7 +177,9 @@ services:
 
   orderfulfillmentservice:
     image: ${DOCKER_USERNAME:-amr0110}/flower-order-service-team1:latest
-    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Order & Fulfillment Service/Dockerfile
     container_name: flower_order_service_team1
     restart: unless-stopped
     depends_on:
@@ -167,6 +194,12 @@ services:
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Username: ${RABBITMQ_USER:-guest}
       RabbitMQ__Password: ${RABBITMQ_PASS:-guest}
+      Jwt__Key: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      Jwt__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      Jwt__Audience: ${JWT_AUDIENCE:-FlowersApp}
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
     ports:
       - "5109:8080"
     networks:
@@ -174,7 +207,9 @@ services:
 
   paymentservice:
     image: ${DOCKER_USERNAME:-amr0110}/flower-payment-service-team1:latest
-    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Payment Service/Dockerfile
     container_name: flower_payment_service_team1
     restart: unless-stopped
     depends_on:
@@ -184,6 +219,12 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FlowerPaymentDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      Jwt__Key: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      Jwt__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      Jwt__Audience: ${JWT_AUDIENCE:-FlowersApp}
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
     ports:
       - "5260:8080"
     networks:
@@ -191,7 +232,9 @@ services:
 
   addressstorecoverageservice:
     image: ${DOCKER_USERNAME:-amr0110}/flower-address-service-team1:latest
-    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Address & Store Coverage Service/Dockerfile
     container_name: flower_address_service_team1
     restart: unless-stopped
     depends_on:
@@ -201,6 +244,12 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FlowerAddressDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      Jwt__Key: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      Jwt__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      Jwt__Audience: ${JWT_AUDIENCE:-FlowersApp}
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
     ports:
       - "5272:8080"
     networks:
