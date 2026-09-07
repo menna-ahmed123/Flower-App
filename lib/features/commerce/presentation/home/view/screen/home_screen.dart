@@ -92,7 +92,7 @@ class HomeScreen extends StatelessWidget {
 
       selectedAddress: defaultAddress,
 
-      // لما يختار Address موجود
+
       onAddressSelected: (address) {
         if (address.id == null) return;
 
@@ -105,7 +105,6 @@ class HomeScreen extends StatelessWidget {
             );
       },
 
-      // لما يدوس Add New Address
       onAddNewAddress: () async {
         final result = await context.push(
                     AppRoutesName.saveAddress,
@@ -113,7 +112,6 @@ class HomeScreen extends StatelessWidget {
 
         if (!context.mounted) return;
 
-        // رجع من Save Address بعد نجاح الحفظ
         if (result == true) {
           context
               .read<DefaultAddressViewModel>()
