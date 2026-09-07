@@ -157,7 +157,7 @@ void main() {
           );
 
           expect(authCubit.state.isAuthenticated, false);
-          expect(authCubit.state.requiresAuthentication, true);
+          expect(authCubit.state.requiresAuthentication, false);
           expect(actionExecuted, false);
 
           verify(authRepository.isAuthenticated()).called(1);

@@ -8,16 +8,19 @@ import 'fake_token_storage.dart';
 void main() {
   test('attaches Authorization Bearer header from stored access token', () async {
     final storage = FakeTokenStorage()..accessToken = 'access-token';
-    final interceptor = AuthInterceptors(storage, UnconfiguredTokenRefresher());
+    final interceptor = AuthInterceptors(storage, _FakeTokenRefresher());
     final dio = Dio()
       ..interceptors.add(interceptor)
       ..httpClientAdapter = _HeaderCapturingAdapter();
 
     try {
       await dio.get<void>('/users/me/addresses');
-    } on _CapturedHeaders catch (captured) {
-      expect(captured.headers['Authorization'], 'Bearer access-token');
-      expect(captured.headers.containsKey('token'), isFalse);
+    } on DioException catch (e) {
+      final captured = e.error;
+      expect(captured, isA<_CapturedHeaders>());
+      final headers = (captured as _CapturedHeaders).headers;
+      expect(headers['Authorization'], 'Bearer access-token');
+      expect(headers.containsKey('token'), isFalse);
       return;
     }
 
@@ -43,4 +46,10 @@ class _CapturedHeaders implements Exception {
   _CapturedHeaders(this.headers);
 
   final Map<String, dynamic> headers;
+}
+
+/// No-op [TokenRefresher] for tests that only check header attachment.
+class _FakeTokenRefresher implements TokenRefresher {
+  @override
+  Future<AuthTokens?> refresh(String refreshToken) async => null;
 }

@@ -3,15 +3,34 @@ import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
+import 'package:flower_app/features/address/domain/use_cases/check_location_permission_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/get_address_details_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/get_address_from_location_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/get_current_location_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/is_location_service_enabled_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/open_app_settings_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/open_location_settings_use_case.dart';
+import 'package:flower_app/features/address/domain/use_cases/request_location_permission_use_case.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_state.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'address_view_model_test.mocks.dart';
 
+@GenerateMocks([
+  IsLocationServiceEnabledUseCase,
+  CheckLocationPermissionUseCase,
+  RequestLocationPermissionUseCase,
+  OpenLocationSettingsUseCase,
+  OpenAppSettingsUseCase,
+  GetCurrentLocationUseCase,
+  GetAddressFromLocationUseCase,
+  GetAddressDetailsUseCase,
+])
 void main() {
   provideDummy<BaseResponse<bool>>(
     const SuccessResponse<bool>(true),
