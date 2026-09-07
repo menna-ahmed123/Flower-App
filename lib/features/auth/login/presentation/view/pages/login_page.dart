@@ -100,6 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                         hint: AppString.enterYourPassword,
                         validator: AppValidators.passwordValidator,
                         controller: _passwordController,
+                         obscureText: true,
                       ),
                       StatefulBuilder(
                         builder: (context, setState) {

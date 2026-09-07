@@ -11,6 +11,7 @@ abstract final class AppRoutesName {
   static const String category = '/category';
   static const String cart = '/cart';
   static const String profile = '/profile';
+  static const String search = '/search';
 
   static const Set<String> mainTabPaths = {
     home,

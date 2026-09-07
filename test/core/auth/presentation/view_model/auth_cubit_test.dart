@@ -65,7 +65,9 @@ void main() {
     test('should logout and emit unauthenticated', () async {
       when(
         authRepository.logout(),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async {
+        return null;
+      });
 
       await authCubit.doEvent(
         const AuthLogoutRequested(),

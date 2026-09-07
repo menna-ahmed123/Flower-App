@@ -102,6 +102,7 @@ abstract class AppString {
   static const String search = 'Search';
   static const String searchHint = 'Search for flowers, bouquets...';
   static const String noResultsFound = 'No results found';
+  static const String searchProducts = 'Search For Any Product You Want';
 
   // ==================== Home / Dashboard ====================
   static const String home = 'Home';
