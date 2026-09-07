@@ -11,10 +11,46 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
+import 'package:geolocator/geolocator.dart' as _i699;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import '../../features/address/api/address_api_client.dart' as _i328;
+import '../../features/address/data/data_sources/address_remote_data_source.dart'
+    as _i581;
+import '../../features/address/data/data_sources/address_remote_data_source_impl.dart'
+    as _i784;
+import '../../features/address/data/repo/address_repo_impl.dart' as _i660;
+import '../../features/address/domain/repo/address_repo.dart' as _i366;
+import '../../features/address/domain/use_cases/add_address_use_case.dart'
+    as _i458;
+import '../../features/address/domain/use_cases/check_location_permission_use_case.dart'
+    as _i203;
+import '../../features/address/domain/use_cases/delete_address_use_case.dart'
+    as _i951;
+import '../../features/address/domain/use_cases/get_address_details_use_case.dart'
+    as _i99;
+import '../../features/address/domain/use_cases/get_address_from_location_use_case.dart'
+    as _i848;
+import '../../features/address/domain/use_cases/get_address_use_case.dart'
+    as _i270;
+import '../../features/address/domain/use_cases/get_current_location_use_case.dart'
+    as _i990;
+import '../../features/address/domain/use_cases/is_location_service_enabled_use_case.dart'
+    as _i373;
+import '../../features/address/domain/use_cases/open_app_settings_use_case.dart'
+    as _i84;
+import '../../features/address/domain/use_cases/open_location_settings_use_case.dart'
+    as _i920;
+import '../../features/address/domain/use_cases/request_location_permission_use_case.dart'
+    as _i94;
+import '../../features/address/domain/use_cases/update_address_use_case.dart'
+    as _i130;
+import '../../features/address/presentation/new_address/view_model/address_view_model.dart'
+    as _i28;
+import '../../features/address/presentation/save_address/view_model/save_address_view_model.dart'
+    as _i236;
 import '../../features/auth/forget_password/api/client/forget_password_api_client.dart'
     as _i597;
 import '../../features/auth/forget_password/api/data_source/forget_password_remote_data_source_impl.dart'
@@ -102,11 +138,16 @@ import '../localization/locale_controller.dart' as _i1066;
 import '../localization/locale_storage.dart' as _i463;
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
+import '../modules/location_module.dart' as _i917;
 import '../modules/register_module.dart' as _i505;
 import '../network/auth_interceptors.dart' as _i466;
 import '../network/safe_call.dart' as _i185;
 import '../network/token_refresher.dart' as _i1058;
 import '../network/token_storage.dart' as _i964;
+import '../services/geocoding_service.dart' as _i980;
+import '../services/location_service.dart' as _i669;
+import '../utils/commerce_widgets/default_address_view_model/default_address_view_model.dart'
+    as _i941;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -115,10 +156,13 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
+    final locationModule = _$LocationModule();
     final registerModule = _$RegisterModule();
     final dioModule = _$DioModule();
     final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
+    gh.factory<_i980.GeocodingService>(() => _i980.GeocodingService());
+    gh.lazySingleton<_i699.GeolocatorPlatform>(() => locationModule.geolocator);
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
@@ -126,11 +170,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.prefs(),
       preResolve: true,
     );
-    gh.lazySingleton<_i1058.TokenRefresher>(
-      () => _i1058.UnconfiguredTokenRefresher(),
-    );
+    gh.lazySingleton<_i1058.TokenRefresher>(() => _i1058.ApiTokenRefresher());
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.factory<_i669.LocationService>(
+      () => _i669.LocationService(gh<_i699.GeolocatorPlatform>()),
     );
     gh.lazySingleton<_i463.LocaleStorage>(
       () => _i463.PreferencesLocaleStorage(gh<_i460.SharedPreferences>()),
@@ -138,15 +183,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i420.AuthRepository>(
       () => _i874.AuthRepositoryImpl(gh<_i964.TokenStorage>()),
     );
-    gh.lazySingleton<_i1066.LocaleController>(
-      () => _i1066.LocaleController(gh<_i463.LocaleStorage>()),
-    );
     gh.lazySingleton<_i466.AuthInterceptors>(
       () => _i466.AuthInterceptors(
         gh<_i964.TokenStorage>(),
         gh<_i1058.TokenRefresher>(),
-        gh<_i1066.LocaleController>(),
       ),
+    );
+    gh.lazySingleton<_i1066.LocaleController>(
+      () => _i1066.LocaleController(gh<_i463.LocaleStorage>()),
     );
     gh.lazySingleton<_i4.AuthCubit>(
       () => _i4.AuthCubit(gh<_i420.AuthRepository>()),
@@ -165,6 +209,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i243.CommerceApiClient>(
       () => apiModule.provideCommerceApiClient(gh<_i361.Dio>()),
+    );
+    gh.singleton<_i328.AddressApiClient>(
+      () => apiModule.provideAddressApiClient(gh<_i361.Dio>()),
     );
     gh.singleton<_i1046.CartApiClient>(
       () => apiModule.provideCartApiClient(gh<_i361.Dio>()),
@@ -222,6 +269,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i682.OccasionUseCase>(
       () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
     );
+    gh.factory<_i581.AddressRemoteDataSource>(
+      () => _i784.AddressRemoteDataSourceImpl(
+        addressApiClient: gh<_i328.AddressApiClient>(),
+      ),
+    );
     gh.factory<_i864.SearchUseCase>(
       () => _i864.SearchUseCase(gh<_i772.CommerceRepo>()),
     );
@@ -247,8 +299,37 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i164.CartRemoteDataSource>(
       () => _i916.CartRemoteDataSourceImpl(gh<_i1046.CartApiClient>()),
     );
+    gh.factory<_i366.AddressRepo>(
+      () => _i660.AddressRepoImpl(
+        gh<_i669.LocationService>(),
+        gh<_i980.GeocodingService>(),
+        gh<_i185.SafeCall>(),
+        gh<_i581.AddressRemoteDataSource>(),
+      ),
+    );
     gh.factory<_i95.RegisterUseCase>(
       () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
+    );
+    gh.factory<_i203.CheckLocationPermissionUseCase>(
+      () => _i203.CheckLocationPermissionUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i848.GetAddressFromLocationUseCase>(
+      () => _i848.GetAddressFromLocationUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i990.GetCurrentLocationUseCase>(
+      () => _i990.GetCurrentLocationUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i373.IsLocationServiceEnabledUseCase>(
+      () => _i373.IsLocationServiceEnabledUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i84.OpenAppSettingsUseCase>(
+      () => _i84.OpenAppSettingsUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i920.OpenLocationSettingsUseCase>(
+      () => _i920.OpenLocationSettingsUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i94.RequestLocationPermissionUseCase>(
+      () => _i94.RequestLocationPermissionUseCase(gh<_i366.AddressRepo>()),
     );
     gh.factory<_i795.ForgetPasswordCubit>(
       () => _i795.ForgetPasswordCubit(
@@ -268,6 +349,21 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i969.BestSellerViewModel>(
       () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
+    );
+    gh.factory<_i458.AddAddressUseCase>(
+      () => _i458.AddAddressUseCase(repo: gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i951.DeleteAddressUseCase>(
+      () => _i951.DeleteAddressUseCase(repo: gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i99.GetAddressDetailsUseCase>(
+      () => _i99.GetAddressDetailsUseCase(repo: gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i270.GetAddressesUseCase>(
+      () => _i270.GetAddressesUseCase(repo: gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i130.UpdateAddressUseCase>(
+      () => _i130.UpdateAddressUseCase(repo: gh<_i366.AddressRepo>()),
     );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
@@ -296,8 +392,32 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i886.CartUseCase>(
       () => _i886.CartUseCase(gh<_i379.CartRepo>()),
     );
+    gh.singleton<_i941.DefaultAddressViewModel>(
+      () => _i941.DefaultAddressViewModel(
+        gh<_i270.GetAddressesUseCase>(),
+        gh<_i951.DeleteAddressUseCase>(),
+      ),
+    );
     gh.factory<_i188.LoginViewModel>(
       () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
+    );
+    gh.factory<_i28.AddressViewModel>(
+      () => _i28.AddressViewModel(
+        gh<_i373.IsLocationServiceEnabledUseCase>(),
+        gh<_i203.CheckLocationPermissionUseCase>(),
+        gh<_i94.RequestLocationPermissionUseCase>(),
+        gh<_i920.OpenLocationSettingsUseCase>(),
+        gh<_i84.OpenAppSettingsUseCase>(),
+        gh<_i990.GetCurrentLocationUseCase>(),
+        gh<_i848.GetAddressFromLocationUseCase>(),
+        gh<_i99.GetAddressDetailsUseCase>(),
+      ),
+    );
+    gh.factory<_i236.SaveAddressViewModel>(
+      () => _i236.SaveAddressViewModel(
+        gh<_i458.AddAddressUseCase>(),
+        gh<_i130.UpdateAddressUseCase>(),
+      ),
     );
     gh.lazySingleton<_i572.CartViewModel>(
       () => _i572.CartViewModel(gh<_i886.CartUseCase>()),
@@ -305,6 +425,8 @@ extension GetItInjectableX on _i174.GetIt {
     return this;
   }
 }
+
+class _$LocationModule extends _i917.LocationModule {}
 
 class _$RegisterModule extends _i505.RegisterModule {}
 

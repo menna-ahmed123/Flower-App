@@ -96,7 +96,7 @@ class _LocationMapState extends State<LocationMap> {
 
             return Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 child: Center(
                   child: Container(
                     padding: EdgeInsets.symmetric(
@@ -110,7 +110,7 @@ class _LocationMapState extends State<LocationMap> {
                         BoxShadow(
                           blurRadius: 12,
                           spreadRadius: 2,
-                          color: Colors.black.withOpacity(0.12),
+                          color: Colors.black.withValues(alpha: 0.12),
                         ),
                       ],
                     ),

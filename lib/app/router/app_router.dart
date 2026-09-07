@@ -164,7 +164,7 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutesName.occasion,
-        builder:_OccasionBuilder,
+        builder: _occasionBuilder,
       ),
       GoRoute(
         path: AppRoutesName.productDetails,
@@ -214,7 +214,7 @@ class AppRouter {
   );
 }
 
-  static Widget _OccasionBuilder(BuildContext context, GoRouterState state) {
+  static Widget _occasionBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<OccasionViewModel>(),
       child: const OccasionScreen(),

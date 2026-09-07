@@ -188,7 +188,7 @@ class _LocationFormState extends State<LocationForm> {
     final isLoadingLocation = state.locationState.isLoading;
 
     return ElevatedButton(
-      onPressed: isLoadingLocation ? null : _submitForm,
+      onPressed: isLoadingLocation || !_hasFormChanges ? null : _submitForm,
       child: Text(
         AppString.savedAddresses,
         style: TextStyle(
