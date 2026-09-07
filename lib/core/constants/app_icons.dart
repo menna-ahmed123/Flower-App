@@ -23,6 +23,7 @@ class AppIcons {
 
   static const IconData settings = Icons.tune;
   static const IconData trash = Icons.delete_outline;
+  static const IconData edit = Icons.edit_outlined;
   static const IconData minus = Icons.remove;
   static const IconData plus = Icons.add;
   static const IconData filter = Icons.filter_list;

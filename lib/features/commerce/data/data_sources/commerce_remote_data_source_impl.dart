@@ -7,6 +7,7 @@ import 'package:flower_app/features/commerce/data/models/home_layout_response.da
 import 'package:flower_app/features/commerce/data/models/occasions_response.dart';
 import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart';
 import 'package:flower_app/features/commerce/data/models/product_response.dart';
+import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: CommerceRemoteDataSource)
@@ -53,7 +54,7 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   }
 
   Future<HomeSectionDto> _hydrateSection(HomeSectionDto section) async {
-    if (section.type == 'banner') return _bannerSection(section);
+    if (section.type == HomeSectionTypes.banner) return _bannerSection(section);
     final items = await _itemsFor(section);
     if (items.isEmpty) return section;
     return _copySection(section, {...section.payload, 'items': items});
@@ -62,21 +63,26 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   Future<List<Map<String, dynamic>>> _itemsFor(HomeSectionDto section) {
     final take = _take(section);
     return switch (section.type) {
-      'category_rail' => _railItems(
+      HomeSectionTypes.categoryRail || HomeSectionTypes.categories => _railItems(
         () => commerceApiClient.getCategories(),
         take,
         _categoryItem,
       ),
-      'occasion_rail' => _railItems(
+      HomeSectionTypes.occasionRail || HomeSectionTypes.occasions => _railItems(
         () => commerceApiClient.getOccasions(),
         take,
         _occasionItem,
       ),
-      'product_rail' => _railItems(
+      HomeSectionTypes.productRail ||
+      HomeSectionTypes.bestSeller ||
+      HomeSectionTypes.productsCarousel => _railItems(
         () async {
           final response = await commerceApiClient.getProducts(
             page: 1,
             pageSize: take,
+            occasionId: section.type == HomeSectionTypes.productsCarousel
+                ? section.payload['occasionId']?.toString()
+                : null,
           );
           return CatalogItemsResponse(
             items: [for (final item in response.data.items) item.toJson()],

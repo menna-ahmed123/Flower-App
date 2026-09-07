@@ -2,12 +2,18 @@ import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/auth/auth_extension.dart';
-
 class ProductGrid extends StatelessWidget {
-  const ProductGrid({super.key, required this.products, required this.onTap});
+  const ProductGrid({
+    super.key,
+    required this.products,
+    required this.onTap,
+    this.onAddToCart,
+  });
+
   final List<ProductEntity> products;
   final void Function(ProductEntity) onTap;
+  final void Function(String productId)? onAddToCart;
+
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -32,14 +38,7 @@ class ProductGrid extends StatelessWidget {
           discount: product.discountPercent != null
               ? '${product.discountPercent!.toStringAsFixed(0)}%'
               : null,
-          onAddToCart: () async {
-            await context.requireAuth(
-              action: () async {
-                // TODO: Add product to cart.
-                // This action will be replayed after authentication.
-              },
-            );
-          },
+          onAddToCart: () => onAddToCart?.call(product.id),
           onTap: () => onTap(product),
         );
       },
