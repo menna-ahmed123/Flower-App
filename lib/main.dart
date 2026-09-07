@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
           create: (_) =>
               getIt<AuthCubit>()..doEvent(const AuthEvent.authCheckRequested()),
         ),
-        BlocProvider(create: (_) => getIt<CartViewModel>()),
+        BlocProvider.value(value: getIt<CartViewModel>()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

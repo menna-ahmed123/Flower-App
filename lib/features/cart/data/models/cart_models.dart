@@ -52,7 +52,7 @@ class CartDataModel {
 
   CartEntity toDomain() {
     final lines = [
-      for (final item in items ?? const <CartItemModel>[]) item.toDomain(),
+      for (final item in items ?? const []) item.toDomain(),
     ];
     return CartEntity(
       id: id ?? '',

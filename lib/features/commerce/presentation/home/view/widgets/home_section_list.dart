@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/category_rail.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_banner.dart';
@@ -42,16 +43,18 @@ class HomeSectionView extends StatelessWidget {
 
   Widget _section(ValueChanged<String> onDeepLink) {
     return switch (section.type) {
-      'banner' => HomeBanner(section: section, onDeepLink: onDeepLink),
-      'category_rail' || 'Categories' => CategoryRail(
+      HomeSectionTypes.banner => HomeBanner(section: section, onDeepLink: onDeepLink),
+      HomeSectionTypes.categoryRail || HomeSectionTypes.categories => CategoryRail(
         section: section,
         onDeepLink: onDeepLink,
       ),
-      'product_rail' || 'BestSeller' || 'ProductsCarousel' => ProductRail(
+      HomeSectionTypes.productRail ||
+      HomeSectionTypes.bestSeller ||
+      HomeSectionTypes.productsCarousel => ProductRail(
         section: section,
         onDeepLink: onDeepLink,
       ),
-      'occasion_rail' || 'Occasions' => OccasionRail(
+      HomeSectionTypes.occasionRail || HomeSectionTypes.occasions => OccasionRail(
         section: section,
         onDeepLink: onDeepLink,
       ),

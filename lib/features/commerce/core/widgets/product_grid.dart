@@ -1,16 +1,19 @@
-import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
-import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../../core/auth/auth_extension.dart';
 
 class ProductGrid extends StatelessWidget {
-  const ProductGrid({super.key, required this.products, required this.onTap});
+  const ProductGrid({
+    super.key,
+    required this.products,
+    required this.onTap,
+    this.onAddToCart,
+  });
+
   final List<ProductEntity> products;
   final void Function(ProductEntity) onTap;
+  final void Function(String productId)? onAddToCart;
+
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -35,18 +38,8 @@ class ProductGrid extends StatelessWidget {
           discount: product.discountPercent != null
               ? '${product.discountPercent!.toStringAsFixed(0)}%'
               : null,
-          onAddToCart: () => _addToCart(context, product.id),
+          onAddToCart: () => onAddToCart?.call(product.id),
           onTap: () => onTap(product),
-        );
-      },
-    );
-  }
-
-  Future<void> _addToCart(BuildContext context, String productId) {
-    return context.requireAuth(
-      action: () {
-        return context.read<CartViewModel>().doEvent(
-          AddCartItemEvent(productId: productId),
         );
       },
     );

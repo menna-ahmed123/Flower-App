@@ -24,6 +24,7 @@ import 'package:flower_app/features/commerce/presentation/prodect_details/view/s
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -133,9 +134,12 @@ class AppRouter {
   static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return MainShell(
-          navigationShell: navigationShell,
-          location: state.uri.path,
+        return BlocProvider.value(
+          value: getIt<CartViewModel>(),
+          child: MainShell(
+            navigationShell: navigationShell,
+            location: state.uri.path,
+          ),
         );
       },
       branches: [

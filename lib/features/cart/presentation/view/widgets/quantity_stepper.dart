@@ -22,7 +22,7 @@ class QuantityStepper extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _button(context, AppIcons.minus, onDecrement),
+        _button(context, const Icon(AppIcons.minus), onDecrement),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           child: Text(
@@ -34,19 +34,21 @@ class QuantityStepper extends StatelessWidget {
             ),
           ),
         ),
-        _button(context, AppIcons.plus, canIncrement ? onIncrement : null),
+        _button(context, const Icon(AppIcons.plus), canIncrement ? onIncrement : null),
       ],
     );
   }
 
-  Widget _button(BuildContext context, IconData icon, VoidCallback? onPressed) {
+  Widget _button(BuildContext context, Widget icon, VoidCallback? onPressed) {
     return SizedBox(
       width: 28.w,
       height: 28.w,
       child: IconButton(
         padding: EdgeInsets.zero,
         onPressed: onPressed,
-        icon: Icon(icon, size: 16.w, color: context.colors.pink),
+        iconSize: 16.w,
+        color: context.colors.pink,
+        icon: icon,
       ),
     );
   }

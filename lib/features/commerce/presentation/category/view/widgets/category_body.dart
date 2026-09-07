@@ -1,4 +1,7 @@
+import 'package:flower_app/core/auth/auth_extension.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/custom_tab_bar.dart';
 import 'package:flower_app/features/commerce/core/widgets/product_grid.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
@@ -76,6 +79,17 @@ class CategoryBody extends StatelessWidget {
       products: products,
       onTap: (product) {
         navigateToProductDetails(context, product.id);
+      },
+      onAddToCart: (productId) => _addToCart(context, productId),
+    );
+  }
+
+  Future<void> _addToCart(BuildContext context, String productId) {
+    return context.requireAuth(
+      action: () {
+        return context.read<CartViewModel>().doEvent(
+          AddCartItemEvent(productId: productId),
+        );
       },
     );
   }

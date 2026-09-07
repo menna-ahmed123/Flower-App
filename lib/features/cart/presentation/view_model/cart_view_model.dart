@@ -149,6 +149,7 @@ class CartViewModel extends Cubit<CartState> {
         if (_pendingMutations == 0 && _quantityTimers.isEmpty) {
           if (response.data.items.isNotEmpty) _emitCart(response.data);
         }
+        break;
       case ErrorResponse<CartEntity>():
         _emitError(response.errorMessage, cart: previous);
     }
