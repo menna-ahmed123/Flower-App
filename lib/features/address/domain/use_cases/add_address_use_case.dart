@@ -9,7 +9,7 @@ import 'package:injectable/injectable.dart';
 class AddAddressUseCase {
   final AddressRepo repo;
   AddAddressUseCase({required this.repo});
-  Future<BaseResponse<List<AddressEntity>>> addAddress(
+  Future<BaseResponse<AddressEntity>> addAddress(
     AddAddressRequest request,
   ) {
     return repo.createAddress(request);

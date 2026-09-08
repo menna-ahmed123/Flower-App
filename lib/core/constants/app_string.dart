@@ -116,7 +116,7 @@ abstract class AppString {
   static const String popularFlowers = 'Popular Flowers';
   static const String desSell = 'Bloom with our exquisite best sellers';
   static const String notFound = 'No products found';
-  static const String deliverTo = 'Deliver to 2XVP+XC - Sheikh Zayed';
+
 
   // ==================== Product Details ====================
   static const String addToCart = 'Add to cart';
@@ -233,7 +233,13 @@ static const String location = 'Location';
       'Please enable location services from settings.';
 
   static const String openSettings = 'Open Settings';
-
-
+  static const String addAddressToContinue = 'Add an address to continue';
+  static const String noSavedAddresses = 'No saved addresses yet';
+  static const String noAddresses = 'No addresses found';
+  static const String unknownCity = 'Unknown city';
+  static const String defaultAddress = 'Default Address';
+  static const String unknown = 'Unknown';
+  static const String selectDeliveryAddress = 'Select where you want your flowers delivered';
+  static const String chooseDeliveryAddress = 'Choose delivery address';
 }
 

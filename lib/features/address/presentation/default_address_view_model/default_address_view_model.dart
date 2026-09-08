@@ -1,6 +1,6 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_event.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_state.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/use_cases/delete_address_use_case.dart';
 import 'package:flower_app/features/address/domain/use_cases/get_address_use_case.dart';

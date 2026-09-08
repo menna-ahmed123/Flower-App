@@ -1,53 +1,41 @@
-import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/core/theme/app_color.dart';
-
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_event.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_state.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_view_model.dart';
-
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
-
-import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_section_list.dart';
-
-import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
-import 'package:flower_app/features/commerce/presentation/home/view_model/home_state.dart';
-import 'package:flower_app/features/commerce/presentation/home/view_model/home_view_model.dart';
-
-import 'package:flower_app/core/di/di.dart';
-import 'package:flower_app/app/router/app_routes.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_section_list.dart';
+import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
+import 'package:flower_app/features/commerce/presentation/home/view_model/home_state.dart';
+import 'package:flower_app/features/commerce/presentation/home/view_model/home_view_model.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  AddressEntity? _selectedAddress;
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<DefaultAddressViewModel>()
-        ..doEvent(
-          LoadSavedAddresses(),
-        ),
-      child: Scaffold(
-        body: SafeArea(
-          child: BlocBuilder<HomeViewModel, HomeState>(
-            builder: (context, homeState) {
-              return BlocBuilder<
-                  DefaultAddressViewModel,
-                  DefaultAddressState>(
-                builder: (context, addressState) {
-                  return _buildBody(
-                    context,
-                    homeState,
-                    addressState,
-                  );
-                },
-              );
-            },
-          ),
+    return Scaffold(
+      body: SafeArea(
+        child: BlocBuilder<HomeViewModel, HomeState>(
+          builder: (context, homeState) {
+            return BlocBuilder<DefaultAddressViewModel, DefaultAddressState>(
+              builder: (context, addressState) {
+                return _buildBody(context, homeState, addressState);
+              },
+            );
+          },
         ),
       ),
     );
@@ -65,99 +53,65 @@ class HomeScreen extends StatelessWidget {
     }
 
     if (home.errorMessage.isNotEmpty && home.data == null) {
-      return _error(
-        context,
-        home.errorMessage,
+      return _error(context, home.errorMessage);
+    }
+
+    final addresses = addressState.defaultAddressesState.data ?? [];
+    AddressEntity? displayedAddress = _selectedAddress;
+    if (displayedAddress == null && addresses.isNotEmpty) {
+      displayedAddress = addresses.firstWhere(
+        (address) => address.isDefault,
+        orElse: () => addresses.first,
       );
     }
-
-    final addresses =
-        addressState.defaultAddressesState.data ?? [];
-
-    AddressEntity? defaultAddress;
-
-    for (final address in addresses) {
-      if (address.isDefault) {
-        defaultAddress = address;
-        break;
-      }
-    }
-
     return HomeSectionList(
-      sections: context
-          .read<HomeViewModel>()
-          .displayedSections,
+      sections: context.read<HomeViewModel>().displayedSections,
 
       addresses: addresses,
-
-      selectedAddress: defaultAddress,
-
-      // لما يختار Address موجود
+      selectedAddress: displayedAddress,
       onAddressSelected: (address) {
-        if (address.id == null) return;
+        setState(() {
+          _selectedAddress = address;
+        });
 
-        context
-            .read<DefaultAddressViewModel>()
-            .doEvent(
-              SetDefaultAddress(
-                address.id!,
-              ),
-            );
+        if (address.id != null) {
+          context.read<DefaultAddressViewModel>().doEvent(
+            SetDefaultAddress(address.id!),
+          );
+        }
       },
-
-      // لما يدوس Add New Address
       onAddNewAddress: () async {
-        final result = await context.push(
-                    AppRoutesName.saveAddress,
-        );
+        final result = await context.push(AppRoutesName.saveAddress);
 
         if (!context.mounted) return;
 
-        // رجع من Save Address بعد نجاح الحفظ
         if (result == true) {
-          context
-              .read<DefaultAddressViewModel>()
-              .doEvent(
-                LoadSavedAddresses(),
-              );
+          setState(() {
+            _selectedAddress = null;
+          });
+
+          context.read<DefaultAddressViewModel>().doEvent(LoadSavedAddresses());
         }
       },
 
-      // Search
       onQuery: (query) {
-        context
-            .read<HomeViewModel>()
-            .doEvent(
-              HomeQueryChanged(query),
-            );
+        context.read<HomeViewModel>().doEvent(HomeQueryChanged(query));
       },
     );
   }
 
   Widget _loading(BuildContext context) {
-    return Center(
-      child: CircularProgressIndicator(
-        color: context.colors.pink,
-      ),
-    );
+    return Center(child: CircularProgressIndicator(color: context.colors.pink));
   }
 
-  Widget _error(
-    BuildContext context,
-    String message,
-  ) {
+  Widget _error(BuildContext context, String message) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 24.w,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
+            Text(message, textAlign: TextAlign.center),
             SizedBox(height: 12.h),
             _retry(context),
           ],
@@ -169,15 +123,9 @@ class HomeScreen extends StatelessWidget {
   Widget _retry(BuildContext context) {
     return TextButton(
       onPressed: () {
-        context
-            .read<HomeViewModel>()
-            .doEvent(
-              HomeRequested(),
-            );
+        context.read<HomeViewModel>().doEvent(HomeRequested());
       },
-      child: const Text(
-        AppString.retry,
-      ),
+      child: const Text(AppString.retry),
     );
   }
 }

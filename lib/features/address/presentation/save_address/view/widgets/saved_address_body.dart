@@ -1,7 +1,7 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_view_model.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_state.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/save_address/view/widgets/address_card.dart';
@@ -24,6 +24,7 @@ class SavedAddressesBody extends StatelessWidget {
   final bool isLoading;
   final String errorMessage;
   final List<AddressEntity> addresses;
+
   final VoidCallback onRetry;
   final ValueChanged<String> onDelete;
   final ValueChanged<AddressEntity> onEdit;
@@ -63,24 +64,31 @@ class SavedAddressesBody extends StatelessWidget {
               : ListView.separated(
                   padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
                   itemCount: addresses.length,
-                  separatorBuilder: (_, _) => SizedBox(height: 12.h),
+                  separatorBuilder: (_, __) => SizedBox(height: 12.h),
                   itemBuilder: (context, index) {
                     final address = addresses[index];
                     final id = address.id ?? '';
 
-                   return BlocSelector<DefaultAddressViewModel, DefaultAddressState, bool>(
-  selector: (state) {
-    return state.deletingId == id && id.isNotEmpty;
-  },
-  builder: (context, isDeleting) {
-    return AddressCard(
-      address: address,
-      isDeleting: isDeleting,
-      onDelete: id.isEmpty ? null : () => onDelete(id),
-      onEdit: () => onEdit(address),
-    );
-  },
-);
+                    return BlocSelector<
+                      DefaultAddressViewModel,
+                      DefaultAddressState,
+                      bool
+                    >(
+                      selector: (state) {
+                        return state.deletingId == id && id.isNotEmpty;
+                      },
+                      builder: (context, isDeleting) {
+                        return AddressCard(
+                          key: ValueKey(address.id),
+                          address: address,
+                          isDeleting: isDeleting,
+
+                          onDelete: id.isEmpty ? null : () => onDelete(id),
+
+                          onEdit: () => onEdit(address),
+                        );
+                      },
+                    );
                   },
                 ),
         ),

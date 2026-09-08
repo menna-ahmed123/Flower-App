@@ -151,12 +151,35 @@ class AddressRepoImpl implements AddressRepo {
   }
 
   @override
-  Future<BaseResponse<List<AddressEntity>>> createAddress(
+  Future<BaseResponse<AddressEntity>> createAddress(
     AddAddressRequest request,
   ) {
     return safeCall.safeApiCall(() async {
       final response = await remoteDataSource.createAddress(request);
-      return response.toDomain();
+
+      if (response.success == false) {
+        throw ApiException(
+          message: (response.message).isNotEmpty
+              ? response.message
+              : AppString.somethingWrong,
+          statusCode: response.statusCode,
+        );
+      }
+
+      final created = response.toDomain();
+
+      if (created.isNotEmpty) {
+        return created.first;
+      }
+
+      return AddressEntity(
+        address: request.addressLine,
+        phoneNumber: request.phone,
+        recipientName: request.recipientName,
+        city: request.city,
+        area: request.area,
+        label: request.label,
+      );
     });
   }
 
@@ -186,8 +209,8 @@ class AddressRepoImpl implements AddressRepo {
     AddAddressRequest request,
   ) {
     return safeCall.safeApiCall(() async {
-      await remoteDataSource.updateAddress(id, request);
-      return const <AddressEntity>[];
+      final response = await remoteDataSource.updateAddress(id, request);
+      return response.toDomain();
     });
   }
   @override

@@ -1,13 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
-
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/bottom_sheet_address.dart';
 import 'package:flower_app/core/widgets/app_search_field.dart';
 
@@ -34,12 +30,7 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        16.w,
-        8.h,
-        16.w,
-        8.h,
-      ),
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -47,10 +38,7 @@ class HomeHeader extends StatelessWidget {
 
           SizedBox(height: 12.h),
 
-          AppSearchField(
-            onChanged: onQuery,
-            onClear: () => onQuery?.call(''),
-          ),
+          AppSearchField(onChanged: onQuery, onClear: () => onQuery?.call('')),
 
           SizedBox(height: 12.h),
 
@@ -60,16 +48,25 @@ class HomeHeader extends StatelessWidget {
     );
   }
 
+  String _resolvedAddressText() {
+    if ((selectedAddress?.address ?? '').trim().isNotEmpty) {
+      return selectedAddress!.address!.trim();
+    }
+    if ((selectedAddress?.city ?? '').trim().isNotEmpty) {
+      return selectedAddress!.city!.trim();
+    }
+    if ((selectedAddress?.area ?? '').trim().isNotEmpty) {
+      return selectedAddress!.area!.trim();
+    }
+    return AppString.chooseDeliveryAddress;
+  }
+
   Widget _logo(BuildContext context) {
     final colors = context.colors;
 
     return Row(
       children: [
-        Icon(
-          AppIcons.florist,
-          color: colors.pink,
-          size: 22.w,
-        ),
+        Icon(AppIcons.florist, color: colors.pink, size: 22.w),
 
         SizedBox(width: 6.w),
 
@@ -96,45 +93,29 @@ class HomeHeader extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 4.h),
         child: Row(
           children: [
-            Icon(
-              AppIcons.location,
-              color: colors.black,
-              size: 18.w,
-            ),
+            Icon(AppIcons.location, color: colors.black, size: 18.w),
 
-            SizedBox(width: 4.w),
+            SizedBox(width: 15.w),
 
             Expanded(
               child: Text(
-                selectedAddress != null
-                    ? selectedAddress!.address ?? 'No address'
-                    : AppString.deliverTo,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                _resolvedAddressText(),
                 style: TextStyle(
                   color: colors.black,
-                  fontSize: 14.sp,
-                  fontWeight: selectedAddress != null
-                      ? FontWeight.w500
-                      : FontWeight.normal,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
 
-            Icon(
-              AppIcons.keyboardArrowDown,
-              color: colors.pink,
-              size: 20.w,
-            ),
+            Icon(AppIcons.keyboardArrowDown, color: colors.pink, size: 20.w),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _showAddressBottomSheet(
-    BuildContext context,
-  ) async {
+  Future<void> _showAddressBottomSheet(BuildContext context) async {
     final result = await showModalBottomSheet<Object>(
       context: context,
       isScrollControlled: true,
@@ -146,17 +127,12 @@ class HomeHeader extends StatelessWidget {
         );
       },
     );
-
-    // Existing address selected
     if (result is AddressEntity) {
       onAddressSelected?.call(result);
       return;
     }
-
-    // Add new address clicked
     if (result == BottomSheetAddress.addNewAddress) {
       onAddNewAddress?.call();
     }
   }
 }
-

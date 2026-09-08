@@ -46,17 +46,11 @@ class _LocationFormState extends State<LocationForm> {
     super.initState();
 
     _fillForm(widget.address);
-
-    // Listen for any changes in the form
     _addressController.addListener(_onFormChanged);
     _phoneController.addListener(_onFormChanged);
     _nameController.addListener(_onFormChanged);
     _cityController.addListener(_onFormChanged);
     _areaController.addListener(_onFormChanged);
-  }
-
-  void _onFormChanged() {
-    setState(() {});
   }
 
   @override
@@ -69,7 +63,9 @@ class _LocationFormState extends State<LocationForm> {
   }
 
   void _fillForm(AddressEntity? address) {
-    if (address == null) return;
+    if (address == null) {
+      return;
+    }
 
     _addressController.text = address.address ?? '';
     _phoneController.text = address.phoneNumber ?? '';
@@ -78,14 +74,17 @@ class _LocationFormState extends State<LocationForm> {
     _areaController.text = address.area ?? '';
   }
 
+  void _onFormChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
   bool get _hasFormChanges {
     final original = widget.address;
 
-    // New address
     if (original == null) {
       return true;
     }
-
     return _addressController.text != (original.address ?? '') ||
         _phoneController.text != (original.phoneNumber ?? '') ||
         _nameController.text != (original.recipientName ?? '') ||
@@ -93,31 +92,22 @@ class _LocationFormState extends State<LocationForm> {
         _areaController.text != (original.area ?? '');
   }
 
-  @override
-  void dispose() {
-    _addressController.dispose();
-    _phoneController.dispose();
-    _nameController.dispose();
-    _cityController.dispose();
-    _areaController.dispose();
-
-    super.dispose();
-  }
-
   void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final address = AddressEntity(
-        id: widget.address?.id,
-        label: widget.address?.label,
-        address: _addressController.text,
-        phoneNumber: _phoneController.text,
-        recipientName: _nameController.text,
-        city: _cityController.text,
-        area: _areaController.text,
-      );
-
-      widget.onSave?.call(address);
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+
+    final address = AddressEntity(
+      id: widget.address?.id,
+      label: widget.address?.label,
+      address: _addressController.text.trim(),
+      phoneNumber: _phoneController.text.trim(),
+      recipientName: _nameController.text.trim(),
+      city: _cityController.text.trim(),
+      area: _areaController.text.trim(),
+    );
+
+    widget.onSave?.call(address);
   }
 
   @override
@@ -183,23 +173,33 @@ class _LocationFormState extends State<LocationForm> {
 
             SizedBox(height: 32.h),
 
-           BlocBuilder<AddressViewModel, AddressState>(
-  builder: (context, state) {
-    final isLoadingLocation = state.locationState.isLoading;
+            BlocBuilder<AddressViewModel, AddressState>(
+              builder: (context, state) {
+                final isLoadingLocation =
+                    state.locationState.isLoading ||
+                    state.addressState.isLoading;
 
-    return ElevatedButton(
-      onPressed: isLoadingLocation ? null : _submitForm,
-      child: Text(
-        AppString.savedAddresses,
-        style: TextStyle(
-          color: context.colors.white,
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  },
-),
+                final isUpdateWithNoChanges =
+                    widget.address != null &&
+                    !_hasFormChanges;
+
+                final isDisabled =
+                    isLoadingLocation ||
+                    isUpdateWithNoChanges;
+
+                return ElevatedButton(
+                  onPressed: isDisabled ? null : _submitForm,
+                  child: Text(
+                    AppString.savedAddresses,
+                    style: TextStyle(
+                      color: context.colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
