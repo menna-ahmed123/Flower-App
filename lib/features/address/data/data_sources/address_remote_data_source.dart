@@ -5,6 +5,7 @@ abstract interface class AddressRemoteDataSource {
   Future<AddressResponse> getAddresses();
   Future<AddressResponse> createAddress(AddAddressRequest request);
   Future<void> deleteAddress(String id);
-  Future<void> updateAddress(String id, AddAddressRequest request);
+  Future<AddressResponse> updateAddress(String id, AddAddressRequest request);
   Future<AddressResponse> addressDetails(String id);
+  Future<AddressResponse> setDefaultAddress(String addressId);
 }

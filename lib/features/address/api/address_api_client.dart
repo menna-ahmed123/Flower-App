@@ -24,8 +24,13 @@ abstract class AddressApiClient {
   Future<void> deleteAddress(@Path(ApiQueryParams.id) String id);
 
   @PUT(ApiEndpoints.addressById)
-  Future<void> updateAddress(
+  Future<AddressResponse> updateAddress(
     @Path(ApiQueryParams.id) String id,
     @Body() AddAddressRequest request,
+  );
+
+  @PATCH(ApiEndpoints.setDefaultAddress)
+  Future<AddressResponse> setDefaultAddress(
+    @Path(ApiQueryParams.addressId) String addressId,
   );
 }
