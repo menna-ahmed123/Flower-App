@@ -11,6 +11,7 @@ abstract interface class CommerceRepo {
   Future<BaseResponse<List<ProductEntity>>> getProducts({
     String? occasionId,
     String? categoryId,
+    String? search,
   });
 
   Future<BaseResponse<List<OccasionModel>>> getAllOccasions();
@@ -21,8 +22,4 @@ abstract interface class CommerceRepo {
 
   Future<BaseResponse<List<CategoryEntity>>> getAllCategories();
 
-  Future<BaseResponse<List<ProductEntity>>> searchProducts({
-    required String query,
-    String? storeId,
-  });
 }

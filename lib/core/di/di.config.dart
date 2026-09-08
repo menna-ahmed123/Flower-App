@@ -274,9 +274,6 @@ extension GetItInjectableX on _i174.GetIt {
         addressApiClient: gh<_i328.AddressApiClient>(),
       ),
     );
-    gh.factory<_i864.SearchUseCase>(
-      () => _i864.SearchUseCase(gh<_i772.CommerceRepo>()),
-    );
     gh.factory<_i441.AuthRemoteDataSource>(
       () => _i4.AuthRemoteDatasourceImpl(gh<_i144.AuthApiClient>()),
     );
@@ -289,9 +286,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i172.ProductDetailsUseCase>(
       () => _i172.ProductDetailsUseCase(commerceRepo: gh<_i772.CommerceRepo>()),
-    );
-    gh.factory<_i1068.SearchViewModel>(
-      () => _i1068.SearchViewModel(gh<_i864.SearchUseCase>()),
     );
     gh.factory<_i613.ProductUseCase>(
       () => _i613.ProductUseCase(gh<_i772.CommerceRepo>()),
@@ -347,6 +341,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i635.LoginUseCase>(
       () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
     );
+    gh.factory<_i864.SearchUseCase>(
+      () => _i864.SearchUseCase(gh<_i613.ProductUseCase>()),
+    );
     gh.factory<_i969.BestSellerViewModel>(
       () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
     );
@@ -388,6 +385,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i682.OccasionUseCase>(),
         gh<_i613.ProductUseCase>(),
       ),
+    );
+    gh.factory<_i1068.SearchViewModel>(
+      () => _i1068.SearchViewModel(gh<_i864.SearchUseCase>()),
     );
     gh.factory<_i886.CartUseCase>(
       () => _i886.CartUseCase(gh<_i379.CartRepo>()),

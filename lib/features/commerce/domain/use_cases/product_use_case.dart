@@ -12,10 +12,12 @@ class ProductUseCase {
   Future<BaseResponse<List<ProductEntity>>> call({
     String? occasionId,
     String? categoryId,
+    String? search,
   }) {
     return commerceRepo.getProducts(
       occasionId: occasionId,
       categoryId: categoryId,
+      search: search,
     );
   }
 }

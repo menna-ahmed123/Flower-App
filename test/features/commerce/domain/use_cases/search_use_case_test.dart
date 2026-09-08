@@ -1,25 +1,26 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
-import 'package:flower_app/features/commerce/domain/repo/commerce_repo.dart';
+import 'package:flower_app/features/commerce/domain/use_cases/product_use_case.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/search_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'search_use_case_test.mocks.dart';
+import '../../presentation/best_seller/view_model/best_seller_view_model_test.mocks.dart';
 
-@GenerateMocks([CommerceRepo])
+@GenerateMocks([ProductUseCase])
 void main() {
   provideDummy<BaseResponse<List<ProductEntity>>>(
     SuccessResponse<List<ProductEntity>>([]),
   );
 
-  late MockCommerceRepo repo;
+  late MockProductUseCase productUseCase;
   late SearchUseCase useCase;
 
   setUp(() {
-    repo = MockCommerceRepo();
-    useCase = SearchUseCase(repo);
+    productUseCase = MockProductUseCase();
+    useCase = SearchUseCase(productUseCase);
   });
 
   final products = [
@@ -32,79 +33,40 @@ void main() {
       discountPercent: 10,
       inStock: true,
     ),
-    const ProductEntity(
-      id: '2',
-      name: 'White Lily',
-      imageUrl: 'image2',
-      price: 150,
-      discountedPrice: 150,
-      inStock: true,
-    ),
-    const ProductEntity(
-      id: '3',
-      name: 'Red Tulip',
-      imageUrl: 'image3',
-      price: 120,
-      discountedPrice: 110,
-      discountPercent: 8,
-      inStock: true,
-    ),
   ];
 
-  test('returns products matching the search query', () async {
+  test('calls ProductUseCase with the search query', () async {
     when(
-      repo.searchProducts(query: 'red rose'),
+      productUseCase(search: 'red rose'),
     ).thenAnswer((_) async => SuccessResponse(products));
 
-    final result = await useCase(query: 'red rose');
+    await useCase(query: 'red rose');
 
-    expect(result, isA<SuccessResponse<List<ProductEntity>>>());
-
-    final data = (result as SuccessResponse<List<ProductEntity>>).data;
-
-    expect(data, [products[0]]);
+    verify(productUseCase(search: 'red rose')).called(1);
   });
 
-  test('matches products regardless of query casing', () async {
+  test('returns the products response from ProductUseCase', () async {
     when(
-      repo.searchProducts(query: 'red'),
+      productUseCase(search: 'red rose'),
     ).thenAnswer((_) async => SuccessResponse(products));
 
-    final result = await useCase(query: 'red');
+    final response = await useCase(query: 'red rose');
 
-    expect(result, isA<SuccessResponse<List<ProductEntity>>>());
-
-    final data = (result as SuccessResponse<List<ProductEntity>>).data;
-
-    expect(data, [products[0], products[2]]);
+    expect(response, isA<SuccessResponse<List<ProductEntity>>>());
+    expect((response as SuccessResponse<List<ProductEntity>>).data, products);
   });
 
-  test('returns empty list when no products match', () async {
-    when(
-      repo.searchProducts(query: 'orchid'),
-    ).thenAnswer((_) async => SuccessResponse(products));
+  test('returns the error response from ProductUseCase', () async {
+    final error = IgnoreError();
 
-    final result = await useCase(query: 'orchid');
+    when(productUseCase(search: 'ldfjl')).thenAnswer(
+      (_) async => ErrorResponse<List<ProductEntity>>(appError: error),
+    );
 
-    expect(result, isA<SuccessResponse<List<ProductEntity>>>());
+    final response = await useCase(query: 'ldfjl');
 
-    final data = (result as SuccessResponse<List<ProductEntity>>).data;
+    expect(response, isA<ErrorResponse<List<ProductEntity>>>());
 
-    expect(data, isEmpty);
-  });
-
-  test('trims whitespace from query before filtering', () async {
-    when(
-      repo.searchProducts(query: 'red'),
-    ).thenAnswer((_) async => SuccessResponse(products));
-
-    final result = await useCase(query: '  red  ');
-
-    expect(result, isA<SuccessResponse<List<ProductEntity>>>());
-
-    final data = (result as SuccessResponse<List<ProductEntity>>).data;
-
-    expect(data, [products[0], products[2]]);
-    verify(repo.searchProducts(query: 'red')).called(1);
+    expect((response as ErrorResponse<List<ProductEntity>>).appError, error);
   });
 }

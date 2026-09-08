@@ -30,6 +30,7 @@ abstract class CommerceApiClient {
     @Query('pageSize') int? pageSize,
     @Query(ApiQueryParams.occasionId) String? occasionId,
     @Query(ApiQueryParams.categoryId) String? categoryId,
+    @Query(ApiQueryParams.search) String? search,
   });
 
   @GET(ApiEndpoints.allCategories)

@@ -31,10 +31,12 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   Future<ProductsResponse> getProducts({
     String? occasionId,
     String? categoryId,
+    String? search,
   }) {
     return commerceApiClient.getProducts(
       occasionId: occasionId,
       categoryId: categoryId,
+      search: search,
     );
   }
 
@@ -95,13 +97,6 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
     };
   }
 
-  @override
-  Future<ProductsResponse> searchProducts({
-    required String query,
-    String? storeId,
-  }) {
-    return commerceApiClient.getProducts();
-  }
 }
 
 int _take(HomeSectionDto section) {

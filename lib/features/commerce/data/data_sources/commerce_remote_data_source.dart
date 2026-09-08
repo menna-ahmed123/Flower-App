@@ -10,6 +10,7 @@ abstract interface class CommerceRemoteDataSource {
   Future<ProductsResponse> getProducts({
     String? occasionId,
     String? categoryId,
+    String? search,
   });
 
   Future<OccasionsResponse> getAllOccasions();
@@ -18,8 +19,4 @@ abstract interface class CommerceRemoteDataSource {
 
   Future<CategoriesResponse> getAllCategories();
 
-  Future<ProductsResponse> searchProducts({
-    required String query,
-    String? storeId,
-  });
 }

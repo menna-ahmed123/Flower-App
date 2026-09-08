@@ -40,11 +40,13 @@ class CommerceRepoImpl implements CommerceRepo {
   Future<BaseResponse<List<ProductEntity>>> getProducts({
     String? occasionId,
     String? categoryId,
+    String? search,
   }) {
     return safeCall.safeApiCall(() async {
       final response = await commerceRemoteDataSource.getProducts(
         occasionId: occasionId,
         categoryId: categoryId,
+        search: search,
       );
       return response.data.items.map((product) => product.toDomain()).toList();
     });
@@ -81,20 +83,5 @@ class CommerceRepoImpl implements CommerceRepo {
       return data.toDomain();
     });
   }
-  @override
-  Future<BaseResponse<List<ProductEntity>>> searchProducts({
-    required String query,
-    String? storeId,
-  }) {
-    return safeCall.safeApiCall(() async {
-      final response = await commerceRemoteDataSource.searchProducts(
-        query: query,
-        storeId: storeId,
-      );
 
-      return response.data.items
-          .map((product) => product.toDomain())
-          .toList();
-    });
-  }
 }

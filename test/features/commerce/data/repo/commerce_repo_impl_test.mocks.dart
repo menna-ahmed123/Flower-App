@@ -90,11 +90,13 @@ class MockCommerceRemoteDataSource extends _i1.Mock
   _i8.Future<_i3.ProductsResponse> getProducts({
     String? occasionId,
     String? categoryId,
+    String? search,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getProducts, [], {
               #occasionId: occasionId,
               #categoryId: categoryId,
+              #search: search,
             }),
             returnValue: _i8.Future<_i3.ProductsResponse>.value(
               _FakeProductsResponse_1(
@@ -102,6 +104,7 @@ class MockCommerceRemoteDataSource extends _i1.Mock
                 Invocation.method(#getProducts, [], {
                   #occasionId: occasionId,
                   #categoryId: categoryId,
+                  #search: search,
                 }),
               ),
             ),
@@ -148,26 +151,4 @@ class MockCommerceRemoteDataSource extends _i1.Mock
             ),
           )
           as _i8.Future<_i6.CategoriesResponse>);
-
-  @override
-  _i8.Future<_i3.ProductsResponse> searchProducts({
-    required String? query,
-    String? storeId,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#searchProducts, [], {
-              #query: query,
-              #storeId: storeId,
-            }),
-            returnValue: _i8.Future<_i3.ProductsResponse>.value(
-              _FakeProductsResponse_1(
-                this,
-                Invocation.method(#searchProducts, [], {
-                  #query: query,
-                  #storeId: storeId,
-                }),
-              ),
-            ),
-          )
-          as _i8.Future<_i3.ProductsResponse>);
 }
