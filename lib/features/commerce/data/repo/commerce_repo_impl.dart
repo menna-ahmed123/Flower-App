@@ -5,6 +5,7 @@ import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/features/commerce/data/data_sources/commerce_remote_data_source.dart';
 import 'package:flower_app/features/commerce/data/models/occasion_model.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
+import 'package:flower_app/features/commerce/domain/entities/category_sort_by.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
@@ -24,6 +25,7 @@ class CommerceRepoImpl implements CommerceRepo {
       final response = await commerceRemoteDataSource.getHomeLayout(
         storeId: storeId,
       );
+
       if (!response.isSuccess) {
         throw ApiException(
           message: response.message.isNotEmpty
@@ -32,22 +34,30 @@ class CommerceRepoImpl implements CommerceRepo {
           statusCode: response.statusCode,
         );
       }
+
       return response.toDomain();
     });
   }
 
   @override
   Future<BaseResponse<List<ProductEntity>>> getProducts({
+    int? page,
+    int? pageSize,
     String? occasionId,
     String? categoryId,
     String? search,
+    CategorySortBy? sortBy,
   }) {
     return safeCall.safeApiCall(() async {
       final response = await commerceRemoteDataSource.getProducts(
+        page: page,
+        pageSize: pageSize,
         occasionId: occasionId,
         categoryId: categoryId,
         search: search,
+        sortBy: sortBy,
       );
+
       return response.data.items.map((product) => product.toDomain()).toList();
     });
   }
@@ -56,6 +66,7 @@ class CommerceRepoImpl implements CommerceRepo {
   Future<BaseResponse<List<CategoryEntity>>> getAllCategories() {
     return safeCall.safeApiCall(() async {
       final response = await commerceRemoteDataSource.getAllCategories();
+
       return response.data.map((category) => category.toEntity()).toList();
     });
   }
@@ -64,6 +75,7 @@ class CommerceRepoImpl implements CommerceRepo {
   Future<BaseResponse<List<OccasionModel>>> getAllOccasions() {
     return safeCall.safeApiCall(() async {
       final response = await commerceRemoteDataSource.getAllOccasions();
+
       return response.data;
     });
   }
@@ -76,10 +88,13 @@ class CommerceRepoImpl implements CommerceRepo {
       final response = await commerceRemoteDataSource.getProductDetails(
         productId,
       );
+
       final data = response.data;
+
       if (data == null) {
         throw Exception('Product details data is null');
       }
+
       return data.toDomain();
     });
   }

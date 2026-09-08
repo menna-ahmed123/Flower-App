@@ -97,6 +97,8 @@ void main() {
       expect(data.first.id, 'addr-1');
       expect(data.first.address, '12 Nile St');
       expect(data.first.city, 'Cairo');
+      expect(data.first.latitude, 30.0);
+      expect(data.first.longitude, 31.0);
       verify(remoteDataSource.getAddresses()).called(1);
     });
 
@@ -334,6 +336,10 @@ void main() {
       expect(successResult.data.city, placemark.locality);
 
       expect(successResult.data.area, placemark.subLocality);
+
+      expect(successResult.data.latitude, latitude);
+
+      expect(successResult.data.longitude, longitude);
 
       verify(
         geocodingService.getAddressFromCoordinates(

@@ -11,12 +11,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
 
 class LocationMap extends StatefulWidget {
-  final LocationEntity initialLocation;
+  final LocationEntity? initialLocation;
   final ValueChanged<LocationEntity>? onLocationSelected;
 
   const LocationMap({
     super.key,
-    required this.initialLocation,
+    this.initialLocation,
     this.onLocationSelected,
   });
 
@@ -25,75 +25,98 @@ class LocationMap extends StatefulWidget {
 }
 
 class _LocationMapState extends State<LocationMap> {
-  late LatLng selectedLocation;
+  final MapController _mapController = MapController();
+  LatLng? selectedLocation;
 
   @override
   void initState() {
     super.initState();
+    _syncSelectedLocation(widget.initialLocation);
+  }
 
-    selectedLocation = LatLng(
-      widget.initialLocation.latitude,
-      widget.initialLocation.longitude,
-    );
+  @override
+  void didUpdateWidget(covariant LocationMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = widget.initialLocation;
+    if (next == null || next == oldWidget.initialLocation) return;
+
+    setState(() {
+      _syncSelectedLocation(next);
+    });
+
+    if (oldWidget.initialLocation != null) {
+      _mapController.move(selectedLocation!, 13);
+    }
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  void _syncSelectedLocation(LocationEntity? location) {
+    if (location == null) return;
+    selectedLocation = LatLng(location.latitude, location.longitude);
   }
 
   @override
   Widget build(BuildContext context) {
+    final marker = selectedLocation;
+
     return Stack(
       children: [
-        FlutterMap(
-          options: MapOptions(
-            initialCenter: LatLng(
-              widget.initialLocation.latitude,
-              widget.initialLocation.longitude,
-            ),
-            initialZoom: 13,
-            onTap: (tapPosition, point) {
-              setState(() {
-                selectedLocation = point;
-              });
+        if (marker != null)
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: marker,
+              initialZoom: 13,
+              onTap: (tapPosition, point) {
+                setState(() {
+                  selectedLocation = point;
+                });
 
-              widget.onLocationSelected?.call(
-                LocationEntity(
-                  latitude: point.latitude,
-                  longitude: point.longitude,
-                ),
-              );
-            },
-          ),
-          children: [
-            TileLayer(
-              urlTemplate:
-                  '${AppConstants.mapTilerBaseUrl}?key=${AppConstants.mapTilerApiKey}&language=en',
-              userAgentPackageName:
-                  AppConstants.mapUserAgentPackageName,
-            ),
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: selectedLocation,
-                  width: 80,
-                  height: 80,
-                  child: Icon(
-                    Icons.location_pin,
-                    size: 50,
-                    color: context.colors.pink,
+                widget.onLocationSelected?.call(
+                  LocationEntity(
+                    latitude: point.latitude,
+                    longitude: point.longitude,
                   ),
-                ),
-              ],
+                );
+              },
             ),
-          ],
-        ),
+            children: [
+              TileLayer(
+                urlTemplate:
+                    '${AppConstants.mapTilerBaseUrl}?key=${AppConstants.mapTilerApiKey}&language=en',
+                userAgentPackageName:
+                    AppConstants.mapUserAgentPackageName,
+              ),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: marker,
+                    width: 80,
+                    height: 80,
+                    child: Icon(
+                      Icons.location_pin,
+                      size: 50,
+                      color: context.colors.pink,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
 
         BlocBuilder<AddressViewModel, AddressState>(
           buildWhen: (previous, current) =>
               previous.locationState.isLoading !=
-              current.locationState.isLoading,
+                  current.locationState.isLoading ||
+              previous.locationState.errorMessage !=
+                  current.locationState.errorMessage,
           builder: (context, state) {
-            if (!state.locationState.isLoading) {
-              return const SizedBox.shrink();
-            }
-
+            if (state.locationState.isLoading) {
             return Positioned.fill(
               child: Container(
                 color: Colors.black.withValues(alpha: 0.15),
@@ -140,6 +163,28 @@ class _LocationMapState extends State<LocationMap> {
                 ),
               ),
             );
+            }
+
+            final errorMessage = state.locationState.errorMessage;
+            if (marker == null && errorMessage.isNotEmpty) {
+              return Positioned.fill(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.w),
+                    child: Text(
+                      errorMessage,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: context.colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return const SizedBox.shrink();
           },
         ),
       ],

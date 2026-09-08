@@ -66,22 +66,19 @@ class _AppSearchFieldState extends State<AppSearchField> {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        controller: _controller,
-        onChanged: widget.onChanged,
-        onSubmitted: widget.onSubmitted,
-        focusNode: widget.focusNode,
-        readOnly: widget.readOnly,
-        onTap: widget.onTap,
-        textInputAction: TextInputAction.search,
-        style: TextStyle(
-          fontSize: 14.sp,
-          color: colors.black,
-        ),
-        decoration: _buildDecoration(colors),
+    return TextField(
+      controller: _controller,
+      onChanged: widget.onChanged,
+      onSubmitted: widget.onSubmitted,
+      focusNode: widget.focusNode,
+      readOnly: widget.readOnly,
+      onTap: widget.onTap,
+      textInputAction: TextInputAction.search,
+      style: TextStyle(
+        fontSize: 14.sp,
+        color: colors.black,
       ),
+      decoration: _buildDecoration(colors),
     );
   }
 

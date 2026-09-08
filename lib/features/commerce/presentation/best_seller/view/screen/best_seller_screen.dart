@@ -60,7 +60,7 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                   if (productState.errorMessage.isNotEmpty) {
                     return Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(24.0),
+                        padding: EdgeInsets.all(24.w),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

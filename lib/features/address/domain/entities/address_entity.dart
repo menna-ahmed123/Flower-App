@@ -8,6 +8,8 @@ class AddressEntity extends Equatable {
   final String? area;
   final String? id;
   final String? label;
+  final double? latitude;
+  final double? longitude;
 
 
   const AddressEntity({
@@ -18,6 +20,8 @@ class AddressEntity extends Equatable {
     this.area,
     this.id,
     this.label,
+    this.latitude,
+    this.longitude,
   });
 
   AddressEntity copyWith({
@@ -28,6 +32,8 @@ class AddressEntity extends Equatable {
     String? area,
     String? id,
     String? label,
+    double? latitude,
+    double? longitude,
   }) {
     return AddressEntity(
       address: address ?? this.address,
@@ -37,6 +43,8 @@ class AddressEntity extends Equatable {
       area: area ?? this.area,
       id: id ?? this.id,
       label: label ?? this.label,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 
@@ -49,5 +57,7 @@ class AddressEntity extends Equatable {
     area,
     id,
     label,
+    latitude,
+    longitude,
   ];
 }

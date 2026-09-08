@@ -3,10 +3,8 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/errors/app_error.dart';
-import 'package:flower_app/core/localization/locale_storage.dart';
 import 'package:flower_app/core/network/auth_interceptors.dart';
 import 'package:flower_app/core/network/token_refresher.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fake_token_storage.dart';
@@ -99,17 +97,6 @@ void main() {
     expect(storage.refreshToken, 'refresh-1');
     expect(storage.clearCount, 0);
   });
-}
-
-class MemoryLocaleStorage implements LocaleStorage {
-  @override
-  Future<Locale?> readLocale() async => null;
-
-  @override
-  Future<void> saveLocale(Locale locale) async {}
-
-  @override
-  Future<void> clearLocale() async {}
 }
 
 class ScriptedRefresher implements TokenRefresher {

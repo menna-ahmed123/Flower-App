@@ -24,15 +24,15 @@ abstract class CommerceApiClient {
   @GET(ApiEndpoints.allOccasions)
   Future<CatalogItemsResponse> getOccasions();
 
-  @GET(ApiEndpoints.allProducts)
+ @GET(ApiEndpoints.allProducts)
   Future<ProductsResponse> getProducts({
     @Query('page') int? page,
     @Query('pageSize') int? pageSize,
     @Query(ApiQueryParams.occasionId) String? occasionId,
     @Query(ApiQueryParams.categoryId) String? categoryId,
     @Query(ApiQueryParams.search) String? search,
+    @Query('sortBy') int? sortBy,
   });
-
   @GET(ApiEndpoints.allCategories)
   Future<CategoriesResponse> getAllCategories();
 

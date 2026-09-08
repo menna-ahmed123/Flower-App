@@ -19,7 +19,7 @@ class CustomTabBar extends StatelessWidget {
     return SizedBox(
       height: 40.h,
       child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         scrollDirection: Axis.horizontal,
         itemCount: tabs.length,
         separatorBuilder: (_, _) => SizedBox(width: 8.w),

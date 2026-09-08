@@ -81,7 +81,6 @@ class _OccasionScreenState extends State<OccasionScreen> {
                       );
                     },
                   ),
-                  SizedBox(height: 16.h),
                   Expanded(
                     child: state.occasionsState.isLoading
                         ? const Center(child: CircularProgressIndicator())

@@ -289,13 +289,28 @@ Future<void> _getAddressFromLocation({
 
     switch (response) {
       case SuccessResponse<AddressEntity>():
+        final address = response.data;
+        final latitude = address.latitude;
+        final longitude = address.longitude;
+        final hasCoords = latitude != null && longitude != null;
+
         emit(
           state.copyWith(
             addressState: state.addressState.copyWith(
               isLoading: false,
-              data: response.data,
+              data: address,
               errorMessage: '',
             ),
+            locationState: hasCoords
+                ? state.locationState.copyWith(
+                    isLoading: false,
+                    data: LocationEntity(
+                      latitude: latitude,
+                      longitude: longitude,
+                    ),
+                    errorMessage: '',
+                  )
+                : state.locationState,
           ),
         );
 

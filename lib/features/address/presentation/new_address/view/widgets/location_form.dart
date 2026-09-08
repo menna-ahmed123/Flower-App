@@ -114,6 +114,8 @@ class _LocationFormState extends State<LocationForm> {
         recipientName: _nameController.text,
         city: _cityController.text,
         area: _areaController.text,
+        latitude: widget.address?.latitude,
+        longitude: widget.address?.longitude,
       );
 
       widget.onSave?.call(address);
@@ -125,7 +127,7 @@ class _LocationFormState extends State<LocationForm> {
     return Form(
       key: _formKey,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
