@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../presentation/best_seller/view_model/best_seller_view_model_test.mocks.dart';
+import 'search_use_case_test.mocks.dart';
 
 @GenerateMocks([ProductUseCase])
 void main() {

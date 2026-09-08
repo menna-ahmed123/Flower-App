@@ -6,6 +6,7 @@ import 'package:flower_app/features/commerce/domain/use_cases/product_use_case.d
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+
 import 'product_use_case_test.mocks.dart';
 
 @GenerateMocks([CommerceRepo])
@@ -80,5 +81,30 @@ void main() {
       );
       verify(commerceRepo.getProducts()).called(1);
     });
+  });
+  test('passes search query to repo', () async {
+    when(
+      commerceRepo.getProducts(
+        search: 'rose',
+      ),
+    ).thenAnswer(
+          (_) async => SuccessResponse(dummyProducts),
+    );
+
+    final result = await productUseCase(
+      search: 'rose',
+    );
+
+    expect(result, isA<SuccessResponse<List<ProductEntity>>>());
+    expect(
+      (result as SuccessResponse<List<ProductEntity>>).data,
+      dummyProducts,
+    );
+
+    verify(
+      commerceRepo.getProducts(
+        search: 'rose',
+      ),
+    ).called(1);
   });
 }

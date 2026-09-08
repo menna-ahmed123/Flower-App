@@ -12,6 +12,7 @@ class SearchUseCase {
   Future<BaseResponse<List<ProductEntity>>> call({
     required String query,
   }) {
-    return productUseCase(search: query);
+    final normalizedQuery = query.trim().toLowerCase();
+    return productUseCase(search: normalizedQuery);
   }
 }

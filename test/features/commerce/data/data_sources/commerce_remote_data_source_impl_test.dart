@@ -1,15 +1,13 @@
+import 'package:flower_app/features/commerce/api/commerce_api_client.dart';
 import 'package:flower_app/features/commerce/data/data_sources/commerce_remote_data_source_impl.dart';
 import 'package:flower_app/features/commerce/data/models/categories_response.dart';
 import 'package:flower_app/features/commerce/data/models/category_model.dart';
-import 'package:flower_app/features/commerce/data/models/product_response.dart';
-import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart';
 import 'package:flower_app/features/commerce/data/models/product_details_model.dart';
-
+import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart';
+import 'package:flower_app/features/commerce/data/models/product_response.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-
-import 'package:flower_app/features/commerce/api/commerce_api_client.dart';
 
 import 'commerce_remote_data_source_impl_test.mocks.dart';
 
@@ -131,16 +129,61 @@ void main() {
         );
 
         when(
-          commerceApiClient.getProducts(categoryId: categoryId),
+          commerceApiClient.getProducts(
+            categoryId: categoryId,
+          ),
         ).thenAnswer((_) async => response);
 
-        // Act
-        final result = await datasourceImpl.getProducts(categoryId: categoryId);
+        final result = await datasourceImpl.getProducts(
+          categoryId: categoryId,
+        );
+
+        expect(result, response);
+
+        verify(
+          commerceApiClient.getProducts(
+            categoryId: categoryId,
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should pass search query to api client',
+          () async {
+        const search = 'rose';
+
+        final response = ProductsResponse(
+          data: ProductsDataDto(
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            items: [],
+          ),
+          statusCode: 200,
+          success: true,
+          message: 'Success',
+          messageLocalized: 'Success',
+        );
+
+        when(
+          commerceApiClient.getProducts(
+            search: search,
+          ),
+        ).thenAnswer((_) async => response);
+
+        final result = await datasourceImpl.getProducts(
+          search: search,
+        );
 
         // Assert
         expect(result, response);
 
-        verify(commerceApiClient.getProducts(categoryId: categoryId)).called(1);
+        verify(
+          commerceApiClient.getProducts(
+            search: search,
+          ),
+        ).called(1);
       },
     );
 
