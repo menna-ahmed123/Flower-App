@@ -31,6 +31,6 @@ abstract class AddressApiClient {
 
   @PATCH(ApiEndpoints.setDefaultAddress)
   Future<AddressResponse> setDefaultAddress(
-    @Path('addressId') String addressId,
+    @Path(ApiQueryParams.addressId) String addressId,
   );
 }
