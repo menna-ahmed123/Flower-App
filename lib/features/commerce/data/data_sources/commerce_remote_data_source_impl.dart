@@ -7,6 +7,7 @@ import 'package:flower_app/features/commerce/data/models/home_layout_response.da
 import 'package:flower_app/features/commerce/data/models/occasions_response.dart';
 import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart';
 import 'package:flower_app/features/commerce/data/models/product_response.dart';
+import 'package:flower_app/features/commerce/domain/entities/category_sort_by.dart';
 import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:injectable/injectable.dart';
 
@@ -29,12 +30,18 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
 
   @override
   Future<ProductsResponse> getProducts({
+    int? page,
+    int? pageSize,
     String? occasionId,
     String? categoryId,
+    CategorySortBy? sortBy,
   }) {
     return commerceApiClient.getProducts(
+      page: page,
+      pageSize: pageSize,
       occasionId: occasionId,
       categoryId: categoryId,
+      sortBy: sortBy?.value,
     );
   }
 
@@ -153,6 +160,7 @@ Map<String, dynamic> _productItem(Map<String, dynamic> json) {
 HomeSectionDto _bannerSection(HomeSectionDto section) {
   final given = section.payload['imageUrl']?.toString() ?? '';
   if (given.isEmpty) return section;
+
   return _copySection(section, {
     ...section.payload,
     'imageUrl': ApiEndpoints.mediaUrl(given),

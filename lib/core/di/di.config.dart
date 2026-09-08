@@ -252,9 +252,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i185.SafeCall>(),
       ),
     );
-    gh.factory<_i242.CategoryUseCase>(
-      () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
-    );
     gh.factory<_i1049.HomeUseCase>(
       () => _i1049.HomeUseCase(gh<_i772.CommerceRepo>()),
     );
@@ -322,6 +319,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i94.RequestLocationPermissionUseCase>(
       () => _i94.RequestLocationPermissionUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i242.CategoryUseCase>(
+      () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
     );
     gh.factory<_i795.ForgetPasswordCubit>(
       () => _i795.ForgetPasswordCubit(
