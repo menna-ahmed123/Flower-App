@@ -51,9 +51,8 @@ class CartDataModel {
   Map<String, dynamic> toJson() => _$CartDataModelToJson(this);
 
   CartEntity toDomain() {
-    final lines = [
-      for (final item in items ?? const <CartItemModel>[]) item.toDomain(),
-    ];
+    final cartItems = items ?? [];
+    final lines = [for (final item in cartItems) item.toDomain()];
     return CartEntity(
       id: id ?? '',
       items: lines,

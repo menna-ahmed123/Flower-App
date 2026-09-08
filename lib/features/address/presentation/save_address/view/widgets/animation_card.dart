@@ -43,8 +43,8 @@ class AnimationCard extends CustomPainter {
       final x = startX + particle.dx * particleProgress;
       final y = startY + particle.dy * particleProgress;
 
-      paint.color = Colors.black.withOpacity(
-        1 - particleProgress,
+      paint.color = Colors.black.withValues(
+        alpha: 1 - particleProgress,
       );
 
       canvas.drawRect(

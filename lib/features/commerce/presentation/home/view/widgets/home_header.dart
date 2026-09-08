@@ -6,6 +6,11 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/bottom_sheet_address.dart';
 import 'package:flower_app/core/widgets/app_search_field.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../../../app/router/app_routes.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
@@ -37,9 +42,12 @@ class HomeHeader extends StatelessWidget {
           _logo(context),
 
           SizedBox(height: 12.h),
-
-          AppSearchField(onChanged: onQuery, onClear: () => onQuery?.call('')),
-
+          AppSearchField(
+            readOnly: true,
+            onTap: () {
+              context.push(AppRoutesName.search);
+            },
+          ),
           SizedBox(height: 12.h),
 
           _deliverTo(context),

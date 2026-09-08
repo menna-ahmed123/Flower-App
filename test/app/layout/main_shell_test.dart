@@ -1,6 +1,7 @@
 import 'package:flower_app/app/layout/main_shell.dart';
 import 'package:flower_app/core/auth/domain/repos/auth_repository.dart';
 import 'package:flower_app/core/auth/presentation/view_model/auth_cubit.dart';
+import 'package:flower_app/core/auth/presentation/view_model/auth_event.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
@@ -16,12 +17,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  late FakeAuthRepository authRepository;
   late AuthCubit authCubit;
   late CartViewModel cartViewModel;
   late GoRouter router;
 
   setUp(() {
-    authCubit = AuthCubit(FakeAuthRepository());
+    authRepository = FakeAuthRepository();
+    authCubit = AuthCubit(authRepository);
     cartViewModel = CartViewModel(CartUseCase(EmptyCartRepo()));
     router = _testRouter();
   });
@@ -52,6 +55,69 @@ void main() {
     await _expectBarHidden(tester, router, '/best_seller');
     await _expectBarHidden(tester, router, '/occasion');
   });
+
+  testWidgets('opens category when the categories tab is selected', (
+    tester,
+  ) async {
+    await _pumpShell(tester, router, authCubit, cartViewModel);
+
+    await tester.tap(find.text(AppString.categories));
+    await tester.pumpAndSettle();
+
+    expect(_path(router), '/category');
+    expect(_selectedIndex(tester), 1);
+  });
+
+  testWidgets('opens cart when an authenticated user selects the cart tab', (
+    tester,
+  ) async {
+    await _signIn(authCubit);
+    await _pumpShell(tester, router, authCubit, cartViewModel);
+
+    await tester.tap(find.text(AppString.cart));
+    await tester.pumpAndSettle();
+
+    expect(_path(router), '/cart');
+    expect(_selectedIndex(tester), 2);
+  });
+
+  testWidgets(
+    'opens profile when an authenticated user selects the profile tab',
+    (tester) async {
+      await _signIn(authCubit);
+      await _pumpShell(tester, router, authCubit, cartViewModel);
+
+      await tester.tap(find.text(AppString.profile));
+      await tester.pumpAndSettle();
+
+      expect(_path(router), '/profile');
+      expect(_selectedIndex(tester), 3);
+    },
+  );
+
+  testWidgets('does not open cart when a guest selects the cart tab', (
+    tester,
+  ) async {
+    await _pumpShell(tester, router, authCubit, cartViewModel);
+
+    await tester.tap(find.text(AppString.cart));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(_path(router), '/home');
+    expect(_selectedIndex(tester), 0);
+    expect(find.text(AppString.loginToContinue), findsOneWidget);
+  });
+}
+
+Future<void> _signIn(AuthCubit authCubit) {
+  return authCubit.doEvent(const AuthEvent.authCheckRequested());
+}
+
+String _path(GoRouter router) => router.routeInformationProvider.value.uri.path;
+
+int _selectedIndex(WidgetTester tester) {
+  return tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
 }
 
 Future<void> _pumpShell(
@@ -159,8 +225,12 @@ GoRouter _testRouter() {
 }
 
 class FakeAuthRepository implements AuthRepository {
+  FakeAuthRepository({this.authenticated = true});
+
+  bool authenticated;
+
   @override
-  Future<bool> isAuthenticated() async => true;
+  Future<bool> isAuthenticated() async => authenticated;
 
   @override
   Future<void> logout() async {}

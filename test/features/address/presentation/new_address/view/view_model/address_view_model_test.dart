@@ -1025,6 +1025,110 @@ void main() {
   });
 
   // ============================================================
+  // LoadAddressDetails
+  // ============================================================
+
+  group('LoadAddressDetails', () {
+    test(
+      'sets map location from API coordinates',
+      () async {
+        const address = AddressEntity(
+          id: 'addr-1',
+          address: '12 Nile St',
+          city: 'Cairo',
+          area: 'Dokki',
+          latitude: 30.1,
+          longitude: 31.2,
+        );
+
+        when(
+          getAddressDetailsUseCase.addressDetails('addr-1'),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<AddressEntity>(address),
+        );
+
+        final future = expectLater(
+          addressViewModel.stream,
+          emitsInOrder([
+            isA<AddressState>().having(
+              (state) => state.addressState.isLoading,
+              'address isLoading',
+              true,
+            ),
+            isA<AddressState>()
+                .having(
+                  (state) => state.addressState.isLoading,
+                  'address isLoading',
+                  false,
+                )
+                .having(
+                  (state) => state.addressState.data,
+                  'address',
+                  address,
+                )
+                .having(
+                  (state) => state.locationState.data,
+                  'location',
+                  const LocationEntity(latitude: 30.1, longitude: 31.2),
+                ),
+          ]),
+        );
+
+        await addressViewModel.doEvent(LoadAddressDetails('addr-1'));
+
+        await future;
+
+        verify(
+          getAddressDetailsUseCase.addressDetails('addr-1'),
+        ).called(1);
+      },
+    );
+
+    test(
+      'does not seed a fake map location when API has no coordinates',
+      () async {
+        const address = AddressEntity(
+          id: 'addr-1',
+          address: '12 Nile St',
+          city: 'Cairo',
+        );
+
+        when(
+          getAddressDetailsUseCase.addressDetails('addr-1'),
+        ).thenAnswer(
+          (_) async => const SuccessResponse<AddressEntity>(address),
+        );
+
+        final future = expectLater(
+          addressViewModel.stream,
+          emitsInOrder([
+            isA<AddressState>().having(
+              (state) => state.addressState.isLoading,
+              'address isLoading',
+              true,
+            ),
+            isA<AddressState>()
+                .having(
+                  (state) => state.addressState.data,
+                  'address',
+                  address,
+                )
+                .having(
+                  (state) => state.locationState.data,
+                  'location',
+                  null,
+                ),
+          ]),
+        );
+
+        await addressViewModel.doEvent(LoadAddressDetails('addr-1'));
+
+        await future;
+      },
+    );
+  });
+
+  // ============================================================
   // Settings
   // ============================================================
 

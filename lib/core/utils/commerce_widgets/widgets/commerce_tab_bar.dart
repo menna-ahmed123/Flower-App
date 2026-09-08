@@ -44,7 +44,7 @@ class CommerceTabBar extends StatelessWidget {
                 boxShadow: [
                   if (!isSelected)
                     BoxShadow(
-                      color: context.colors.black.withOpacity(0.03),
+                      color: context.colors.black.withValues(alpha: 0.03),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),

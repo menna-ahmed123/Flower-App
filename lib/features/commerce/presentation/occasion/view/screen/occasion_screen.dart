@@ -1,10 +1,12 @@
+import 'package:flower_app/core/auth/auth_extension.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
-import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
+import 'package:flower_app/core/utils/commerce_widgets/widgets/product_grid.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
+import 'package:flower_app/features/commerce/core/widgets/custom_app_bar.dart';
 import 'package:flower_app/features/commerce/core/widgets/custom_tab_bar.dart';
-import 'package:flower_app/features/commerce/core/widgets/product_grid.dart';
-
 import 'package:flower_app/features/commerce/data/models/occasion_model.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_event.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_state.dart';
@@ -78,7 +80,6 @@ class _OccasionScreenState extends State<OccasionScreen> {
                       );
                     },
                   ),
-                  SizedBox(height: 16.h),
                   Expanded(
                     child: state.occasionsState.isLoading
                         ? const Center(child: CircularProgressIndicator())
@@ -95,6 +96,9 @@ class _OccasionScreenState extends State<OccasionScreen> {
                             onTap: (product) {
                               navigateToProductDetails(context, product.id);
                             },
+                            onAddToCart: (productId) {
+                              _addToCart(context, productId);
+                            },
                           ),
                   ),
                 ],
@@ -108,5 +112,15 @@ class _OccasionScreenState extends State<OccasionScreen> {
 
   List<String> _buildTabs(List<OccasionModel> occasions) {
     return occasions.map((occasion) => occasion.name).toList();
+  }
+
+  Future<void> _addToCart(BuildContext context, String productId) {
+    return context.requireAuth(
+      action: () {
+        return context.read<CartViewModel>().doEvent(
+          AddCartItemEvent(productId: productId),
+        );
+      },
+    );
   }
 }

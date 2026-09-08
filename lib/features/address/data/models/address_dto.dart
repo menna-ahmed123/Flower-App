@@ -109,6 +109,7 @@ class AddressDto {
   Map<String, dynamic> toJson() => _$AddressDtoToJson(this);
 
   AddressEntity toDomain() {
+    final hasCoords = lat != 0 || lng != 0;
     final resolvedAddress = [
       addressLine,
       '',
@@ -125,6 +126,8 @@ class AddressDto {
       city: city,
       area: area,
       label: label,
+      latitude: hasCoords ? lat : null,
+      longitude: hasCoords ? lng : null,
       isDefault: isDefault,
     );
   }

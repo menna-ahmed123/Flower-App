@@ -115,7 +115,7 @@ class _LocationFormState extends State<LocationForm> {
     return Form(
       key: _formKey,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -187,19 +187,19 @@ class _LocationFormState extends State<LocationForm> {
                     isLoadingLocation ||
                     isUpdateWithNoChanges;
 
-                return ElevatedButton(
-                  onPressed: isDisabled ? null : _submitForm,
-                  child: Text(
-                    AppString.savedAddresses,
-                    style: TextStyle(
-                      color: context.colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                );
-              },
-            ),
+    return ElevatedButton(
+      onPressed: isLoadingLocation || !_hasFormChanges ? null : _submitForm,
+      child: Text(
+        AppString.savedAddresses,
+        style: TextStyle(
+          color: context.colors.white,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  },
+),
           ],
         ),
       ),

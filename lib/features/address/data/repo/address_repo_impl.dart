@@ -132,6 +132,8 @@ class AddressRepoImpl implements AddressRepo {
         address: placemark.street,
         city: placemark.locality,
         area: placemark.subLocality ?? placemark.subAdministrativeArea,
+        latitude: latitude,
+        longitude: longitude,
       );
 
       return SuccessResponse(address);

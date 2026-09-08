@@ -106,7 +106,7 @@ class _AddressCardState extends State<AddressCard>
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 10.r,
               spreadRadius: 1.r,
               offset: Offset(0, 4.h),

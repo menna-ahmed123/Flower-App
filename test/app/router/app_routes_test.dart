@@ -17,5 +17,6 @@ void main() {
     expect(AppRoutesName.isMainTab(AppRoutesName.register), isFalse);
     expect(AppRoutesName.isMainTab(AppRoutesName.forgetPassword), isFalse);
     expect(AppRoutesName.isMainTab('/forget-password/verification'), isFalse);
+    expect(AppRoutesName.isMainTab(AppRoutesName.search), isFalse);
   });
 }
