@@ -7,9 +7,10 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
-  const CustomAppBar({super.key, required this.title});
+  const CustomAppBar({super.key, required this.title, this.onBack});
 
   final String title;
+  final VoidCallback? onBack;
 
   @override
   State<CustomAppBar> createState() => _CustomAppBarState();
@@ -24,7 +25,14 @@ class _CustomAppBarState extends State<CustomAppBar> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Icon(AppIcons.arrowBack, color: context.colors.black, size: 25.w),
+          GestureDetector(
+            onTap: widget.onBack,
+            child: Icon(
+              AppIcons.arrowBack,
+              color: context.colors.black,
+              size: 25.w,
+            ),
+          ),
           SizedBox(width: 10.w),
           Text(
             widget.title,

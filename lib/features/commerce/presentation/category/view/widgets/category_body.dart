@@ -1,6 +1,8 @@
 import 'package:flower_app/core/auth/auth_extension.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/core/utils/pagination/pagination_grid_view.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/custom_tab_bar.dart';
 import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
@@ -10,7 +12,6 @@ import 'package:flower_app/features/commerce/presentation/category/view_model/ca
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 class CategoryBody extends StatelessWidget {
@@ -44,8 +45,6 @@ class CategoryBody extends StatelessWidget {
               },
             ),
 
-            SizedBox(height: 16.h),
-
             Expanded(child: _buildProductsBody(context, state)),
           ],
         );
@@ -62,8 +61,8 @@ class CategoryBody extends StatelessWidget {
       return Center(child: Text(state.categoriesState.errorMessage));
     }
 
-    if (state.selectedCategoryId.isEmpty) {
-      return const SizedBox.shrink();
+    if (state.productsState.isLoading) {
+      return const Center(child: CircularProgressIndicator());
     }
 
     return PaginationGridView<ProductEntity>(
@@ -80,6 +79,7 @@ class CategoryBody extends StatelessWidget {
       ),
       itemBuilder: (context, product, index) {
         return ProductCard(
+          productId: product.id,
           imageUrl: product.imageUrl,
           name: product.name,
           price: product.discountedPrice.toStringAsFixed(2),
@@ -92,13 +92,23 @@ class CategoryBody extends StatelessWidget {
           onAddToCart: () async {
             await context.requireAuth(
               action: () async {
-                // TODO: Add product to cart.
+                await _addToCart(context, product.id);
               },
             );
           },
           onTap: () {
             navigateToProductDetails(context, product.id);
           },
+        );
+      },
+    );
+  }
+
+  Future<void> _addToCart(BuildContext context, String productId) {
+    return context.requireAuth(
+      action: () {
+        return context.read<CartViewModel>().doEvent(
+          AddCartItemEvent(productId: productId),
         );
       },
     );

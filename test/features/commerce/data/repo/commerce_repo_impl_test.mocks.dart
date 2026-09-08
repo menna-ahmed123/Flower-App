@@ -17,6 +17,8 @@ import 'package:flower_app/features/commerce/data/models/product_details_respons
     as _i5;
 import 'package:flower_app/features/commerce/data/models/product_response.dart'
     as _i3;
+import 'package:flower_app/features/commerce/domain/entities/category_sort_by.dart'
+    as _i9;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -88,20 +90,29 @@ class MockCommerceRemoteDataSource extends _i1.Mock
 
   @override
   _i8.Future<_i3.ProductsResponse> getProducts({
+    int? page,
+    int? pageSize,
     String? occasionId,
     String? categoryId,
+    _i9.CategorySortBy? sortBy,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getProducts, [], {
+              #page: page,
+              #pageSize: pageSize,
               #occasionId: occasionId,
               #categoryId: categoryId,
+              #sortBy: sortBy,
             }),
             returnValue: _i8.Future<_i3.ProductsResponse>.value(
               _FakeProductsResponse_1(
                 this,
                 Invocation.method(#getProducts, [], {
+                  #page: page,
+                  #pageSize: pageSize,
                   #occasionId: occasionId,
                   #categoryId: categoryId,
+                  #sortBy: sortBy,
                 }),
               ),
             ),
@@ -148,4 +159,26 @@ class MockCommerceRemoteDataSource extends _i1.Mock
             ),
           )
           as _i8.Future<_i6.CategoriesResponse>);
+
+  @override
+  _i8.Future<_i3.ProductsResponse> searchProducts({
+    required String? query,
+    String? storeId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchProducts, [], {
+              #query: query,
+              #storeId: storeId,
+            }),
+            returnValue: _i8.Future<_i3.ProductsResponse>.value(
+              _FakeProductsResponse_1(
+                this,
+                Invocation.method(#searchProducts, [], {
+                  #query: query,
+                  #storeId: storeId,
+                }),
+              ),
+            ),
+          )
+          as _i8.Future<_i3.ProductsResponse>);
 }

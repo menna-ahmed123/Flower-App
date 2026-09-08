@@ -21,4 +21,9 @@ abstract interface class CommerceRemoteDataSource {
   Future<ProductDetailsResponseModel> getProductDetails(String productId);
 
   Future<CategoriesResponse> getAllCategories();
+
+  Future<ProductsResponse> searchProducts({
+    required String query,
+    String? storeId,
+  });
 }

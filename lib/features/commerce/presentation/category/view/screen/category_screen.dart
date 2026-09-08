@@ -8,6 +8,9 @@ import 'package:flower_app/features/commerce/presentation/category/view_model/ca
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../../../app/router/app_routes.dart';
 
 class CategoryScreen extends StatelessWidget {
   const CategoryScreen({super.key});
@@ -22,19 +25,25 @@ class CategoryScreen extends StatelessWidget {
           children: [
             SizedBox(height: 16.h),
 
-            Row(
-              children: [
-                Expanded(
-                  child: AppSearchField(
-                    onChanged: (value) {
-                      // handle search query
-                    },
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: AppSearchField(
+                      readOnly: true,
+                      onTap: () {
+                        context.push(AppRoutesName.search);
+                      },
+                      onChanged: (value) {
+                        // handle search query
+                      },
+                    ),
                   ),
-                ),
-                SizedBox(width: 12.w),
-                Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Container(
+
+                  SizedBox(width: 12.w),
+
+                  Container(
                     width: 48.w,
                     height: 48.h,
                     decoration: BoxDecoration(
@@ -50,30 +59,25 @@ class CategoryScreen extends StatelessWidget {
                         size: 24.w,
                       ),
                       onPressed: () {
-                        final viewModel =
-                            context.read<CategoryViewModel>();
-                  
+                        final viewModel = context.read<CategoryViewModel>();
+
                         CategorySortBottomSheet.show(
                           context: context,
                           initialSortBy: viewModel.state.selectedSortBy,
                           onApply: (selectedSort) {
-                            viewModel.onEvent(
-                              SortProducts(selectedSort),
-                            );
+                            viewModel.onEvent(SortProducts(selectedSort));
                           },
                         );
                       },
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
 
             SizedBox(height: 16.h),
 
-            const Expanded(
-              child: CategoryBody(),
-            ),
+            const Expanded(child: CategoryBody()),
           ],
         ),
       ),

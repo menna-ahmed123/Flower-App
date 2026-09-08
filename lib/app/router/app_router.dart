@@ -23,13 +23,16 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
-import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/domain/repos/auth_repository.dart';
+import '../../features/commerce/presentation/search/view/screen/search_screen.dart';
+import '../../features/commerce/presentation/search/view_model/search_view_model.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -51,6 +54,7 @@ class AppRouter {
         _loginRoute(),
         _registerRoute(),
         _forgetPasswordShell(),
+        _searchRoute(),
         _mainShell(),
       ],
     );
@@ -84,6 +88,13 @@ class AppRouter {
           child: const RegisterPage(),
         );
       },
+    );
+  }
+
+  static GoRoute _searchRoute() {
+    return GoRoute(
+      path: AppRoutesName.search,
+      builder: _searchBuilder,
     );
   }
 
@@ -123,7 +134,13 @@ class AppRouter {
   static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return MainShell(navigationShell: navigationShell);
+        return BlocProvider.value(
+          value: getIt<CartViewModel>(),
+          child: MainShell(
+            navigationShell: navigationShell,
+            location: state.uri.path,
+          ),
+        );
       },
       branches: [
         _homeBranch(),
@@ -147,13 +164,20 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutesName.occasion,
-        builder:_OccasionBuilder,
+        builder: _occasionBuilder,
       ),
       GoRoute(
         path: AppRoutesName.productDetails,
         builder: _productDetailsBuilder,
       ),
     ];
+  }
+
+  static Widget _searchBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<SearchViewModel>(),
+      child: const SearchScreen(),
+    );
   }
 
   static Widget _homeBuilder(BuildContext context, GoRouterState state) {
@@ -190,7 +214,7 @@ class AppRouter {
   );
 }
 
-  static Widget _OccasionBuilder(BuildContext context, GoRouterState state) {
+  static Widget _occasionBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<OccasionViewModel>(),
       child: const OccasionScreen(),

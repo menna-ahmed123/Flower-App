@@ -1,0 +1,15 @@
+{
+  "commonSave": "Save",
+  "commonCancel": "Cancel",
+  "commonConfirm": "Confirm",
+  "commonClose": "Close",
+  "commonBack": "Back",
+  "commonNext": "Next",
+  "commonPrevious": "Previous",
+  "commonRetry": "Retry",
+  "commonLoading": "Loading",
+  "commonError": "Error",
+  "commonSuccess": "Success",
+  "localeEnglish": "English",
+  "localeArabic": "Arabic"
+}

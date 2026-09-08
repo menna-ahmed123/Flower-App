@@ -24,4 +24,9 @@ abstract interface class CommerceRepo {
   });
 
   Future<BaseResponse<List<CategoryEntity>>> getAllCategories();
+
+  Future<BaseResponse<List<ProductEntity>>> searchProducts({
+    required String query,
+    String? storeId,
+  });
 }

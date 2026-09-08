@@ -126,4 +126,34 @@ class AppValidators {
 
     return null;
   }
+  static String? validateAddress(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please enter the address';
+    }
+    if (value.trim().length < 5) {
+      return 'Address must be at least 5 characters';
+    }
+    return null;
+  }
+  static String? validateRecipientName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please enter the recipient name';
+    }
+    if (value.trim().length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+    return null;
+  }
+  static String? validateCity(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select a city';
+    }
+    return null;
+  }
+  static String? validateArea(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select an area';
+    }
+    return null;
+  }
 }
