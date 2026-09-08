@@ -62,21 +62,24 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   Future<List<Map<String, dynamic>>> _itemsFor(HomeSectionDto section) {
     final take = _take(section);
     return switch (section.type) {
-      'category_rail' => _railItems(
+      'category_rail' || 'Categories' => _railItems(
         () => commerceApiClient.getCategories(),
         take,
         _categoryItem,
       ),
-      'occasion_rail' => _railItems(
+      'occasion_rail' || 'Occasions' => _railItems(
         () => commerceApiClient.getOccasions(),
         take,
         _occasionItem,
       ),
-      'product_rail' => _railItems(
+      'product_rail' || 'BestSeller' || 'ProductsCarousel' => _railItems(
         () async {
           final response = await commerceApiClient.getProducts(
             page: 1,
             pageSize: take,
+            occasionId: section.type == 'ProductsCarousel'
+                ? section.payload['occasionId']?.toString()
+                : null,
           );
           return CatalogItemsResponse(
             items: [for (final item in response.data.items) item.toJson()],

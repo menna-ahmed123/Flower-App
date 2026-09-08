@@ -124,10 +124,42 @@ void main() {
 
       final result = await repo.createAddress(request);
 
-      expect(result, isA<SuccessResponse<List<AddressEntity>>>());
-      final data = (result as SuccessResponse<List<AddressEntity>>).data;
-      expect(data.first.recipientName, 'Joudy');
-      expect(data.first.label, 'Home');
+      expect(result, isA<SuccessResponse<AddressEntity>>());
+      final data = (result as SuccessResponse<AddressEntity>).data;
+      expect(data.recipientName, 'Joudy');
+      expect(data.label, 'Home');
+      verify(remoteDataSource.createAddress(request)).called(1);
+    });
+
+    test('accepts a 201 success payload with a single address object', () async {
+      final payload = {
+        'success': true,
+        'statusCode': 201,
+        'message': 'Address created successfully.',
+        'messageLocalized': 'Address created successfully.',
+        'data': {
+          'id': 'addr-1',
+          'recipientName': 'Joudy',
+          'phone': '01000000000',
+          'addressLine': '12 Nile St',
+          'city': 'Cairo',
+          'area': 'Dokki',
+          'label': 'Home',
+        },
+      };
+
+      when(remoteDataSource.createAddress(request)).thenAnswer(
+        (_) async => AddressResponse.fromJson(payload),
+      );
+
+      final result = await repo.createAddress(request);
+
+      expect(result, isA<SuccessResponse<AddressEntity>>());
+      final data = (result as SuccessResponse<AddressEntity>).data;
+      expect(data.id, 'addr-1');
+      expect(data.address, '12 Nile St');
+      expect(data.city, 'Cairo');
+      expect(data.area, 'Dokki');
       verify(remoteDataSource.createAddress(request)).called(1);
     });
 
@@ -138,9 +170,9 @@ void main() {
 
       final result = await repo.createAddress(request);
 
-      expect(result, isA<ErrorResponse<List<AddressEntity>>>());
+      expect(result, isA<ErrorResponse<AddressEntity>>());
       expect(
-        (result as ErrorResponse<List<AddressEntity>>).errorMessage,
+        (result as ErrorResponse<AddressEntity>).errorMessage,
         'Add address failed',
       );
       verify(remoteDataSource.createAddress(request)).called(1);
@@ -183,13 +215,14 @@ void main() {
 
     test('returns SuccessResponse when data source succeeds', () async {
       when(remoteDataSource.updateAddress(addressId, request)).thenAnswer(
-        (_) async {},
+        (_) async => successResponse(),
       );
 
       final result = await repo.updateAddress(addressId, request);
 
       expect(result, isA<SuccessResponse<List<AddressEntity>>>());
-      expect((result as SuccessResponse<List<AddressEntity>>).data, isEmpty);
+      expect((result as SuccessResponse<List<AddressEntity>>).data, isNotEmpty);
+      expect((result).data.first.id, 'addr-1');
       verify(remoteDataSource.updateAddress(addressId, request)).called(1);
     });
 
