@@ -1,13 +1,17 @@
+import 'package:flower_app/core/auth/auth_extension.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
+import 'package:flower_app/core/utils/pagination/pagination_grid_view.dart';
 import 'package:flower_app/features/commerce/core/widgets/custom_tab_bar.dart';
-import 'package:flower_app/features/commerce/core/widgets/product_grid.dart';
+import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
+import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_event.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_state.dart';
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 
 class CategoryBody extends StatelessWidget {
   const CategoryBody({super.key});
@@ -58,24 +62,44 @@ class CategoryBody extends StatelessWidget {
       return Center(child: Text(state.categoriesState.errorMessage));
     }
 
-    if (state.productsState.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+    if (state.selectedCategoryId.isEmpty) {
+      return const SizedBox.shrink();
     }
 
-    if (state.productsState.errorMessage.isNotEmpty) {
-      return Center(child: Text(state.productsState.errorMessage));
-    }
-
-    final products = state.productsState.data ?? const [];
-
-    if (products.isEmpty) {
-      return const Center(child: Text('No products found'));
-    }
-
-    return ProductGrid(
-      products: products,
-      onTap: (product) {
-        navigateToProductDetails(context, product.id);
+    return PaginationGridView<ProductEntity>(
+      key: ValueKey('${state.selectedCategoryId}_${state.selectedSortBy}'),
+      controller: context
+          .read<CategoryViewModel>()
+          .productsPaginationController,
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.6,
+      ),
+      itemBuilder: (context, product, index) {
+        return ProductCard(
+          imageUrl: product.imageUrl,
+          name: product.name,
+          price: product.discountedPrice.toStringAsFixed(2),
+          oldPrice: product.price != product.discountedPrice
+              ? product.price?.toStringAsFixed(2)
+              : null,
+          discount: product.discountPercent != null
+              ? '${product.discountPercent!.toStringAsFixed(0)}%'
+              : null,
+          onAddToCart: () async {
+            await context.requireAuth(
+              action: () async {
+                // TODO: Add product to cart.
+              },
+            );
+          },
+          onTap: () {
+            navigateToProductDetails(context, product.id);
+          },
+        );
       },
     );
   }

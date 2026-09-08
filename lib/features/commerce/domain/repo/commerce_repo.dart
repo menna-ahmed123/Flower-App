@@ -1,6 +1,7 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/commerce/data/models/occasion_model.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
+import 'package:flower_app/features/commerce/domain/entities/category_sort_by.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
@@ -9,8 +10,11 @@ abstract interface class CommerceRepo {
   Future<BaseResponse<HomeLayoutEntity>> getHomeLayout({String? storeId});
 
   Future<BaseResponse<List<ProductEntity>>> getProducts({
+    int? page,
+    int? pageSize,
     String? occasionId,
     String? categoryId,
+    CategorySortBy? sortBy,
   });
 
   Future<BaseResponse<List<OccasionModel>>> getAllOccasions();

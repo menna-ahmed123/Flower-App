@@ -115,6 +115,12 @@ abstract class AppString {
   static const String desSell = 'Bloom with our exquisite best sellers';
   static const String notFound = 'No products found';
   static const String deliverTo = 'Deliver to 2XVP+XC - Sheikh Zayed';
+  static const String sortBy = 'Sort by';
+  static const String lowestPrice = 'Lowest Price';
+  static const String highestPrice = 'Highest Price';
+  static const String newest = 'New';
+  static const String oldest = 'Old';
+  static const String discount = 'Discount';
 
   // ==================== Product Details ====================
   static const String addToCart = 'Add to cart';
