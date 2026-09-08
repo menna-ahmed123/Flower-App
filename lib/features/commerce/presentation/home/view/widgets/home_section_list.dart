@@ -10,6 +10,7 @@ import 'package:flower_app/features/commerce/presentation/home/view/widgets/occa
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/product_rail.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeSectionList extends StatelessWidget {
@@ -25,7 +26,7 @@ class HomeSectionList extends StatelessWidget {
         SliverToBoxAdapter(child: HomeHeader(onQuery: onQuery)),
         for (final section in sections)
           SliverToBoxAdapter(child: HomeSectionView(section: section)),
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        SliverToBoxAdapter(child: SizedBox(height: 16.h)),
       ],
     );
   }

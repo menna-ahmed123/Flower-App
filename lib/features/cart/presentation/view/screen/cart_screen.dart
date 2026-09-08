@@ -117,7 +117,7 @@ class CartErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

@@ -18,11 +18,11 @@ class ProductGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12.w,
-        mainAxisSpacing: 13.h,
+        mainAxisSpacing: 12.h,
         childAspectRatio: 0.55,
       ),
       itemCount: products.length,
@@ -30,6 +30,7 @@ class ProductGrid extends StatelessWidget {
         final product = products[index];
 
         return ProductCard(
+          productId: product.id,
           imageUrl: product.imageUrl,
           name: product.name,
           price: product.discountedPrice > 0

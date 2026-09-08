@@ -58,6 +58,7 @@ class ProductRail extends StatelessWidget {
   Widget _item(BuildContext context, int index) {
     final item = section.items[index];
     return ProductCard(
+      productId: item.id,
       imageUrl: item.imageUrl,
       name: item.name,
       price: item.price ?? '',

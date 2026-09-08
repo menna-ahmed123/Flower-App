@@ -19,7 +19,7 @@ Future<void> showLoginBottomSheet(BuildContext context) {
     showDragHandle: false,
     builder: (context) {
       return Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

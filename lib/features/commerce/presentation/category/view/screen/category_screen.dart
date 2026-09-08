@@ -20,39 +20,42 @@ class CategoryScreen extends StatelessWidget {
         body: Column(
           children: [
             SizedBox(height: 16.h),
-        
-            Row(
-              children: [
-                Expanded(
-                  child: AppSearchField(
-                    readOnly: true,
-                    onTap: () {
-                      context.push(AppRoutesName.search);
-                    },
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Container(
-                  width: 48.w,
-                  height: 48.h,
-                  decoration: BoxDecoration(
-                    color: colors.white,
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: colors.grey.shade600),
-                  ),
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(
-                      AppIcons.filter,
-                      color: colors.grey.shade700,
-                      size: 24.w,
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: AppSearchField(
+                      readOnly: true,
+                      onTap: () {
+                        context.push(AppRoutesName.search);
+                      },
                     ),
-                    onPressed: () {
-                      // handle filter
-                    },
                   ),
-                ),
-              ],
+                  SizedBox(width: 12.w),
+                  Container(
+                    width: 48.w,
+                    height: 48.h,
+                    decoration: BoxDecoration(
+                      color: colors.white,
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(color: colors.grey.shade600),
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        AppIcons.filter,
+                        color: colors.grey.shade700,
+                        size: 24.w,
+                      ),
+                      onPressed: () {
+                        // handle filter
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
         
             SizedBox(height: 16.h),

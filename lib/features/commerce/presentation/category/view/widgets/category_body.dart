@@ -10,7 +10,6 @@ import 'package:flower_app/features/commerce/presentation/category/view_model/ca
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CategoryBody extends StatelessWidget {
   const CategoryBody({super.key});
@@ -42,8 +41,6 @@ class CategoryBody extends StatelessWidget {
                 );
               },
             ),
-
-            SizedBox(height: 16.h),
 
             Expanded(child: _buildProductsBody(context, state)),
           ],

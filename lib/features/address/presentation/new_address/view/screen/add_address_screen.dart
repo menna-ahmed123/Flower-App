@@ -1,6 +1,5 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
-import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/location_form.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/location_map.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
@@ -11,6 +10,7 @@ import 'package:flower_app/features/address/presentation/save_address/view_model
 import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -117,13 +117,8 @@ class _AddressScreenState extends State<AddAddressScreen>
             }},
           child: BlocBuilder<AddressViewModel, AddressState>(
              builder: (context, state) {
-              final location =
-                  state.locationState.data ??
-                  const LocationEntity(latitude: 30.0444, longitude: 31.2357);
+              final location = state.locationState.data;
 
-              // final isLoading =
-              //     state.locationState.isLoading || state.addressState.isLoading;
-       
           return SingleChildScrollView(
             child: Column(
               children: [
@@ -143,7 +138,7 @@ class _AddressScreenState extends State<AddAddressScreen>
                 SizedBox(
                   height: 250,
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.w),
                     child: LocationMap(
                       initialLocation: location,
                       onLocationSelected: (location) {

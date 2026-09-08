@@ -1,6 +1,7 @@
 import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProductGrid extends StatelessWidget {
   const ProductGrid({
@@ -17,11 +18,11 @@ class ProductGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      padding: EdgeInsets.all(16.w),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+        crossAxisSpacing: 12.w,
+        mainAxisSpacing: 12.h,
         childAspectRatio: 0.6,
       ),
       itemCount: products.length,
@@ -29,6 +30,7 @@ class ProductGrid extends StatelessWidget {
         final product = products[index];
 
         return ProductCard(
+          productId: product.id,
           imageUrl: product.imageUrl,
           name: product.name,
           price: product.discountedPrice.toStringAsFixed(2),
