@@ -47,7 +47,6 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
 
     switch (response) {
       case SuccessResponse<AddressEntity>(:final data):
-        print('✅ ADD ADDRESS SUCCESS');
 
         emit(
           state.copyWith(
@@ -63,10 +62,6 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
         break;
 
       case ErrorResponse<AddressEntity>(:final errorMessage):
-        print(
-          '❌ ADD ADDRESS ERROR: $errorMessage',
-        );
-
         emit(
           state.copyWith(
             isSaved: false,
@@ -103,7 +98,6 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
 
     switch (response) {
       case SuccessResponse<List<AddressEntity>>():
-        print('✅ UPDATE ADDRESS SUCCESS');
 
         emit(
           state.copyWith(
@@ -118,10 +112,6 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
         break;
 
       case ErrorResponse<List<AddressEntity>>( :final errorMessage):
-        print(
-          '❌ UPDATE ADDRESS ERROR: $errorMessage',
-        );
-
         emit(
           state.copyWith(
             isSaved: false,

@@ -46,21 +46,18 @@ class SavedAddressesScreen extends StatelessWidget {
                 errorMessage: state.defaultAddressesState.errorMessage,
                 addresses: state.defaultAddressesState.data ?? [],
 
-                // Retry
                 onRetry: () {
                   context.read<DefaultAddressViewModel>().doEvent(
                         LoadSavedAddresses(),
                       );
                 },
 
-                // Delete
                 onDelete: (id) {
                   context.read<DefaultAddressViewModel>().doEvent(
                         DeleteSavedAddress(id),
                       );
                 },
 
-                // Edit
                 onEdit: (address) async {
                   final result = await context.push(
                     AppRoutesName.address,
@@ -74,7 +71,6 @@ class SavedAddressesScreen extends StatelessWidget {
                   }
                 },
 
-                // Add New Address
                 onAddNew: () async {
                   final result = await context.push(
                     AppRoutesName.address,

@@ -15,10 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AddAddressScreen extends StatefulWidget {
-  const AddAddressScreen({
-    super.key,
-    this.address,
-  });
+  const AddAddressScreen({super.key, this.address});
 
   final AddressEntity? address;
 
@@ -58,13 +55,9 @@ class _AddAddressScreenState extends State<AddAddressScreen>
     final address = widget.address;
 
     if (address != null) {
-      context.read<AddressViewModel>().doEvent(
-            LoadAddressDetails(address.id!),
-          );
+      context.read<AddressViewModel>().doEvent(LoadAddressDetails(address.id!));
     } else {
-      context.read<AddressViewModel>().doEvent(
-            GetCurrentAddress(),
-          );
+      context.read<AddressViewModel>().doEvent(GetCurrentAddress());
     }
   }
 
@@ -76,27 +69,21 @@ class _AddAddressScreenState extends State<AddAddressScreen>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(
-            AppString.location,
-          ),
+          title: const Text(AppString.location),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text(
-                AppString.cancel,
-              ),
+              child: const Text(AppString.cancel),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 onOpenSettings();
               },
-              child: const Text(
-                AppString.openSettings,
-              ),
+              child: const Text(AppString.openSettings),
             ),
           ],
         );
@@ -125,80 +112,57 @@ class _AddAddressScreenState extends State<AddAddressScreen>
                     current.locationState.errorMessage;
               },
               listener: (context, state) {
-                final errorMessage =
-                    state.locationState.errorMessage;
+                final errorMessage = state.locationState.errorMessage;
 
-                if (errorMessage ==
-                    AppString.locationServicesDisabled) {
+                if (errorMessage == AppString.locationServicesDisabled) {
                   _showLocationDialog(
-                    message:
-                        AppString.enableLocationDescription,
+                    message: AppString.enableLocationDescription,
                     onOpenSettings: () {
-                      context
-                          .read<AddressViewModel>()
-                          .openLocationSettings();
+                      context.read<AddressViewModel>().openLocationSettings();
                     },
                   );
                 }
 
                 if (errorMessage ==
-                    AppString
-                        .locationPermissionPermanentlyDenied) {
+                    AppString.locationPermissionPermanentlyDenied) {
                   _showLocationDialog(
-                    message:
-                        AppString.enableLocationDescription,
+                    message: AppString.enableLocationDescription,
                     onOpenSettings: () {
-                      context
-                          .read<AddressViewModel>()
-                          .openAppSettings();
+                      context.read<AddressViewModel>().openAppSettings();
                     },
                   );
                 }
               },
             ),
+            BlocListener<SaveAddressViewModel, SaveAddressState>(
+              listener: (context, state) {
+                // Success
+                if (state.isSaved) {
+                  context.pop(true);
+                  return;
+                }
+                final errorMessage = state.saveAddressState.errorMessage;
 
-            // ============================
-           BlocListener<SaveAddressViewModel, SaveAddressState>(
-  listener: (context, state) {
-    // Success
-    if (state.isSaved) {
-      context.pop(true);
-      return;
-    }
+                final isLoading = state.saveAddressState.isLoading;
 
-    // Error فقط لو العملية انتهت بفشل
-    final errorMessage =
-        state.saveAddressState.errorMessage;
-
-    final isLoading =
-        state.saveAddressState.isLoading;
-
-    if (!isLoading && errorMessage.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-        ),
-      );
-    }
-  },
-),
+                if (!isLoading && errorMessage.isNotEmpty) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(errorMessage)));
+                }
+              },
+            ),
           ],
 
           child: BlocBuilder<AddressViewModel, AddressState>(
             builder: (context, state) {
               final location =
                   state.locationState.data ??
-                      const LocationEntity(
-                        latitude: 30.0444,
-                        longitude: 31.2357,
-                      );
+                  const LocationEntity(latitude: 30.0444, longitude: 31.2357);
 
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    // ============================
-                    // Location Loading
-                    // ============================
                     BlocBuilder<AddressViewModel, AddressState>(
                       buildWhen: (previous, current) {
                         return previous.locationState.isLoading !=
@@ -212,10 +176,6 @@ class _AddAddressScreenState extends State<AddAddressScreen>
                         return const SizedBox.shrink();
                       },
                     ),
-
-                    // ============================
-                    // Map
-                    // ============================
                     SizedBox(
                       height: 250,
                       child: Padding(
@@ -223,16 +183,12 @@ class _AddAddressScreenState extends State<AddAddressScreen>
                         child: LocationMap(
                           initialLocation: location,
                           onLocationSelected: (location) {
-                            context
-                                .read<AddressViewModel>()
-                                .doEvent(
-                                  LocationSelected(
-                                    latitude:
-                                        location.latitude,
-                                    longitude:
-                                        location.longitude,
-                                  ),
-                                );
+                            context.read<AddressViewModel>().doEvent(
+                              LocationSelected(
+                                latitude: location.latitude,
+                                longitude: location.longitude,
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -250,26 +206,19 @@ class _AddAddressScreenState extends State<AddAddressScreen>
                           address: state.addressState.data,
 
                           onSave: (address) {
-                            final saveViewModel =
-                                context.read<
-                                    SaveAddressViewModel>();
+                            final saveViewModel = context
+                                .read<SaveAddressViewModel>();
                             if (widget.address == null) {
-                              saveViewModel.doEvent(
-                                AddAddress(address),
-                              );
+                              saveViewModel.doEvent(AddAddress(address));
                               return;
                             }
-                            saveViewModel.doEvent(
-                              EditAddress(address),
-                            );
+                            saveViewModel.doEvent(EditAddress(address));
                           },
                         );
                       },
                     ),
 
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               );
