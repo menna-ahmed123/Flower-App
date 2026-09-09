@@ -136,13 +136,16 @@ void main() {
   group('updateAddress', () {
     const addressId = 'addr-1';
 
-    test('completes when api call succeeds', () async {
+    test('returns AddressResponse when api call succeeds', () async {
+      final response = successResponse();
       when(
         addressApiClient.updateAddress(addressId, request),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async => response);
 
-      await dataSource.updateAddress(addressId, request);
+      final result = await dataSource.updateAddress(addressId, request);
 
+      expect(result, response);
+      expect(result.success, isTrue);
       verify(addressApiClient.updateAddress(addressId, request)).called(1);
     });
 

@@ -2,8 +2,8 @@ import 'package:flower_app/app/layout/main_shell.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_event.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/screen/add_address_screen.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
@@ -37,6 +37,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/domain/repos/auth_repository.dart';
+import '../../features/commerce/presentation/search/view/screen/search_screen.dart';
+import '../../features/commerce/presentation/search/view_model/search_view_model.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -56,6 +58,7 @@ class AppRouter {
         _loginRoute(),
         _registerRoute(),
         _forgetPasswordShell(),
+        _searchRoute(),
         _mainShell(),
         GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
         GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
@@ -92,6 +95,10 @@ class AppRouter {
         );
       },
     );
+  }
+
+  static GoRoute _searchRoute() {
+    return GoRoute(path: AppRoutesName.search, builder: _searchBuilder);
   }
 
   static ShellRoute _forgetPasswordShell() {
@@ -160,9 +167,24 @@ class AppRouter {
     ];
   }
 
-  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
+  static Widget _searchBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
-      create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+      create: (_) => getIt<SearchViewModel>(),
+      child: const SearchScreen(),
+    );
+  }
+
+  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
+        ),
+      ],
       child: const HomeScreen(),
     );
   }
