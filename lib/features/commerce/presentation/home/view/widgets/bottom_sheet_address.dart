@@ -53,11 +53,11 @@ class BottomSheetAddress extends StatelessWidget {
           Text(
             AppString.selectDeliveryAddress,
             style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-          ),
+          ),onst SizedBox(height: 20),
 
-          const SizedBox(height: 20),lexible(
+          Flexible(
             child: BlocBuilder<DefaultAddressViewModel, DefaultAddressState>(
-              builder: (context, state) {
+              bbuilder: (context, state) {
                 if (state.defaultAddressesState.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -70,7 +70,7 @@ class BottomSheetAddress extends StatelessWidget {
 
                 return ListView.separated(
                   shrinkWrap: true,
-                  iitemCount: addresses.length,
+                  itemCount: addresses.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final address = addresses[index];
