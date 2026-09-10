@@ -55,6 +55,10 @@ import '../../features/address/presentation/new_address/view_model/address_view_
     as _i28;
 import '../../features/address/presentation/save_address/view_model/save_address_view_model.dart'
     as _i236;
+import '../../features/auth/core/data/repos/auth_repository_impl.dart' as _i436;
+import '../../features/auth/core/domain/repos/auth_repository.dart' as _i179;
+import '../../features/auth/core/presentation/view_model/auth_cubit.dart'
+    as _i571;
 import '../../features/auth/forget_password/api/client/forget_password_api_client.dart'
     as _i597;
 import '../../features/auth/forget_password/api/data_source/forget_password_remote_data_source_impl.dart'
@@ -135,9 +139,6 @@ import '../../features/commerce/presentation/prodect_details/view_model/product_
     as _i784;
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart'
     as _i1068;
-import '../auth/data/repos/auth_repository_impl.dart' as _i874;
-import '../auth/domain/repos/auth_repository.dart' as _i420;
-import '../auth/presentation/view_model/auth_cubit.dart' as _i4;
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
@@ -177,17 +178,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i669.LocationService>(
       () => _i669.LocationService(gh<_i699.GeolocatorPlatform>()),
     );
-    gh.lazySingleton<_i420.AuthRepository>(
-      () => _i874.AuthRepositoryImpl(gh<_i964.TokenStorage>()),
-    );
     gh.lazySingleton<_i466.AuthInterceptors>(
       () => _i466.AuthInterceptors(
         gh<_i964.TokenStorage>(),
         gh<_i1058.TokenRefresher>(),
       ),
     );
-    gh.lazySingleton<_i4.AuthCubit>(
-      () => _i4.AuthCubit(gh<_i420.AuthRepository>()),
+    gh.lazySingleton<_i179.AuthRepository>(
+      () => _i436.AuthRepositoryImpl(gh<_i964.TokenStorage>()),
+    );
+    gh.lazySingleton<_i571.AuthCubit>(
+      () => _i571.AuthCubit(gh<_i179.AuthRepository>()),
     );
     gh.singleton<_i361.Dio>(
       () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),

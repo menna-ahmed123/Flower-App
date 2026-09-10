@@ -1,23 +1,26 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/features/address/domain/entities/address_entity.dart';
-import 'package:flower_app/features/commerce/presentation/home/view/widgets/bottom_sheet_address.dart';
 import 'package:flower_app/core/widgets/app_search_field.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/auth/core/auth_extension.dart';
+import 'package:flower_app/features/commerce/presentation/home/view/widgets/bottom_sheet_address.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
     super.key,
-    this.onQuery,
     required this.addresses,
     this.selectedAddress,
     this.onAddressSelected,
     this.onAddNewAddress,
   });
-
-  final ValueChanged<String>? onQuery;
 
   final List<AddressEntity> addresses;
 
@@ -38,7 +41,10 @@ class HomeHeader extends StatelessWidget {
 
           SizedBox(height: 12.h),
 
-          AppSearchField(onChanged: onQuery, onClear: () => onQuery?.call('')),
+          AppSearchField(
+            readOnly: true,
+            onTap: () => context.push(AppRoutesName.search),
+          ),
 
           SizedBox(height: 12.h),
 
@@ -87,7 +93,16 @@ class HomeHeader extends StatelessWidget {
     final colors = context.colors;
 
     return InkWell(
-      onTap: () => _showAddressBottomSheet(context),
+      onTap: () async {
+        await context.requireAuth(
+          action: () async {
+            context.read<DefaultAddressViewModel>().doEvent(
+              LoadSavedAddresses(),
+            );
+            await _showAddressBottomSheet(context);
+          },
+        );
+      },
       borderRadius: BorderRadius.circular(12.r),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -116,14 +131,17 @@ class HomeHeader extends StatelessWidget {
   }
 
   Future<void> _showAddressBottomSheet(BuildContext context) async {
+    final viewModel = context.read<DefaultAddressViewModel>();
     final result = await showModalBottomSheet<Object>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return BottomSheetAddress(
-          addresses: addresses,
-          selectedAddressId: selectedAddress?.id,
+        return BlocProvider<DefaultAddressViewModel>.value(
+          value: viewModel,
+          child: BottomSheetAddress(
+            selectedAddressId: selectedAddress?.id,
+          ),
         );
       },
     );

@@ -1,5 +1,6 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
+import 'package:flower_app/features/auth/core/auth_extension.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
@@ -8,8 +9,6 @@ import 'package:flower_app/features/commerce/presentation/home/view/widgets/home
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../../../../../core/auth/auth_extension.dart';
 
 class ProductRail extends StatelessWidget {
   const ProductRail({

@@ -27,7 +27,10 @@ void main() {
   testWidgets('renders sections in API order and skips unknown types', (
     tester,
   ) async {
-    await pumpThemed(tester, HomeSectionList(sections: _orderedSections()));
+    await pumpThemed(
+      tester,
+      HomeSectionList(sections: _orderedSections(), addresses: const []),
+    );
     expect(find.byType(HomeBanner), findsOneWidget);
     expect(find.text('Best seller'), findsOneWidget);
     expect(find.text('Categories'), findsOneWidget);
@@ -68,7 +71,12 @@ GoRouter _viewAllRouter() {
       GoRoute(
         path: AppRoutesName.home,
         builder: (context, state) {
-          return Scaffold(body: HomeSectionList(sections: _orderedSections()));
+          return Scaffold(
+            body: HomeSectionList(
+              sections: _orderedSections(),
+              addresses: const [],
+            ),
+          );
         },
       ),
       GoRoute(

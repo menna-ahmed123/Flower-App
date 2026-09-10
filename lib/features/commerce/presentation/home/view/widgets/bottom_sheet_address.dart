@@ -1,18 +1,18 @@
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flutter/material.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/features/address/domain/entities/address_entity.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BottomSheetAddress extends StatelessWidget {
   const BottomSheetAddress({
     super.key,
-    required this.addresses,
     this.selectedAddressId,
   });
 
   static const String addNewAddress = 'add_new_address';
 
-  final List<AddressEntity> addresses;
   final String? selectedAddressId;
 
   @override
@@ -55,14 +55,22 @@ class BottomSheetAddress extends StatelessWidget {
             style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 20),lexible(
+            child: BlocBuilder<DefaultAddressViewModel, DefaultAddressState>(
+              builder: (context, state) {
+                if (state.defaultAddressesState.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          Flexible(
-            child: addresses.isEmpty
-                ? _emptyState(context)
-                : ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: addresses.length,
+                final addresses = state.defaultAddressesState.data ?? [];
+
+                if (addresses.isEmpty) {
+                  return _emptyState(context);
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  iitemCount: addresses.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final address = addresses[index];
@@ -199,7 +207,9 @@ class BottomSheetAddress extends StatelessWidget {
                         ),
                       );
                     },
-                  ),
+                );
+              },
+            ),
           ),
 
           const SizedBox(height: 16),

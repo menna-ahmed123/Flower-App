@@ -1,10 +1,10 @@
 import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/auth/auth_extension.dart';
-import 'package:flower_app/core/auth/presentation/view/auth_bottom_sheet.dart';
-import 'package:flower_app/core/auth/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/core/auth/presentation/view_model/auth_state.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/features/auth/core/auth_extension.dart';
+import 'package:flower_app/features/auth/core/presentation/view/auth_bottom_sheet.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_state.dart';
 import 'package:flower_app/features/cart/presentation/view/widgets/cart_badge_icon.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_state.dart';

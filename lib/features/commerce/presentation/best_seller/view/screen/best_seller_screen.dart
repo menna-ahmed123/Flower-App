@@ -1,8 +1,8 @@
-import 'package:flower_app/core/auth/auth_extension.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/utils/commerce_widgets/widgets/product_grid.dart';
+import 'package:flower_app/features/auth/core/auth_extension.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
