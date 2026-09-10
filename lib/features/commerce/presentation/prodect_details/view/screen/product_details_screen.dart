@@ -1,5 +1,4 @@
 import 'package:flower_app/core/widgets/app_button.dart';
-import 'package:flower_app/features/auth/core/auth_extension.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
@@ -7,9 +6,10 @@ import 'package:flower_app/features/commerce/presentation/prodect_details/view/w
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_state.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:flower_app/features/auth/core/auth_extension.dart';
 import '../../../../../../core/widgets/app_shimmer/product_details_shimmer.dart';
 
 // The route already creates the cubit AND fires GetProductDetailsEvent
