@@ -100,6 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                         hint: AppString.enterYourPassword,
                         validator: AppValidators.passwordValidator,
                         controller: _passwordController,
+                         obscureText: true,
                       ),
                       StatefulBuilder(
                         builder: (context, setState) {
@@ -192,7 +193,11 @@ class _LoginPageState extends State<LoginPage> {
 
                             if (!context.mounted) return;
 
-                            context.go(AppRoutesName.home);
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go(AppRoutesName.home);
+                            }
                           },
                         ),
                       ),

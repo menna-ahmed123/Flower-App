@@ -2,6 +2,13 @@ import 'package:flower_app/app/layout/main_shell.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
+import 'package:flower_app/features/address/presentation/new_address/view/screen/add_address_screen.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
+import 'package:flower_app/features/address/presentation/save_address/view/save_address_screen.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/forget_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/reset_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/verification_page.dart';
@@ -23,13 +30,16 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
-import 'package:flower_app/features/orders/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/domain/repos/auth_repository.dart';
+import '../../features/commerce/presentation/search/view/screen/search_screen.dart';
+import '../../features/commerce/presentation/search/view_model/search_view_model.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -51,7 +61,10 @@ class AppRouter {
         _loginRoute(),
         _registerRoute(),
         _forgetPasswordShell(),
+        _searchRoute(),
         _mainShell(),
+         GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
+        GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
       ],
     );
   }
@@ -85,6 +98,10 @@ class AppRouter {
         );
       },
     );
+  }
+
+  static GoRoute _searchRoute() {
+    return GoRoute(path: AppRoutesName.search, builder: _searchBuilder);
   }
 
   static ShellRoute _forgetPasswordShell() {
@@ -123,7 +140,13 @@ class AppRouter {
   static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return MainShell(navigationShell: navigationShell);
+        return BlocProvider.value(
+          value: getIt<CartViewModel>(),
+          child: MainShell(
+            navigationShell: navigationShell,
+            location: state.uri.path,
+          ),
+        );
       },
       branches: [
         _homeBranch(),
@@ -147,7 +170,7 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutesName.occasion,
-        builder:_OccasionBuilder,
+        builder: _occasionBuilder,
       ),
       GoRoute(
         path: AppRoutesName.productDetails,
@@ -156,9 +179,24 @@ class AppRouter {
     ];
   }
 
-  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
+  static Widget _searchBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
-      create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+      create: (_) => getIt<SearchViewModel>(),
+      child: const SearchScreen(),
+    );
+  }
+
+  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
+        ),
+      ],
       child: const HomeScreen(),
     );
   }
@@ -190,7 +228,7 @@ class AppRouter {
   );
 }
 
-  static Widget _OccasionBuilder(BuildContext context, GoRouterState state) {
+  static Widget _occasionBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<OccasionViewModel>(),
       child: const OccasionScreen(),
@@ -228,12 +266,35 @@ class AppRouter {
 
   static StatefulShellBranch _profileBranch() {
     return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.profile,
-          builder: (context, state) => const ProfileScreen(),
+      routes: [GoRoute(path: AppRoutesName.profile, builder: _profileBuilder)],
+    );
+  }
+
+  static Widget _profileBuilder(BuildContext context, GoRouterState state) {
+    return const ProfileScreen();
+  }
+
+  static Widget _addressBuilder(BuildContext context, GoRouterState state) {
+    final address = state.extra as AddressEntity?;
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<SaveAddressViewModel>(
+          create: (_) => getIt<SaveAddressViewModel>(),
+        ),
+        BlocProvider<AddressViewModel>(
+          create: (_) => getIt<AddressViewModel>(),
         ),
       ],
+      child: AddAddressScreen(address: address),
+    );
+  }
+
+  static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) =>
+          getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
+      child: const SavedAddressesScreen(),
     );
   }
 }

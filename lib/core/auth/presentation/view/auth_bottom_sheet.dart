@@ -14,12 +14,12 @@ Future<void> showLoginBottomSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
     useSafeArea: true,
-    isDismissible: false,
-    enableDrag: false,
-    showDragHandle: false,
+    isDismissible: true,
+    enableDrag: true,
+    showDragHandle: true,
     builder: (context) {
       return Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -70,6 +70,15 @@ Future<void> showLoginBottomSheet(BuildContext context) {
               },
             ),
             SizedBox(height: 8.h),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.read<AuthCubit>().doEvent(
+                  const AuthGuestRequested(),
+                );
+              },
+              child: const Text(AppString.continueAsGuest),
+            ),
           ],
         ),
       );

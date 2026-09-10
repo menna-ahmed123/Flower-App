@@ -1,5 +1,6 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/errors/app_error.dart';
+import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/home_use_case.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
@@ -16,7 +17,7 @@ void main() {
   late MockHomeUseCase useCase;
   late HomeViewModel viewModel;
   final layout = HomeLayoutEntity(
-    sections: [sectionEntity(type: 'banner', id: 'b')],
+    sections: [sectionEntity(type: HomeSectionTypes.banner, id: 'b')],
   );
 
   setUp(() {
@@ -85,7 +86,7 @@ HomeLayoutEntity _products() {
   return HomeLayoutEntity(
     sections: [
       sectionEntity(
-        type: 'product_rail',
+        type: HomeSectionTypes.productRail,
         id: 'p',
         items: [
           railItem('Sunny'),

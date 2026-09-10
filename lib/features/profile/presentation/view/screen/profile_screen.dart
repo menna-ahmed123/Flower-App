@@ -25,9 +25,21 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(title: const Text(AppString.profile)),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-        child: AppButton(
-          text: AppString.logout,
-          onPressed: () => _logout(context),
+        child: Column(
+          children: [
+            AppButton(
+              text: AppString.logout,
+              onPressed: () => _logout(context),
+            ),
+
+            SizedBox(height: 15.h),
+             AppButton(
+              text: AppString.savedAddresses,
+              onPressed: (){
+                context.push(AppRoutesName.saveAddress);
+              }
+            ),
+          ],
         ),
       ),
     );

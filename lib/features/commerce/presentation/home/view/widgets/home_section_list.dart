@@ -1,6 +1,8 @@
-import 'dart:developer' as developer;
 
+import 'dart:developer' as developer;
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/category_rail.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_banner.dart';
@@ -9,43 +11,96 @@ import 'package:flower_app/features/commerce/presentation/home/view/widgets/occa
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/product_rail.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeSectionList extends StatelessWidget {
-  const HomeSectionList({super.key, required this.sections, this.onQuery});
+  const HomeSectionList({
+    super.key,
+    required this.sections,
+    required this.addresses,
+    this.onQuery,
+    this.selectedAddress,
+    this.onAddressSelected,
+    this.onAddNewAddress,
+  });
 
   final List<HomeSectionEntity> sections;
+  final List<AddressEntity> addresses;
+  final AddressEntity? selectedAddress;
+
+  final ValueChanged<AddressEntity>? onAddressSelected;
+
+  final VoidCallback? onAddNewAddress;
+
   final ValueChanged<String>? onQuery;
 
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(child: HomeHeader(onQuery: onQuery)),
+        SliverToBoxAdapter(
+          child: HomeHeader(
+            onQuery: onQuery,
+            addresses: addresses,
+            selectedAddress: selectedAddress,
+            onAddressSelected: onAddressSelected,
+            onAddNewAddress: onAddNewAddress,
+          ),
+        ),
+
         for (final section in sections)
-          SliverToBoxAdapter(child: HomeSectionView(section: section)),
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverToBoxAdapter(
+            child: HomeSectionView(
+              section: section,
+            ),
+          ),
+
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 16),
+        ),
       ],
     );
   }
 }
 
 class HomeSectionView extends StatelessWidget {
-  const HomeSectionView({super.key, required this.section});
+  const HomeSectionView({
+    super.key,
+    required this.section,
+  });
 
   final HomeSectionEntity section;
 
   @override
   Widget build(BuildContext context) {
-    return _section((link) => openHomeDeepLink(context, link));
+    return _section(
+      (link) => openHomeDeepLink(
+        context,
+        link,
+      ),
+    );
   }
 
-  Widget _section(ValueChanged<String> onDeepLink) {
+  Widget _section(
+    ValueChanged<String> onDeepLink,
+  ) {
     return switch (section.type) {
-      'banner' => HomeBanner(section: section, onDeepLink: onDeepLink),
-      'category_rail' => CategoryRail(section: section, onDeepLink: onDeepLink),
-      'product_rail' => ProductRail(section: section, onDeepLink: onDeepLink),
-      'occasion_rail' => OccasionRail(section: section, onDeepLink: onDeepLink),
+      HomeSectionTypes.banner => HomeBanner(section: section, onDeepLink: onDeepLink),
+      HomeSectionTypes.categoryRail || HomeSectionTypes.categories => CategoryRail(
+        section: section,
+        onDeepLink: onDeepLink,
+      ),
+      HomeSectionTypes.productRail ||
+      HomeSectionTypes.bestSeller ||
+      HomeSectionTypes.productsCarousel => ProductRail(
+        section: section,
+        onDeepLink: onDeepLink,
+      ),
+      HomeSectionTypes.occasionRail || HomeSectionTypes.occasions => OccasionRail(
+        section: section,
+        onDeepLink: onDeepLink,
+      ),
       _ => _unknownSection(section.type),
     };
   }
@@ -53,42 +108,72 @@ class HomeSectionView extends StatelessWidget {
 
 Widget _unknownSection(String type) {
   if (kDebugMode) {
-    developer.log('Unknown home section type: $type', name: 'Home');
+    developer.log(
+      'Unknown home section type: $type',
+      name: 'Home',
+    );
   }
+
   return const SizedBox.shrink();
 }
 
-void openHomeDeepLink(BuildContext context, String deepLink) {
+void openHomeDeepLink(
+  BuildContext context,
+  String deepLink,
+) {
   if (deepLink.isEmpty) return;
+
   final location = mapHomeDeepLink(deepLink);
+
   if (location == AppRoutesName.category) {
     context.go(location);
     return;
   }
+
   context.push(location);
 }
 
 String mapHomeDeepLink(String deepLink) {
   final uri = Uri.tryParse(deepLink);
-  final path = uri?.path.toLowerCase() ?? deepLink;
-  if (path.contains('categor')) return AppRoutesName.category;
-  if (path.contains('occasion')) return AppRoutesName.occasion;
-  if (path.contains('product_details') || path.contains('/products/')) {
-    final productId = uri?.queryParameters['productId'] ??
+
+  final path =
+      uri?.path.toLowerCase() ?? deepLink;
+
+  if (path.contains('categor')) {
+    return AppRoutesName.category;
+  }
+
+  if (path.contains('occasion')) {
+    return AppRoutesName.occasion;
+  }
+
+  if (path.contains('product_details') ||
+      path.contains('/products/')) {
+    final productId =
+        uri?.queryParameters['productId'] ??
         uri?.queryParameters['id'] ??
-        (uri != null && uri.pathSegments.isNotEmpty
+        (uri != null &&
+                uri.pathSegments.isNotEmpty
             ? uri.pathSegments.last
             : null);
-    if (productId != null && productId.isNotEmpty) {
-      return AppRoutesName.productDetails.replaceFirst(
+
+    if (productId != null &&
+        productId.isNotEmpty) {
+      return AppRoutesName.productDetails
+          .replaceFirst(
         ':productId',
         productId,
       );
     }
+
     return AppRoutesName.bestSeller;
   }
-  if (path.contains('product') || path.contains('best')) {
+
+  if (path.contains('product') ||
+      path.contains('best')) {
     return AppRoutesName.bestSeller;
   }
+
   return deepLink;
 }
+

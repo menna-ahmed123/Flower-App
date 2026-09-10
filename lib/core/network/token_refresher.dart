@@ -1,10 +1,8 @@
+import 'package:dio/dio.dart';
+import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:injectable/injectable.dart';
 
 /// Pair of tokens returned by a successful refresh (or login) operation.
-///
-/// Field names follow common backend conventions. When the auth feature is
-/// wired to the real API, map the backend JSON into this model — do not invent
-/// extra fields (e.g. `expiresIn`) unless the backend actually returns them.
 class AuthTokens {
   const AuthTokens({required this.accessToken, this.refreshToken});
 
@@ -15,27 +13,66 @@ class AuthTokens {
 }
 
 /// Performs the HTTP refresh-token call.
-///
-/// **Backend contract is not defined in this repository yet.**
-/// The auth feature must replace [UnconfiguredTokenRefresher] with a real
-/// implementation once the refresh endpoint, method, body, and response are known.
 abstract interface class TokenRefresher {
   /// Exchanges [refreshToken] for a new [AuthTokens] pair.
   ///
-  /// Returns `null` when refresh cannot be performed (not configured).
+  /// Returns `null` when refresh cannot be performed (not configured, or
+  /// backend reported failure without a transport-level error).
   /// Throws [DioException] (or other) on transport/HTTP failure so the
   /// interceptor can distinguish network errors from auth expiration.
   Future<AuthTokens?> refresh(String refreshToken);
 }
 
-/// Placeholder until the real refresh API contract is available.
+/// Real implementation calling `POST /api/v1/identity/auth/refresh`.
 ///
-/// Returns `null` so the interceptor skips refresh without inventing an
-/// endpoint and without clearing the current session.
+/// Uses its own [Dio] instance (no [AuthInterceptors] attached) so the
+/// refresh call can never trigger another refresh or get stuck in a loop.
 @LazySingleton(as: TokenRefresher)
-class UnconfiguredTokenRefresher implements TokenRefresher {
+class ApiTokenRefresher implements TokenRefresher {
+  ApiTokenRefresher()
+      : _dio = Dio(
+    BaseOptions(
+      baseUrl: ApiEndpoints.resolvedBaseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      headers: const {'Content-Type': 'application/json'},
+    ),
+  );
+
+  final Dio _dio;
+
+  static const _refreshPath = '/identity/auth/refresh';
+
   @override
   Future<AuthTokens?> refresh(String refreshToken) async {
-    return null;
+    // Let DioException propagate as-is (network/400/401/etc.) so
+    // AuthInterceptors can tell an expired refresh token apart from a
+    // transient network/server error.
+    final response = await _dio.post<Map<String, dynamic>>(
+      _refreshPath,
+      data: {'refreshToken': refreshToken},
+    );
+
+    final body = response.data;
+    if (body == null || body['isSuccess'] != true) {
+      return null;
+    }
+
+    final data = body['data'];
+    if (data is! Map<String, dynamic>) {
+      return null;
+    }
+
+    final accessToken = data['accessToken'];
+    if (accessToken is! String || accessToken.isEmpty) {
+      return null;
+    }
+
+    final newRefreshToken = data['refreshToken'];
+    return AuthTokens(
+      accessToken: accessToken,
+      refreshToken: newRefreshToken is String ? newRefreshToken : null,
+    );
   }
 }
