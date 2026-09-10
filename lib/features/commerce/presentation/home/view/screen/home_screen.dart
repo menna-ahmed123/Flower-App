@@ -1,3 +1,4 @@
+import 'package:flower_app/core/widgets/app_shimmer/home_shimmer.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
@@ -101,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _loading(BuildContext context) {
-    return Center(child: CircularProgressIndicator(color: context.colors.pink));
+    return const HomeShimmer();
   }
 
   Widget _error(BuildContext context, String message) {
