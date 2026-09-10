@@ -1,6 +1,6 @@
 import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/auth/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/core/auth/presentation/view_model/auth_event.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_event.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +25,21 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(title: const Text(AppString.profile)),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-        child: AppButton(
-          text: AppString.logout,
-          onPressed: () => _logout(context),
+        child: Column(
+          children: [
+            AppButton(
+              text: AppString.logout,
+              onPressed: () => _logout(context),
+            ),
+
+            SizedBox(height: 15.h),
+             AppButton(
+              text: AppString.savedAddresses,
+              onPressed: (){
+                context.push(AppRoutesName.saveAddress);
+              }
+            ),
+          ],
         ),
       ),
     );

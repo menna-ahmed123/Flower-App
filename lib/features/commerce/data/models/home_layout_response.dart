@@ -64,8 +64,16 @@ class HomeSectionDto {
   @JsonKey(fromJson: homePayloadFromJson)
   final Map<String, dynamic> payload;
 
-  factory HomeSectionDto.fromJson(Map<String, dynamic> json) =>
-      _$HomeSectionDtoFromJson(json);
+  factory HomeSectionDto.fromJson(Map<String, dynamic> json) {
+    return _$HomeSectionDtoFromJson({
+      ...json,
+      'payload': {
+        ...homePayloadFromJson(json['payload']),
+        if (json['occasionId'] != null) 'occasionId': json['occasionId'],
+        if (json['categoryId'] != null) 'categoryId': json['categoryId'],
+      },
+    });
+  }
 
   Map<String, dynamic> toJson() => _$HomeSectionDtoToJson(this);
 

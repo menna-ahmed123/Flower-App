@@ -1,5 +1,7 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/utils/pagination/pagination_controller.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
+import 'package:flower_app/features/commerce/domain/entities/category_sort_by.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/category_use_case.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/product_use_case.dart';
@@ -11,17 +13,28 @@ import 'package:injectable/injectable.dart';
 @injectable
 class CategoryViewModel extends Cubit<CategoryState> {
   CategoryViewModel(this.categoryUseCase, this.productUseCase)
-    : super(const CategoryState());
+    : super(const CategoryState()) {
+    productsPaginationController = PaginationController<ProductEntity>(
+      pageSize: 20,
+      fetchPage: _fetchProductsPage,
+    );
+  }
 
   final CategoryUseCase categoryUseCase;
   final ProductUseCase productUseCase;
+
+  late final PaginationController<ProductEntity> productsPaginationController;
 
   Future<void> onEvent(CategoryEvent event) async {
     switch (event) {
       case LoadCategories():
         await _loadCategories();
+
       case SelectCategoryTab():
         await _loadProductsByCategory(event.categoryId, event.tab);
+
+      case SortProducts():
+        await _sortProducts(event.sortBy);
     }
   }
 
@@ -41,6 +54,7 @@ class CategoryViewModel extends Cubit<CategoryState> {
       case SuccessResponse<List<CategoryEntity>>():
         final data = response.data;
         final firstCategory = data.isNotEmpty ? data.first : null;
+
         emit(
           state.copyWith(
             categoriesState: state.categoriesState.copyWith(
@@ -49,11 +63,13 @@ class CategoryViewModel extends Cubit<CategoryState> {
               errorMessage: '',
             ),
             selectedTab: firstCategory?.name ?? '',
+            selectedCategoryId: firstCategory?.id ?? '',
+            selectedSortBy: null,
           ),
         );
 
         if (firstCategory != null) {
-          await _loadProductsByCategory(firstCategory.id, firstCategory.name);
+          productsPaginationController.reset();
         }
 
       case ErrorResponse<List<CategoryEntity>>():
@@ -69,39 +85,55 @@ class CategoryViewModel extends Cubit<CategoryState> {
   }
 
   Future<void> _loadProductsByCategory(String categoryId, String tab) async {
+    if (categoryId.isEmpty) {
+      return;
+    }
+
+    // Reset pagination for the new category.
+    productsPaginationController.reset();
+
     emit(
       state.copyWith(
         selectedTab: tab,
-        productsState: state.productsState.copyWith(
-          isLoading: true,
-          errorMessage: '',
-        ),
+        selectedCategoryId: categoryId,
+        selectedSortBy: null,
       ),
     );
+  }
 
-    final response = await productUseCase(categoryId: categoryId);
+  Future<void> _sortProducts(CategorySortBy sortBy) async {
+    final categoryId = state.selectedCategoryId;
+
+    if (categoryId.isEmpty) {
+      return;
+    }
+
+    // Reset pagination when sorting changes.
+    productsPaginationController.reset();
+
+    emit(state.copyWith(selectedSortBy: sortBy));
+  }
+
+  Future<List<ProductEntity>> _fetchProductsPage(int page, int pageSize) async {
+    final response = await productUseCase(
+      page: page,
+      pageSize: pageSize,
+      categoryId: state.selectedCategoryId,
+      sortBy: state.selectedSortBy,
+    );
 
     switch (response) {
       case SuccessResponse<List<ProductEntity>>():
-        emit(
-          state.copyWith(
-            productsState: state.productsState.copyWith(
-              isLoading: false,
-              data: response.data,
-              errorMessage: '',
-            ),
-          ),
-        );
+        return response.data;
 
       case ErrorResponse<List<ProductEntity>>():
-        emit(
-          state.copyWith(
-            productsState: state.productsState.copyWith(
-              isLoading: false,
-              errorMessage: response.errorMessage,
-            ),
-          ),
-        );
+        throw Exception(response.errorMessage);
     }
+  }
+
+  @override
+  Future<void> close() {
+    productsPaginationController.dispose();
+    return super.close();
   }
 }

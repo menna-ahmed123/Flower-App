@@ -1,7 +1,10 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/core/utils/commerce_widgets/product_grid.dart';
+import 'package:flower_app/core/utils/commerce_widgets/widgets/product_grid.dart';
+import 'package:flower_app/features/auth/core/auth_extension.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_event.dart';
@@ -10,6 +13,8 @@ import 'package:flower_app/features/commerce/presentation/best_seller/view_model
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../../../../../core/widgets/app_shimmer/best_seller_shimmer.dart';
 
 class BestSellerScreen extends StatefulWidget {
   const BestSellerScreen({super.key});
@@ -47,17 +52,13 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                   final productState = state.bestSellState;
 
                   if (productState.isLoading) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: context.colors.pink,
-                      ),
-                    );
+                    return const BestSellerShimmer();
                   }
 
                   if (productState.errorMessage.isNotEmpty) {
                     return Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(24.0),
+                        padding: EdgeInsets.all(24.w),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -127,17 +128,28 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                   }
 
                   return ProductGrid(
-  products: products,
-  onTap: (product) {
-    navigateToProductDetails(context, product.id);
-  },
-);
+                    products: products,
+                    onTap: (product) {
+                      navigateToProductDetails(context, product.id);
+                    },
+                    onAddToCart: (productId) => _addToCart(context, productId),
+                  );
                 },
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _addToCart(BuildContext context, String productId) {
+    return context.requireAuth(
+      action: () {
+        return context.read<CartViewModel>().doEvent(
+          AddCartItemEvent(productId: productId),
+        );
+      },
     );
   }
 }

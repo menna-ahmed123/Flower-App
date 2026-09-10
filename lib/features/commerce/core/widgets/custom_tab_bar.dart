@@ -19,10 +19,10 @@ class CustomTabBar extends StatelessWidget {
     return SizedBox(
       height: 40.h,
       child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         scrollDirection: Axis.horizontal,
         itemCount: tabs.length,
-        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        separatorBuilder: (_, _) => SizedBox(width: 8.w),
         itemBuilder: (context, index) {
           final tab = tabs[index];
           final isSelected = selectedTab == tab;
@@ -44,7 +44,7 @@ class CustomTabBar extends StatelessWidget {
                 boxShadow: [
                   if (!isSelected)
                     BoxShadow(
-                      color: context.colors.black.withOpacity(0.03),
+                      color: context.colors.black.withValues(alpha: 0.03),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),

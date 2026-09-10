@@ -1,4 +1,5 @@
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_banner.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_section_list.dart';
@@ -26,7 +27,10 @@ void main() {
   testWidgets('renders sections in API order and skips unknown types', (
     tester,
   ) async {
-    await pumpThemed(tester, HomeSectionList(sections: _orderedSections()));
+    await pumpThemed(
+      tester,
+      HomeSectionList(sections: _orderedSections(), addresses: const []),
+    );
     expect(find.byType(HomeBanner), findsOneWidget);
     expect(find.text('Best seller'), findsOneWidget);
     expect(find.text('Categories'), findsOneWidget);
@@ -47,11 +51,11 @@ void main() {
 
 List<HomeSectionEntity> _orderedSections() {
   return [
-    sectionEntity(type: 'banner', id: 'b', title: 'Hero'),
+    sectionEntity(type: HomeSectionTypes.banner, id: 'b', title: 'Hero'),
     sectionEntity(type: 'unknown_type', id: 'u', title: 'Mystery'),
-    sectionEntity(type: 'product_rail', id: 'p', title: 'Best seller'),
+    sectionEntity(type: HomeSectionTypes.productRail, id: 'p', title: 'Best seller'),
     sectionEntity(
-      type: 'category_rail',
+      type: HomeSectionTypes.categoryRail,
       id: 'c',
       title: 'Categories',
       viewAllDeepLink: '/categories',
@@ -67,7 +71,12 @@ GoRouter _viewAllRouter() {
       GoRoute(
         path: AppRoutesName.home,
         builder: (context, state) {
-          return Scaffold(body: HomeSectionList(sections: _orderedSections()));
+          return Scaffold(
+            body: HomeSectionList(
+              sections: _orderedSections(),
+              addresses: const [],
+            ),
+          );
         },
       ),
       GoRoute(

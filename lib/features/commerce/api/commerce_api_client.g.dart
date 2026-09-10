@@ -107,6 +107,7 @@ class _CommerceApiClient implements CommerceApiClient {
     int? pageSize,
     String? occasionId,
     String? categoryId,
+    int? sortBy,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
@@ -114,6 +115,7 @@ class _CommerceApiClient implements CommerceApiClient {
       r'pageSize': pageSize,
       r'occasionId': occasionId,
       r'categoryId': categoryId,
+      r'sortBy': sortBy,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
