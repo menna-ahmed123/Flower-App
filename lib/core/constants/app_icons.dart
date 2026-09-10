@@ -53,6 +53,9 @@ class AppIcons {
   static const IconData close = Icons.cancel_outlined;
   static const IconData checkCircle = Icons.check_circle_outline;
   static const IconData refresh = Icons.refresh;
+  static const IconData chevronRight = Icons.chevron_right;
+  static const IconData orders = Icons.receipt_long_outlined;
+  static const IconData notifications = Icons.notifications_outlined;
 }
 
 /// Without flags////
