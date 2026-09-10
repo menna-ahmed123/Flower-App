@@ -26,6 +26,25 @@ void main() {
       expect(entity.country, isNull);
     });
 
+    test('maps an unrecognized gender string to a null Gender', () {
+      final dto = UserProfileDto(
+        userId: 'u3',
+        fullName: 'Sara Adel',
+        firstName: 'Sara',
+        lastName: 'Adel',
+        email: 'sara@example.com',
+        phoneNumber: '01010000003',
+        gender: 'Unknown',
+        profilePictureUrl: null,
+        roles: const ['Customer'],
+        emailChanged: false,
+      );
+
+      final entity = dto.toDomain();
+
+      expect(entity.gender, isNull);
+    });
+
     test('maps a driver profile carrying the driver-only fields', () {
       final dto = UserProfileDto(
         userId: 'u2',

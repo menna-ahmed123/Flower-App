@@ -37,6 +37,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _fullNameController;
   late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
+  late final String _currentPhotoUrl;
   late Gender _gender;
   File? _pickedImage;
 
@@ -48,6 +49,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController = TextEditingController(
       text: widget.profile.phoneNumber ?? '',
     );
+    // Resolved once here instead of in build(): profilePictureUrl is relative
+    // per the API contract, and this avoids re-resolving it on every rebuild.
+    _currentPhotoUrl = ApiEndpoints.mediaUrl(widget.profile.profilePictureUrl);
     _gender = widget.profile.gender ?? Gender.female;
   }
 
@@ -100,8 +104,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Column(
                 children: [
                   EditProfileAvatar(
-                    // profilePictureUrl is relative per the API contract; resolve it like ProfileDisplayData does.
-                    photoUrl: ApiEndpoints.mediaUrl(widget.profile.profilePictureUrl),
+                    photoUrl: _currentPhotoUrl,
                     pickedImage: _pickedImage,
                     onImagePicked: _onImagePicked,
                   ),
