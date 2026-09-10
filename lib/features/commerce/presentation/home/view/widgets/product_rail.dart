@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../../../core/auth/auth_extension.dart';
+import 'package:flower_app/features/auth/core/auth_extension.dart';
 
 class ProductRail extends StatelessWidget {
   const ProductRail({

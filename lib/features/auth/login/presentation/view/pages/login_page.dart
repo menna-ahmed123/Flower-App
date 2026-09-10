@@ -13,8 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../../../core/auth/presentation/view_model/auth_cubit.dart';
-import '../../../../../../core/auth/presentation/view_model/auth_event.dart';
+import '../../../../core/presentation/view_model/auth_cubit.dart';
+import '../../../../core/presentation/view_model/auth_event.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 

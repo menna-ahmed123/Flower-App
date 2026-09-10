@@ -1,7 +1,7 @@
-import 'package:flower_app/core/auth/domain/repos/auth_repository.dart';
-import 'package:flower_app/core/auth/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/core/auth/presentation/view_model/auth_event.dart';
-import 'package:flower_app/core/auth/presentation/view_model/auth_state.dart';
+import 'package:flower_app/features/auth/core/domain/repos/auth_repository.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_event.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';

@@ -1,6 +1,6 @@
+import 'package:flower_app/core/network/token_storage.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../network/token_storage.dart';
 import '../../domain/repos/auth_repository.dart';
 
 @LazySingleton(as: AuthRepository)

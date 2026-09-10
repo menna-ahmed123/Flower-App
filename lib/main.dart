@@ -9,8 +9,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'app/router/app_router.dart';
-import 'core/auth/presentation/view_model/auth_cubit.dart';
-import 'core/auth/presentation/view_model/auth_event.dart';
+import 'features/auth/core/presentation/view_model/auth_cubit.dart';
+import 'features/auth/core/presentation/view_model/auth_event.dart';
 import 'features/cart/presentation/view_model/cart_view_model.dart';
 
 Future<void> main() async {

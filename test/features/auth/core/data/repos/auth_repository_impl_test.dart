@@ -1,8 +1,8 @@
-import 'package:flower_app/core/auth/data/repos/auth_repository_impl.dart';
+import 'package:flower_app/features/auth/core/data/repos/auth_repository_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../../../features/auth/login/data/repo/auth_repo_impl_test.mocks.dart';
+import '../../../../../features/auth/login/data/repo/auth_repo_impl_test.mocks.dart';
 
 void main() {
   late MockTokenStorage tokenStorage;

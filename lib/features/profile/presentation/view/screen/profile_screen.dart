@@ -1,6 +1,6 @@
 import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/auth/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/core/auth/presentation/view_model/auth_event.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_event.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,6 @@
-import 'package:flower_app/core/auth/auth_extension.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/core/utils/pagination/pagination_grid_view.dart';
+import 'package:flower_app/features/auth/core/auth_extension.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/custom_tab_bar.dart';
@@ -12,7 +12,6 @@ import 'package:flower_app/features/commerce/presentation/category/view_model/ca
 import 'package:flower_app/features/commerce/presentation/category/view_model/category_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 
 import '../../../../../../core/widgets/app_shimmer/category_shimmer.dart';
 

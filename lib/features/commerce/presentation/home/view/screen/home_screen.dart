@@ -1,18 +1,18 @@
-import 'package:flower_app/core/widgets/app_shimmer/home_shimmer.dart';
-import 'package:flower_app/features/address/domain/entities/address_entity.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/widgets/app_shimmer/home_shimmer.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
-import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_section_list.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_state.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -65,8 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     return HomeSectionList(
-      sections: context.read<HomeViewModel>().displayedSections,
-
+      sections: state.homeState.data?.sections ?? const [],
       addresses: addresses,
       selectedAddress: displayedAddress,
       onAddressSelected: (address) {
@@ -92,10 +91,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
           context.read<DefaultAddressViewModel>().doEvent(LoadSavedAddresses());
         }
-      },
-
-      onQuery: (query) {
-        context.read<HomeViewModel>().doEvent(HomeQueryChanged(query));
       },
     );
   }

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../../core/auth/auth_extension.dart';
+import 'package:flower_app/features/auth/core/auth_extension.dart';
 import '../../../../../../core/widgets/app_shimmer/product_details_shimmer.dart';
 
 // The route already creates the cubit AND fires GetProductDetailsEvent

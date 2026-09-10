@@ -14,14 +14,6 @@ die() { echo -e "\033[1;31m[setup_backend] ERROR:\033[0m $*" >&2; exit 1; }
 
 command -v docker >/dev/null 2>&1 || die "docker is not installed or not on PATH"
 
-if docker compose version >/dev/null 2>&1; then
-  docker_compose() { docker compose "$@"; }
-elif command -v docker-compose >/dev/null 2>&1; then
-  docker_compose() { docker-compose "$@"; }
-else
-  die "docker compose is not installed or not on PATH"
-fi
-
 RECREATE=false
 POSITIONAL=()
 for arg in "$@"; do
@@ -69,11 +61,11 @@ fi
 
 if $RECREATE; then
   log "Pulling & Recreating containers (--recreate)..."
-  docker_compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull || true
-  docker_compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --force-recreate --no-build
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull || true
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --force-recreate
 else
   log "Starting Flower E-Commerce Microservices backend (Team 1)..."
-  docker_compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --no-build
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d
 fi
 
 get_host_ip() {

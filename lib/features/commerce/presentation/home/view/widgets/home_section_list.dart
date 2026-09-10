@@ -1,8 +1,9 @@
 
 import 'dart:developer' as developer;
+
 import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
+import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/category_rail.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/home_banner.dart';
@@ -11,7 +12,6 @@ import 'package:flower_app/features/commerce/presentation/home/view/widgets/occa
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/product_rail.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeSectionList extends StatelessWidget {
@@ -19,7 +19,6 @@ class HomeSectionList extends StatelessWidget {
     super.key,
     required this.sections,
     required this.addresses,
-    this.onQuery,
     this.selectedAddress,
     this.onAddressSelected,
     this.onAddNewAddress,
@@ -33,15 +32,12 @@ class HomeSectionList extends StatelessWidget {
 
   final VoidCallback? onAddNewAddress;
 
-  final ValueChanged<String>? onQuery;
-
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
           child: HomeHeader(
-            onQuery: onQuery,
             addresses: addresses,
             selectedAddress: selectedAddress,
             onAddressSelected: onAddressSelected,
