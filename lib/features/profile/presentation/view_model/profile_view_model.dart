@@ -1,5 +1,5 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
+import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
 import 'package:flower_app/features/profile/domain/use_case/update_profile_use_case.dart';
@@ -24,8 +24,8 @@ class ProfileViewModel extends Cubit<ProfileState> {
       case ProfileRequested():
         await _getProfile();
         break;
-      case ProfileUpdateRequested(:final request):
-        await _updateProfile(request);
+      case ProfileUpdateRequested(:final params):
+        await _updateProfile(params);
         break;
     }
   }
@@ -66,7 +66,7 @@ class ProfileViewModel extends Cubit<ProfileState> {
     }
   }
 
-  Future<void> _updateProfile(UpdateProfileRequest request) async {
+  Future<void> _updateProfile(UpdateProfileParams params) async {
     emit(
       state.copyWith(
         updateState: state.updateState.copyWith(
@@ -76,7 +76,7 @@ class ProfileViewModel extends Cubit<ProfileState> {
       ),
     );
 
-    final response = await _updateProfileUseCase(request);
+    final response = await _updateProfileUseCase(params);
 
     switch (response) {
       case SuccessResponse<ProfileEntity>():

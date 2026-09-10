@@ -2,7 +2,7 @@ import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
+import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
@@ -49,7 +49,7 @@ void main() {
     'submitting an update with no email change shows a success message and pops',
     (tester) async {
       final repo = _RecordingUpdateProfileRepo(emailChanged: false);
-      final viewModel = ProfileViewModel(
+      profileViewModel = ProfileViewModel(
         GetProfileUseCase(repo),
         UpdateProfileUseCase(repo),
       );
@@ -57,7 +57,6 @@ void main() {
       final authCubit = AuthCubit(authRepository);
       final router = _testRouter();
       addTearDown(() async {
-        await viewModel.close();
         await authCubit.close();
         router.dispose();
       });
@@ -66,7 +65,7 @@ void main() {
         tester,
         router,
         authCubit,
-        viewModel,
+        profileViewModel,
         FakeProfileRepo.profile,
       );
 
@@ -87,7 +86,7 @@ void main() {
     'submitting an update that changes the email logs the user out and redirects to login',
     (tester) async {
       final repo = _RecordingUpdateProfileRepo(emailChanged: true);
-      final viewModel = ProfileViewModel(
+      profileViewModel = ProfileViewModel(
         GetProfileUseCase(repo),
         UpdateProfileUseCase(repo),
       );
@@ -95,7 +94,6 @@ void main() {
       final authCubit = AuthCubit(authRepository);
       final router = _testRouter();
       addTearDown(() async {
-        await viewModel.close();
         await authCubit.close();
         router.dispose();
       });
@@ -104,7 +102,7 @@ void main() {
         tester,
         router,
         authCubit,
-        viewModel,
+        profileViewModel,
         FakeProfileRepo.profile,
       );
 
@@ -197,7 +195,7 @@ class _RecordingUpdateProfileRepo implements ProfileRepo {
   _RecordingUpdateProfileRepo({required this.emailChanged});
 
   final bool emailChanged;
-  UpdateProfileRequest? lastRequest;
+  UpdateProfileParams? lastRequest;
 
   @override
   Future<BaseResponse<ProfileEntity>> getMyProfile() async {
@@ -206,17 +204,17 @@ class _RecordingUpdateProfileRepo implements ProfileRepo {
 
   @override
   Future<BaseResponse<ProfileEntity>> updateMyProfile(
-    UpdateProfileRequest request,
+    UpdateProfileParams params,
   ) async {
-    lastRequest = request;
+    lastRequest = params;
     return SuccessResponse(
       ProfileEntity(
         userId: FakeProfileRepo.profile.userId,
-        fullName: request.fullName,
+        fullName: params.fullName,
         firstName: FakeProfileRepo.profile.firstName,
         lastName: FakeProfileRepo.profile.lastName,
-        email: request.email,
-        phoneNumber: request.phoneNumber,
+        email: params.email,
+        phoneNumber: params.phoneNumber,
         gender: FakeProfileRepo.profile.gender,
         profilePictureUrl: FakeProfileRepo.profile.profilePictureUrl,
         roles: FakeProfileRepo.profile.roles,

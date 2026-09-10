@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
-import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
 
-/// Fields for `PUT /identity/users/me/profile` (multipart/form-data).
+/// Domain-level input for updating the authenticated user's profile.
 ///
-/// Not a [JsonSerializable] DTO: the endpoint is multipart, sent as
-/// individual `@Part` fields by [ProfileApiClient], not a JSON body.
-class UpdateProfileRequest extends Equatable {
-  const UpdateProfileRequest({
+/// Kept free of any data-layer import so domain and presentation code never
+/// depend on how the request is transported (multipart, JSON, etc.); the
+/// data layer builds its own request model from this via `.fromDomain()`.
+class UpdateProfileParams extends Equatable {
+  const UpdateProfileParams({
     required this.fullName,
     required this.email,
     required this.phoneNumber,
@@ -18,20 +18,6 @@ class UpdateProfileRequest extends Equatable {
     this.vehiclePlateNumber,
     this.country,
   });
-
-  /// Builds the transport-layer request from the domain-level params.
-  factory UpdateProfileRequest.fromDomain(UpdateProfileParams params) {
-    return UpdateProfileRequest(
-      fullName: params.fullName,
-      email: params.email,
-      phoneNumber: params.phoneNumber,
-      gender: params.gender,
-      profilePicture: params.profilePicture,
-      vehicleType: params.vehicleType,
-      vehiclePlateNumber: params.vehiclePlateNumber,
-      country: params.country,
-    );
-  }
 
   final String fullName;
   final String email;
