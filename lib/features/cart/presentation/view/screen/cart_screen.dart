@@ -18,7 +18,10 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppString.myCart)),
+      appBar: AppBar(title: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: const Text(AppString.myCart),
+      )),
       body: const CartBody(),
     );
   }

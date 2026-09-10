@@ -10,7 +10,6 @@ import 'package:flower_app/features/address/presentation/save_address/view_model
 import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,16 +17,19 @@ class AddAddressScreen extends StatefulWidget {
   const AddAddressScreen({super.key, this.address});
 
   final AddressEntity? address;
+
   @override
-  State<AddAddressScreen> createState() => _AddressScreenState();
+  State<AddAddressScreen> createState() => _AddAddressScreenState();
 }
 
-class _AddressScreenState extends State<AddAddressScreen>
+class _AddAddressScreenState extends State<AddAddressScreen>
     with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addObserver(this);
+
     _getCurrentAddress();
   }
 
@@ -40,7 +42,9 @@ class _AddressScreenState extends State<AddAddressScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      if (widget.address != null) return;
+      if (widget.address != null) {
+        return;
+      }
 
       _getCurrentAddress();
     }
@@ -48,13 +52,15 @@ class _AddressScreenState extends State<AddAddressScreen>
 
   void _getCurrentAddress() {
     final address = widget.address;
+
     if (address != null) {
       context.read<AddressViewModel>().doEvent(LoadAddressDetails(address.id!));
-      return;
+    } else {
+      context.read<AddressViewModel>().doEvent(GetCurrentAddress());
     }
-    context.read<AddressViewModel>().doEvent(GetCurrentAddress());
   }
- void _showLocationDialog({
+
+  void _showLocationDialog({
     required String message,
     required VoidCallback onOpenSettings,
   }) {
@@ -66,7 +72,9 @@ class _AddressScreenState extends State<AddAddressScreen>
           content: Text(message),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+              },
               child: const Text(AppString.cancel),
             ),
             TextButton(
@@ -81,6 +89,7 @@ class _AddressScreenState extends State<AddAddressScreen>
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -88,33 +97,62 @@ class _AddressScreenState extends State<AddAddressScreen>
         appBar: CustomAppBar(
           title: AppString.address,
           onBack: () {
-            if (context.canPop()) context.pop();
+            if (context.canPop()) {
+              context.pop();
+            }
           },
         ),
-        body: BlocListener<SaveAddressViewModel, SaveAddressState>(
-          listener: (context, state) {
-             final errorMessage = state.saveAddressState.errorMessage;
 
-            if (errorMessage == AppString.locationServicesDisabled) {
-              _showLocationDialog(
-                message: AppString.enableLocationDescription,
-                onOpenSettings: () {
-                  context.read<AddressViewModel>().openLocationSettings();
-                },
-              );
-            }
+        body: MultiBlocListener(
+          listeners: [
+            BlocListener<AddressViewModel, AddressState>(
+              listenWhen: (previous, current) {
+                return previous.locationState.errorMessage !=
+                    current.locationState.errorMessage;
+              },
+              listener: (context, state) {
+                final errorMessage = state.locationState.errorMessage;
 
-            if (errorMessage == AppString.locationPermissionPermanentlyDenied) {
-              _showLocationDialog(
-                message: AppString.enableLocationDescription,
-                onOpenSettings: () {
-                  context.read<AddressViewModel>().openAppSettings();
-                },
-              );
-            }
-            if (state.isSaved) {
-              context.pop(true);
-            }},
+                if (errorMessage == AppString.locationServicesDisabled) {
+                  _showLocationDialog(
+                    message: AppString.enableLocationDescription,
+                    onOpenSettings: () {
+                      context.read<AddressViewModel>().openLocationSettings();
+                    },
+                  );
+                }
+
+                if (errorMessage ==
+                    AppString.locationPermissionPermanentlyDenied) {
+                  _showLocationDialog(
+                    message: AppString.enableLocationDescription,
+                    onOpenSettings: () {
+                      context.read<AddressViewModel>().openAppSettings();
+                    },
+                  );
+                }
+              },
+            ),
+            BlocListener<SaveAddressViewModel, SaveAddressState>(
+              listener: (context, state) {
+                // Success
+                if (state.isSaved) {
+                  context.pop(true);
+                  return;
+                }
+                final errorMessage = state.saveAddressState.errorMessage;
+
+                final isLoading = state.saveAddressState.isLoading;
+
+                if (!isLoading && errorMessage.isNotEmpty) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(errorMessage)));
+                }
+              },
+            ),
+          ],
+
           child: BlocBuilder<AddressViewModel, AddressState>(
              builder: (context, state) {
               final location = state.locationState.data;
@@ -131,55 +169,59 @@ class _AddressScreenState extends State<AddAddressScreen>
                       return const LinearProgressIndicator();
                     }
 
-                    return const SizedBox.shrink();
-                  },
-                ),
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    SizedBox(
+                      height: 250,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: LocationMap(
+                          initialLocation: location,
+                          onLocationSelected: (location) {
+                            context.read<AddressViewModel>().doEvent(
+                              LocationSelected(
+                                latitude: location.latitude,
+                                longitude: location.longitude,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
 
-                SizedBox(
-                  height: 250,
-                  child: Padding(
-                    padding: EdgeInsets.all(16.w),
-                    child: LocationMap(
-                      initialLocation: location,
-                      onLocationSelected: (location) {
-                        context.read<AddressViewModel>().doEvent(
-                          LocationSelected(
-                            latitude: location.latitude,
-                            longitude: location.longitude,
-                          ),
+                    BlocBuilder<AddressViewModel, AddressState>(
+                      buildWhen: (previous, current) {
+                        return previous.addressState.data !=
+                                current.addressState.data ||
+                            previous.addressState.isLoading !=
+                                current.addressState.isLoading;
+                      },
+                      builder: (context, state) {
+                        return LocationForm(
+                          address: state.addressState.data,
+
+                          onSave: (address) {
+                            final saveViewModel = context
+                                .read<SaveAddressViewModel>();
+                            if (widget.address == null) {
+                              saveViewModel.doEvent(AddAddress(address));
+                              return;
+                            }
+                            saveViewModel.doEvent(EditAddress(address));
+                          },
                         );
                       },
                     ),
-                  ),
-                ),
 
-                BlocBuilder<AddressViewModel, AddressState>(
-                  buildWhen: (previous, current) =>
-                      previous.addressState.data != current.addressState.data,
-                  builder: (context, state) {
-                    return LocationForm(
-                      address: state.addressState.data,
-                      onSave: (address) {
-                        if (widget.address == null) {
-                          context.read<SaveAddressViewModel>().doEvent(
-                            AddAddress(address),
-                          );
-                        } else {
-                          context.read<SaveAddressViewModel>().doEvent(
-                            EditAddress(address),
-                          );
-                        }
-                      },
-                    );
-                  },
+                    const SizedBox(height: 20),
+                  ],
                 ),
-              ],
-            ),
-            
-          );
-          },
+              );
+            },
+          ),
         ),
       ),
-    ));
+    );
   }
 }

@@ -32,7 +32,7 @@ class ProductCard extends StatelessWidget {
   final String? oldPrice;
   final String? discount;
   final VoidCallback onTap;
-  final VoidCallback onAddToCart;
+  final Future<void> Function() onAddToCart;
   final bool isLoading;
 
   @override

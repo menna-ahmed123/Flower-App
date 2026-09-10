@@ -1,8 +1,8 @@
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_event.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_state.dart';
-import 'package:flower_app/core/utils/commerce_widgets/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
 import 'package:flower_app/features/address/presentation/save_address/view/widgets/saved_address_body.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +38,8 @@ class SavedAddressesScreen extends StatelessWidget {
           },
           child: BlocBuilder<DefaultAddressViewModel, DefaultAddressState>(
             buildWhen: (previous, current) {
-              return previous.defaultAddressesState != current.defaultAddressesState;
+              return previous.defaultAddressesState !=
+                  current.defaultAddressesState;
             },
             builder: (context, state) {
               return SavedAddressesBody(
@@ -46,21 +47,17 @@ class SavedAddressesScreen extends StatelessWidget {
                 errorMessage: state.defaultAddressesState.errorMessage,
                 addresses: state.defaultAddressesState.data ?? [],
 
-                // Retry
                 onRetry: () {
                   context.read<DefaultAddressViewModel>().doEvent(
-                        LoadSavedAddresses(),
-                      );
+                    LoadSavedAddresses(),
+                  );
                 },
 
-                // Delete
                 onDelete: (id) {
                   context.read<DefaultAddressViewModel>().doEvent(
-                        DeleteSavedAddress(id),
-                      );
+                    DeleteSavedAddress(id),
+                  );
                 },
-
-                // Edit
                 onEdit: (address) async {
                   final result = await context.push(
                     AppRoutesName.address,
@@ -69,21 +66,18 @@ class SavedAddressesScreen extends StatelessWidget {
 
                   if (result == true && context.mounted) {
                     context.read<DefaultAddressViewModel>().doEvent(
-                          LoadSavedAddresses(),
-                        );
+                      LoadSavedAddresses(),
+                    );
                   }
                 },
 
-                // Add New Address
                 onAddNew: () async {
-                  final result = await context.push(
-                    AppRoutesName.address,
-                  );
+                  final result = await context.push(AppRoutesName.address);
 
                   if (result == true && context.mounted) {
                     context.read<DefaultAddressViewModel>().doEvent(
-                          LoadSavedAddresses(),
-                        );
+                      LoadSavedAddresses(),
+                    );
                   }
                 },
               );

@@ -45,8 +45,12 @@ import '../../features/address/domain/use_cases/open_location_settings_use_case.
     as _i920;
 import '../../features/address/domain/use_cases/request_location_permission_use_case.dart'
     as _i94;
+import '../../features/address/domain/use_cases/set_default_address_use_case.dart'
+    as _i1017;
 import '../../features/address/domain/use_cases/update_address_use_case.dart'
     as _i130;
+import '../../features/address/presentation/default_address_view_model/default_address_view_model.dart'
+    as _i349;
 import '../../features/address/presentation/new_address/view_model/address_view_model.dart'
     as _i28;
 import '../../features/address/presentation/save_address/view_model/save_address_view_model.dart'
@@ -144,8 +148,6 @@ import '../network/token_refresher.dart' as _i1058;
 import '../network/token_storage.dart' as _i964;
 import '../services/geocoding_service.dart' as _i980;
 import '../services/location_service.dart' as _i669;
-import '../utils/commerce_widgets/default_address_view_model/default_address_view_model.dart'
-    as _i941;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -381,14 +383,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i613.ProductUseCase>(),
       ),
     );
+    gh.factory<_i1017.SetDefaultAddressUseCase>(
+      () => _i1017.SetDefaultAddressUseCase(gh<_i366.AddressRepo>()),
+    );
     gh.factory<_i886.CartUseCase>(
       () => _i886.CartUseCase(gh<_i379.CartRepo>()),
-    );
-    gh.singleton<_i941.DefaultAddressViewModel>(
-      () => _i941.DefaultAddressViewModel(
-        gh<_i270.GetAddressesUseCase>(),
-        gh<_i951.DeleteAddressUseCase>(),
-      ),
     );
     gh.factory<_i188.LoginViewModel>(
       () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
@@ -413,6 +412,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i572.CartViewModel>(
       () => _i572.CartViewModel(gh<_i886.CartUseCase>()),
+    );
+    gh.singleton<_i349.DefaultAddressViewModel>(
+      () => _i349.DefaultAddressViewModel(
+        gh<_i270.GetAddressesUseCase>(),
+        gh<_i951.DeleteAddressUseCase>(),
+        gh<_i1017.SetDefaultAddressUseCase>(),
+      ),
     );
     return this;
   }

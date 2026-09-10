@@ -1,9 +1,9 @@
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
-
 part 'address_dto.g.dart';
 
-@JsonSerializable(createFactory: false)
+
+@JsonSerializable()
 class AddressDto {
   final String id;
   final String recipientName;
@@ -21,38 +21,88 @@ class AddressDto {
   final DateTime? lastUsedAtUtc;
 
   AddressDto({
-    required this.id,
-    required this.recipientName,
-    required this.phone,
-    required this.addressLine,
-    required this.city,
-    required this.area,
-    required this.lat,
-    required this.lng,
-    required this.label,
-    required this.servingStoreId,
-    required this.isServiceable,
-    required this.isDefault,
+    this.id = '',
+    this.recipientName = '',
+    this.phone = '',
+    this.addressLine = '',
+    this.city = '',
+    this.area = '',
+    this.lat = 0,
+    this.lng = 0,
+    this.label = 'Home',
+    this.servingStoreId = '',
+    this.isServiceable = false,
+    this.isDefault = false,
     this.createdAtUtc,
     this.lastUsedAtUtc,
   });
 
   factory AddressDto.fromJson(Map<String, dynamic> json) {
+    final addressLineValue = [
+      json['addressLine'],
+      json['address'],
+      json['fullAddress'],
+      json['street'],
+    ].firstWhere(
+      (value) => value != null && value.toString().trim().isNotEmpty,
+      orElse: () => '',
+    );
+
+    final recipientNameValue = [
+      json['recipientName'],
+      json['name'],
+      json['customerName'],
+    ].firstWhere(
+      (value) => value != null && value.toString().trim().isNotEmpty,
+      orElse: () => '',
+    );
+
+    final phoneValue = [
+      json['phone'],
+      json['phoneNumber'],
+      json['mobile'],
+    ].firstWhere(
+      (value) => value != null && value.toString().trim().isNotEmpty,
+      orElse: () => '',
+    );
+
+    final cityValue = [
+      json['city'],
+      json['governorate'],
+      json['state'],
+    ].firstWhere(
+      (value) => value != null && value.toString().trim().isNotEmpty,
+      orElse: () => '',
+    );
+
+    final areaValue = [
+      json['area'],
+      json['district'],
+      json['neighborhood'],
+    ].firstWhere(
+      (value) => value != null && value.toString().trim().isNotEmpty,
+      orElse: () => '',
+    );
+
     return AddressDto(
-      id: _string(json['id']),
-      recipientName: _string(json['recipientName']),
-      phone: _string(json['phone']),
-      addressLine: _string(json['addressLine'] ?? json['address']),
-      city: _string(json['city']),
-      area: _string(json['area']),
-      lat: _double(json['lat']),
-      lng: _double(json['lng']),
-      label: _string(json['label']),
-      servingStoreId: _string(json['servingStoreId']),
-      isServiceable: json['isServiceable'] as bool? ?? true,
+      id: json['id']?.toString() ?? '',
+      recipientName: recipientNameValue.toString(),
+      phone: phoneValue.toString(),
+      addressLine: addressLineValue.toString(),
+      city: cityValue.toString(),
+      area: areaValue.toString(),
+      lat: (json['lat'] as num?)?.toDouble() ?? 0,
+      lng: (json['lng'] as num?)?.toDouble() ?? 0,
+      label: json['label']?.toString() ?? 'Home',
+      servingStoreId: json['servingStoreId']?.toString() ?? '',
+      isServiceable: json['isServiceable'] as bool? ?? false,
       isDefault: json['isDefault'] as bool? ?? false,
-      createdAtUtc: _date(json['createdAtUtc']),
-      lastUsedAtUtc: _date(json['lastUsedAtUtc']),
+      createdAtUtc: json['createdAtUtc'] == null
+          ? null
+          : DateTime.tryParse(json['createdAtUtc'].toString()),
+      lastUsedAtUtc: json['lastUsedAtUtc'] == null
+          ? null
+          : DateTime.tryParse(json['lastUsedAtUtc'].toString()),
     );
   }
 
@@ -60,9 +110,17 @@ class AddressDto {
 
   AddressEntity toDomain() {
     final hasCoords = lat != 0 || lng != 0;
+    final resolvedAddress = [
+      addressLine,
+      '',
+    ].firstWhere(
+      (value) => value.trim().isNotEmpty,
+      orElse: () => '',
+    );
+
     return AddressEntity(
       id: id,
-      address: addressLine,
+      address: resolvedAddress.isNotEmpty ? resolvedAddress : city,
       phoneNumber: phone,
       recipientName: recipientName,
       city: city,
@@ -70,18 +128,7 @@ class AddressDto {
       label: label,
       latitude: hasCoords ? lat : null,
       longitude: hasCoords ? lng : null,
+      isDefault: isDefault,
     );
   }
-}
-
-String _string(dynamic value) => value?.toString() ?? '';
-
-double _double(dynamic value) {
-  if (value is num) return value.toDouble();
-  return double.tryParse(value?.toString() ?? '') ?? 0;
-}
-
-DateTime? _date(dynamic value) {
-  if (value == null) return null;
-  return DateTime.tryParse(value.toString());
 }

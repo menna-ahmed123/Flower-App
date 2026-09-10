@@ -10,8 +10,11 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class SaveAddressViewModel extends Cubit<SaveAddressState> {
-  SaveAddressViewModel(this.addAddressUseCase, this.updateAddressUseCase)
-    : super(const SaveAddressState());
+  SaveAddressViewModel(
+    this.addAddressUseCase,
+    this.updateAddressUseCase,
+  ) : super(const SaveAddressState());
+
   final AddAddressUseCase addAddressUseCase;
   final UpdateAddressUseCase updateAddressUseCase;
 
@@ -38,30 +41,37 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
       ),
     );
 
-    final response = await addAddressUseCase.addAddress(_toRequest(address));
+    final response = await addAddressUseCase.addAddress(
+      _toRequest(address),
+    );
+
     switch (response) {
-      case SuccessResponse<List<AddressEntity>>():
+      case SuccessResponse<AddressEntity>(:final data):
+
         emit(
           state.copyWith(
             isSaved: true,
             saveAddressState: state.saveAddressState.copyWith(
               isLoading: false,
               errorMessage: '',
+              data: data,
             ),
           ),
         );
+
         break;
 
-      case ErrorResponse<List<AddressEntity>>():
+      case ErrorResponse<AddressEntity>(:final errorMessage):
         emit(
           state.copyWith(
             isSaved: false,
             saveAddressState: state.saveAddressState.copyWith(
               isLoading: false,
-              errorMessage: response.errorMessage,
+              errorMessage: errorMessage,
             ),
           ),
         );
+
         break;
     }
   }
@@ -97,18 +107,20 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
             ),
           ),
         );
+
         break;
 
-      case ErrorResponse<List<AddressEntity>>():
+      case ErrorResponse<List<AddressEntity>>( :final errorMessage):
         emit(
           state.copyWith(
             isSaved: false,
             saveAddressState: state.saveAddressState.copyWith(
               isLoading: false,
-              errorMessage: response.errorMessage,
+              errorMessage: errorMessage,
             ),
           ),
         );
+
         break;
     }
   }

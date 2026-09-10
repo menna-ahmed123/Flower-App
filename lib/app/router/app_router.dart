@@ -2,6 +2,13 @@ import 'package:flower_app/app/layout/main_shell.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
+import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
+import 'package:flower_app/features/address/presentation/new_address/view/screen/add_address_screen.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
+import 'package:flower_app/features/address/presentation/save_address/view/save_address_screen.dart';
+import 'package:flower_app/features/address/presentation/save_address/view_model/save_address_view_model.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/forget_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/reset_password_page.dart';
 import 'package:flower_app/features/auth/forget_password/presentation/pages/verification_page.dart';
@@ -56,6 +63,8 @@ class AppRouter {
         _forgetPasswordShell(),
         _searchRoute(),
         _mainShell(),
+         GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
+        GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
       ],
     );
   }
@@ -92,10 +101,7 @@ class AppRouter {
   }
 
   static GoRoute _searchRoute() {
-    return GoRoute(
-      path: AppRoutesName.search,
-      builder: _searchBuilder,
-    );
+    return GoRoute(path: AppRoutesName.search, builder: _searchBuilder);
   }
 
   static ShellRoute _forgetPasswordShell() {
@@ -181,8 +187,16 @@ class AppRouter {
   }
 
   static Widget _homeBuilder(BuildContext context, GoRouterState state) {
-    return BlocProvider(
-      create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
+        ),
+      ],
       child: const HomeScreen(),
     );
   }
@@ -252,12 +266,35 @@ class AppRouter {
 
   static StatefulShellBranch _profileBranch() {
     return StatefulShellBranch(
-      routes: [
-        GoRoute(
-          path: AppRoutesName.profile,
-          builder: (context, state) => const ProfileScreen(),
+      routes: [GoRoute(path: AppRoutesName.profile, builder: _profileBuilder)],
+    );
+  }
+
+  static Widget _profileBuilder(BuildContext context, GoRouterState state) {
+    return const ProfileScreen();
+  }
+
+  static Widget _addressBuilder(BuildContext context, GoRouterState state) {
+    final address = state.extra as AddressEntity?;
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<SaveAddressViewModel>(
+          create: (_) => getIt<SaveAddressViewModel>(),
+        ),
+        BlocProvider<AddressViewModel>(
+          create: (_) => getIt<AddressViewModel>(),
         ),
       ],
+      child: AddAddressScreen(address: address),
+    );
+  }
+
+  static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) =>
+          getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
+      child: const SavedAddressesScreen(),
     );
   }
 }

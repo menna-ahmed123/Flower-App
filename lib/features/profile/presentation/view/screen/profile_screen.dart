@@ -36,7 +36,8 @@ class ProfileScreen extends StatelessWidget {
              AppButton(
               text: AppString.savedAddresses,
               onPressed: (){
-                context.go(AppRoutesName.saveAddress);}
+                context.push(AppRoutesName.saveAddress);
+              }
             ),
           ],
         ),
