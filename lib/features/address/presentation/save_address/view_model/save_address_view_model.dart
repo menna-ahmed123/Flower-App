@@ -98,7 +98,6 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
 
     switch (response) {
       case SuccessResponse<List<AddressEntity>>():
-
         emit(
           state.copyWith(
             isSaved: true,

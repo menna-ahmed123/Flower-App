@@ -17,7 +17,6 @@ import 'package:flower_app/features/auth/login/presentation/view/pages/login_pag
 import 'package:flower_app/features/auth/login/presentation/view_model/login_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
-import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
@@ -31,6 +30,8 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,7 +48,9 @@ class AppRouter {
   static Future<String> resolveInitialLocation() async {
     final isAuthenticated = await getIt<AuthRepository>().isAuthenticated();
 
-    return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
+    return isAuthenticated
+        ? AppRoutesName.home
+        : AppRoutesName.login;
   }
 
   static GoRouter createRouter({String? initialLocation}) {
@@ -60,7 +63,7 @@ class AppRouter {
         _forgetPasswordShell(),
         _searchRoute(),
         _mainShell(),
-        GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
+         GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
         GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
       ],
     );
@@ -137,9 +140,12 @@ class AppRouter {
   static StatefulShellRoute _mainShell() {
     return StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return MainShell(
-          navigationShell: navigationShell,
-          location: state.uri.path,
+        return BlocProvider.value(
+          value: getIt<CartViewModel>(),
+          child: MainShell(
+            navigationShell: navigationShell,
+            location: state.uri.path,
+          ),
         );
       },
       branches: [
@@ -158,8 +164,14 @@ class AppRouter {
   static List<RouteBase> _homeRoutes() {
     return [
       GoRoute(path: AppRoutesName.home, builder: _homeBuilder),
-      GoRoute(path: AppRoutesName.bestSeller, builder: _bestSellerBuilder),
-      GoRoute(path: AppRoutesName.occasion, builder: _OccasionBuilder),
+      GoRoute(
+        path: AppRoutesName.bestSeller,
+        builder: _bestSellerBuilder,
+      ),
+      GoRoute(
+        path: AppRoutesName.occasion,
+        builder: _occasionBuilder,
+      ),
       GoRoute(
         path: AppRoutesName.productDetails,
         builder: _productDetailsBuilder,
@@ -189,7 +201,7 @@ class AppRouter {
     );
   }
 
-  static Widget _bestSellerBuilder(BuildContext context, GoRouterState state) {
+   static Widget _bestSellerBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<BestSellerViewModel>(),
       child: const BestSellerScreen(),
@@ -197,24 +209,26 @@ class AppRouter {
   }
 
   static Widget _productDetailsBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
-    final productId = state.pathParameters['productId'];
-
-    if (productId == null || productId.isEmpty) {
-      return const Scaffold(body: Center(child: Text(AppString.pageNotFound)));
-    }
-
-    return BlocProvider(
-      create: (_) =>
-          getIt<ProductDetailsViewModel>()
-            ..onEvent(GetProductDetailsEvent(productId: productId)),
-      child: const ProductDetailsScreen(),
+  BuildContext context,
+  GoRouterState state,
+) {
+  final productId = state.pathParameters['productId'];
+  if (productId == null || productId.isEmpty) {
+    return const Scaffold(
+      body: Center(child: Text(AppString.pageNotFound)),
     );
   }
 
-  static Widget _OccasionBuilder(BuildContext context, GoRouterState state) {
+  return BlocProvider(
+    create: (_) => getIt<ProductDetailsViewModel>()
+      ..onEvent(
+        GetProductDetailsEvent(productId: productId),
+      ),
+    child: const ProductDetailsScreen(),
+  );
+}
+
+  static Widget _occasionBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<OccasionViewModel>(),
       child: const OccasionScreen(),
@@ -224,7 +238,10 @@ class AppRouter {
   static StatefulShellBranch categoryBranch() {
     return StatefulShellBranch(
       routes: [
-        GoRoute(path: AppRoutesName.category, builder: _categoryBuilder),
+        GoRoute(
+          path: AppRoutesName.category,
+          builder: _categoryBuilder,
+        ),
       ],
     );
   }

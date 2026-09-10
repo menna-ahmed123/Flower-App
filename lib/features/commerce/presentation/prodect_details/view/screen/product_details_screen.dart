@@ -6,6 +6,7 @@ import 'package:flower_app/features/commerce/presentation/prodect_details/view/w
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_state.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../../core/auth/auth_extension.dart';
@@ -45,9 +46,13 @@ class ProductDetailsScreen extends StatelessWidget {
                   return ProductDetailsBody(product: product,);
                 },
               ),
-            ), AppButton(
-              text: "Add to cart",
-              onPressed: () => _addToCart(context),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+              child: AppButton(
+                text: "Add to cart",
+                onPressed: () => _addToCart(context),
+              ),
             ),
           ],
         ),

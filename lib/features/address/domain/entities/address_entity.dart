@@ -10,6 +10,9 @@ class AddressEntity extends Equatable {
   final String? id;
   final String? label;
   final bool isDefault;
+  final double? latitude;
+  final double? longitude;
+
 
   const AddressEntity({
     this.address,
@@ -19,6 +22,8 @@ class AddressEntity extends Equatable {
     this.area,
     this.id,
     this.label,
+    this.latitude,
+    this.longitude,
     this.isDefault = false,
   });
 
@@ -30,6 +35,8 @@ class AddressEntity extends Equatable {
     String? area,
     String? id,
     String? label,
+    double? latitude,
+    double? longitude,
     bool? isDefault,
   }) {
     return AddressEntity(
@@ -41,6 +48,8 @@ class AddressEntity extends Equatable {
       id: id ?? this.id,
       label: label ?? this.label,
       isDefault: isDefault ?? this.isDefault,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 
@@ -54,6 +63,8 @@ class AddressEntity extends Equatable {
         id,
         label,
         isDefault,
+         latitude,
+    longitude
       ];
 }
 

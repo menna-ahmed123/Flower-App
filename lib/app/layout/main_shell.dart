@@ -60,9 +60,7 @@ class MainShell extends StatelessWidget {
             bottomNavigationBar: _showBottomBar ? NavigationBar(
               selectedIndex: navigationShell.currentIndex,
               onDestinationSelected: (index) async {
-                final isProtectedRoute = index == 2 || index == 3;
-
-                if (isProtectedRoute) {
+                if (index == 2 || index == 3) {
                   await context.requireAuth(
                     action: () async {
                       navigationShell.goBranch(
@@ -74,14 +72,12 @@ class MainShell extends StatelessWidget {
                       }
                     },
                   );
-
-                  return;
+                } else {
+                  navigationShell.goBranch(
+                    index,
+                    initialLocation: index == navigationShell.currentIndex,
+                  );
                 }
-
-                navigationShell.goBranch(
-                  index,
-                  initialLocation: index == navigationShell.currentIndex,
-                );
               },
               destinations: const [
                 NavigationDestination(

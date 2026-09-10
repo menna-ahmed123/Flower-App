@@ -1,6 +1,7 @@
 
 import 'dart:developer' as developer;
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/category_rail.dart';
@@ -10,6 +11,7 @@ import 'package:flower_app/features/commerce/presentation/home/view/widgets/occa
 import 'package:flower_app/features/commerce/presentation/home/view/widgets/product_rail.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeSectionList extends StatelessWidget {
@@ -84,29 +86,21 @@ class HomeSectionView extends StatelessWidget {
     ValueChanged<String> onDeepLink,
   ) {
     return switch (section.type) {
-      'banner' => HomeBanner(
-          section: section,
-          onDeepLink: onDeepLink,
-        ),
-
-      'category_rail' || 'Categories' => CategoryRail(
-          section: section,
-          onDeepLink: onDeepLink,
-        ),
-
-      'product_rail' ||
-      'BestSeller' ||
-      'ProductsCarousel' =>
-        ProductRail(
-          section: section,
-          onDeepLink: onDeepLink,
-        ),
-
-      'occasion_rail' || 'Occasions' => OccasionRail(
-          section: section,
-          onDeepLink: onDeepLink,
-        ),
-
+      HomeSectionTypes.banner => HomeBanner(section: section, onDeepLink: onDeepLink),
+      HomeSectionTypes.categoryRail || HomeSectionTypes.categories => CategoryRail(
+        section: section,
+        onDeepLink: onDeepLink,
+      ),
+      HomeSectionTypes.productRail ||
+      HomeSectionTypes.bestSeller ||
+      HomeSectionTypes.productsCarousel => ProductRail(
+        section: section,
+        onDeepLink: onDeepLink,
+      ),
+      HomeSectionTypes.occasionRail || HomeSectionTypes.occasions => OccasionRail(
+        section: section,
+        onDeepLink: onDeepLink,
+      ),
       _ => _unknownSection(section.type),
     };
   }

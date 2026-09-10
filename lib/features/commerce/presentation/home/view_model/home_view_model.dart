@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_layout_entity.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/home_use_case.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
@@ -30,9 +31,7 @@ class HomeViewModel extends Cubit<HomeState> {
   }
 
   HomeSectionEntity _filterSection(HomeSectionEntity section, String query) {
-    if (section.type != 'product_rail' &&
-        section.type != 'BestSeller' &&
-        section.type != 'ProductsCarousel') {
+    if (!HomeSectionTypes.isProductSection(section.type)) {
       return section;
     }
     final q = query.toLowerCase();

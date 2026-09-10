@@ -40,11 +40,11 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(AppString.search)),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Column(
-          children: [
-            AppSearchField(
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
+            child: AppSearchField(
               focusNode: _searchFocusNode,
               onChanged: (query) {
                 context.read<SearchViewModel>().onEvent(
@@ -58,8 +58,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 context.read<SearchViewModel>().onEvent(SearchCleared());
               },
             ),
-            SizedBox(height: 8.h),
-            Expanded(
+          ),
+          Expanded(
               child: BlocListener<SearchViewModel, SearchState>(
                 listenWhen: (previous, current) =>
                     previous.selectedProduct != current.selectedProduct &&
@@ -105,8 +105,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

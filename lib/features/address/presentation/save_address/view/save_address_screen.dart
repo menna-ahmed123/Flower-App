@@ -38,7 +38,8 @@ class SavedAddressesScreen extends StatelessWidget {
           },
           child: BlocBuilder<DefaultAddressViewModel, DefaultAddressState>(
             buildWhen: (previous, current) {
-              return previous.defaultAddressesState != current.defaultAddressesState;
+              return previous.defaultAddressesState !=
+                  current.defaultAddressesState;
             },
             builder: (context, state) {
               return SavedAddressesBody(
@@ -48,16 +49,15 @@ class SavedAddressesScreen extends StatelessWidget {
 
                 onRetry: () {
                   context.read<DefaultAddressViewModel>().doEvent(
-                        LoadSavedAddresses(),
-                      );
+                    LoadSavedAddresses(),
+                  );
                 },
 
                 onDelete: (id) {
                   context.read<DefaultAddressViewModel>().doEvent(
-                        DeleteSavedAddress(id),
-                      );
+                    DeleteSavedAddress(id),
+                  );
                 },
-
                 onEdit: (address) async {
                   final result = await context.push(
                     AppRoutesName.address,
@@ -66,20 +66,18 @@ class SavedAddressesScreen extends StatelessWidget {
 
                   if (result == true && context.mounted) {
                     context.read<DefaultAddressViewModel>().doEvent(
-                          LoadSavedAddresses(),
-                        );
+                      LoadSavedAddresses(),
+                    );
                   }
                 },
 
                 onAddNew: () async {
-                  final result = await context.push(
-                    AppRoutesName.address,
-                  );
+                  final result = await context.push(AppRoutesName.address);
 
                   if (result == true && context.mounted) {
                     context.read<DefaultAddressViewModel>().doEvent(
-                          LoadSavedAddresses(),
-                        );
+                      LoadSavedAddresses(),
+                    );
                   }
                 },
               );
