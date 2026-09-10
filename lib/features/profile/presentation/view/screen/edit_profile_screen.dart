@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
+import 'package:flower_app/features/auth/core/presentation/view_model/auth_event.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_text_feild.dart';
 import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
@@ -97,7 +100,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Column(
                 children: [
                   EditProfileAvatar(
-                    photoUrl: widget.profile.profilePictureUrl,
+                    // profilePictureUrl is relative per the API contract; resolve it like ProfileDisplayData does.
+                    photoUrl: ApiEndpoints.mediaUrl(widget.profile.profilePictureUrl),
                     pickedImage: _pickedImage,
                     onImagePicked: _onImagePicked,
                   ),
@@ -179,15 +183,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
+    if (updated.emailChanged) {
+      _handleEmailChangedLogout(context);
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          updated.emailChanged
-              ? AppString.emailChangedSignInAgain
-              : AppString.profileUpdatedSuccess,
-        ),
-      ),
+      SnackBar(content: Text(AppString.profileUpdatedSuccess)),
     );
     context.pop();
+  }
+
+  // Email changes invalidate the backend session, so force a re-login
+  // through the existing AuthCubit instead of leaving a stale session.
+  Future<void> _handleEmailChangedLogout(BuildContext context) async {
+    final authCubit = context.read<AuthCubit>();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppString.emailChangedSignInAgain)),
+    );
+
+    await authCubit.doEvent(const AuthLogoutRequested());
+    if (!mounted) {
+      return;
+    }
+    context.go(AppRoutesName.login);
   }
 }

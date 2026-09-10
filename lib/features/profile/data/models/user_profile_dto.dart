@@ -18,6 +18,15 @@ class UserProfileDto {
   final List<String> roles;
   final bool emailChanged;
 
+  /// Driver-only; null for customers and admins.
+  final String? vehicleType;
+
+  /// Driver-only; null for customers and admins.
+  final String? vehiclePlateNumber;
+
+  /// Driver-only; null for customers and admins.
+  final String? country;
+
   UserProfileDto({
     required this.userId,
     required this.fullName,
@@ -29,6 +38,9 @@ class UserProfileDto {
     this.profilePictureUrl,
     required this.roles,
     required this.emailChanged,
+    this.vehicleType,
+    this.vehiclePlateNumber,
+    this.country,
   });
 
   ProfileEntity toDomain() {
@@ -43,6 +55,9 @@ class UserProfileDto {
       profilePictureUrl: profilePictureUrl,
       roles: roles,
       emailChanged: emailChanged,
+      vehicleType: vehicleType,
+      vehiclePlateNumber: vehiclePlateNumber,
+      country: country,
     );
   }
 

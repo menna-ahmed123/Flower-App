@@ -11,6 +11,9 @@ class UpdateProfileRequest {
     required this.phoneNumber,
     required this.gender,
     this.profilePicture,
+    this.vehicleType,
+    this.vehiclePlateNumber,
+    this.country,
   });
 
   final String fullName;
@@ -22,4 +25,13 @@ class UpdateProfileRequest {
 
   /// Omit to keep the current avatar; the backend deletes the old file when set.
   final File? profilePicture;
+
+  /// Driver-only; omit to keep the current vehicle type. Ignored for other roles.
+  final String? vehicleType;
+
+  /// Driver-only; omit to keep the current vehicle plate number. Ignored for other roles.
+  final String? vehiclePlateNumber;
+
+  /// Driver-only; omit to keep the current country. Ignored for other roles.
+  final String? country;
 }
