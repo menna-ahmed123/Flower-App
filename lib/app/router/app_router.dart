@@ -33,6 +33,8 @@ import 'package:flower_app/features/commerce/presentation/prodect_details/view/s
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
+import 'package:flower_app/features/profile/presentation/view/screen/edit_profile_screen.dart';
+import 'package:flower_app/features/profile/presentation/view_model/profile_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -67,6 +69,7 @@ class AppRouter {
         _mainShell(),
          GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
         GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
+        GoRoute(path: AppRoutesName.editProfile, builder: _editProfileBuilder),
       ],
     );
   }
@@ -281,7 +284,23 @@ class AppRouter {
   }
 
   static Widget _profileBuilder(BuildContext context, GoRouterState state) {
-    return const ProfileScreen();
+    return BlocProvider.value(
+      value: getIt<ProfileViewModel>(),
+      child: const ProfileScreen(),
+    );
+  }
+
+  static Widget _editProfileBuilder(BuildContext context, GoRouterState state) {
+    final profileViewModel = getIt<ProfileViewModel>();
+    final profile = profileViewModel.state.profileState.data;
+    if (profile == null) {
+      return const Scaffold(body: Center(child: Text(AppString.pageNotFound)));
+    }
+
+    return BlocProvider.value(
+      value: profileViewModel,
+      child: EditProfileScreen(profile: profile),
+    );
   }
 
   static Widget _addressBuilder(BuildContext context, GoRouterState state) {

@@ -3,8 +3,15 @@ import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/auth/core/domain/repos/auth_repository.dart';
+import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
+import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
+import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
+import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
+import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
+import 'package:flower_app/features/profile/domain/use_case/update_profile_use_case.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
+import 'package:flower_app/features/profile/presentation/view_model/profile_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,6 +21,7 @@ import 'package:go_router/go_router.dart';
 void main() {
   late FakeAuthRepository authRepository;
   late AuthCubit authCubit;
+  late ProfileViewModel profileViewModel;
   late GoRouter router;
 
   setUpAll(() async {
@@ -23,21 +31,27 @@ void main() {
   setUp(() {
     authRepository = FakeAuthRepository();
     authCubit = AuthCubit(authRepository);
+    final profileRepo = FakeProfileRepo();
+    profileViewModel = ProfileViewModel(
+      GetProfileUseCase(profileRepo),
+      UpdateProfileUseCase(profileRepo),
+    );
     router = _testRouter();
   });
 
   tearDown(() async {
     await authCubit.close();
+    await profileViewModel.close();
     router.dispose();
   });
 
   testWidgets('renders profile info, options and app version', (
     tester,
   ) async {
-    await _pumpProfileScreen(tester, router, authCubit);
+    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
-    expect(find.text('Nour'), findsOneWidget);
-    expect(find.text('Nour_Mohamed@gmail.com'), findsOneWidget);
+    expect(find.text(FakeProfileRepo.profile.fullName), findsOneWidget);
+    expect(find.text(FakeProfileRepo.profile.email!), findsOneWidget);
     expect(find.text(AppString.myOrders), findsOneWidget);
     expect(find.text(AppString.savedAddresses), findsOneWidget);
     expect(find.text(AppString.notification), findsOneWidget);
@@ -51,7 +65,7 @@ void main() {
   testWidgets('navigates to saved addresses when the row is tapped', (
     tester,
   ) async {
-    await _pumpProfileScreen(tester, router, authCubit);
+    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
     await tester.tap(find.text(AppString.savedAddresses));
     await tester.pumpAndSettle();
@@ -60,7 +74,7 @@ void main() {
   });
 
   testWidgets('toggles the notification switch locally', (tester) async {
-    await _pumpProfileScreen(tester, router, authCubit);
+    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
     expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
 
@@ -73,7 +87,7 @@ void main() {
   testWidgets('cancelling the logout dialog does not log the user out', (
     tester,
   ) async {
-    await _pumpProfileScreen(tester, router, authCubit);
+    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
     await tester.tap(find.text(AppString.logout).first);
     await tester.pumpAndSettle();
@@ -91,7 +105,7 @@ void main() {
   testWidgets('confirming logout signs the user out and goes to login', (
     tester,
   ) async {
-    await _pumpProfileScreen(tester, router, authCubit);
+    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
     await tester.tap(find.text(AppString.logout).first);
     await tester.pumpAndSettle();
@@ -109,6 +123,7 @@ Future<void> _pumpProfileScreen(
   WidgetTester tester,
   GoRouter router,
   AuthCubit authCubit,
+  ProfileViewModel profileViewModel,
 ) async {
   tester.view.physicalSize = const Size(375, 812);
   tester.view.devicePixelRatio = 1;
@@ -123,8 +138,11 @@ Future<void> _pumpProfileScreen(
       useOnlyLangCode: true,
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
-        builder: (context, _) => BlocProvider.value(
-          value: authCubit,
+        builder: (context, _) => MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: authCubit),
+            BlocProvider.value(value: profileViewModel),
+          ],
           child: Builder(
             builder: (context) => MaterialApp.router(
               theme: AppTheme(lightThemeColors).themeData,
@@ -168,5 +186,32 @@ class FakeAuthRepository implements AuthRepository {
   Future<void> logout() async {
     loggedOut = true;
     authenticated = false;
+  }
+}
+
+class FakeProfileRepo implements ProfileRepo {
+  static const profile = ProfileEntity(
+    userId: 'u1',
+    fullName: 'Nour Mohamed',
+    firstName: 'Nour',
+    lastName: 'Mohamed',
+    email: 'Nour_Mohamed@gmail.com',
+    phoneNumber: '01010000001',
+    gender: null,
+    profilePictureUrl: null,
+    roles: ['Customer'],
+    emailChanged: false,
+  );
+
+  @override
+  Future<BaseResponse<ProfileEntity>> getMyProfile() async {
+    return const SuccessResponse(profile);
+  }
+
+  @override
+  Future<BaseResponse<ProfileEntity>> updateMyProfile(
+    UpdateProfileRequest request,
+  ) async {
+    return const SuccessResponse(profile);
   }
 }

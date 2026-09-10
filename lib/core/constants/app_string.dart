@@ -214,6 +214,11 @@ abstract class AppString {
   static const String confirmLogoutMessage = 'Confirm logout!!';
   static const String aboutUs = 'About us';
   static const String termsAndConditionsRow = 'Terms & conditions';
+  static const String update = 'Update';
+  static const String profileUpdatedSuccess = 'Profile updated successfully';
+  static const String emailChangedSignInAgain = 'Your email changed; please sign in again.';
+  static const String changePassword = 'Change password';
+  static const String changeProfilePicture = 'Change profile picture';
 
   static const String somethingWrong = 'Something went wrong';
   static const String retry = 'Retry';
