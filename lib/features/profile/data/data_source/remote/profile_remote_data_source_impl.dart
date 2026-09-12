@@ -23,9 +23,6 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       request.phoneNumber,
       request.gender,
       request.profilePicture,
-      request.vehicleType,
-      request.vehiclePlateNumber,
-      request.country,
     );
   }
 }

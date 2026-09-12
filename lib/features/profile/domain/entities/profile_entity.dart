@@ -14,9 +14,6 @@ class ProfileEntity extends Equatable {
     required this.profilePictureUrl,
     required this.roles,
     required this.emailChanged,
-    this.vehicleType,
-    this.vehiclePlateNumber,
-    this.country,
   });
 
   final String userId;
@@ -30,15 +27,6 @@ class ProfileEntity extends Equatable {
   final List<String> roles;
   final bool emailChanged;
 
-  /// Driver-only; null for customers and admins.
-  final String? vehicleType;
-
-  /// Driver-only; null for customers and admins.
-  final String? vehiclePlateNumber;
-
-  /// Driver-only; null for customers and admins.
-  final String? country;
-
   @override
   List<Object?> get props => [
     userId,
@@ -51,8 +39,5 @@ class ProfileEntity extends Equatable {
     profilePictureUrl,
     roles,
     emailChanged,
-    vehicleType,
-    vehiclePlateNumber,
-    country,
   ];
 }

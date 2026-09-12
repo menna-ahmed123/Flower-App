@@ -11,7 +11,7 @@ import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/c
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_text_feild.dart';
 import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_gender_selector.dart';
-import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
+import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/edit_profile_avatar.dart';
 import 'package:flower_app/features/profile/presentation/view_model/profile_event.dart';
@@ -70,7 +70,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    final params = UpdateProfileParams(
+    final request = UpdateProfileRequest(
       fullName: _fullNameController.text.trim(),
       email: _emailController.text.trim(),
       phoneNumber: _phoneController.text.trim(),
@@ -78,7 +78,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       profilePicture: _pickedImage,
     );
 
-    context.read<ProfileViewModel>().doEvent(ProfileUpdateRequested(params));
+    context.read<ProfileViewModel>().doEvent(ProfileUpdateRequested(request));
   }
 
   void _onChangePasswordTap(BuildContext context) {
@@ -181,11 +181,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
       return;
     }
-    if (updateState.data == null) {
+    final updated = updateState.data;
+    if (updated == null) {
       return;
     }
 
-    if (state.requiresReauth) {
+    if (updated.emailChanged) {
       _handleEmailChangedLogout(context);
       return;
     }

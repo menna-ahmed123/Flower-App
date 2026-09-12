@@ -1,11 +1,11 @@
-import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
+import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 
 sealed class ProfileEvent {}
 
 class ProfileRequested extends ProfileEvent {}
 
 class ProfileUpdateRequested extends ProfileEvent {
-  final UpdateProfileParams params;
+  final UpdateProfileRequest request;
 
-  ProfileUpdateRequested(this.params);
+  ProfileUpdateRequested(this.request);
 }

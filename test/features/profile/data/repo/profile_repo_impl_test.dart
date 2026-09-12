@@ -3,7 +3,6 @@ import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
 import 'package:flower_app/features/profile/data/models/profile_response.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
-import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
 import 'package:flower_app/features/profile/data/models/user_profile_dto.dart';
 import 'package:flower_app/features/profile/data/repo/profile_repo_impl.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
@@ -66,34 +65,30 @@ void main() {
   });
 
   group('updateMyProfile', () {
-    const params = UpdateProfileParams(
+    const request = UpdateProfileRequest(
       fullName: 'Mariam Ahmed',
       email: 'mariam@example.com',
       phoneNumber: '01010000001',
       gender: 'Female',
     );
-    // What ProfileRepoImpl is expected to build from `params` and forward
-    // to the remote data source: UpdateProfileRequest overrides `==`
-    // (Equatable), so this matches the internally-built instance by value.
-    final expectedRequest = UpdateProfileRequest.fromDomain(params);
 
     test('returns SuccessResponse mapped to ProfileEntity', () async {
       when(
-        remoteDataSource.updateMyProfile(expectedRequest),
+        remoteDataSource.updateMyProfile(request),
       ).thenAnswer((_) async => response);
 
-      final result = await repo.updateMyProfile(params);
+      final result = await repo.updateMyProfile(request);
 
       expect(result, isA<SuccessResponse<ProfileEntity>>());
-      verify(remoteDataSource.updateMyProfile(expectedRequest)).called(1);
+      verify(remoteDataSource.updateMyProfile(request)).called(1);
     });
 
     test('returns ErrorResponse when the remote call throws', () async {
       when(
-        remoteDataSource.updateMyProfile(expectedRequest),
+        remoteDataSource.updateMyProfile(request),
       ).thenThrow(Exception('validation failed'));
 
-      final result = await repo.updateMyProfile(params);
+      final result = await repo.updateMyProfile(request);
 
       expect(result, isA<ErrorResponse<ProfileEntity>>());
     });

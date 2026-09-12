@@ -1,37 +1,17 @@
 import 'dart:io';
 
-import 'package:equatable/equatable.dart';
-import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
-
 /// Fields for `PUT /identity/users/me/profile` (multipart/form-data).
 ///
 /// Not a [JsonSerializable] DTO: the endpoint is multipart, sent as
 /// individual `@Part` fields by [ProfileApiClient], not a JSON body.
-class UpdateProfileRequest extends Equatable {
+class UpdateProfileRequest {
   const UpdateProfileRequest({
     required this.fullName,
     required this.email,
     required this.phoneNumber,
     required this.gender,
     this.profilePicture,
-    this.vehicleType,
-    this.vehiclePlateNumber,
-    this.country,
   });
-
-  /// Builds the transport-layer request from the domain-level params.
-  factory UpdateProfileRequest.fromDomain(UpdateProfileParams params) {
-    return UpdateProfileRequest(
-      fullName: params.fullName,
-      email: params.email,
-      phoneNumber: params.phoneNumber,
-      gender: params.gender,
-      profilePicture: params.profilePicture,
-      vehicleType: params.vehicleType,
-      vehiclePlateNumber: params.vehiclePlateNumber,
-      country: params.country,
-    );
-  }
 
   final String fullName;
   final String email;
@@ -42,25 +22,4 @@ class UpdateProfileRequest extends Equatable {
 
   /// Omit to keep the current avatar; the backend deletes the old file when set.
   final File? profilePicture;
-
-  /// Driver-only; omit to keep the current vehicle type. Ignored for other roles.
-  final String? vehicleType;
-
-  /// Driver-only; omit to keep the current vehicle plate number. Ignored for other roles.
-  final String? vehiclePlateNumber;
-
-  /// Driver-only; omit to keep the current country. Ignored for other roles.
-  final String? country;
-
-  @override
-  List<Object?> get props => [
-    fullName,
-    email,
-    phoneNumber,
-    gender,
-    profilePicture,
-    vehicleType,
-    vehiclePlateNumber,
-    country,
-  ];
 }

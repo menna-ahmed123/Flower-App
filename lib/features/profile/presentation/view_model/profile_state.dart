@@ -14,10 +14,6 @@ class ProfileState extends Equatable {
     this.updateState = const BaseState(),
   });
 
-  /// The last successful update changed the login email, which the backend
-  /// treats as a new identity: the current session must be re-authenticated.
-  bool get requiresReauth => updateState.data?.emailChanged ?? false;
-
   ProfileState copyWith({
     BaseState<ProfileEntity>? profileState,
     BaseState<ProfileEntity>? updateState,

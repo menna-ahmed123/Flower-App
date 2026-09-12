@@ -22,8 +22,5 @@ abstract class ProfileApiClient {
     @Part(name: 'phoneNumber') String phoneNumber,
     @Part(name: 'gender') String gender,
     @Part(name: 'profilePicture') File? profilePicture,
-    @Part(name: 'vehicleType') String? vehicleType,
-    @Part(name: 'vehiclePlateNumber') String? vehiclePlateNumber,
-    @Part(name: 'country') String? country,
   );
 }

@@ -1,7 +1,7 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
-import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
+import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,7 +60,7 @@ class _RecordingProfileRepo implements ProfileRepo {
 
   @override
   Future<BaseResponse<ProfileEntity>> updateMyProfile(
-    UpdateProfileParams params,
+    UpdateProfileRequest request,
   ) {
     throw UnimplementedError('Not exercised by GetProfileUseCase tests.');
   }

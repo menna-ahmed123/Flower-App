@@ -5,7 +5,7 @@ import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/auth/core/domain/repos/auth_repository.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
+import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
@@ -210,7 +210,7 @@ class FakeProfileRepo implements ProfileRepo {
 
   @override
   Future<BaseResponse<ProfileEntity>> updateMyProfile(
-    UpdateProfileParams params,
+    UpdateProfileRequest request,
   ) async {
     return const SuccessResponse(profile);
   }

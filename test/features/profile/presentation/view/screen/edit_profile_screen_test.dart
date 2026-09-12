@@ -1,8 +1,9 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/features/profile/domain/entities/update_profile_params.dart';
+import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
@@ -75,10 +76,6 @@ void main() {
       expect(find.text(AppString.profileUpdatedSuccess), findsOneWidget);
       expect(_path(router), '/profile-host');
       expect(authRepository.loggedOut, isFalse);
-      // The customer-facing Edit Profile form never sets the driver-only fields.
-      expect(repo.lastRequest?.vehicleType, isNull);
-      expect(repo.lastRequest?.vehiclePlateNumber, isNull);
-      expect(repo.lastRequest?.country, isNull);
     },
   );
 
@@ -195,7 +192,7 @@ class _RecordingUpdateProfileRepo implements ProfileRepo {
   _RecordingUpdateProfileRepo({required this.emailChanged});
 
   final bool emailChanged;
-  UpdateProfileParams? lastRequest;
+  UpdateProfileRequest? lastRequest;
 
   @override
   Future<BaseResponse<ProfileEntity>> getMyProfile() async {
@@ -204,17 +201,17 @@ class _RecordingUpdateProfileRepo implements ProfileRepo {
 
   @override
   Future<BaseResponse<ProfileEntity>> updateMyProfile(
-    UpdateProfileParams params,
+    UpdateProfileRequest request,
   ) async {
-    lastRequest = params;
+    lastRequest = request;
     return SuccessResponse(
       ProfileEntity(
         userId: FakeProfileRepo.profile.userId,
-        fullName: params.fullName,
+        fullName: request.fullName,
         firstName: FakeProfileRepo.profile.firstName,
         lastName: FakeProfileRepo.profile.lastName,
-        email: params.email,
-        phoneNumber: params.phoneNumber,
+        email: request.email,
+        phoneNumber: request.phoneNumber,
         gender: FakeProfileRepo.profile.gender,
         profilePictureUrl: FakeProfileRepo.profile.profilePictureUrl,
         roles: FakeProfileRepo.profile.roles,
