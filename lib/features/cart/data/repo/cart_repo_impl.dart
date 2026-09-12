@@ -57,6 +57,22 @@ class CartRepoImpl implements CartRepo {
     });
   }
 
+  @override
+  Future<BaseResponse<bool>> placeOrder() {
+    return safeCall.safeApiCall(() async {
+      await cartRemoteDataSource.placeOrder();
+      return true;
+    });
+  }
+
+  @override
+  Future<BaseResponse<bool>> processPayment() {
+    return safeCall.safeApiCall(() async {
+      await cartRemoteDataSource.processPayment();
+      return true;
+    });
+  }
+
   CartEntity _mapCart(CartResponse response) {
     if (response.success == false) {
       throw ApiException(

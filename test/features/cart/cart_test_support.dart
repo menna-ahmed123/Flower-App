@@ -36,10 +36,17 @@ CartEntity cartWithItems(List<CartItemEntity> items) {
 class FakeCartRepo implements CartRepo {
   FakeCartRepo({
     this.getCartResponse = const SuccessResponse(CartEntity.empty()),
+    this.placeOrderResponse = const SuccessResponse(true),
+    this.paymentResponse = const SuccessResponse(true),
   });
 
   BaseResponse<CartEntity> getCartResponse;
+  BaseResponse<bool> placeOrderResponse;
+  BaseResponse<bool> paymentResponse;
+  Duration placeOrderDelay = Duration.zero;
   int getCartCalls = 0;
+  int placeOrderCalls = 0;
+  int paymentCalls = 0;
 
   @override
   Future<BaseResponse<CartEntity>> getCart() async {
@@ -66,6 +73,21 @@ class FakeCartRepo implements CartRepo {
   @override
   Future<BaseResponse<bool>> removeItem({required String itemId}) async {
     return const SuccessResponse(true);
+  }
+
+  @override
+  Future<BaseResponse<bool>> placeOrder() async {
+    placeOrderCalls++;
+    if (placeOrderDelay > Duration.zero) {
+      await Future<void>.delayed(placeOrderDelay);
+    }
+    return placeOrderResponse;
+  }
+
+  @override
+  Future<BaseResponse<bool>> processPayment() async {
+    paymentCalls++;
+    return paymentResponse;
   }
 }
 

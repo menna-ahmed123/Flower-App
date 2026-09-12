@@ -110,6 +110,8 @@ import '../../features/cart/domain/repo/cart_repo.dart' as _i379;
 import '../../features/cart/domain/use_cases/cart_use_case.dart' as _i886;
 import '../../features/cart/presentation/view_model/cart_view_model.dart'
     as _i572;
+import '../../features/cart/presentation/view_model/checkout_view_model.dart'
+    as _i179;
 import '../../features/commerce/api/commerce_api_client.dart' as _i243;
 import '../../features/commerce/data/data_sources/commerce_remote_data_source.dart'
     as _i696;
@@ -413,6 +415,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i572.CartViewModel>(
       () => _i572.CartViewModel(gh<_i886.CartUseCase>()),
+    );
+    gh.factory<_i179.CheckoutViewModel>(
+      () => _i179.CheckoutViewModel(gh<_i886.CartUseCase>()),
     );
     gh.singleton<_i349.DefaultAddressViewModel>(
       () => _i349.DefaultAddressViewModel(
