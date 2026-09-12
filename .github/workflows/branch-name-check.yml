@@ -1,0 +1,27 @@
+name: Branch Name Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  branch-name-check:
+    name: Validate Branch Name
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check branch name
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: |
+          if [[ "$BRANCH_NAME" =~ ^(feature|bugfix|hotfix|release)/.+$ ]]; then
+            echo "Branch name '$BRANCH_NAME' is valid."
+          else
+            echo "Error: Invalid branch name '$BRANCH_NAME'."
+            echo "Branch names must follow one of these patterns:"
+            echo "  feature/<name>"
+            echo "  bugfix/<name>"
+            echo "  hotfix/<name>"
+            echo "  release/<name>"
+            exit 1
+          fi

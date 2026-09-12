@@ -155,7 +155,7 @@ class _AddAddressScreenState extends State<AddAddressScreen>
             builder: (context, state) {
               final location =
                   state.locationState.data ??
-                  const LocationEntity(latitude: 30.0444, longitude: 31.2357);
+                      const LocationEntity(latitude: 30.0444, longitude: 31.2357);
 
               return SingleChildScrollView(
                 child: Column(
@@ -193,7 +193,7 @@ class _AddAddressScreenState extends State<AddAddressScreen>
                     BlocBuilder<AddressViewModel, AddressState>(
                       buildWhen: (previous, current) {
                         return previous.addressState.data !=
-                                current.addressState.data ||
+                            current.addressState.data ||
                             previous.addressState.isLoading !=
                                 current.addressState.isLoading;
                       },
