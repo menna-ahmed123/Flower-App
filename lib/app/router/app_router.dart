@@ -18,7 +18,11 @@ import 'package:flower_app/features/auth/login/presentation/view_model/login_vie
 import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/checkout_screen.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/confirmation_screen.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/payment_screen.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
+import 'package:flower_app/features/cart/presentation/view_model/checkout_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
@@ -67,6 +71,9 @@ class AppRouter {
         _mainShell(),
          GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
         GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
+        GoRoute(path: AppRoutesName.checkout, builder: _checkoutBuilder),
+        GoRoute(path: AppRoutesName.payment, builder: _paymentBuilder),
+        GoRoute(path: AppRoutesName.confirmation, builder: _confirmationBuilder),
       ],
     );
   }
@@ -306,5 +313,29 @@ class AppRouter {
           getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
       child: const SavedAddressesScreen(),
     );
+  }
+
+  static Widget _checkoutBuilder(BuildContext context, GoRouterState state) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<CheckoutViewModel>()),
+        BlocProvider.value(value: getIt<DefaultAddressViewModel>()),
+      ],
+      child: const CheckoutScreen(),
+    );
+  }
+
+  static Widget _paymentBuilder(BuildContext context, GoRouterState state) {
+    final viewModel = state.extra is CheckoutViewModel
+        ? state.extra as CheckoutViewModel
+        : getIt<CheckoutViewModel>();
+    return BlocProvider.value(
+      value: viewModel,
+      child: const PaymentScreen(),
+    );
+  }
+
+  static Widget _confirmationBuilder(BuildContext context, GoRouterState state) {
+    return const ConfirmationScreen();
   }
 }

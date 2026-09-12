@@ -159,7 +159,9 @@ abstract class AppString {
 
   // ==================== Address & Checkout ====================
   static const String shippingAddress = 'Shipping Address';
+  static const String deliveryAddress = 'Delivery address';
   static const String addAddress = 'Add Address';
+  static const String addNew = 'Add new';
   static const String address = 'Address';
   static const String selectAddress = 'Select Address';
   static const String enterAddress = "Enter the address";
@@ -180,8 +182,15 @@ abstract class AppString {
   static const String paymentMethod = 'Payment Method';
   static const String cashOnDelivery = 'Cash on Delivery';
   static const String creditCard = 'Credit Card';
+  static const String thisIsAGift = 'It is a gift';
+  static const String name = 'Name';
+  static const String enterTheName = 'Enter the name';
+  static const String payNow = 'Pay Now';
+  static const String payment = 'Payment';
+  static const String confirmation = 'Confirmation';
   static const String orderPlacedSuccess = 'Order placed successfully!';
   static const String orderFailed = 'Order failed. Please try again.';
+  static const String paymentFailed = 'Payment failed. Please try again.';
   // ==================== Orders ====================
   static const String myOrders = 'My Orders';
   static const String orderDetails = 'Order Details';
