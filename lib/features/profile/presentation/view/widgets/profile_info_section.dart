@@ -5,16 +5,11 @@ import 'package:flower_app/features/profile/presentation/models/profile_display_
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Avatar, name (with an edit entry point) and email of the signed-in user.
+/// Avatar, name and email of the signed-in user.
 class ProfileInfoSection extends StatelessWidget {
-  const ProfileInfoSection({
-    super.key,
-    required this.data,
-    this.onEditTap,
-  });
+  const ProfileInfoSection({super.key, required this.data});
 
   final ProfileDisplayData data;
-  final VoidCallback? onEditTap;
 
   @override
   Widget build(BuildContext context) {
@@ -24,25 +19,13 @@ class ProfileInfoSection extends StatelessWidget {
       children: [
         _buildAvatar(colors),
         SizedBox(height: 8.h),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              data.name,
-              style: TextStyle(
-                color: colors.black,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            IconButton(
-              onPressed: onEditTap,
-              icon: Icon(AppIcons.edit, size: 18.w, color: colors.grey.shade900),
-              constraints: const BoxConstraints(),
-              padding: EdgeInsets.only(left: 4.w),
-              splashRadius: 18.r,
-            ),
-          ],
+        Text(
+          data.name,
+          style: TextStyle(
+            color: colors.black,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         Text(
           data.email,

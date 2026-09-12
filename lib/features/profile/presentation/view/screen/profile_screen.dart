@@ -62,10 +62,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.push(AppRoutesName.saveAddress);
   }
 
-  void _onEditProfileTap() {
-    context.push(AppRoutesName.editProfile);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,7 +114,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ? const SizedBox.shrink()
                   : ProfileInfoSection(
                       data: ProfileDisplayData.fromEntity(profile),
-                      onEditTap: _onEditProfileTap,
                     ),
             ),
           ),

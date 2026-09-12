@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
 
-/// The authenticated user's own profile (GET/PUT /identity/users/me/profile).
+/// The authenticated user's own profile (GET /identity/users/me/profile).
 class ProfileEntity extends Equatable {
   const ProfileEntity({
     required this.userId,
@@ -13,7 +13,6 @@ class ProfileEntity extends Equatable {
     required this.gender,
     required this.profilePictureUrl,
     required this.roles,
-    required this.emailChanged,
   });
 
   final String userId;
@@ -25,7 +24,6 @@ class ProfileEntity extends Equatable {
   final Gender? gender;
   final String? profilePictureUrl;
   final List<String> roles;
-  final bool emailChanged;
 
   @override
   List<Object?> get props => [
@@ -38,6 +36,5 @@ class ProfileEntity extends Equatable {
     gender,
     profilePictureUrl,
     roles,
-    emailChanged,
   ];
 }

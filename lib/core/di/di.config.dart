@@ -148,8 +148,6 @@ import '../../features/profile/data/repo/profile_repo_impl.dart' as _i256;
 import '../../features/profile/domain/repo/profile_repo.dart' as _i364;
 import '../../features/profile/domain/use_case/get_profile_use_case.dart'
     as _i114;
-import '../../features/profile/domain/use_case/update_profile_use_case.dart'
-    as _i155;
 import '../../features/profile/presentation/view_model/profile_view_model.dart'
     as _i15;
 import '../modules/api_module.dart' as _i98;
@@ -327,9 +325,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i114.GetProfileUseCase>(
       () => _i114.GetProfileUseCase(gh<_i364.ProfileRepo>()),
     );
-    gh.factory<_i155.UpdateProfileUseCase>(
-      () => _i155.UpdateProfileUseCase(gh<_i364.ProfileRepo>()),
-    );
     gh.factory<_i95.RegisterUseCase>(
       () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
     );
@@ -409,12 +404,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i613.ProductUseCase>(),
       ),
     );
-    gh.lazySingleton<_i15.ProfileViewModel>(
-      () => _i15.ProfileViewModel(
-        gh<_i114.GetProfileUseCase>(),
-        gh<_i155.UpdateProfileUseCase>(),
-      ),
-    );
     gh.factory<_i421.OccasionViewModel>(
       () => _i421.OccasionViewModel(
         gh<_i682.OccasionUseCase>(),
@@ -426,6 +415,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i886.CartUseCase>(
       () => _i886.CartUseCase(gh<_i379.CartRepo>()),
+    );
+    gh.lazySingleton<_i15.ProfileViewModel>(
+      () => _i15.ProfileViewModel(gh<_i114.GetProfileUseCase>()),
     );
     gh.factory<_i188.LoginViewModel>(
       () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),

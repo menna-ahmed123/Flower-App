@@ -196,7 +196,6 @@ abstract class AppString {
   // ==================== Profile & Settings ====================
   static const String profile = 'Profile';
   static const String myProfile = 'My Profile';
-  static const String editProfile = 'Edit Profile';
   static const String savedAddresses = 'Saved Addresses';
   static const String settings = 'Settings';
   static const String language = 'Language';
@@ -214,10 +213,6 @@ abstract class AppString {
   static const String confirmLogoutMessage = 'Confirm logout!!';
   static const String aboutUs = 'About us';
   static const String termsAndConditionsRow = 'Terms & conditions';
-  static const String update = 'Update';
-  static const String profileUpdatedSuccess = 'Profile updated successfully';
-  static const String emailChangedSignInAgain = 'Your email changed; please sign in again.';
-  static const String changePassword = 'Change password';
   static const String changeProfilePicture = 'Change profile picture';
 
   static const String somethingWrong = 'Something went wrong';

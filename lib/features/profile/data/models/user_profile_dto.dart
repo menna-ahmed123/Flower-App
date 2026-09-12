@@ -16,7 +16,6 @@ class UserProfileDto {
   final String? gender;
   final String? profilePictureUrl;
   final List<String> roles;
-  final bool emailChanged;
 
   UserProfileDto({
     required this.userId,
@@ -28,7 +27,6 @@ class UserProfileDto {
     this.gender,
     this.profilePictureUrl,
     required this.roles,
-    required this.emailChanged,
   });
 
   ProfileEntity toDomain() {
@@ -42,7 +40,6 @@ class UserProfileDto {
       gender: GenderParsing.fromApiValue(gender),
       profilePictureUrl: profilePictureUrl,
       roles: roles,
-      emailChanged: emailChanged,
     );
   }
 

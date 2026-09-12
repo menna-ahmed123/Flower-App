@@ -2,7 +2,6 @@ import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
 import 'package:flower_app/features/profile/data/models/profile_response.dart';
-import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/data/models/user_profile_dto.dart';
 import 'package:flower_app/features/profile/data/repo/profile_repo_impl.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
@@ -28,7 +27,6 @@ void main() {
     gender: 'Female',
     profilePictureUrl: '/uploads/avatars/a.jpg',
     roles: const ['Customer'],
-    emailChanged: false,
   );
   final response = ProfileResponse(
     isSuccess: true,
@@ -59,36 +57,6 @@ void main() {
       when(remoteDataSource.getMyProfile()).thenThrow(Exception('network'));
 
       final result = await repo.getMyProfile();
-
-      expect(result, isA<ErrorResponse<ProfileEntity>>());
-    });
-  });
-
-  group('updateMyProfile', () {
-    const request = UpdateProfileRequest(
-      fullName: 'Mariam Ahmed',
-      email: 'mariam@example.com',
-      phoneNumber: '01010000001',
-      gender: 'Female',
-    );
-
-    test('returns SuccessResponse mapped to ProfileEntity', () async {
-      when(
-        remoteDataSource.updateMyProfile(request),
-      ).thenAnswer((_) async => response);
-
-      final result = await repo.updateMyProfile(request);
-
-      expect(result, isA<SuccessResponse<ProfileEntity>>());
-      verify(remoteDataSource.updateMyProfile(request)).called(1);
-    });
-
-    test('returns ErrorResponse when the remote call throws', () async {
-      when(
-        remoteDataSource.updateMyProfile(request),
-      ).thenThrow(Exception('validation failed'));
-
-      final result = await repo.updateMyProfile(request);
 
       expect(result, isA<ErrorResponse<ProfileEntity>>());
     });

@@ -5,11 +5,9 @@ import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/auth/core/domain/repos/auth_repository.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
-import 'package:flower_app/features/profile/domain/use_case/update_profile_use_case.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flower_app/features/profile/presentation/view_model/profile_view_model.dart';
 import 'package:flutter/material.dart';
@@ -32,10 +30,7 @@ void main() {
     authRepository = FakeAuthRepository();
     authCubit = AuthCubit(authRepository);
     final profileRepo = FakeProfileRepo();
-    profileViewModel = ProfileViewModel(
-      GetProfileUseCase(profileRepo),
-      UpdateProfileUseCase(profileRepo),
-    );
+    profileViewModel = ProfileViewModel(GetProfileUseCase(profileRepo));
     router = _testRouter();
   });
 
@@ -200,18 +195,10 @@ class FakeProfileRepo implements ProfileRepo {
     gender: null,
     profilePictureUrl: null,
     roles: ['Customer'],
-    emailChanged: false,
   );
 
   @override
   Future<BaseResponse<ProfileEntity>> getMyProfile() async {
-    return const SuccessResponse(profile);
-  }
-
-  @override
-  Future<BaseResponse<ProfileEntity>> updateMyProfile(
-    UpdateProfileRequest request,
-  ) async {
     return const SuccessResponse(profile);
   }
 }

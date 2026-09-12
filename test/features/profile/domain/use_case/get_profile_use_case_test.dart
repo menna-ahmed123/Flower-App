@@ -1,7 +1,6 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
-import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,7 +16,6 @@ void main() {
     gender: null,
     profilePictureUrl: null,
     roles: ['Customer'],
-    emailChanged: false,
   );
 
   test('delegates to ProfileRepo.getMyProfile and returns its response', () async {
@@ -56,12 +54,5 @@ class _RecordingProfileRepo implements ProfileRepo {
   Future<BaseResponse<ProfileEntity>> getMyProfile() async {
     getMyProfileCallCount++;
     return getResponse;
-  }
-
-  @override
-  Future<BaseResponse<ProfileEntity>> updateMyProfile(
-    UpdateProfileRequest request,
-  ) {
-    throw UnimplementedError('Not exercised by GetProfileUseCase tests.');
   }
 }
