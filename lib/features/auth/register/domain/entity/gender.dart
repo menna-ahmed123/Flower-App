@@ -6,3 +6,14 @@ extension GenderApiValue on Gender {
     Gender.male => 'Male',
   };
 }
+
+
+extension GenderParsing on Gender {
+  static Gender? fromApiValue(String? value) {
+    return switch (value) {
+      'Female' => Gender.female,
+      'Male' => Gender.male,
+      _ => null,
+    };
+  }
+}
