@@ -114,4 +114,24 @@ void main() {
       expect(() => dataSource.removeCartItem(itemId), throwsException);
     });
   });
+
+  group('placeOrder', () {
+    test('forwards the request', () async {
+      when(apiClient.placeOrder()).thenAnswer((_) async {});
+
+      await dataSource.placeOrder();
+
+      verify(apiClient.placeOrder()).called(1);
+    });
+  });
+
+  group('processPayment', () {
+    test('forwards the request', () async {
+      when(apiClient.processPayment()).thenAnswer((_) async {});
+
+      await dataSource.processPayment();
+
+      verify(apiClient.processPayment()).called(1);
+    });
+  });
 }

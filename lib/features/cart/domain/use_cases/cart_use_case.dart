@@ -30,4 +30,8 @@ class CartUseCase {
   Future<BaseResponse<bool>> removeItem({required String itemId}) {
     return cartRepo.removeItem(itemId: itemId);
   }
+
+  Future<BaseResponse<bool>> placeOrder() => cartRepo.placeOrder();
+
+  Future<BaseResponse<bool>> processPayment() => cartRepo.processPayment();
 }

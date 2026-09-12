@@ -8,4 +8,8 @@ abstract interface class CartRemoteDataSource {
   Future<CartResponse> updateCartItem(String itemId, UpdateCartItemRequest request);
 
   Future<void> removeCartItem(String itemId);
+
+  Future<void> placeOrder();
+
+  Future<void> processPayment();
 }
