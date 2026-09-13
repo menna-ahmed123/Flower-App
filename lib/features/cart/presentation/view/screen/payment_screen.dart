@@ -27,8 +27,7 @@ class PaymentScreen extends StatelessWidget {
       body: BlocListener<CheckoutViewModel, CheckoutState>(
         listenWhen: (previous, current) =>
             previous.destination != current.destination ||
-            previous.paymentState.errorMessage !=
-                current.paymentState.errorMessage,
+            previous.paymentState.errorMessage != current.paymentState.errorMessage,
         listener: _onPayment,
         child: Padding(
           padding: EdgeInsets.all(16.w),
@@ -66,20 +65,24 @@ class PaymentBody extends StatelessWidget {
               style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
             ),
             const Spacer(),
-            AppButton(
-              text: AppString.payNow,
-              isLoading: state.paymentState.isLoading,
-              onPressed: state.paymentState.isLoading
-                  ? null
-                  : () {
-                      context.read<CheckoutViewModel>().doEvent(
-                            const ProcessCheckoutPayment(),
-                          );
-                    },
-            ),
+            _payButton(context, state),
           ],
         );
       },
+    );
+  }
+
+  Widget _payButton(BuildContext context, CheckoutState state) {
+    return AppButton(
+      text: AppString.payNow,
+      isLoading: state.paymentState.isLoading,
+      onPressed: state.paymentState.isLoading
+          ? null
+          : () {
+              context.read<CheckoutViewModel>().doEvent(
+                    const ProcessCheckoutPayment(),
+                  );
+            },
     );
   }
 }

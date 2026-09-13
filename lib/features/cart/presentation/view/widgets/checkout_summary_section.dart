@@ -17,22 +17,24 @@ class CheckoutSummarySection extends StatelessWidget {
     return BlocBuilder<CheckoutViewModel, CheckoutState>(
       buildWhen: (previous, current) =>
           previous.previewState != current.previewState,
-      builder: (context, state) {
-        final preview = state.previewState;
-        if (preview.isLoading && preview.data == null) {
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 24.h),
-            child: const Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (preview.errorMessage.isNotEmpty && preview.data == null) {
-          return CheckoutPreviewError(message: preview.errorMessage);
-        }
-        return CheckoutSummaryRows(
-          cart: preview.data ?? const CartEntity.empty(),
-          loading: preview.isLoading,
-        );
-      },
+      builder: (context, state) => _content(context, state),
+    );
+  }
+
+  Widget _content(BuildContext context, CheckoutState state) {
+    final preview = state.previewState;
+    if (preview.isLoading && preview.data == null) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 24.h),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (preview.errorMessage.isNotEmpty && preview.data == null) {
+      return CheckoutPreviewError(message: preview.errorMessage);
+    }
+    return CheckoutSummaryRows(
+      cart: preview.data ?? const CartEntity.empty(),
+      loading: preview.isLoading,
     );
   }
 }
@@ -48,23 +50,29 @@ class CheckoutPreviewError extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Column(
         children: [
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-              color: context.colors.grey.shade800,
-            ),
-          ),
+          _message(context),
           SizedBox(height: 16.h),
           AppButton(
             text: AppString.retry,
             onPressed: () {
-              context.read<CheckoutViewModel>().doEvent(const LoadCheckoutPreview());
+              context.read<CheckoutViewModel>().doEvent(
+                    const LoadCheckoutPreview(),
+                  );
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _message(BuildContext context) {
+    return Text(
+      message,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w500,
+        color: context.colors.grey.shade800,
       ),
     );
   }
@@ -82,45 +90,43 @@ class CheckoutSummaryRows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 8.h),
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: colors.grey.shade600.withValues(alpha: 0.35)),
-        boxShadow: [
-          BoxShadow(
-            color: colors.black.withValues(alpha: 0.04),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
+      decoration: _decoration(context.colors),
+      child: _amounts(context),
+    );
+  }
+
+  Widget _amounts(BuildContext context) {
+    final colors = context.colors;
+    return Column(
+      children: [
+        if (loading)
+          Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: const LinearProgressIndicator(),
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          if (loading)
-            Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
-              child: const LinearProgressIndicator(),
-            ),
-          CheckoutAmountRow(label: AppString.subtotal, value: cart.subtotal),
-          CheckoutAmountRow(
-            label: AppString.deliveryFee,
-            value: cart.deliveryFee,
-          ),
-          Divider(
-            height: 16.h,
-            color: colors.grey.shade600.withValues(alpha: 0.35),
-          ),
-          CheckoutAmountRow(
-            label: AppString.total,
-            value: cart.total,
-            bold: true,
-          ),
-        ],
-      ),
+        CheckoutAmountRow(label: AppString.subtotal, value: cart.subtotal),
+        CheckoutAmountRow(label: AppString.deliveryFee, value: cart.deliveryFee),
+        Divider(height: 16.h, color: colors.grey.shade600.withValues(alpha: 0.35)),
+        CheckoutAmountRow(label: AppString.total, value: cart.total, bold: true),
+      ],
+    );
+  }
+
+  BoxDecoration _decoration(AppColors colors) {
+    return BoxDecoration(
+      color: colors.white,
+      borderRadius: BorderRadius.circular(12.r),
+      border: Border.all(color: colors.grey.shade600.withValues(alpha: 0.35)),
+      boxShadow: [
+        BoxShadow(
+          color: colors.black.withValues(alpha: 0.04),
+          blurRadius: 8.r,
+          offset: Offset(0, 2.h),
+        ),
+      ],
     );
   }
 }
@@ -139,25 +145,34 @@ class CheckoutAmountRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final valueStyle = TextStyle(
-      fontSize: bold ? 16.sp : 14.sp,
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-      color: context.colors.black,
-    );
-    final labelStyle = TextStyle(
-      fontSize: bold ? 16.sp : 13.sp,
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-      color: bold ? context.colors.black : context.colors.grey.shade800,
-    );
     return Padding(
       padding: EdgeInsets.only(bottom: bold ? 4.h : 8.h),
       child: Row(
         children: [
-          Text(label, style: labelStyle),
+          Text(label, style: _labelStyle(context)),
           const Spacer(),
-          Text('${AppString.egp} ${value.toStringAsFixed(2)}', style: valueStyle),
+          Text(
+            '${AppString.egp} ${value.toStringAsFixed(2)}',
+            style: _valueStyle(context),
+          ),
         ],
       ),
+    );
+  }
+
+  TextStyle _labelStyle(BuildContext context) {
+    return TextStyle(
+      fontSize: bold ? 16.sp : 13.sp,
+      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+      color: bold ? context.colors.black : context.colors.grey.shade800,
+    );
+  }
+
+  TextStyle _valueStyle(BuildContext context) {
+    return TextStyle(
+      fontSize: bold ? 16.sp : 14.sp,
+      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+      color: context.colors.black,
     );
   }
 }

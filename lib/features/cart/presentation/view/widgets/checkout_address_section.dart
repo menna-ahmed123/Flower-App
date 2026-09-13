@@ -53,22 +53,26 @@ class CheckoutAddressList extends StatelessWidget {
           );
         }
         final addresses = addressState.defaultAddressesState.data ?? [];
-        return BlocBuilder<CheckoutViewModel, CheckoutState>(
-          buildWhen: (previous, current) =>
-              previous.selectedAddress != current.selectedAddress,
-          builder: (context, checkout) {
-            return Column(
-              children: [
-                for (final address in addresses) ...[
-                  CheckoutAddressTile(
-                    address: address,
-                    selected: address.id == checkout.selectedAddress?.id,
-                  ),
-                  SizedBox(height: 10.h),
-                ],
-              ],
-            );
-          },
+        return _tiles(addresses);
+      },
+    );
+  }
+
+  Widget _tiles(List<AddressEntity> addresses) {
+    return BlocBuilder<CheckoutViewModel, CheckoutState>(
+      buildWhen: (previous, current) =>
+          previous.selectedAddress != current.selectedAddress,
+      builder: (context, checkout) {
+        return Column(
+          children: [
+            for (final address in addresses) ...[
+              CheckoutAddressTile(
+                address: address,
+                selected: address.id == checkout.selectedAddress?.id,
+              ),
+              SizedBox(height: 10.h),
+            ],
+          ],
         );
       },
     );
@@ -97,36 +101,45 @@ class CheckoutAddressTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(12.r),
       child: Container(
         padding: EdgeInsets.fromLTRB(12.w, 12.h, 8.w, 12.h),
-        decoration: BoxDecoration(
-          color: colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: selected ? colors.pink : colors.grey.shade600.withValues(alpha: 0.35),
-            width: selected ? 1.5 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: colors.black.withValues(alpha: selected ? 0.06 : 0.03),
-              blurRadius: 8.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(
-              selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: selected ? colors.pink : colors.grey.shade800,
-            ),
-            SizedBox(width: 12.w),
-            Expanded(child: CheckoutAddressLabels(address: address)),
-            IconButton(
-              onPressed: () => _edit(context),
-              icon: Icon(AppIcons.edit, color: colors.grey.shade800),
-            ),
-          ],
-        ),
+        decoration: _decoration(colors),
+        child: _row(context),
       ),
+    );
+  }
+
+  Widget _row(BuildContext context) {
+    final colors = context.colors;
+    return Row(
+      children: [
+        Icon(
+          selected ? Icons.radio_button_checked : Icons.radio_button_off,
+          color: selected ? colors.pink : colors.grey.shade800,
+        ),
+        SizedBox(width: 12.w),
+        Expanded(child: CheckoutAddressLabels(address: address)),
+        IconButton(
+          onPressed: () => _edit(context),
+          icon: Icon(AppIcons.edit, color: colors.grey.shade800),
+        ),
+      ],
+    );
+  }
+
+  BoxDecoration _decoration(AppColors colors) {
+    return BoxDecoration(
+      color: colors.white,
+      borderRadius: BorderRadius.circular(12.r),
+      border: Border.all(
+        color: selected ? colors.pink : colors.grey.shade600.withValues(alpha: 0.35),
+        width: selected ? 1.5 : 1,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: colors.black.withValues(alpha: selected ? 0.06 : 0.03),
+          blurRadius: 8.r,
+          offset: Offset(0, 2.h),
+        ),
+      ],
     );
   }
 
@@ -147,30 +160,40 @@ class CheckoutAddressLabels extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          address.label ??
-              address.recipientName ??
-              address.city ??
-              AppString.address,
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
-            color: context.colors.black,
-          ),
-        ),
+        Text(_title, style: _titleStyle(context)),
         SizedBox(height: 4.h),
-        Text(
-          [
-            address.address,
-            address.area,
-          ].where((value) => (value ?? '').trim().isNotEmpty).join(' - '),
-          style: TextStyle(
-            fontSize: 13.sp,
-            height: 1.35,
-            color: context.colors.grey.shade800,
-          ),
-        ),
+        Text(_subtitle, style: _subtitleStyle(context)),
       ],
+    );
+  }
+
+  String get _title {
+    return address.label ??
+        address.recipientName ??
+        address.city ??
+        AppString.address;
+  }
+
+  String get _subtitle {
+    return [
+      address.address,
+      address.area,
+    ].where((value) => (value ?? '').trim().isNotEmpty).join(' - ');
+  }
+
+  TextStyle _titleStyle(BuildContext context) {
+    return TextStyle(
+      fontSize: 15.sp,
+      fontWeight: FontWeight.w600,
+      color: context.colors.black,
+    );
+  }
+
+  TextStyle _subtitleStyle(BuildContext context) {
+    return TextStyle(
+      fontSize: 13.sp,
+      height: 1.35,
+      color: context.colors.grey.shade800,
     );
   }
 }
@@ -185,20 +208,28 @@ class CheckoutAddAddressButton extends StatelessWidget {
       child: OutlinedButton.icon(
         onPressed: () => _add(context),
         icon: Icon(AppIcons.plus, color: context.colors.pink),
-        label: Text(
-          AppString.addNew,
-          style: TextStyle(
-            color: context.colors.pink,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        style: OutlinedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 12.h),
-          side: BorderSide(color: context.colors.pink),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r),
-          ),
-        ),
+        label: _label(context),
+        style: _style(context),
+      ),
+    );
+  }
+
+  Widget _label(BuildContext context) {
+    return Text(
+      AppString.addNew,
+      style: TextStyle(
+        color: context.colors.pink,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  ButtonStyle _style(BuildContext context) {
+    return OutlinedButton.styleFrom(
+      padding: EdgeInsets.symmetric(vertical: 12.h),
+      side: BorderSide(color: context.colors.pink),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24.r),
       ),
     );
   }

@@ -43,14 +43,7 @@ class CartBody extends StatelessWidget {
 
   Widget _body(BuildContext context, CartState state) {
     final request = state.cartState;
-    if (request.isLoading && request.data == null) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+    if (request.isLoading && request.data == null) return const CartLoading();
     if (request.errorMessage.isNotEmpty && request.data == null) {
       return CartErrorState(message: request.errorMessage);
     }
@@ -91,30 +84,46 @@ class CartItemsList extends StatelessWidget {
   }
 }
 
+class CartLoading extends StatelessWidget {
+  const CartLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
 class CartEmptyState extends StatelessWidget {
   const CartEmptyState({super.key});
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () {
-        return context.read<CartViewModel>().doEvent(const LoadCart());
-      },
+      onRefresh: () => context.read<CartViewModel>().doEvent(const LoadCart()),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: 32.w),
         children: [
           SizedBox(height: 160.h),
-          Center(
-            child: Icon(
-              AppIcons.shoppingCart,
-              color: context.colors.grey.shade600,
-              size: 64,
-            ),
-          ),
+          _icon(context),
           SizedBox(height: 16.h),
           _message(context),
         ],
+      ),
+    );
+  }
+
+  Widget _icon(BuildContext context) {
+    return Center(
+      child: Icon(
+        AppIcons.shoppingCart,
+        color: context.colors.grey.shade600,
+        size: 64,
       ),
     );
   }
@@ -147,19 +156,23 @@ class CartErrorState extends StatelessWidget {
           children: [
             Icon(Icons.error_outline, color: context.colors.error, size: 64),
             SizedBox(height: 16.h),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-                color: context.colors.grey.shade800,
-              ),
-            ),
+            _text(context),
             SizedBox(height: 24.h),
             _retry(context),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _text(BuildContext context) {
+    return Text(
+      message,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w500,
+        color: context.colors.grey.shade800,
       ),
     );
   }

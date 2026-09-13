@@ -15,29 +15,32 @@ class CheckoutPaymentSection extends StatelessWidget {
     return BlocBuilder<CheckoutViewModel, CheckoutState>(
       buildWhen: (previous, current) =>
           previous.paymentMethod != current.paymentMethod,
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppString.paymentMethod,
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-                color: context.colors.black,
-              ),
-            ),
-            SizedBox(height: 14.h),
-            for (final method in CheckoutPaymentMethods.all) ...[
-              CheckoutPaymentOption(
-                method: method,
-                selected: state.paymentMethod == method,
-              ),
-              SizedBox(height: 10.h),
-            ],
-          ],
-        );
-      },
+      builder: (context, state) => _options(context, state.paymentMethod),
+    );
+  }
+
+  Widget _options(BuildContext context, String? selected) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _title(context),
+        SizedBox(height: 14.h),
+        for (final method in CheckoutPaymentMethods.all) ...[
+          CheckoutPaymentOption(method: method, selected: selected == method),
+          SizedBox(height: 10.h),
+        ],
+      ],
+    );
+  }
+
+  Widget _title(BuildContext context) {
+    return Text(
+      AppString.paymentMethod,
+      style: TextStyle(
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w700,
+        color: context.colors.black,
+      ),
     );
   }
 }
@@ -64,40 +67,48 @@ class CheckoutPaymentOption extends StatelessWidget {
       borderRadius: BorderRadius.circular(12.r),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        decoration: BoxDecoration(
-          color: colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: selected ? colors.pink : colors.grey.shade600.withValues(alpha: 0.35),
-            width: selected ? 1.5 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: colors.black.withValues(alpha: selected ? 0.06 : 0.03),
-              blurRadius: 8.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                method,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                  color: colors.black,
-                ),
-              ),
-            ),
-            Icon(
-              selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: selected ? colors.pink : colors.grey.shade800,
-            ),
-          ],
-        ),
+        decoration: _decoration(colors),
+        child: _label(colors),
       ),
+    );
+  }
+
+  Widget _label(AppColors colors) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            method,
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+              color: colors.black,
+            ),
+          ),
+        ),
+        Icon(
+          selected ? Icons.radio_button_checked : Icons.radio_button_off,
+          color: selected ? colors.pink : colors.grey.shade800,
+        ),
+      ],
+    );
+  }
+
+  BoxDecoration _decoration(AppColors colors) {
+    return BoxDecoration(
+      color: colors.white,
+      borderRadius: BorderRadius.circular(12.r),
+      border: Border.all(
+        color: selected ? colors.pink : colors.grey.shade600.withValues(alpha: 0.35),
+        width: selected ? 1.5 : 1,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: colors.black.withValues(alpha: selected ? 0.06 : 0.03),
+          blurRadius: 8.r,
+          offset: Offset(0, 2.h),
+        ),
+      ],
     );
   }
 }

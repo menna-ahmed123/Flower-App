@@ -13,10 +13,10 @@ class CheckoutGiftSection extends StatefulWidget {
   const CheckoutGiftSection({super.key});
 
   @override
-  State<CheckoutGiftSection> createState() => _CheckoutGiftSectionState();
+  State<CheckoutGiftSection> createState() => CheckoutGiftSectionState();
 }
 
-class _CheckoutGiftSectionState extends State<CheckoutGiftSection> {
+class CheckoutGiftSectionState extends State<CheckoutGiftSection> {
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
 
@@ -92,17 +92,19 @@ class CheckoutGiftToggle extends StatelessWidget {
           },
         ),
         SizedBox(width: 10.w),
-        Expanded(
-          child: Text(
-            AppString.thisIsAGift,
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w700,
-              color: context.colors.black,
-            ),
-          ),
-        ),
+        Expanded(child: _label(context)),
       ],
+    );
+  }
+
+  Widget _label(BuildContext context) {
+    return Text(
+      AppString.thisIsAGift,
+      style: TextStyle(
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w700,
+        color: context.colors.black,
+      ),
     );
   }
 }
@@ -128,22 +130,30 @@ class CheckoutGiftFields extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(height: 14.h),
-          LocationTextfield(
-            controller: nameController,
-            labelText: AppString.name,
-            hintText: AppString.enterTheName,
-            validator: AppValidators.validateRecipientName,
-          ),
+          _nameField(),
           SizedBox(height: 14.h),
-          LocationTextfield(
-            controller: phoneController,
-            labelText: AppString.phoneNumber,
-            hintText: AppString.enterPhoneNumber,
-            keyboardType: TextInputType.phone,
-            validator: AppValidators.phoneValidator,
-          ),
+          _phoneField(),
         ],
       ),
+    );
+  }
+
+  Widget _nameField() {
+    return LocationTextfield(
+      controller: nameController,
+      labelText: AppString.name,
+      hintText: AppString.enterTheName,
+      validator: AppValidators.validateRecipientName,
+    );
+  }
+
+  Widget _phoneField() {
+    return LocationTextfield(
+      controller: phoneController,
+      labelText: AppString.phoneNumber,
+      hintText: AppString.enterPhoneNumber,
+      keyboardType: TextInputType.phone,
+      validator: AppValidators.phoneValidator,
     );
   }
 }

@@ -23,6 +23,21 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
       case SelectCheckoutAddress():
         await _selectAddress(event.address);
       case ToggleCheckoutGift():
+      case UpdateGiftRecipient():
+      case SelectCheckoutPayment():
+        _applyFormEvent(event);
+      case SubmitPlaceOrder():
+        await _placeOrder();
+      case ProcessCheckoutPayment():
+        await _processPayment();
+      case ClearCheckoutNavigation():
+        emit(state.copyWith(clearDestination: true));
+    }
+  }
+
+  void _applyFormEvent(CheckoutEvent event) {
+    switch (event) {
+      case ToggleCheckoutGift():
         emit(state.copyWith(isGift: event.enabled));
       case UpdateGiftRecipient():
         emit(state.copyWith(
@@ -31,12 +46,8 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
         ));
       case SelectCheckoutPayment():
         emit(state.copyWith(paymentMethod: event.method));
-      case SubmitPlaceOrder():
-        await _placeOrder();
-      case ProcessCheckoutPayment():
-        await _processPayment();
-      case ClearCheckoutNavigation():
-        emit(state.copyWith(clearDestination: true));
+      default:
+        break;
     }
   }
 

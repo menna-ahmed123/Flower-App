@@ -19,21 +19,7 @@ class CartFooter extends StatelessWidget {
       color: colors.white,
       elevation: 0,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.white,
-          border: Border(
-            top: BorderSide(
-              color: colors.grey.shade600.withValues(alpha: 0.35),
-            ),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: colors.black.withValues(alpha: 0.06),
-              blurRadius: 8.r,
-              offset: Offset(0, -2.h),
-            ),
-          ],
-        ),
+        decoration: _decoration(colors),
         child: SafeArea(
           top: false,
           child: Padding(
@@ -42,6 +28,22 @@ class CartFooter extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  BoxDecoration _decoration(AppColors colors) {
+    return BoxDecoration(
+      color: colors.white,
+      border: Border(
+        top: BorderSide(color: colors.grey.shade600.withValues(alpha: 0.35)),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: colors.black.withValues(alpha: 0.06),
+          blurRadius: 8.r,
+          offset: Offset(0, -2.h),
+        ),
+      ],
     );
   }
 
@@ -69,25 +71,34 @@ class CartFooter extends StatelessWidget {
     double value, {
     bool bold = false,
   }) {
-    final style = TextStyle(
-      fontSize: bold ? 16.sp : 14.sp,
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-      color: context.colors.black,
-    );
-    final labelStyle = TextStyle(
-      fontSize: bold ? 16.sp : 13.sp,
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-      color: bold ? context.colors.black : context.colors.grey.shade800,
-    );
     return Padding(
       padding: EdgeInsets.only(bottom: bold ? 0 : 6.h),
       child: Row(
         children: [
-          Text(label, style: labelStyle),
+          Text(label, style: _labelStyle(context, bold)),
           const Spacer(),
-          Text('${AppString.egp} ${value.toStringAsFixed(2)}', style: style),
+          Text(
+            '${AppString.egp} ${value.toStringAsFixed(2)}',
+            style: _valueStyle(context, bold),
+          ),
         ],
       ),
+    );
+  }
+
+  TextStyle _labelStyle(BuildContext context, bool bold) {
+    return TextStyle(
+      fontSize: bold ? 16.sp : 13.sp,
+      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+      color: bold ? context.colors.black : context.colors.grey.shade800,
+    );
+  }
+
+  TextStyle _valueStyle(BuildContext context, bool bold) {
+    return TextStyle(
+      fontSize: bold ? 16.sp : 14.sp,
+      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+      color: context.colors.black,
     );
   }
 }

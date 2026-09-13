@@ -12,127 +12,178 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../cart_test_support.dart';
 
 void main() {
-  const address = AddressEntity(id: 'address-1', city: 'Cairo');
-  const preview = CartEntity(
-    id: 'cart-1',
-    items: [],
-    subtotal: 100,
-    deliveryFee: 0,
-    total: 100,
-    itemCount: 1,
-  );
+  _previewTests();
+  _giftTests();
+  _submitGuardTests();
+  _placeOrderTests();
+  _paymentTests();
+}
 
+const _address = AddressEntity(id: 'address-1', city: 'Cairo');
+const _preview = CartEntity(
+  id: 'cart-1',
+  items: [],
+  subtotal: 100,
+  deliveryFee: 0,
+  total: 100,
+  itemCount: 1,
+);
+
+class CheckoutCase {
   late FakeCartRepo cartRepo;
   late CheckoutViewModel viewModel;
 
-  setUp(() {
-    cartRepo = FakeCartRepo(getCartResponse: const SuccessResponse(preview));
+  void setUp() {
+    cartRepo = FakeCartRepo(getCartResponse: const SuccessResponse(_preview));
     viewModel = CheckoutViewModel(CartUseCase(cartRepo));
-  });
+  }
 
-  tearDown(() async {
-    await viewModel.close();
-  });
+  Future<void> tearDown() => viewModel.close();
 
   Future<void> readyToSubmit() async {
-    await viewModel.doEvent(const SelectCheckoutAddress(address));
+    await viewModel.doEvent(const SelectCheckoutAddress(_address));
     await viewModel.doEvent(
       const SelectCheckoutPayment(CheckoutPaymentMethods.cashOnDelivery),
     );
   }
+}
 
-  test('loads checkout preview from cart', () async {
-    await viewModel.doEvent(const LoadCheckoutPreview());
-
-    expect(cartRepo.getCartCalls, 1);
-    expect(viewModel.state.previewState.data?.total, 100);
+void _previewTests() {
+  group('preview', () {
+    final c = CheckoutCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    test('loads checkout preview from cart', () => _loadsPreview(c));
+    test('selecting an address refreshes the preview once', () {
+      return _selectsAddressOnce(c);
+    });
   });
+}
 
-  test('selecting an address refreshes the preview once', () async {
-    await viewModel.doEvent(const SelectCheckoutAddress(address));
-    await viewModel.doEvent(const SelectCheckoutAddress(address));
+Future<void> _loadsPreview(CheckoutCase c) async {
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  expect(c.cartRepo.getCartCalls, 1);
+  expect(c.viewModel.state.previewState.data?.total, 100);
+}
 
-    expect(viewModel.state.selectedAddress, address);
-    expect(cartRepo.getCartCalls, 1);
+Future<void> _selectsAddressOnce(CheckoutCase c) async {
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  expect(c.viewModel.state.selectedAddress, _address);
+  expect(c.cartRepo.getCartCalls, 1);
+}
+
+void _giftTests() {
+  group('gift', () {
+    final c = CheckoutCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    test('toggling gift keeps recipient values', () => _keepsRecipient(c));
   });
+}
 
-  test('toggling gift keeps recipient values', () async {
-    await viewModel.doEvent(
-      const UpdateGiftRecipient(name: 'Mona', phone: '01001112222'),
-    );
-    await viewModel.doEvent(const ToggleCheckoutGift(true));
-    await viewModel.doEvent(const ToggleCheckoutGift(false));
+Future<void> _keepsRecipient(CheckoutCase c) async {
+  await c.viewModel.doEvent(
+    const UpdateGiftRecipient(name: 'Mona', phone: '01001112222'),
+  );
+  await c.viewModel.doEvent(const ToggleCheckoutGift(true));
+  await c.viewModel.doEvent(const ToggleCheckoutGift(false));
+  expect(c.viewModel.state.recipientName, 'Mona');
+  expect(c.viewModel.state.recipientPhone, '01001112222');
+  expect(c.viewModel.state.isGift, isFalse);
+}
 
-    expect(viewModel.state.recipientName, 'Mona');
-    expect(viewModel.state.recipientPhone, '01001112222');
-    expect(viewModel.state.isGift, isFalse);
+void _submitGuardTests() {
+  group('submit guards', () {
+    final c = CheckoutCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    test('blocks place order without address or payment', () => _blocksEmpty(c));
+    test('blocks place order when gift recipient is invalid', () {
+      return _blocksInvalidGift(c);
+    });
   });
+}
 
-  test('blocks place order without address or payment', () async {
-    await viewModel.doEvent(const SubmitPlaceOrder());
+Future<void> _blocksEmpty(CheckoutCase c) async {
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
+  expect(c.cartRepo.placeOrderCalls, 0);
+  expect(c.viewModel.state.showValidation, isTrue);
+}
 
-    expect(cartRepo.placeOrderCalls, 0);
-    expect(viewModel.state.showValidation, isTrue);
+Future<void> _blocksInvalidGift(CheckoutCase c) async {
+  await c.readyToSubmit();
+  await c.viewModel.doEvent(const ToggleCheckoutGift(true));
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
+  expect(c.cartRepo.placeOrderCalls, 0);
+  expect(c.viewModel.state.showValidation, isTrue);
+}
+
+void _placeOrderTests() {
+  group('place order', () {
+    final c = CheckoutCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    test('places order without a request body and goes to confirmation', () {
+      return _placesCashOrder(c);
+    });
+    test('credit card place order goes to payment', () => _placesCardOrder(c));
+    test('failed place order keeps form state', () => _keepsFormOnFailure(c));
+    test('prevents duplicate place order while submitting', () {
+      return _preventsDuplicateSubmit(c);
+    });
   });
+}
 
-  test('blocks place order when gift recipient is invalid', () async {
-    await readyToSubmit();
-    await viewModel.doEvent(const ToggleCheckoutGift(true));
-    await viewModel.doEvent(const SubmitPlaceOrder());
+Future<void> _placesCashOrder(CheckoutCase c) async {
+  await c.readyToSubmit();
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
+  expect(c.cartRepo.placeOrderCalls, 1);
+  expect(c.viewModel.state.destination, CheckoutDestination.confirmation);
+}
 
-    expect(cartRepo.placeOrderCalls, 0);
-    expect(viewModel.state.showValidation, isTrue);
+Future<void> _placesCardOrder(CheckoutCase c) async {
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  await c.viewModel.doEvent(
+    const SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
+  );
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
+  expect(c.viewModel.state.destination, CheckoutDestination.payment);
+}
+
+Future<void> _keepsFormOnFailure(CheckoutCase c) async {
+  c.cartRepo.placeOrderResponse = ErrorResponse(
+    appError: BadResponseError(AppString.orderFailed),
+  );
+  await c.readyToSubmit();
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
+  expect(c.viewModel.state.selectedAddress, _address);
+  expect(c.viewModel.state.paymentMethod, CheckoutPaymentMethods.cashOnDelivery);
+  expect(c.viewModel.state.destination, isNull);
+  expect(c.viewModel.state.submitState.errorMessage, AppString.orderFailed);
+}
+
+Future<void> _preventsDuplicateSubmit(CheckoutCase c) async {
+  c.cartRepo.placeOrderDelay = const Duration(milliseconds: 20);
+  await c.readyToSubmit();
+  final first = c.viewModel.doEvent(const SubmitPlaceOrder());
+  await Future<void>.delayed(Duration.zero);
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
+  await first;
+  expect(c.cartRepo.placeOrderCalls, 1);
+}
+
+void _paymentTests() {
+  group('payment', () {
+    final c = CheckoutCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    test('payment success navigates to confirmation', () => _paysSuccessfully(c));
   });
+}
 
-  test('places order without a request body and goes to confirmation', () async {
-    await readyToSubmit();
-    await viewModel.doEvent(const SubmitPlaceOrder());
-
-    expect(cartRepo.placeOrderCalls, 1);
-    expect(viewModel.state.destination, CheckoutDestination.confirmation);
-  });
-
-  test('credit card place order goes to payment', () async {
-    await viewModel.doEvent(const SelectCheckoutAddress(address));
-    await viewModel.doEvent(
-      const SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
-    );
-    await viewModel.doEvent(const SubmitPlaceOrder());
-
-    expect(viewModel.state.destination, CheckoutDestination.payment);
-  });
-
-  test('failed place order keeps form state', () async {
-    cartRepo.placeOrderResponse = ErrorResponse(
-      appError: BadResponseError(AppString.orderFailed),
-    );
-    await readyToSubmit();
-    await viewModel.doEvent(const SubmitPlaceOrder());
-
-    expect(viewModel.state.selectedAddress, address);
-    expect(
-      viewModel.state.paymentMethod,
-      CheckoutPaymentMethods.cashOnDelivery,
-    );
-    expect(viewModel.state.destination, isNull);
-    expect(viewModel.state.submitState.errorMessage, AppString.orderFailed);
-  });
-
-  test('prevents duplicate place order while submitting', () async {
-    cartRepo.placeOrderDelay = const Duration(milliseconds: 20);
-    await readyToSubmit();
-    final first = viewModel.doEvent(const SubmitPlaceOrder());
-    await Future<void>.delayed(Duration.zero);
-    await viewModel.doEvent(const SubmitPlaceOrder());
-    await first;
-
-    expect(cartRepo.placeOrderCalls, 1);
-  });
-
-  test('payment success navigates to confirmation', () async {
-    await viewModel.doEvent(const ProcessCheckoutPayment());
-
-    expect(cartRepo.paymentCalls, 1);
-    expect(viewModel.state.destination, CheckoutDestination.confirmation);
-  });
+Future<void> _paysSuccessfully(CheckoutCase c) async {
+  await c.viewModel.doEvent(const ProcessCheckoutPayment());
+  expect(c.cartRepo.paymentCalls, 1);
+  expect(c.viewModel.state.destination, CheckoutDestination.confirmation);
 }

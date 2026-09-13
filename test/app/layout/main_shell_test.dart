@@ -17,96 +17,138 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  _showsBarTest();
+  _hidesBarTest();
+  _categoryTabTest();
+  _cartTabTest();
+  _profileTabTest();
+  _guestCartTest();
+}
+
+class MainShellCase {
   late FakeAuthRepository authRepository;
   late AuthCubit authCubit;
   late CartViewModel cartViewModel;
   late GoRouter router;
 
-  setUp(() {
+  void setUp() {
     authRepository = FakeAuthRepository();
     authCubit = AuthCubit(authRepository);
     cartViewModel = CartViewModel(CartUseCase(EmptyCartRepo()));
     router = _testRouter();
-  });
+  }
 
-  tearDown(() async {
+  Future<void> tearDown() async {
     await authCubit.close();
     await cartViewModel.close();
     router.dispose();
+  }
+}
+
+void _showsBarTest() {
+  group('shows bar', () {
+    final c = MainShellCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    testWidgets('shows bottom bar on Home, Category, Cart, and Profile', (
+      tester,
+    ) async {
+      await _pumpShell(tester, c);
+      await _expectBarVisible(tester, c.router, '/home');
+      await _expectBarVisible(tester, c.router, '/category');
+      await _expectBarVisible(tester, c.router, '/cart');
+      await _expectBarVisible(tester, c.router, '/profile');
+    });
   });
+}
 
-  testWidgets('shows bottom bar on Home, Category, Cart, and Profile', (
-    tester,
-  ) async {
-    await _pumpShell(tester, router, authCubit, cartViewModel);
-
-    await _expectBarVisible(tester, router, '/home');
-    await _expectBarVisible(tester, router, '/category');
-    await _expectBarVisible(tester, router, '/cart');
-    await _expectBarVisible(tester, router, '/profile');
+void _hidesBarTest() {
+  group('hides bar', () {
+    final c = MainShellCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    testWidgets(
+      'hides bottom bar on product details and other secondary routes',
+      (tester) async {
+        await _pumpShell(tester, c);
+        await _expectBarHidden(tester, c.router, '/product-details/abc');
+        await _expectBarHidden(tester, c.router, '/best_seller');
+        await _expectBarHidden(tester, c.router, '/occasion');
+      },
+    );
   });
+}
 
-  testWidgets('hides bottom bar on product details and other secondary routes', (
-    tester,
-  ) async {
-    await _pumpShell(tester, router, authCubit, cartViewModel);
-
-    await _expectBarHidden(tester, router, '/product-details/abc');
-    await _expectBarHidden(tester, router, '/best_seller');
-    await _expectBarHidden(tester, router, '/occasion');
-  });
-
-  testWidgets('opens category when the categories tab is selected', (
-    tester,
-  ) async {
-    await _pumpShell(tester, router, authCubit, cartViewModel);
-
-    await tester.tap(find.text(AppString.categories));
-    await tester.pumpAndSettle();
-
-    expect(_path(router), '/category');
-    expect(_selectedIndex(tester), 1);
-  });
-
-  testWidgets('opens cart when an authenticated user selects the cart tab', (
-    tester,
-  ) async {
-    await _signIn(authCubit);
-    await _pumpShell(tester, router, authCubit, cartViewModel);
-
-    await tester.tap(find.text(AppString.cart));
-    await tester.pumpAndSettle();
-
-    expect(_path(router), '/cart');
-    expect(_selectedIndex(tester), 2);
-  });
-
-  testWidgets(
-    'opens profile when an authenticated user selects the profile tab',
-    (tester) async {
-      await _signIn(authCubit);
-      await _pumpShell(tester, router, authCubit, cartViewModel);
-
-      await tester.tap(find.text(AppString.profile));
+void _categoryTabTest() {
+  group('category tab', () {
+    final c = MainShellCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    testWidgets('opens category when the categories tab is selected', (
+      tester,
+    ) async {
+      await _pumpShell(tester, c);
+      await tester.tap(find.text(AppString.categories));
       await tester.pumpAndSettle();
+      expect(_path(c.router), '/category');
+      expect(_selectedIndex(tester), 1);
+    });
+  });
+}
 
-      expect(_path(router), '/profile');
-      expect(_selectedIndex(tester), 3);
-    },
-  );
+void _cartTabTest() {
+  group('cart tab', () {
+    final c = MainShellCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    testWidgets('opens cart when an authenticated user selects the cart tab', (
+      tester,
+    ) async {
+      await _signIn(c.authCubit);
+      await _pumpShell(tester, c);
+      await tester.tap(find.text(AppString.cart));
+      await tester.pumpAndSettle();
+      expect(_path(c.router), '/cart');
+      expect(_selectedIndex(tester), 2);
+    });
+  });
+}
 
-  testWidgets('does not open cart when a guest selects the cart tab', (
-    tester,
-  ) async {
-    await _pumpShell(tester, router, authCubit, cartViewModel);
+void _profileTabTest() {
+  group('profile tab', () {
+    final c = MainShellCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    testWidgets(
+      'opens profile when an authenticated user selects the profile tab',
+      (tester) async {
+        await _signIn(c.authCubit);
+        await _pumpShell(tester, c);
+        await tester.tap(find.text(AppString.profile));
+        await tester.pumpAndSettle();
+        expect(_path(c.router), '/profile');
+        expect(_selectedIndex(tester), 3);
+      },
+    );
+  });
+}
 
-    await tester.tap(find.text(AppString.cart));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    expect(_path(router), '/home');
-    expect(_selectedIndex(tester), 0);
-    expect(find.text(AppString.loginToContinue), findsOneWidget);
+void _guestCartTest() {
+  group('guest cart', () {
+    final c = MainShellCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    testWidgets('does not open cart when a guest selects the cart tab', (
+      tester,
+    ) async {
+      await _pumpShell(tester, c);
+      await tester.tap(find.text(AppString.cart));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(_path(c.router), '/home');
+      expect(_selectedIndex(tester), 0);
+      expect(find.text(AppString.loginToContinue), findsOneWidget);
+    });
   });
 }
 
@@ -120,31 +162,28 @@ int _selectedIndex(WidgetTester tester) {
   return tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
 }
 
-Future<void> _pumpShell(
-  WidgetTester tester,
-  GoRouter router,
-  AuthCubit authCubit,
-  CartViewModel cartViewModel,
-) async {
+Future<void> _pumpShell(WidgetTester tester, MainShellCase c) async {
   tester.view.physicalSize = const Size(375, 812);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    ScreenUtilInit(
-      designSize: const Size(375, 812),
-      builder: (_, _) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: authCubit),
-          BlocProvider.value(value: cartViewModel),
-        ],
-        child: MaterialApp.router(
-          theme: AppTheme(lightThemeColors).themeData,
-          routerConfig: router,
-        ),
+  await tester.pumpWidget(_shellApp(c));
+  await tester.pumpAndSettle();
+}
+
+Widget _shellApp(MainShellCase c) {
+  return ScreenUtilInit(
+    designSize: const Size(375, 812),
+    builder: (_, _) => MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: c.authCubit),
+        BlocProvider.value(value: c.cartViewModel),
+      ],
+      child: MaterialApp.router(
+        theme: AppTheme(lightThemeColors).themeData,
+        routerConfig: c.router,
       ),
     ),
   );
-  await tester.pumpAndSettle();
 }
 
 Future<void> _expectBarVisible(
@@ -179,49 +218,41 @@ GoRouter _testRouter() {
             location: state.uri.path,
           );
         },
-        branches: [
-          StatefulShellBranch(
-            routes: [
-              GoRoute(path: '/home', builder: (_, _) => const Text('HOME')),
-              GoRoute(
-                path: '/best_seller',
-                builder: (_, _) => const Text('BEST'),
-              ),
-              GoRoute(
-                path: '/occasion',
-                builder: (_, _) => const Text('OCCASION'),
-              ),
-              GoRoute(
-                path: '/product-details/:productId',
-                builder: (_, _) => const Text('DETAILS'),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/category',
-                builder: (_, _) => const Text('CATEGORY'),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(path: '/cart', builder: (_, _) => const Text('CART')),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/profile',
-                builder: (_, _) => const Text('PROFILE'),
-              ),
-            ],
-          ),
-        ],
+        branches: _shellBranches(),
       ),
     ],
   );
+}
+
+List<StatefulShellBranch> _shellBranches() {
+  return [
+    StatefulShellBranch(routes: _homeRoutes()),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(path: '/category', builder: (_, _) => const Text('CATEGORY')),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [GoRoute(path: '/cart', builder: (_, _) => const Text('CART'))],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(path: '/profile', builder: (_, _) => const Text('PROFILE')),
+      ],
+    ),
+  ];
+}
+
+List<RouteBase> _homeRoutes() {
+  return [
+    GoRoute(path: '/home', builder: (_, _) => const Text('HOME')),
+    GoRoute(path: '/best_seller', builder: (_, _) => const Text('BEST')),
+    GoRoute(path: '/occasion', builder: (_, _) => const Text('OCCASION')),
+    GoRoute(
+      path: '/product-details/:productId',
+      builder: (_, _) => const Text('DETAILS'),
+    ),
+  ];
 }
 
 class FakeAuthRepository implements AuthRepository {

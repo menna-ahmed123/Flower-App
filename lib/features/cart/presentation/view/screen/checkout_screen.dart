@@ -25,10 +25,10 @@ class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
   @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
+  State<CheckoutScreen> createState() => CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
+class CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
@@ -54,27 +54,16 @@ class CheckoutBody extends StatefulWidget {
   const CheckoutBody({super.key});
 
   @override
-  State<CheckoutBody> createState() => _CheckoutBodyState();
+  State<CheckoutBody> createState() => CheckoutBodyState();
 }
 
-class _CheckoutBodyState extends State<CheckoutBody> {
+class CheckoutBodyState extends State<CheckoutBody> {
   int _addressCount = 0;
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
-      listeners: [
-        BlocListener<DefaultAddressViewModel, DefaultAddressState>(
-          listener: _onAddresses,
-        ),
-        BlocListener<CheckoutViewModel, CheckoutState>(
-          listenWhen: (previous, current) =>
-              previous.destination != current.destination ||
-              previous.submitState.errorMessage !=
-                  current.submitState.errorMessage,
-          listener: _onCheckout,
-        ),
-      ],
+      listeners: _listeners(),
       child: const Column(
         children: [
           Expanded(child: CheckoutForm()),
@@ -82,6 +71,21 @@ class _CheckoutBodyState extends State<CheckoutBody> {
         ],
       ),
     );
+  }
+
+  List<BlocListener<dynamic, dynamic>> _listeners() {
+    return [
+      BlocListener<DefaultAddressViewModel, DefaultAddressState>(
+        listener: _onAddresses,
+      ),
+      BlocListener<CheckoutViewModel, CheckoutState>(
+        listenWhen: (previous, current) =>
+            previous.destination != current.destination ||
+            previous.submitState.errorMessage !=
+                current.submitState.errorMessage,
+        listener: _onCheckout,
+      ),
+    ];
   }
 
   void _onAddresses(BuildContext context, DefaultAddressState state) {
@@ -159,43 +163,49 @@ class CheckoutSubmitBar extends StatelessWidget {
       color: colors.white,
       elevation: 0,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.white,
-          border: Border(
-            top: BorderSide(
-              color: colors.grey.shade600.withValues(alpha: 0.35),
-            ),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: colors.black.withValues(alpha: 0.06),
-              blurRadius: 8.r,
-              offset: Offset(0, -2.h),
-            ),
-          ],
-        ),
+        decoration: _decoration(colors),
         child: SafeArea(
           top: false,
           child: Padding(
             padding: EdgeInsets.fromLTRB(horizontal, 14.h, horizontal, 12.h),
-            child: BlocBuilder<CheckoutViewModel, CheckoutState>(
-              builder: (context, state) {
-                return AppButton(
-                  text: AppString.placeOrder,
-                  isLoading: state.submitState.isLoading,
-                  onPressed: state.canSubmit
-                      ? () {
-                          context.read<CheckoutViewModel>().doEvent(
-                                const SubmitPlaceOrder(),
-                              );
-                        }
-                      : null,
-                );
-              },
-            ),
+            child: _placeOrderButton(),
           ),
         ),
       ),
+    );
+  }
+
+  BoxDecoration _decoration(AppColors colors) {
+    return BoxDecoration(
+      color: colors.white,
+      border: Border(
+        top: BorderSide(color: colors.grey.shade600.withValues(alpha: 0.35)),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: colors.black.withValues(alpha: 0.06),
+          blurRadius: 8.r,
+          offset: Offset(0, -2.h),
+        ),
+      ],
+    );
+  }
+
+  Widget _placeOrderButton() {
+    return BlocBuilder<CheckoutViewModel, CheckoutState>(
+      builder: (context, state) {
+        return AppButton(
+          text: AppString.placeOrder,
+          isLoading: state.submitState.isLoading,
+          onPressed: state.canSubmit
+              ? () {
+                  context.read<CheckoutViewModel>().doEvent(
+                        const SubmitPlaceOrder(),
+                      );
+                }
+              : null,
+        );
+      },
     );
   }
 }

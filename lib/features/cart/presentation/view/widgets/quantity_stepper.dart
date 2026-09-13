@@ -23,23 +23,27 @@ class QuantityStepper extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _button(context, const Icon(AppIcons.minus), onDecrement),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.w),
-          child: Text(
-            '$quantity',
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w700,
-              color: context.colors.black,
-            ),
-          ),
-        ),
+        _quantityLabel(context),
         _button(
           context,
           const Icon(AppIcons.plus),
           canIncrement ? onIncrement : null,
         ),
       ],
+    );
+  }
+
+  Widget _quantityLabel(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      child: Text(
+        '$quantity',
+        style: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w700,
+          color: context.colors.black,
+        ),
+      ),
     );
   }
 
@@ -53,15 +57,17 @@ class QuantityStepper extends StatelessWidget {
         onPressed: onPressed,
         iconSize: 16.w,
         color: colors.pink,
-        style: IconButton.styleFrom(
-          backgroundColor: colors.pink.shade50,
-          disabledBackgroundColor: colors.grey.shade300,
-          shape: CircleBorder(
-            side: BorderSide(color: colors.pink.shade100),
-          ),
-        ),
+        style: _buttonStyle(colors),
         icon: icon,
       ),
+    );
+  }
+
+  ButtonStyle _buttonStyle(AppColors colors) {
+    return IconButton.styleFrom(
+      backgroundColor: colors.pink.shade50,
+      disabledBackgroundColor: colors.grey.shade300,
+      shape: CircleBorder(side: BorderSide(color: colors.pink.shade100)),
     );
   }
 }
