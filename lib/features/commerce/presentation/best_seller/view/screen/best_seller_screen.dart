@@ -29,7 +29,7 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
   void initState() {
     super.initState();
     bestSellViewModel = context.read<BestSellerViewModel>();
-    bestSellViewModel.doEvent(BestSeller());
+    bestSellViewModel.doEvent(const BestSeller());
   }
 
   @override
@@ -91,7 +91,7 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                                 ),
                               ),
                               onPressed: () {
-                                bestSellViewModel.doEvent(BestSeller());
+                                bestSellViewModel.doEvent(const BestSeller());
                               },
                               child: const Text(AppString.retry),
                             ),

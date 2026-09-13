@@ -1,4 +1,6 @@
-sealed class RegisterEvent {}
+sealed class RegisterEvent {
+  const RegisterEvent();
+}
 
 class RegisterSubmitted extends RegisterEvent {
   final String firstName;
@@ -9,7 +11,7 @@ class RegisterSubmitted extends RegisterEvent {
   final String phoneNumber;
   final String gender;
 
-  RegisterSubmitted({
+  const RegisterSubmitted({
     required this.firstName,
     required this.lastName,
     required this.email,

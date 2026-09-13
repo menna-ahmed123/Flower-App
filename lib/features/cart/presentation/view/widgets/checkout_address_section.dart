@@ -133,7 +133,7 @@ class CheckoutAddressTile extends StatelessWidget {
   Future<void> _edit(BuildContext context) async {
     final added = await context.push(AppRoutesName.address, extra: address);
     if (!context.mounted || added != true) return;
-    context.read<DefaultAddressViewModel>().doEvent(LoadSavedAddresses());
+    context.read<DefaultAddressViewModel>().doEvent(const LoadSavedAddresses());
   }
 }
 
@@ -206,6 +206,6 @@ class CheckoutAddAddressButton extends StatelessWidget {
   Future<void> _add(BuildContext context) async {
     final added = await context.push(AppRoutesName.address);
     if (!context.mounted || added != true) return;
-    context.read<DefaultAddressViewModel>().doEvent(LoadSavedAddresses());
+    context.read<DefaultAddressViewModel>().doEvent(const LoadSavedAddresses());
   }
 }

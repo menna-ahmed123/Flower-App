@@ -3,7 +3,7 @@ class ResetPasswordParams {
   final String? newPassword;
   final String? confirmPassword;
 
-  ResetPasswordParams({
+  const ResetPasswordParams({
     this.resetToken,
     this.newPassword,
     this.confirmPassword,

@@ -1,2 +1,7 @@
- sealed class BestSellerEvent {}
- class BestSeller extends BestSellerEvent{}
+sealed class BestSellerEvent {
+  const BestSellerEvent();
+}
+
+class BestSeller extends BestSellerEvent {
+  const BestSeller();
+}

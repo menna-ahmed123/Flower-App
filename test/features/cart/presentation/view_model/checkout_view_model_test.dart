@@ -37,12 +37,12 @@ void main() {
   Future<void> readyToSubmit() async {
     await viewModel.doEvent(SelectCheckoutAddress(address));
     await viewModel.doEvent(
-      SelectCheckoutPayment(CheckoutPaymentMethods.cashOnDelivery),
+      const SelectCheckoutPayment(CheckoutPaymentMethods.cashOnDelivery),
     );
   }
 
   test('loads checkout preview from cart', () async {
-    await viewModel.doEvent(LoadCheckoutPreview());
+    await viewModel.doEvent(const LoadCheckoutPreview());
 
     expect(cartRepo.getCartCalls, 1);
     expect(viewModel.state.previewState.data?.total, 100);
@@ -60,8 +60,8 @@ void main() {
     await viewModel.doEvent(
       UpdateGiftRecipient(name: 'Mona', phone: '01001112222'),
     );
-    await viewModel.doEvent(ToggleCheckoutGift(true));
-    await viewModel.doEvent(ToggleCheckoutGift(false));
+    await viewModel.doEvent(const ToggleCheckoutGift(true));
+    await viewModel.doEvent(const ToggleCheckoutGift(false));
 
     expect(viewModel.state.recipientName, 'Mona');
     expect(viewModel.state.recipientPhone, '01001112222');
@@ -69,7 +69,7 @@ void main() {
   });
 
   test('blocks place order without address or payment', () async {
-    await viewModel.doEvent(SubmitPlaceOrder());
+    await viewModel.doEvent(const SubmitPlaceOrder());
 
     expect(cartRepo.placeOrderCalls, 0);
     expect(viewModel.state.showValidation, isTrue);
@@ -77,8 +77,8 @@ void main() {
 
   test('blocks place order when gift recipient is invalid', () async {
     await readyToSubmit();
-    await viewModel.doEvent(ToggleCheckoutGift(true));
-    await viewModel.doEvent(SubmitPlaceOrder());
+    await viewModel.doEvent(const ToggleCheckoutGift(true));
+    await viewModel.doEvent(const SubmitPlaceOrder());
 
     expect(cartRepo.placeOrderCalls, 0);
     expect(viewModel.state.showValidation, isTrue);
@@ -86,7 +86,7 @@ void main() {
 
   test('places order without a request body and goes to confirmation', () async {
     await readyToSubmit();
-    await viewModel.doEvent(SubmitPlaceOrder());
+    await viewModel.doEvent(const SubmitPlaceOrder());
 
     expect(cartRepo.placeOrderCalls, 1);
     expect(viewModel.state.destination, CheckoutDestination.confirmation);
@@ -95,9 +95,9 @@ void main() {
   test('credit card place order goes to payment', () async {
     await viewModel.doEvent(SelectCheckoutAddress(address));
     await viewModel.doEvent(
-      SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
+      const SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
     );
-    await viewModel.doEvent(SubmitPlaceOrder());
+    await viewModel.doEvent(const SubmitPlaceOrder());
 
     expect(viewModel.state.destination, CheckoutDestination.payment);
   });
@@ -107,7 +107,7 @@ void main() {
       appError: BadResponseError(AppString.orderFailed),
     );
     await readyToSubmit();
-    await viewModel.doEvent(SubmitPlaceOrder());
+    await viewModel.doEvent(const SubmitPlaceOrder());
 
     expect(viewModel.state.selectedAddress, address);
     expect(
@@ -121,16 +121,16 @@ void main() {
   test('prevents duplicate place order while submitting', () async {
     cartRepo.placeOrderDelay = const Duration(milliseconds: 20);
     await readyToSubmit();
-    final first = viewModel.doEvent(SubmitPlaceOrder());
+    final first = viewModel.doEvent(const SubmitPlaceOrder());
     await Future<void>.delayed(Duration.zero);
-    await viewModel.doEvent(SubmitPlaceOrder());
+    await viewModel.doEvent(const SubmitPlaceOrder());
     await first;
 
     expect(cartRepo.placeOrderCalls, 1);
   });
 
   test('payment success navigates to confirmation', () async {
-    await viewModel.doEvent(ProcessCheckoutPayment());
+    await viewModel.doEvent(const ProcessCheckoutPayment());
 
     expect(cartRepo.paymentCalls, 1);
     expect(viewModel.state.destination, CheckoutDestination.confirmation);

@@ -221,7 +221,7 @@ void main() {
       );
 
       await addressViewModel.doEvent(
-        GetCurrentAddress(),
+        const GetCurrentAddress(),
       );
 
       await future;
@@ -293,7 +293,7 @@ void main() {
       );
 
       await addressViewModel.doEvent(
-        GetCurrentAddress(),
+        const GetCurrentAddress(),
       );
 
       await future;
@@ -368,7 +368,7 @@ void main() {
       );
 
       await addressViewModel.doEvent(
-        GetCurrentAddress(),
+        const GetCurrentAddress(),
       );
 
       await future;
@@ -479,7 +479,7 @@ void main() {
         );
 
         await addressViewModel.doEvent(
-          GetCurrentAddress(),
+          const GetCurrentAddress(),
         );
 
         await future;
@@ -559,7 +559,7 @@ void main() {
         );
 
         await addressViewModel.doEvent(
-          GetCurrentAddress(),
+          const GetCurrentAddress(),
         );
 
         await future;
@@ -636,7 +636,7 @@ void main() {
         );
 
         await addressViewModel.doEvent(
-          GetCurrentAddress(),
+          const GetCurrentAddress(),
         );
 
         await future;
@@ -728,7 +728,7 @@ void main() {
         );
 
         await addressViewModel.doEvent(
-          GetCurrentAddress(),
+          const GetCurrentAddress(),
         );
 
         await future;
@@ -839,7 +839,7 @@ void main() {
         );
 
         await addressViewModel.doEvent(
-          GetCurrentAddress(),
+          const GetCurrentAddress(),
         );
 
         await future;

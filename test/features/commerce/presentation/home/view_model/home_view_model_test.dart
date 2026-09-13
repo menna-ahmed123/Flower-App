@@ -30,7 +30,7 @@ void main() {
   test('emits success sections when load succeeds', () async {
     provideDummy<BaseResponse<HomeLayoutEntity>>(SuccessResponse(layout));
     when(useCase()).thenAnswer((_) async => SuccessResponse(layout));
-    viewModel.doEvent(HomeRequested());
+    viewModel.doEvent(const HomeRequested());
     await Future<void>.delayed(Duration.zero);
     expect(viewModel.state.homeState.data, layout);
     expect(viewModel.state.homeState.isLoading, isFalse);
@@ -41,7 +41,7 @@ void main() {
     when(useCase()).thenAnswer((_) async {
       return ErrorResponse(appError: BadResponseError('failed'));
     });
-    viewModel.doEvent(HomeRequested());
+    viewModel.doEvent(const HomeRequested());
     await Future<void>.delayed(Duration.zero);
     expect(viewModel.state.homeState.errorMessage, 'failed');
   });

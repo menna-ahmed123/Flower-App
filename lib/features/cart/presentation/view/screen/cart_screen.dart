@@ -78,7 +78,7 @@ class CartItemsList extends StatelessWidget {
     final horizontal = MediaQuery.sizeOf(context).width >= 600 ? 48.w : 16.w;
     return RefreshIndicator(
       onRefresh: () {
-        return context.read<CartViewModel>().doEvent(LoadCart());
+        return context.read<CartViewModel>().doEvent(const LoadCart());
       },
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -98,7 +98,7 @@ class CartEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () {
-        return context.read<CartViewModel>().doEvent(LoadCart());
+        return context.read<CartViewModel>().doEvent(const LoadCart());
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -168,7 +168,7 @@ class CartErrorState extends StatelessWidget {
     return AppButton(
       text: AppString.retry,
       onPressed: () {
-        context.read<CartViewModel>().doEvent(LoadCart());
+        context.read<CartViewModel>().doEvent(const LoadCart());
       },
     );
   }

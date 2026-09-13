@@ -1,14 +1,20 @@
+sealed class AddressEvent {
+  const AddressEvent();
+}
 
-sealed class AddressEvent {}
-class GetCurrentAddress extends AddressEvent {}
+class GetCurrentAddress extends AddressEvent {
+  const GetCurrentAddress();
+}
+
 class LoadAddressDetails extends AddressEvent {
   final String id;
-  LoadAddressDetails(this.id);
+  const LoadAddressDetails(this.id);
 }
+
 class LocationSelected extends AddressEvent {
   final double latitude;
   final double longitude;
-  LocationSelected({
+  const LocationSelected({
     required this.latitude,
     required this.longitude,
   });

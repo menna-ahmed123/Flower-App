@@ -1,15 +1,17 @@
-
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 
-sealed class SaveAddressEvent {}
+sealed class SaveAddressEvent {
+  const SaveAddressEvent();
+}
+
 class AddAddress extends SaveAddressEvent {
   final AddressEntity address;
 
-  AddAddress(this.address);
+  const AddAddress(this.address);
 }
 
 class EditAddress extends SaveAddressEvent {
   final AddressEntity address;
 
-  EditAddress(this.address);
+  const EditAddress(this.address);
 }

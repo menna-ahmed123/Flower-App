@@ -1,18 +1,22 @@
 import 'package:flower_app/features/commerce/domain/entities/category_sort_by.dart';
 
-sealed class CategoryEvent {}
+sealed class CategoryEvent {
+  const CategoryEvent();
+}
 
-class LoadCategories extends CategoryEvent {}
+class LoadCategories extends CategoryEvent {
+  const LoadCategories();
+}
 
 class SelectCategoryTab extends CategoryEvent {
   final String categoryId;
   final String tab;
 
-  SelectCategoryTab({required this.categoryId, required this.tab});
+  const SelectCategoryTab({required this.categoryId, required this.tab});
 }
 
 class SortProducts extends CategoryEvent {
   final CategorySortBy sortBy;
 
-  SortProducts(this.sortBy);
+  const SortProducts(this.sortBy);
 }

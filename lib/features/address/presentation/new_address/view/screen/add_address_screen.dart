@@ -57,7 +57,7 @@ class _AddAddressScreenState extends State<AddAddressScreen>
     if (address != null) {
       context.read<AddressViewModel>().doEvent(LoadAddressDetails(address.id!));
     } else {
-      context.read<AddressViewModel>().doEvent(GetCurrentAddress());
+      context.read<AddressViewModel>().doEvent(const GetCurrentAddress());
     }
   }
 

@@ -92,7 +92,7 @@ void main() {
       );
 
       // Act
-      await categoryViewModel.onEvent(LoadCategories());
+      await categoryViewModel.onEvent(const LoadCategories());
 
       await future;
 

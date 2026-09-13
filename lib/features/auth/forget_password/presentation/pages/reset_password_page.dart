@@ -9,8 +9,8 @@ class ResetPasswordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppString.password)),
-      body: ResetPasswordBody(),
+      appBar: AppBar(title: const Text(AppString.password)),
+      body: const ResetPasswordBody(),
     );
   }
 }

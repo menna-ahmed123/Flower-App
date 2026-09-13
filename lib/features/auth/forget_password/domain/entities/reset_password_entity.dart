@@ -4,7 +4,7 @@ class ResetPasswordEntity {
   final String? message;
   final List<String>? errors;
 
-  ResetPasswordEntity({
+  const ResetPasswordEntity({
     this.isSuccess,
     this.statusCode,
     this.message,
