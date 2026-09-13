@@ -12,7 +12,7 @@ class CommerceAppBar extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          leading: const Icon(AppIcons.arrowBack),
+          leading: Icon(AppIcons.arrowBack),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

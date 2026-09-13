@@ -31,7 +31,7 @@ class _OccasionScreenState extends State<OccasionScreen> {
   void initState() {
     super.initState();
     _viewModel = getIt<OccasionViewModel>();
-    _viewModel.onEvent(const LoadOccasions());
+    _viewModel.onEvent(LoadOccasions());
   }
 
   @override

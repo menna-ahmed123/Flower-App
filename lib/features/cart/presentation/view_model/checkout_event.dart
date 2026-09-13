@@ -1,46 +1,36 @@
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 
-sealed class CheckoutEvent {
-  const CheckoutEvent();
-}
+sealed class CheckoutEvent {}
 
-class LoadCheckoutPreview extends CheckoutEvent {
-  const LoadCheckoutPreview();
-}
+class LoadCheckoutPreview extends CheckoutEvent {}
 
 class SelectCheckoutAddress extends CheckoutEvent {
-  const SelectCheckoutAddress(this.address);
+  SelectCheckoutAddress(this.address);
 
   final AddressEntity address;
 }
 
 class ToggleCheckoutGift extends CheckoutEvent {
-  const ToggleCheckoutGift(this.enabled);
+  ToggleCheckoutGift(this.enabled);
 
   final bool enabled;
 }
 
 class UpdateGiftRecipient extends CheckoutEvent {
-  const UpdateGiftRecipient({this.name, this.phone});
+  UpdateGiftRecipient({this.name, this.phone});
 
   final String? name;
   final String? phone;
 }
 
 class SelectCheckoutPayment extends CheckoutEvent {
-  const SelectCheckoutPayment(this.method);
+  SelectCheckoutPayment(this.method);
 
   final String method;
 }
 
-class SubmitPlaceOrder extends CheckoutEvent {
-  const SubmitPlaceOrder();
-}
+class SubmitPlaceOrder extends CheckoutEvent {}
 
-class ProcessCheckoutPayment extends CheckoutEvent {
-  const ProcessCheckoutPayment();
-}
+class ProcessCheckoutPayment extends CheckoutEvent {}
 
-class ClearCheckoutNavigation extends CheckoutEvent {
-  const ClearCheckoutNavigation();
-}
+class ClearCheckoutNavigation extends CheckoutEvent {}

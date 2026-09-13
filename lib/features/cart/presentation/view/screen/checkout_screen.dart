@@ -32,8 +32,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<CheckoutViewModel>().doEvent(const LoadCheckoutPreview());
-    context.read<DefaultAddressViewModel>().doEvent(const LoadSavedAddresses());
+    context.read<CheckoutViewModel>().doEvent(LoadCheckoutPreview());
+    context.read<DefaultAddressViewModel>().doEvent(LoadSavedAddresses());
   }
 
   @override
@@ -103,9 +103,9 @@ class _CheckoutBodyState extends State<CheckoutBody> {
     }
     final destination = state.destination;
     if (destination == null) return;
-    context.read<CheckoutViewModel>().doEvent(const ClearCheckoutNavigation());
+    context.read<CheckoutViewModel>().doEvent(ClearCheckoutNavigation());
     if (destination == CheckoutDestination.confirmation) {
-      context.read<CartViewModel>().doEvent(const ResetCart());
+      context.read<CartViewModel>().doEvent(ResetCart());
     }
     context.push(
       destination == CheckoutDestination.payment
@@ -186,7 +186,7 @@ class CheckoutSubmitBar extends StatelessWidget {
                   onPressed: state.canSubmit
                       ? () {
                           context.read<CheckoutViewModel>().doEvent(
-                                const SubmitPlaceOrder(),
+                                SubmitPlaceOrder(),
                               );
                         }
                       : null,

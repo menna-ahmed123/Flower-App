@@ -54,7 +54,7 @@ void main() {
             .thenAnswer((_) async => SuccessResponse(dummyProducts));
       },
       build: () => BestSellerViewModel(productUseCase),
-      act: (viewModel) => viewModel.doEvent(const BestSeller()),
+      act: (viewModel) => viewModel.doEvent(BestSeller()),
       expect: () => [
           const BestSellerState(
             bestSellState: BaseState<List<ProductEntity>>(
@@ -82,7 +82,7 @@ void main() {
         );
       },
       build: () => BestSellerViewModel(productUseCase),
-      act: (viewModel) => viewModel.doEvent(const BestSeller()),
+      act: (viewModel) => viewModel.doEvent(BestSeller()),
       expect: () => [
           const BestSellerState(
             bestSellState: BaseState<List<ProductEntity>>(

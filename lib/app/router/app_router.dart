@@ -199,7 +199,7 @@ class AppRouter {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => getIt<HomeViewModel>()..doEvent(const HomeRequested()),
+          create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
         ),
         BlocProvider(
           create: (_) {
@@ -208,7 +208,7 @@ class AppRouter {
                 .read<AuthCubit>()
                 .state
                 .isAuthenticated) {
-              viewModel.doEvent(const LoadSavedAddresses());
+              viewModel.doEvent(LoadSavedAddresses());
             }
             return viewModel;
           },
@@ -265,7 +265,7 @@ class AppRouter {
 
   static Widget _categoryBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
-      create: (_) => getIt<CategoryViewModel>()..onEvent(const LoadCategories()),
+      create: (_) => getIt<CategoryViewModel>()..onEvent(LoadCategories()),
       child: const CategoryScreen(),
     );
   }
@@ -310,7 +310,7 @@ class AppRouter {
   static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) =>
-          getIt<DefaultAddressViewModel>()..doEvent(const LoadSavedAddresses()),
+          getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
       child: const SavedAddressesScreen(),
     );
   }

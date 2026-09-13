@@ -49,7 +49,7 @@ class SavedAddressesScreen extends StatelessWidget {
 
                 onRetry: () {
                   context.read<DefaultAddressViewModel>().doEvent(
-                    const LoadSavedAddresses(),
+                    LoadSavedAddresses(),
                   );
                 },
 
@@ -66,7 +66,7 @@ class SavedAddressesScreen extends StatelessWidget {
 
                   if (result == true && context.mounted) {
                     context.read<DefaultAddressViewModel>().doEvent(
-                      const LoadSavedAddresses(),
+                      LoadSavedAddresses(),
                     );
                   }
                 },
@@ -76,7 +76,7 @@ class SavedAddressesScreen extends StatelessWidget {
 
                   if (result == true && context.mounted) {
                     context.read<DefaultAddressViewModel>().doEvent(
-                      const LoadSavedAddresses(),
+                      LoadSavedAddresses(),
                     );
                   }
                 },

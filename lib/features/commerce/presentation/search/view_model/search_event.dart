@@ -1,27 +1,23 @@
 import '../../../domain/entities/product_entity.dart';
 
-sealed class SearchEvent {
-  const SearchEvent();
-}
+sealed class SearchEvent {}
 
 class SearchQueryChanged extends SearchEvent {
-  const SearchQueryChanged(this.query);
+  SearchQueryChanged(this.query);
 
   final String query;
 }
 
 class SearchSubmitted extends SearchEvent {
-  const SearchSubmitted(this.query);
+  SearchSubmitted(this.query);
 
   final String query;
 }
 
-class SearchCleared extends SearchEvent {
-  const SearchCleared();
-}
+class SearchCleared extends SearchEvent {}
 
 class ProductSelected extends SearchEvent {
-  const ProductSelected(this.product);
+  ProductSelected(this.product);
 
   final ProductEntity product;
 }

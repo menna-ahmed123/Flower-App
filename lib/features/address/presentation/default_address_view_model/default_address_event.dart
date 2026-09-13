@@ -1,19 +1,13 @@
-sealed class DefaultAddressEvent {
-  const DefaultAddressEvent();
-}
+sealed class DefaultAddressEvent {}
 
-class LoadSavedAddresses extends DefaultAddressEvent {
-  const LoadSavedAddresses();
-}
-
+class LoadSavedAddresses extends DefaultAddressEvent {}
 class DeleteSavedAddress extends DefaultAddressEvent {
   final String id;
 
-  const DeleteSavedAddress(this.id);
+  DeleteSavedAddress(this.id);
 }
-
 class SetDefaultAddress extends DefaultAddressEvent {
   final String id;
 
-  const SetDefaultAddress(this.id);
+  SetDefaultAddress(this.id);
 }

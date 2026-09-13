@@ -19,19 +19,17 @@ abstract class AppColors {
 }
 
 class LightThemeColor implements AppColors {
-  const LightThemeColor();
-
   @override
   Brightness get brightness => Brightness.light;
   @override
-  Color get disabledButton => const Color(0xff878787);
+  Color get disabledButton => Color(0xff878787);
 
   @override
-  Color get otpColor => const Color(0xFFCFCFCF);
+  Color get otpColor => Color(0xFFCFCFCF);
   @override
-  Color get error => const Color(0xFFD32F2F);
+  Color get error => Color(0xFFD32F2F);
   @override
-  MaterialColor get grey => const MaterialColor(0xffF9F9F9, <int, Color>{
+  MaterialColor get grey => MaterialColor(0xffF9F9F9, const <int, Color>{
     50: Color(0xFFFDFDFD),
     100: Color(0xFFFDFDFD),
     200: Color(0xFFFCFCFC),
@@ -45,9 +43,9 @@ class LightThemeColor implements AppColors {
     950: Color(0xFF232323),
   });
   @override
-  Color get lightPink => const Color(0xfff0b4cd);
+  Color get lightPink => Color(0xfff0b4cd);
   @override
-  MaterialColor get black => const MaterialColor(0xff0c1015, <int, Color>{
+  MaterialColor get black => MaterialColor(0xff0c1015, const <int, Color>{
     10: Color(0xFFcecfd0),
     20: Color(0xFFaeafb1),
     30: Color(0xFF86888a),
@@ -60,7 +58,7 @@ class LightThemeColor implements AppColors {
     100: Color(0xFF020304),
   });
   @override
-  MaterialColor get pink => const MaterialColor(0xFFD21E6A, <int, Color>{
+  MaterialColor get pink => MaterialColor(0xFFD21E6A, <int, Color>{
     50: Color(0xFFF4DBE4),
     100: Color(0xFFE9B8CA),
     200: Color(0xFFDE96B1),
@@ -74,31 +72,29 @@ class LightThemeColor implements AppColors {
     950: Color(0xFF290815),
   });
   @override
-  Color get shadow => const Color(0xFFABBCDE);
+  Color get shadow => Color(0xFFABBCDE);
   @override
-  Color get success => const Color(0xffe1699c);
+  Color get success => Color(0xffe1699c);
   @override
-  Color get unselectedAnswer => const Color(0xFFD32F2F);
+  Color get unselectedAnswer => Color(0xFFD32F2F);
   @override
-  Color get white => const Color(0xfffefefe);
+  Color get white => Color(0xfffefefe);
   @override
-  Color get green => const Color(0xFF28A745);
+  Color get green => Color(0xFF28A745);
 }
 
 class DarkThemeColor implements AppColors {
-  const DarkThemeColor();
-
   @override
   Brightness get brightness => Brightness.dark;
   @override
-  Color get disabledButton => const Color(0xff5d6063);
+  Color get disabledButton => Color(0xff5d6063);
   @override
-  Color get error => const Color(0xFFD32F2F);
+  Color get error => Color(0xFFD32F2F);
 
   @override
-  Color get otpColor => const Color(0xFFCFCFCF);
+  Color get otpColor => Color(0xFFCFCFCF);
   @override
-  MaterialColor get grey => const MaterialColor(0xffF9F9F9, <int, Color>{
+  MaterialColor get grey => MaterialColor(0xffF9F9F9, const <int, Color>{
     50: Color(0xFFFDFDFD),
     100: Color(0xFFFDFDFD),
     200: Color(0xFFFCFCFC),
@@ -112,9 +108,9 @@ class DarkThemeColor implements AppColors {
     950: Color(0xFF232323),
   });
   @override
-  Color get lightPink => const Color(0xfff0b4cd);
+  Color get lightPink => Color(0xfff0b4cd);
   @override
-  MaterialColor get black => const MaterialColor(0xff0c1015, <int, Color>{
+  MaterialColor get black => MaterialColor(0xff0c1015, const <int, Color>{
     10: Color(0xFFcecfd0),
     20: Color(0xFFaeafb1),
     30: Color(0xFF86888a),
@@ -127,7 +123,7 @@ class DarkThemeColor implements AppColors {
     100: Color(0xFF020304),
   });
   @override
-  MaterialColor get pink => const MaterialColor(0xFFD21E6A, <int, Color>{
+  MaterialColor get pink => MaterialColor(0xFFD21E6A, <int, Color>{
     50: Color(0xFFF4DBE4),
     100: Color(0xFFE9B8CA),
     200: Color(0xFFDE96B1),
@@ -141,18 +137,18 @@ class DarkThemeColor implements AppColors {
     950: Color(0xFF290815),
   });
   @override
-  Color get shadow => const Color(0xFFABBCDE);
+  Color get shadow => Color(0xFFABBCDE);
   @override
-  Color get success => const Color(0xffe1699c);
+  Color get success => Color(0xffe1699c);
   @override
-  Color get unselectedAnswer => const Color(0xFFD32F2F);
+  Color get unselectedAnswer => Color(0xFFD32F2F);
   @override
-  Color get white => const Color(0xfffefefe);
+  Color get white => Color(0xfffefefe);
   @override
-  Color get green => const Color(0xFF28A745);
+  Color get green => Color(0xFF28A745);
 }
-const lightThemeColors = LightThemeColor();
-const darkThemeColors = DarkThemeColor();
+final lightThemeColors = LightThemeColor();
+final darkThemeColors = DarkThemeColor();
 extension ThemeColors on BuildContext {
   AppColors get colors =>
       Theme.of(this).brightness == Brightness.light

@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _selectedAddress = null;
           });
 
-          context.read<DefaultAddressViewModel>().doEvent(const LoadSavedAddresses());
+          context.read<DefaultAddressViewModel>().doEvent(LoadSavedAddresses());
         }
       },
     );
@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _retry(BuildContext context) {
     return TextButton(
       onPressed: () {
-        context.read<HomeViewModel>().doEvent(const HomeRequested());
+        context.read<HomeViewModel>().doEvent(HomeRequested());
       },
       child: const Text(AppString.retry),
     );

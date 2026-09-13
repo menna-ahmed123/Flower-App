@@ -61,7 +61,7 @@ class CheckoutPreviewError extends StatelessWidget {
           AppButton(
             text: AppString.retry,
             onPressed: () {
-              context.read<CheckoutViewModel>().doEvent(const LoadCheckoutPreview());
+              context.read<CheckoutViewModel>().doEvent(LoadCheckoutPreview());
             },
           ),
         ],

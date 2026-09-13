@@ -1,7 +1,4 @@
-sealed class HomeEvent {
-  const HomeEvent();
-}
+sealed class HomeEvent {}
 
-class HomeRequested extends HomeEvent {
-  const HomeRequested();
-}
+class HomeRequested extends HomeEvent {}
+

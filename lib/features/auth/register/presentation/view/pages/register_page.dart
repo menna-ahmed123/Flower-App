@@ -63,7 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(AppIcons.chevronLeft),
+            icon: Icon(AppIcons.chevronLeft),
             onPressed: () {
               if (context.canPop()) {
                 context.pop();

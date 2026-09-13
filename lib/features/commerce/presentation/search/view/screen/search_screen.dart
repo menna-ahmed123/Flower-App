@@ -39,7 +39,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppString.search)),
+      appBar: AppBar(title: Text(AppString.search)),
       body: Column(
         children: [
           Padding(
@@ -55,7 +55,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 context.read<SearchViewModel>().onEvent(SearchSubmitted(query));
               },
               onClear: () {
-                context.read<SearchViewModel>().onEvent(const SearchCleared());
+                context.read<SearchViewModel>().onEvent(SearchCleared());
               },
             ),
           ),

@@ -130,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                                   fontSize: 14.sp,
                                 ),
                               ),
-                              const Spacer(),
+                              Spacer(),
                               TextButton(
                                 onPressed: () {
                                   context.push(AppRoutesName.forgetPassword);

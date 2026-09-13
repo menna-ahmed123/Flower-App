@@ -40,10 +40,10 @@ class MainShell extends StatelessWidget {
         listener: (context, state) {
           final cart = context.read<CartViewModel>();
           if (state.isAuthenticated) {
-            cart.doEvent(const LoadCart());
+            cart.doEvent(LoadCart());
             return;
           }
-          cart.doEvent(const ResetCart());
+          cart.doEvent(ResetCart());
         },
         child: BlocListener<CartViewModel, CartState>(
           listenWhen: (previous, current) =>
@@ -68,7 +68,7 @@ class MainShell extends StatelessWidget {
                         initialLocation: false,
                       );
                       if (index == 2) {
-                        await context.read<CartViewModel>().doEvent(const LoadCart());
+                        await context.read<CartViewModel>().doEvent(LoadCart());
                       }
                     },
                   );

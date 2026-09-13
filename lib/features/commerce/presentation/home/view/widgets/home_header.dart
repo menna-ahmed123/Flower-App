@@ -97,7 +97,7 @@ class HomeHeader extends StatelessWidget {
         await context.requireAuth(
           action: () async {
             context.read<DefaultAddressViewModel>().doEvent(
-              const LoadSavedAddresses(),
+              LoadSavedAddresses(),
             );
             await _showAddressBottomSheet(context);
           },

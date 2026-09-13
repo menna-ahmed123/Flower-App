@@ -1,14 +1,10 @@
-sealed class OccasionEvent {
-  const OccasionEvent();
-}
+sealed class OccasionEvent {}
 
-class LoadOccasions extends OccasionEvent {
-  const LoadOccasions();
-}
+class LoadOccasions extends OccasionEvent {}
 
 class SelectOccasionTab extends OccasionEvent {
   final String occasionId;
   final String tab;
 
-  const SelectOccasionTab({required this.occasionId, required this.tab});
+  SelectOccasionTab({required this.occasionId, required this.tab});
 }
