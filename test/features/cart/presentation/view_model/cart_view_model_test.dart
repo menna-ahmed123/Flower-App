@@ -55,7 +55,7 @@ void main() {
       (_) async => SuccessResponse(cartWith([rose])),
     );
 
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
     expect(viewModel.state.cartState.data?.items, [rose]);
     expect(viewModel.state.itemCount, 2);
@@ -67,7 +67,7 @@ void main() {
       (_) async => ErrorResponse(appError: BadResponseError('failed')),
     );
 
-    await viewModel.doEvent(AddCartItemEvent(productId: 'product-1'));
+    await viewModel.doEvent(const AddCartItemEvent(productId: 'product-1'));
 
     expect(viewModel.state.itemCount, 0);
     expect(viewModel.state.cartState.errorMessage, 'failed');
@@ -81,7 +81,7 @@ void main() {
       },
     );
 
-    final pending = viewModel.doEvent(AddCartItemEvent(productId: 'product-1'));
+    final pending = viewModel.doEvent(const AddCartItemEvent(productId: 'product-1'));
     await Future<void>.delayed(Duration.zero);
     expect(viewModel.state.itemCount, 1);
     await pending;
@@ -91,9 +91,9 @@ void main() {
     when(cartUseCase.getCart()).thenAnswer(
       (_) async => SuccessResponse(cartWith([rose.copyWith(quantity: 5)])),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
-    viewModel.doEvent(ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
+    viewModel.doEvent(const ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
 
     expect(viewModel.state.cartState.data?.items.first.quantity, 5);
     verifyNever(
@@ -108,9 +108,9 @@ void main() {
     when(cartUseCase.removeItem(itemId: 'item-1')).thenAnswer(
       (_) async => const SuccessResponse(true),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
-    await viewModel.doEvent(ChangeCartItemQuantity(itemId: 'item-1', delta: -1));
+    await viewModel.doEvent(const ChangeCartItemQuantity(itemId: 'item-1', delta: -1));
 
     expect(viewModel.state.cartState.data?.items, isEmpty);
     verify(cartUseCase.removeItem(itemId: 'item-1')).called(1);
@@ -123,9 +123,9 @@ void main() {
     when(cartUseCase.removeItem(itemId: 'item-1')).thenAnswer(
       (_) async => ErrorResponse(appError: BadResponseError('failed')),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
-    await viewModel.doEvent(RemoveCartItemEvent(itemId: 'item-1'));
+    await viewModel.doEvent(const RemoveCartItemEvent(itemId: 'item-1'));
 
     expect(viewModel.state.cartState.data?.items, [rose]);
     expect(viewModel.state.cartState.errorMessage, 'failed');
@@ -138,9 +138,9 @@ void main() {
     when(cartUseCase.updateItem(itemId: 'item-1', quantity: 3)).thenAnswer(
       (_) async => ErrorResponse(appError: BadResponseError('failed')),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
-    await viewModel.doEvent(ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
+    await viewModel.doEvent(const ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
     await Future<void>.delayed(const Duration(milliseconds: 450));
 
     expect(viewModel.state.cartState.data?.items.first.quantity, 2);
@@ -154,11 +154,11 @@ void main() {
     when(
       cartUseCase.updateItem(itemId: 'item-1', quantity: 5),
     ).thenAnswer((_) async => SuccessResponse(cartWith([rose.copyWith(quantity: 5)])));
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
-    viewModel.doEvent(ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
-    viewModel.doEvent(ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
-    viewModel.doEvent(ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
+    viewModel.doEvent(const ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
+    viewModel.doEvent(const ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
+    viewModel.doEvent(const ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
     await Future<void>.delayed(const Duration(milliseconds: 450));
 
     verify(cartUseCase.updateItem(itemId: 'item-1', quantity: 5)).called(1);
@@ -171,7 +171,7 @@ void main() {
       return SuccessResponse(cartWith([rose]));
     });
 
-    final pending = viewModel.doEvent(LoadCart());
+    final pending = viewModel.doEvent(const LoadCart());
     await Future<void>.delayed(Duration.zero);
 
     expect(viewModel.state.cartState.isLoading, isTrue);
@@ -184,13 +184,13 @@ void main() {
     when(cartUseCase.getCart()).thenAnswer(
       (_) async => SuccessResponse(cartWith([rose])),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
     when(cartUseCase.getCart()).thenAnswer((_) async {
       await Future<void>.delayed(const Duration(milliseconds: 20));
       return SuccessResponse(cartWith([rose]));
     });
 
-    final pending = viewModel.doEvent(LoadCart());
+    final pending = viewModel.doEvent(const LoadCart());
     await Future<void>.delayed(Duration.zero);
 
     expect(viewModel.state.cartState.isLoading, isFalse);
@@ -203,7 +203,7 @@ void main() {
       (_) async => ErrorResponse(appError: BadResponseError('offline')),
     );
 
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
     expect(viewModel.state.cartState.errorMessage, 'offline');
     expect(viewModel.state.cartState.data, isNull);
@@ -214,12 +214,12 @@ void main() {
     when(cartUseCase.getCart()).thenAnswer(
       (_) async => SuccessResponse(cartWith([rose])),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
     when(cartUseCase.getCart()).thenAnswer(
       (_) async => ErrorResponse(appError: BadResponseError('offline')),
     );
 
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
     expect(viewModel.state.cartState.data?.items, [rose]);
     expect(viewModel.state.cartState.errorMessage, 'offline');
@@ -229,9 +229,9 @@ void main() {
     when(cartUseCase.getCart()).thenAnswer(
       (_) async => SuccessResponse(cartWith([rose])),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
-    await viewModel.doEvent(ResetCart());
+    await viewModel.doEvent(const ResetCart());
 
     expect(viewModel.state.cartState.data, isNull);
     expect(viewModel.state.itemCount, 0);
@@ -244,7 +244,7 @@ void main() {
       (_) async => SuccessResponse(server),
     );
 
-    await viewModel.doEvent(AddCartItemEvent(productId: 'product-1'));
+    await viewModel.doEvent(const AddCartItemEvent(productId: 'product-1'));
 
     expect(viewModel.state.cartState.data, server);
     expect(viewModel.state.cartState.errorMessage, isEmpty);
@@ -255,14 +255,14 @@ void main() {
       (_) async => const SuccessResponse(CartEntity.empty()),
     );
 
-    await viewModel.doEvent(AddCartItemEvent(productId: 'product-1'));
+    await viewModel.doEvent(const AddCartItemEvent(productId: 'product-1'));
 
     expect(viewModel.state.itemCount, 1);
     expect(viewModel.state.cartState.errorMessage, isEmpty);
   });
 
   test('change quantity for an unknown item is a no-op', () async {
-    await viewModel.doEvent(ChangeCartItemQuantity(itemId: 'missing', delta: 1));
+    await viewModel.doEvent(const ChangeCartItemQuantity(itemId: 'missing', delta: 1));
 
     verifyNever(
       cartUseCase.updateItem(
@@ -280,9 +280,9 @@ void main() {
     when(cartUseCase.updateItem(itemId: 'item-1', quantity: 3)).thenAnswer(
       (_) async => SuccessResponse(cartWith([rose.copyWith(quantity: 3)])),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
-    await viewModel.doEvent(ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
+    await viewModel.doEvent(const ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
     await Future<void>.delayed(const Duration(milliseconds: 450));
 
     expect(viewModel.state.cartState.data?.items.first.quantity, 3);
@@ -290,7 +290,7 @@ void main() {
   });
 
   test('remove when cart is empty is a no-op', () async {
-    await viewModel.doEvent(RemoveCartItemEvent(itemId: 'item-1'));
+    await viewModel.doEvent(const RemoveCartItemEvent(itemId: 'item-1'));
 
     verifyNever(cartUseCase.removeItem(itemId: anyNamed('itemId')));
   });
@@ -302,9 +302,9 @@ void main() {
     when(cartUseCase.removeItem(itemId: 'item-1')).thenAnswer(
       (_) async => const SuccessResponse(true),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
 
-    await viewModel.doEvent(RemoveCartItemEvent(itemId: 'item-1'));
+    await viewModel.doEvent(const RemoveCartItemEvent(itemId: 'item-1'));
 
     expect(viewModel.state.cartState.data?.items, isEmpty);
     expect(viewModel.state.cartState.errorMessage, isEmpty);
@@ -316,9 +316,9 @@ void main() {
       return SuccessResponse(cartWith([rose]));
     });
 
-    final pending = viewModel.doEvent(LoadCart());
+    final pending = viewModel.doEvent(const LoadCart());
     await Future<void>.delayed(Duration.zero);
-    await viewModel.doEvent(ResetCart());
+    await viewModel.doEvent(const ResetCart());
     await pending;
 
     expect(viewModel.state.cartState.data, isNull);
@@ -336,9 +336,9 @@ void main() {
       },
     );
 
-    final load = viewModel.doEvent(LoadCart());
+    final load = viewModel.doEvent(const LoadCart());
     await Future<void>.delayed(const Duration(milliseconds: 10));
-    final add = viewModel.doEvent(AddCartItemEvent(productId: 'product-1'));
+    final add = viewModel.doEvent(const AddCartItemEvent(productId: 'product-1'));
     await load;
 
     expect(viewModel.state.cartState.data?.items, isEmpty);
@@ -351,7 +351,7 @@ void main() {
     when(cartUseCase.getCart()).thenAnswer(
       (_) async => SuccessResponse(cartWith([rose])),
     );
-    await viewModel.doEvent(LoadCart());
+    await viewModel.doEvent(const LoadCart());
     when(cartUseCase.getCart()).thenAnswer((_) async {
       await Future<void>.delayed(const Duration(milliseconds: 50));
       return SuccessResponse(cartWith([rose.copyWith(quantity: 9)]));
@@ -360,8 +360,8 @@ void main() {
       (_) async => SuccessResponse(cartWith([rose.copyWith(quantity: 3)])),
     );
 
-    final load = viewModel.doEvent(LoadCart());
-    viewModel.doEvent(ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
+    final load = viewModel.doEvent(const LoadCart());
+    viewModel.doEvent(const ChangeCartItemQuantity(itemId: 'item-1', delta: 1));
     await load;
 
     expect(viewModel.state.cartState.data?.items.first.quantity, 3);

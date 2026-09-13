@@ -46,8 +46,8 @@ void _onPayment(BuildContext context, CheckoutState state) {
     return;
   }
   if (state.destination != CheckoutDestination.confirmation) return;
-  context.read<CheckoutViewModel>().doEvent(ClearCheckoutNavigation());
-  context.read<CartViewModel>().doEvent(ResetCart());
+  context.read<CheckoutViewModel>().doEvent(const ClearCheckoutNavigation());
+  context.read<CartViewModel>().doEvent(const ResetCart());
   context.push(AppRoutesName.confirmation);
 }
 
@@ -73,7 +73,7 @@ class PaymentBody extends StatelessWidget {
                   ? null
                   : () {
                       context.read<CheckoutViewModel>().doEvent(
-                            ProcessCheckoutPayment(),
+                            const ProcessCheckoutPayment(),
                           );
                     },
             ),
