@@ -86,17 +86,20 @@ class CheckoutGiftToggle extends StatelessWidget {
           value: enabled,
           activeThumbColor: context.colors.white,
           activeTrackColor: context.colors.pink,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           onChanged: (value) {
             context.read<CheckoutViewModel>().doEvent(ToggleCheckoutGift(value));
           },
         ),
-        SizedBox(width: 8.w),
-        Text(
-          AppString.thisIsAGift,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: context.colors.black,
+        SizedBox(width: 10.w),
+        Expanded(
+          child: Text(
+            AppString.thisIsAGift,
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: context.colors.black,
+            ),
           ),
         ),
       ],
@@ -124,14 +127,14 @@ class CheckoutGiftFields extends StatelessWidget {
           : AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
-          SizedBox(height: 12.h),
+          SizedBox(height: 14.h),
           LocationTextfield(
             controller: nameController,
             labelText: AppString.name,
             hintText: AppString.enterTheName,
             validator: AppValidators.validateRecipientName,
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 14.h),
           LocationTextfield(
             controller: phoneController,
             labelText: AppString.phoneNumber,

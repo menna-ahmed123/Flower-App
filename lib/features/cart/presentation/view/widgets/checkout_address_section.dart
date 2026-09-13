@@ -26,11 +26,11 @@ class CheckoutAddressSection extends StatelessWidget {
           AppString.deliveryAddress,
           style: TextStyle(
             fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: context.colors.black,
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 14.h),
         const CheckoutAddressList(),
         SizedBox(height: 12.h),
         const CheckoutAddAddressButton(),
@@ -47,7 +47,10 @@ class CheckoutAddressList extends StatelessWidget {
     return BlocBuilder<DefaultAddressViewModel, DefaultAddressState>(
       builder: (context, addressState) {
         if (addressState.defaultAddressesState.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 24.h),
+            child: const Center(child: CircularProgressIndicator()),
+          );
         }
         final addresses = addressState.defaultAddressesState.data ?? [];
         return BlocBuilder<CheckoutViewModel, CheckoutState>(
@@ -91,15 +94,23 @@ class CheckoutAddressTile extends StatelessWidget {
               SelectCheckoutAddress(address),
             );
       },
-      borderRadius: BorderRadius.circular(16.r),
+      borderRadius: BorderRadius.circular(12.r),
       child: Container(
-        padding: EdgeInsets.all(14.w),
+        padding: EdgeInsets.fromLTRB(12.w, 12.h, 8.w, 12.h),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.r),
+          color: colors.white,
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: selected ? colors.pink : colors.grey.shade300,
+            color: selected ? colors.pink : colors.grey.shade600.withValues(alpha: 0.35),
             width: selected ? 1.5 : 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: colors.black.withValues(alpha: selected ? 0.06 : 0.03),
+              blurRadius: 8.r,
+              offset: Offset(0, 2.h),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -153,7 +164,11 @@ class CheckoutAddressLabels extends StatelessWidget {
             address.address,
             address.area,
           ].where((value) => (value ?? '').trim().isNotEmpty).join(' - '),
-          style: TextStyle(fontSize: 13.sp, color: context.colors.grey.shade800),
+          style: TextStyle(
+            fontSize: 13.sp,
+            height: 1.35,
+            color: context.colors.grey.shade800,
+          ),
         ),
       ],
     );
@@ -178,6 +193,7 @@ class CheckoutAddAddressButton extends StatelessWidget {
           ),
         ),
         style: OutlinedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 12.h),
           side: BorderSide(color: context.colors.pink),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24.r),

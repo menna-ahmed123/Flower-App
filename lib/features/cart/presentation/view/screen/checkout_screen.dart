@@ -121,17 +121,29 @@ class CheckoutForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final horizontal = width >= 600 ? 48.w : 16.w;
     return ListView(
-      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+      padding: EdgeInsets.fromLTRB(horizontal, 12.h, horizontal, 24.h),
       children: [
         const CheckoutAddressSection(),
-        SizedBox(height: 20.h),
+        _sectionGap(context),
         const CheckoutPaymentSection(),
-        SizedBox(height: 20.h),
+        _sectionGap(context),
         const CheckoutGiftSection(),
-        SizedBox(height: 20.h),
+        _sectionGap(context),
         const CheckoutSummarySection(),
       ],
+    );
+  }
+
+  Widget _sectionGap(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Divider(
+        height: 24.h,
+        color: context.colors.grey.shade600.withValues(alpha: 0.35),
+      ),
     );
   }
 }
@@ -141,27 +153,46 @@ class CheckoutSubmitBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final horizontal = MediaQuery.sizeOf(context).width >= 600 ? 48.w : 16.w;
     return Material(
-      color: context.colors.white,
-      elevation: 8,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
-          child: BlocBuilder<CheckoutViewModel, CheckoutState>(
-            builder: (context, state) {
-              return AppButton(
-                text: AppString.placeOrder,
-                isLoading: state.submitState.isLoading,
-                onPressed: state.canSubmit
-                    ? () {
-                        context.read<CheckoutViewModel>().doEvent(
-                              SubmitPlaceOrder(),
-                            );
-                      }
-                    : null,
-              );
-            },
+      color: colors.white,
+      elevation: 0,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.white,
+          border: Border(
+            top: BorderSide(
+              color: colors.grey.shade600.withValues(alpha: 0.35),
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colors.black.withValues(alpha: 0.06),
+              blurRadius: 8.r,
+              offset: Offset(0, -2.h),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(horizontal, 14.h, horizontal, 12.h),
+            child: BlocBuilder<CheckoutViewModel, CheckoutState>(
+              builder: (context, state) {
+                return AppButton(
+                  text: AppString.placeOrder,
+                  isLoading: state.submitState.isLoading,
+                  onPressed: state.canSubmit
+                      ? () {
+                          context.read<CheckoutViewModel>().doEvent(
+                                SubmitPlaceOrder(),
+                              );
+                        }
+                      : null,
+                );
+              },
+            ),
           ),
         ),
       ),

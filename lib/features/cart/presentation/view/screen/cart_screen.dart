@@ -20,10 +20,12 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: const Text(AppString.myCart),
-      )),
+      appBar: AppBar(
+        title: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: const Text(AppString.myCart),
+        ),
+      ),
       body: const CartBody(),
     );
   }
@@ -42,7 +44,12 @@ class CartBody extends StatelessWidget {
   Widget _body(BuildContext context, CartState state) {
     final request = state.cartState;
     if (request.isLoading && request.data == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
     if (request.errorMessage.isNotEmpty && request.data == null) {
       return CartErrorState(message: request.errorMessage);
@@ -68,14 +75,16 @@ class CartItemsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final horizontal = MediaQuery.sizeOf(context).width >= 600 ? 48.w : 16.w;
     return RefreshIndicator(
       onRefresh: () {
         return context.read<CartViewModel>().doEvent(LoadCart());
       },
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(horizontal, 8.h, horizontal, 8.h),
         itemCount: items.length,
-        separatorBuilder: (_, _) => const Divider(height: 1),
+        separatorBuilder: (_, _) => SizedBox(height: 8.h),
         itemBuilder: (context, index) => CartLine(item: items[index]),
       ),
     );
@@ -93,9 +102,16 @@ class CartEmptyState extends StatelessWidget {
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
         children: [
-          SizedBox(height: 180.h),
-          Icon(AppIcons.shoppingCart, color: context.colors.grey.shade600, size: 60),
+          SizedBox(height: 160.h),
+          Center(
+            child: Icon(
+              AppIcons.shoppingCart,
+              color: context.colors.grey.shade600,
+              size: 64,
+            ),
+          ),
           SizedBox(height: 16.h),
           _message(context),
         ],
@@ -129,9 +145,17 @@ class CartErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: context.colors.error, size: 60),
+            Icon(Icons.error_outline, color: context.colors.error, size: 64),
             SizedBox(height: 16.h),
-            Text(message, textAlign: TextAlign.center),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: context.colors.grey.shade800,
+              ),
+            ),
             SizedBox(height: 24.h),
             _retry(context),
           ],
