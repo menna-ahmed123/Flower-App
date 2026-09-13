@@ -29,10 +29,4 @@ abstract class CartApiClient {
     @Path(ApiQueryParams.id) String id,
     @Query(ApiQueryParams.storeId) String storeId,
   );
-
-  @POST(ApiEndpoints.orders)
-  Future<void> placeOrder();
-
-  @POST(ApiEndpoints.paymentsCharge)
-  Future<void> processPayment();
 }

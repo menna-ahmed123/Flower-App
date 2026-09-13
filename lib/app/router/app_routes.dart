@@ -23,7 +23,4 @@ abstract final class AppRoutesName {
   static bool isMainTab(String path) => mainTabPaths.contains(path);
   static const String address = '/address';
   static const String saveAddress = '/save_address';
-  static const String checkout = '/checkout';
-  static const String payment = '/payment';
-  static const String confirmation = '/confirmation';
 }

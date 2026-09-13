@@ -262,14 +262,4 @@ class EmptyCartRepo implements CartRepo {
   Future<BaseResponse<bool>> removeItem({required String itemId}) async {
     return const SuccessResponse(true);
   }
-
-  @override
-  Future<BaseResponse<bool>> placeOrder() async {
-    return const SuccessResponse(true);
-  }
-
-  @override
-  Future<BaseResponse<bool>> processPayment() async {
-    return const SuccessResponse(true);
-  }
 }
