@@ -13,14 +13,33 @@ class CartFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final horizontal = MediaQuery.sizeOf(context).width >= 600 ? 48.w : 16.w;
     return Material(
-      color: context.colors.white,
-      elevation: 8,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
-          child: _summary(context),
+      color: colors.white,
+      elevation: 0,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.white,
+          border: Border(
+            top: BorderSide(
+              color: colors.grey.shade600.withValues(alpha: 0.35),
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colors.black.withValues(alpha: 0.06),
+              blurRadius: 8.r,
+              offset: Offset(0, -2.h),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(horizontal, 14.h, horizontal, 12.h),
+            child: _summary(context),
+          ),
         ),
       ),
     );
@@ -33,24 +52,38 @@ class CartFooter extends StatelessWidget {
         _row(context, AppString.subtotal, cart.subtotal),
         if (cart.deliveryFee > 0)
           _row(context, AppString.deliveryFee, cart.deliveryFee),
+        Divider(
+          height: 16.h,
+          color: context.colors.grey.shade600.withValues(alpha: 0.35),
+        ),
         _row(context, AppString.total, cart.total, bold: true),
-        SizedBox(height: 16.h),
+        SizedBox(height: 14.h),
         AppButton(text: AppString.checkout, onPressed: onCheckout),
       ],
     );
   }
 
-  Widget _row(BuildContext context, String label, double value, {bool bold = false}) {
+  Widget _row(
+    BuildContext context,
+    String label,
+    double value, {
+    bool bold = false,
+  }) {
     final style = TextStyle(
       fontSize: bold ? 16.sp : 14.sp,
       fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
       color: context.colors.black,
     );
+    final labelStyle = TextStyle(
+      fontSize: bold ? 16.sp : 13.sp,
+      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+      color: bold ? context.colors.black : context.colors.grey.shade800,
+    );
     return Padding(
-      padding: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.only(bottom: bold ? 0 : 6.h),
       child: Row(
         children: [
-          Text(label, style: style),
+          Text(label, style: labelStyle),
           const Spacer(),
           Text('${AppString.egp} ${value.toStringAsFixed(2)}', style: style),
         ],

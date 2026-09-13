@@ -19,9 +19,9 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1 -U sa -P \"${MSSQL_SA_PASSWORD:-Password123!}\" -C -Q \"SELECT 1\" || exit 1"]
       interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
+      timeout: 15s
+      retries: 10
+      start_period: 90s
     networks:
       - flower_net_team1
 
@@ -38,9 +38,9 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
       interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+      timeout: 15s
+      retries: 10
+      start_period: 60s
     networks:
       - flower_net_team1
 

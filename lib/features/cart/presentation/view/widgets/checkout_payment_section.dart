@@ -23,11 +23,11 @@ class CheckoutPaymentSection extends StatelessWidget {
               AppString.paymentMethod,
               style: TextStyle(
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: context.colors.black,
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: 14.h),
             for (final method in CheckoutPaymentMethods.all) ...[
               CheckoutPaymentOption(
                 method: method,
@@ -61,19 +61,34 @@ class CheckoutPaymentOption extends StatelessWidget {
               SelectCheckoutPayment(method),
             );
       },
-      borderRadius: BorderRadius.circular(16.r),
+      borderRadius: BorderRadius.circular(12.r),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: colors.grey.shade300),
+          color: colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: selected ? colors.pink : colors.grey.shade600.withValues(alpha: 0.35),
+            width: selected ? 1.5 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colors.black.withValues(alpha: selected ? 0.06 : 0.03),
+              blurRadius: 8.r,
+              offset: Offset(0, 2.h),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 method,
-                style: TextStyle(fontSize: 14.sp, color: colors.black),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: colors.black,
+                ),
               ),
             ),
             Icon(
