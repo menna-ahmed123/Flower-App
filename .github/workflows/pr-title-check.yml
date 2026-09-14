@@ -1,0 +1,44 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: none
+  pull-requests: read
+
+jobs:
+  pr-title-check:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          PATTERN='^(feat|fix|chore|refactor|docs|test|build|ci|perf|revert)(\([^)]+\))?: [^[:space:]].*$'
+
+          if [[ ! "$PR_TITLE" =~ ^[[:space:]] &&
+                ! "$PR_TITLE" =~ [[:space:]]$ &&
+                "$PR_TITLE" =~ $PATTERN ]]; then
+            echo "PR title '$PR_TITLE' is valid."
+            exit 0
+          fi
+
+          echo "Invalid PR title."
+          echo
+          echo "Received: '$PR_TITLE'"
+          echo
+          echo "Expected format:"
+          echo "type(scope): description"
+          echo
+          echo "Allowed types:"
+          echo "feat, fix, chore, refactor, docs, test, build, ci, perf, revert"
+          echo
+          echo "Examples:"
+          echo "feat(cart): add checkout screen"
+          echo "fix(checkout): resolve delivery fee issue"
+          echo "chore(ci): add PR title validation"
+          exit 1
