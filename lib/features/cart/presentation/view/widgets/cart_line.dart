@@ -41,15 +41,32 @@ class CartLine extends StatelessWidget {
   }
 
   Widget _content(BuildContext context) {
+    final colors = context.colors;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      child: Row(
-        children: [
-          _image(context),
-          SizedBox(width: 12.w),
-          Expanded(child: _info(context)),
-          _stepper(context),
-        ],
+      padding: EdgeInsets.symmetric(vertical: 2.h),
+      child: Container(
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: colors.grey.shade600.withValues(alpha: 0.35)),
+          boxShadow: [
+            BoxShadow(
+              color: colors.black.withValues(alpha: 0.04),
+              blurRadius: 8.r,
+              offset: Offset(0, 2.h),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _image(context),
+            SizedBox(width: 12.w),
+            Expanded(child: _info(context)),
+            _stepper(context),
+          ],
+        ),
       ),
     );
   }
@@ -57,14 +74,17 @@ class CartLine extends StatelessWidget {
   Widget _image(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8.r),
-      child: CachedNetworkImage(
-        imageUrl: item.imageUrl,
-        width: 72.w,
-        height: 72.w,
-        fit: BoxFit.cover,
-        errorWidget: (_, _, _) {
-          return Icon(Icons.image_not_supported_outlined, size: 28.w);
-        },
+      child: ColoredBox(
+        color: context.colors.pink.shade50,
+        child: CachedNetworkImage(
+          imageUrl: item.imageUrl,
+          width: 72.w,
+          height: 72.w,
+          fit: BoxFit.cover,
+          errorWidget: (_, _, _) {
+            return Icon(Icons.image_not_supported_outlined, size: 28.w);
+          },
+        ),
       ),
     );
   }
@@ -90,6 +110,7 @@ class CartLine extends StatelessWidget {
       style: TextStyle(
         fontSize: 14.sp,
         fontWeight: FontWeight.w600,
+        height: 1.3,
         color: context.colors.black,
       ),
     );
@@ -99,8 +120,8 @@ class CartLine extends StatelessWidget {
     return Text(
       '${AppString.egp} ${item.price.toStringAsFixed(2)}',
       style: TextStyle(
-        fontSize: 14.sp,
-        fontWeight: FontWeight.w600,
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w700,
         color: context.colors.black,
       ),
     );

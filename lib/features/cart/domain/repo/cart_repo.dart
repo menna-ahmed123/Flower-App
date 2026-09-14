@@ -15,4 +15,8 @@ abstract interface class CartRepo {
   });
 
   Future<BaseResponse<bool>> removeItem({required String itemId});
+
+  Future<BaseResponse<bool>> placeOrder();
+
+  Future<BaseResponse<bool>> processPayment();
 }
