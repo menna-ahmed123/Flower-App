@@ -89,8 +89,14 @@ class CheckoutBodyState extends State<CheckoutBody> {
   }
 
   void _onAddresses(BuildContext context, DefaultAddressState state) {
+    if (state.defaultAddressesState.isLoading) return;
     final addresses = state.defaultAddressesState.data ?? [];
     final checkout = context.read<CheckoutViewModel>();
+    if (addresses.isEmpty) {
+      _openAddAddressIfRequested(context);
+    } else if (checkout.state.destination == CheckoutDestination.addAddress) {
+      checkout.doEvent(const ClearCheckoutNavigation());
+    }
     if (addresses.length > _addressCount && _addressCount > 0) {
       checkout.doEvent(SelectCheckoutAddress(addresses.last));
     } else if (!checkout.state.hasAddress && addresses.isNotEmpty) {
@@ -100,22 +106,65 @@ class CheckoutBodyState extends State<CheckoutBody> {
   }
 
   void _onCheckout(BuildContext context, CheckoutState state) {
-    final error = state.submitState.errorMessage;
-    if (error.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+    final destination = state.destination;
+    if (destination == CheckoutDestination.addAddress) {
+      _openAddAddressIfRequested(context);
       return;
     }
-    final destination = state.destination;
-    if (destination == null) return;
-    context.read<CheckoutViewModel>().doEvent(const ClearCheckoutNavigation());
-    if (destination == CheckoutDestination.confirmation) {
-      context.read<CartViewModel>().doEvent(const ResetCart());
+    if (destination != null) {
+      context.read<CheckoutViewModel>().doEvent(
+        const ClearCheckoutNavigation(),
+      );
+      _go(context, destination);
+      return;
     }
+    final error = state.submitState.errorMessage;
+    if (error.isNotEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error)));
+    }
+  }
+
+  void _openAddAddressIfRequested(BuildContext context) {
+    final addresses = context
+        .read<DefaultAddressViewModel>()
+        .state
+        .defaultAddressesState;
+    if (addresses.isLoading) return;
+    final checkout = context.read<CheckoutViewModel>();
+    if (checkout.state.destination != CheckoutDestination.addAddress) return;
+    checkout.doEvent(const ClearCheckoutNavigation());
+    if ((addresses.data ?? []).isNotEmpty) return;
+    context.push(AppRoutesName.address);
+  }
+
+  Future<void> _go(
+    BuildContext context,
+    CheckoutDestination destination,
+  ) async {
+    switch (destination) {
+      case CheckoutDestination.addAddress:
+        context.push(AppRoutesName.address);
+      case CheckoutDestination.emptyCart:
+        context.read<CartViewModel>().doEvent(const LoadCart());
+        if (context.canPop()) context.pop();
+      case CheckoutDestination.confirmation:
+        await _openConfirmation(context);
+      case CheckoutDestination.payment:
+        context.push(
+          AppRoutesName.payment,
+          extra: context.read<CheckoutViewModel>(),
+        );
+    }
+  }
+
+  Future<void> _openConfirmation(BuildContext context) async {
+    await context.read<CartViewModel>().doEvent(const ClearCart());
+    if (!context.mounted) return;
     context.push(
-      destination == CheckoutDestination.payment
-          ? AppRoutesName.payment
-          : AppRoutesName.confirmation,
-      extra: context.read<CheckoutViewModel>(),
+      AppRoutesName.confirmation,
+      extra: context.read<CheckoutViewModel>().state.orderId,
     );
   }
 }
@@ -200,8 +249,8 @@ class CheckoutSubmitBar extends StatelessWidget {
           onPressed: state.canSubmit
               ? () {
                   context.read<CheckoutViewModel>().doEvent(
-                        const SubmitPlaceOrder(),
-                      );
+                    const SubmitPlaceOrder(),
+                  );
                 }
               : null,
         );

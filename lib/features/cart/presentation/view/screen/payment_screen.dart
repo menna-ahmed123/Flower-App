@@ -27,7 +27,8 @@ class PaymentScreen extends StatelessWidget {
       body: BlocListener<CheckoutViewModel, CheckoutState>(
         listenWhen: (previous, current) =>
             previous.destination != current.destination ||
-            previous.paymentState.errorMessage != current.paymentState.errorMessage,
+            previous.paymentState.errorMessage !=
+                current.paymentState.errorMessage,
         listener: _onPayment,
         child: Padding(
           padding: EdgeInsets.all(16.w),
@@ -38,16 +39,18 @@ class PaymentScreen extends StatelessWidget {
   }
 }
 
-void _onPayment(BuildContext context, CheckoutState state) {
+Future<void> _onPayment(BuildContext context, CheckoutState state) async {
   final error = state.paymentState.errorMessage;
   if (error.isNotEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
     return;
   }
   if (state.destination != CheckoutDestination.confirmation) return;
+  final orderId = state.orderId;
   context.read<CheckoutViewModel>().doEvent(const ClearCheckoutNavigation());
-  context.read<CartViewModel>().doEvent(const ResetCart());
-  context.push(AppRoutesName.confirmation);
+  await context.read<CartViewModel>().doEvent(const ClearCart());
+  if (!context.mounted) return;
+  context.push(AppRoutesName.confirmation, extra: orderId);
 }
 
 class PaymentBody extends StatelessWidget {
@@ -80,8 +83,8 @@ class PaymentBody extends StatelessWidget {
           ? null
           : () {
               context.read<CheckoutViewModel>().doEvent(
-                    const ProcessCheckoutPayment(),
-                  );
+                const ProcessCheckoutPayment(),
+              );
             },
     );
   }

@@ -30,14 +30,21 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
 
   @override
   Future<void> removeCartItem(String itemId) {
-    return cartApiClient.removeCartItem(
-      itemId,
-      ApiQueryParams.defaultStoreId,
-    );
+    return cartApiClient.removeCartItem(itemId, ApiQueryParams.defaultStoreId);
   }
 
   @override
-  Future<void> placeOrder() => cartApiClient.placeOrder();
+  Future<CartResponse> previewCheckout(CheckoutRequest request) {
+    return cartApiClient.previewCheckout(request);
+  }
+
+  @override
+  Future<OrderResponse> placeOrder(
+    String idempotencyKey,
+    CheckoutRequest request,
+  ) {
+    return cartApiClient.placeOrder(idempotencyKey, request);
+  }
 
   @override
   Future<void> processPayment() => cartApiClient.processPayment();

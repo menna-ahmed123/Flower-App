@@ -49,7 +49,9 @@ class CartLine extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.white,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: colors.grey.shade600.withValues(alpha: 0.35)),
+          border: Border.all(
+            color: colors.grey.shade600.withValues(alpha: 0.35),
+          ),
           boxShadow: [
             BoxShadow(
               color: colors.black.withValues(alpha: 0.04),
@@ -96,6 +98,7 @@ class CartLine extends StatelessWidget {
         _name(context),
         if (item.attributes != null && item.attributes!.isNotEmpty)
           _attributes(context),
+        if (item.outOfStock || item.priceChanged) _status(context),
         SizedBox(height: 8.h),
         _price(context),
       ],
@@ -112,6 +115,20 @@ class CartLine extends StatelessWidget {
         fontWeight: FontWeight.w600,
         height: 1.3,
         color: context.colors.black,
+      ),
+    );
+  }
+
+  Widget _status(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: 4.h),
+      child: Text(
+        item.outOfStock ? AppString.outOfStock : AppString.priceUpdated,
+        style: TextStyle(
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w600,
+          color: context.colors.error,
+        ),
       ),
     );
   }
@@ -140,7 +157,8 @@ class CartLine extends StatelessWidget {
   }
 
   Widget _stepper(BuildContext context) {
-    final canIncrement = item.stock == null || item.quantity < item.stock!;
+    final canIncrement =
+        !item.outOfStock && (item.stock == null || item.quantity < item.stock!);
     return QuantityStepper(
       quantity: item.quantity,
       canIncrement: canIncrement,

@@ -27,8 +27,8 @@ CartEntity cartWithItems(List<CartItemEntity> items) {
     id: 'cart-1',
     items: items,
     subtotal: CartEntity.sumLines(items),
-    deliveryFee: 10,
-    total: CartEntity.sumLines(items) + 10,
+    deliveryFee: 0,
+    total: CartEntity.sumLines(items),
     itemCount: CartEntity.sumQuantities(items),
   );
 }
@@ -36,17 +36,28 @@ CartEntity cartWithItems(List<CartItemEntity> items) {
 class FakeCartRepo implements CartRepo {
   FakeCartRepo({
     this.getCartResponse = const SuccessResponse(CartEntity.empty()),
-    this.placeOrderResponse = const SuccessResponse(true),
+    this.previewResponse = const SuccessResponse(CartEntity.empty()),
+    this.placeOrderResponse = const SuccessResponse(
+      OrderEntity(status: 0, paymentRequired: false),
+    ),
     this.paymentResponse = const SuccessResponse(true),
   });
 
   BaseResponse<CartEntity> getCartResponse;
-  BaseResponse<bool> placeOrderResponse;
+  BaseResponse<CartEntity> previewResponse;
+  BaseResponse<OrderEntity> placeOrderResponse;
   BaseResponse<bool> paymentResponse;
   Duration placeOrderDelay = Duration.zero;
   int getCartCalls = 0;
+  int previewCalls = 0;
   int placeOrderCalls = 0;
   int paymentCalls = 0;
+  double? lastExpectedTotal;
+  int? lastPaymentMethod;
+  String? lastPreviewAddressId;
+  CheckoutGiftEntity? lastPreviewGift;
+  final List<String> idempotencyKeys = [];
+  final List<String> removedItemIds = [];
 
   @override
   Future<BaseResponse<CartEntity>> getCart() async {
@@ -72,12 +83,46 @@ class FakeCartRepo implements CartRepo {
 
   @override
   Future<BaseResponse<bool>> removeItem({required String itemId}) async {
+    removedItemIds.add(itemId);
+    _dropLine(itemId);
     return const SuccessResponse(true);
   }
 
+  void _dropLine(String itemId) {
+    final current = getCartResponse;
+    if (current is! SuccessResponse<CartEntity>) return;
+    final items = [
+      for (final item in current.data.items)
+        if (item.id != itemId) item,
+    ];
+    getCartResponse = SuccessResponse(
+      items.isEmpty ? const CartEntity.empty() : cartWithItems(items),
+    );
+  }
+
   @override
-  Future<BaseResponse<bool>> placeOrder() async {
+  Future<BaseResponse<CartEntity>> previewCheckout({
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) async {
+    previewCalls++;
+    lastPreviewAddressId = addressId;
+    lastPreviewGift = gift;
+    return previewResponse;
+  }
+
+  @override
+  Future<BaseResponse<OrderEntity>> placeOrder({
+    required String idempotencyKey,
+    required int paymentMethod,
+    required double expectedTotal,
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) async {
     placeOrderCalls++;
+    lastExpectedTotal = expectedTotal;
+    lastPaymentMethod = paymentMethod;
+    idempotencyKeys.add(idempotencyKey);
     if (placeOrderDelay > Duration.zero) {
       await Future<void>.delayed(placeOrderDelay);
     }

@@ -31,7 +31,28 @@ class CartUseCase {
     return cartRepo.removeItem(itemId: itemId);
   }
 
-  Future<BaseResponse<bool>> placeOrder() => cartRepo.placeOrder();
+  Future<BaseResponse<CartEntity>> previewCheckout({
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) {
+    return cartRepo.previewCheckout(addressId: addressId, gift: gift);
+  }
+
+  Future<BaseResponse<OrderEntity>> placeOrder({
+    required String idempotencyKey,
+    required int paymentMethod,
+    required double expectedTotal,
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) {
+    return cartRepo.placeOrder(
+      idempotencyKey: idempotencyKey,
+      paymentMethod: paymentMethod,
+      expectedTotal: expectedTotal,
+      addressId: addressId,
+      gift: gift,
+    );
+  }
 
   Future<BaseResponse<bool>> processPayment() => cartRepo.processPayment();
 }

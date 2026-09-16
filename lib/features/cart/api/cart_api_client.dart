@@ -11,9 +11,7 @@ abstract class CartApiClient {
   factory CartApiClient(Dio dio, {String baseUrl}) = _CartApiClient;
 
   @GET(ApiEndpoints.cart)
-  Future<CartResponse> getCart(
-    @Query(ApiQueryParams.storeId) String storeId,
-  );
+  Future<CartResponse> getCart(@Query(ApiQueryParams.storeId) String storeId);
 
   @POST(ApiEndpoints.cartItems)
   Future<CartResponse> addCartItem(@Body() AddCartItemRequest request);
@@ -30,8 +28,14 @@ abstract class CartApiClient {
     @Query(ApiQueryParams.storeId) String storeId,
   );
 
-  @POST(ApiEndpoints.orders)
-  Future<void> placeOrder();
+  @POST(ApiEndpoints.checkoutPreview)
+  Future<CartResponse> previewCheckout(@Body() CheckoutRequest request);
+
+  @POST(ApiEndpoints.checkout)
+  Future<OrderResponse> placeOrder(
+    @Header(ApiQueryParams.idempotencyKey) String idempotencyKey,
+    @Body() CheckoutRequest request,
+  );
 
   @POST(ApiEndpoints.paymentsCharge)
   Future<void> processPayment();

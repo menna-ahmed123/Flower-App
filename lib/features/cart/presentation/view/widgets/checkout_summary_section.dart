@@ -56,8 +56,8 @@ class CheckoutPreviewError extends StatelessWidget {
             text: AppString.retry,
             onPressed: () {
               context.read<CheckoutViewModel>().doEvent(
-                    const LoadCheckoutPreview(),
-                  );
+                const LoadCheckoutPreview(),
+              );
             },
           ),
         ],
@@ -108,9 +108,21 @@ class CheckoutSummaryRows extends StatelessWidget {
             child: const LinearProgressIndicator(),
           ),
         CheckoutAmountRow(label: AppString.subtotal, value: cart.subtotal),
-        CheckoutAmountRow(label: AppString.deliveryFee, value: cart.deliveryFee),
-        Divider(height: 16.h, color: colors.grey.shade600.withValues(alpha: 0.35)),
-        CheckoutAmountRow(label: AppString.total, value: cart.total, bold: true),
+        CheckoutAmountRow(
+          label: AppString.deliveryFee,
+          value: cart.deliveryFee,
+        ),
+        if (cart.discount != 0)
+          CheckoutAmountRow(label: AppString.discount, value: cart.discount),
+        Divider(
+          height: 16.h,
+          color: colors.grey.shade600.withValues(alpha: 0.35),
+        ),
+        CheckoutAmountRow(
+          label: AppString.total,
+          value: cart.total,
+          bold: true,
+        ),
       ],
     );
   }

@@ -58,10 +58,37 @@ class CartRepoImpl implements CartRepo {
   }
 
   @override
-  Future<BaseResponse<bool>> placeOrder() {
+  Future<BaseResponse<CartEntity>> previewCheckout({
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) {
     return safeCall.safeApiCall(() async {
-      await cartRemoteDataSource.placeOrder();
-      return true;
+      final request = _checkoutRequest(addressId: addressId, gift: gift);
+      return _mapCart(
+        await cartRemoteDataSource.previewCheckout(request),
+        preview: true,
+      );
+    });
+  }
+
+  @override
+  Future<BaseResponse<OrderEntity>> placeOrder({
+    required String idempotencyKey,
+    required int paymentMethod,
+    required double expectedTotal,
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) {
+    return safeCall.safeApiCall(() async {
+      final request = _checkoutRequest(
+        addressId: addressId,
+        gift: gift,
+        paymentMethod: paymentMethod,
+        expectedTotal: expectedTotal,
+      );
+      return _mapOrder(
+        await cartRemoteDataSource.placeOrder(idempotencyKey, request),
+      );
     });
   }
 
@@ -73,7 +100,21 @@ class CartRepoImpl implements CartRepo {
     });
   }
 
-  CartEntity _mapCart(CartResponse response) {
+  CheckoutRequest _checkoutRequest({
+    String? addressId,
+    CheckoutGiftEntity? gift,
+    int? paymentMethod,
+    double? expectedTotal,
+  }) {
+    return CheckoutRequest(
+      addressId: gift == null ? addressId : null,
+      gift: gift == null ? null : CheckoutGiftRequest.fromEntity(gift),
+      paymentMethod: paymentMethod,
+      expectedTotal: expectedTotal,
+    );
+  }
+
+  CartEntity _mapCart(CartResponse response, {bool preview = false}) {
     if (response.success == false) {
       throw ApiException(
         message: (response.message ?? '').isNotEmpty
@@ -82,6 +123,20 @@ class CartRepoImpl implements CartRepo {
         statusCode: response.statusCode,
       );
     }
-    return response.data?.toDomain() ?? const CartEntity.empty();
+    final data = response.data;
+    if (data == null) return const CartEntity.empty();
+    return preview ? data.toPreviewDomain() : data.toDomain();
+  }
+
+  OrderEntity _mapOrder(OrderResponse response) {
+    if (response.success == false) {
+      throw ApiException(
+        message: (response.message ?? '').isNotEmpty
+            ? response.message!
+            : statusCodeToMessage(response.statusCode),
+        statusCode: response.statusCode,
+      );
+    }
+    return response.data?.toDomain() ?? const OrderEntity();
   }
 }

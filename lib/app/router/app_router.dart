@@ -54,9 +54,7 @@ class AppRouter {
   static Future<String> resolveInitialLocation() async {
     final isAuthenticated = await getIt<AuthRepository>().isAuthenticated();
 
-    return isAuthenticated
-        ? AppRoutesName.home
-        : AppRoutesName.login;
+    return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
   }
 
   static GoRouter createRouter({String? initialLocation}) {
@@ -69,11 +67,15 @@ class AppRouter {
         _forgetPasswordShell(),
         _searchRoute(),
         _mainShell(),
-         GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
+        GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
         GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
         GoRoute(path: AppRoutesName.checkout, builder: _checkoutBuilder),
         GoRoute(path: AppRoutesName.payment, builder: _paymentBuilder),
-        GoRoute(path: AppRoutesName.confirmation, builder: _confirmationBuilder),
+        GoRoute(
+          path: AppRoutesName.confirmation,
+          builder: _confirmationBuilder,
+        ),
+        GoRoute(path: AppRoutesName.trackOrder, builder: _trackOrderBuilder),
       ],
     );
   }
@@ -173,14 +175,8 @@ class AppRouter {
   static List<RouteBase> _homeRoutes() {
     return [
       GoRoute(path: AppRoutesName.home, builder: _homeBuilder),
-      GoRoute(
-        path: AppRoutesName.bestSeller,
-        builder: _bestSellerBuilder,
-      ),
-      GoRoute(
-        path: AppRoutesName.occasion,
-        builder: _occasionBuilder,
-      ),
+      GoRoute(path: AppRoutesName.bestSeller, builder: _bestSellerBuilder),
+      GoRoute(path: AppRoutesName.occasion, builder: _occasionBuilder),
       GoRoute(
         path: AppRoutesName.productDetails,
         builder: _productDetailsBuilder,
@@ -204,10 +200,7 @@ class AppRouter {
         BlocProvider(
           create: (_) {
             final viewModel = getIt<DefaultAddressViewModel>();
-            if (context
-                .read<AuthCubit>()
-                .state
-                .isAuthenticated) {
+            if (context.read<AuthCubit>().state.isAuthenticated) {
               viewModel.doEvent(LoadSavedAddresses());
             }
             return viewModel;
@@ -218,7 +211,7 @@ class AppRouter {
     );
   }
 
-   static Widget _bestSellerBuilder(BuildContext context, GoRouterState state) {
+  static Widget _bestSellerBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<BestSellerViewModel>(),
       child: const BestSellerScreen(),
@@ -226,24 +219,21 @@ class AppRouter {
   }
 
   static Widget _productDetailsBuilder(
-  BuildContext context,
-  GoRouterState state,
-) {
-  final productId = state.pathParameters['productId'];
-  if (productId == null || productId.isEmpty) {
-    return const Scaffold(
-      body: Center(child: Text(AppString.pageNotFound)),
+    BuildContext context,
+    GoRouterState state,
+  ) {
+    final productId = state.pathParameters['productId'];
+    if (productId == null || productId.isEmpty) {
+      return const Scaffold(body: Center(child: Text(AppString.pageNotFound)));
+    }
+
+    return BlocProvider(
+      create: (_) =>
+          getIt<ProductDetailsViewModel>()
+            ..onEvent(GetProductDetailsEvent(productId: productId)),
+      child: const ProductDetailsScreen(),
     );
   }
-
-  return BlocProvider(
-    create: (_) => getIt<ProductDetailsViewModel>()
-      ..onEvent(
-        GetProductDetailsEvent(productId: productId),
-      ),
-    child: const ProductDetailsScreen(),
-  );
-}
 
   static Widget _occasionBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
@@ -255,10 +245,7 @@ class AppRouter {
   static StatefulShellBranch categoryBranch() {
     return StatefulShellBranch(
       routes: [
-        GoRoute(
-          path: AppRoutesName.category,
-          builder: _categoryBuilder,
-        ),
+        GoRoute(path: AppRoutesName.category, builder: _categoryBuilder),
       ],
     );
   }
@@ -335,7 +322,23 @@ class AppRouter {
     );
   }
 
-  static Widget _confirmationBuilder(BuildContext context, GoRouterState state) {
-    return const ConfirmationScreen();
+  static Widget _confirmationBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
+    return ConfirmationScreen(orderId: _orderIdFromExtra(state.extra));
+  }
+
+  static Widget _trackOrderBuilder(BuildContext context, GoRouterState state) {
+    return TrackOrderScreen(orderId: _orderIdFromExtra(state.extra));
+  }
+
+  static String? _orderIdFromExtra(Object? extra) {
+    if (extra is String && extra.isNotEmpty) return extra;
+    if (extra is CheckoutViewModel) {
+      final id = extra.state.orderId;
+      return (id ?? '').isEmpty ? null : id;
+    }
+    return null;
   }
 }

@@ -10,6 +10,10 @@ class ResetCart extends CartEvent {
   const ResetCart();
 }
 
+class ClearCart extends CartEvent {
+  const ClearCart();
+}
+
 class AddCartItemEvent extends CartEvent {
   const AddCartItemEvent({required this.productId, this.quantity = 1});
 

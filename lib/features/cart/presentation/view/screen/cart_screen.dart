@@ -1,4 +1,5 @@
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
@@ -14,21 +15,51 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
   @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadIfNeeded();
+  }
+
+  void _loadIfNeeded() {
+    final request = context.read<CartViewModel>().state.cartState;
+    if (!_needsCartLoad(request)) return;
+    context.read<CartViewModel>().doEvent(const LoadCart());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: const Text(AppString.myCart),
+    return BlocListener<CartViewModel, CartState>(
+      listenWhen: (previous, current) {
+        return !_needsCartLoad(previous.cartState) &&
+            _needsCartLoad(current.cartState);
+      },
+      listener: (context, _) => _loadIfNeeded(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: const Text(AppString.myCart),
+          ),
         ),
+        body: const CartBody(),
       ),
-      body: const CartBody(),
     );
   }
+}
+
+bool _needsCartLoad(BaseState<CartEntity> request) {
+  if (request.isLoading || request.errorMessage.isNotEmpty) return false;
+  if (request.data == null) return true;
+  return request.data!.items.isEmpty && request.data!.itemCount > 0;
 }
 
 class CartBody extends StatelessWidget {
@@ -43,14 +74,27 @@ class CartBody extends StatelessWidget {
 
   Widget _body(BuildContext context, CartState state) {
     final request = state.cartState;
-    if (request.isLoading && request.data == null) return const CartLoading();
+    if (request.data == null && request.errorMessage.isEmpty) {
+      return const CartLoading();
+    }
     if (request.errorMessage.isNotEmpty && request.data == null) {
       return CartErrorState(message: request.errorMessage);
     }
+    return _loadedBody(context, request);
+  }
+
+  Widget _loadedBody(BuildContext context, BaseState<CartEntity> request) {
     final cart = request.data ?? const CartEntity.empty();
+    if (cart.items.isEmpty &&
+        cart.itemCount > 0 &&
+        request.errorMessage.isEmpty) {
+      return const CartLoading();
+    }
     if (cart.items.isEmpty) return const CartEmptyState();
     return Column(
       children: [
+        if (cart.hasChanges || cart.pricingUnavailable)
+          CartStatusBanner(cart: cart),
         Expanded(child: CartItemsList(items: cart.items)),
         CartFooter(
           cart: cart,
@@ -137,6 +181,40 @@ class CartEmptyState extends StatelessWidget {
         color: context.colors.grey.shade600,
         fontWeight: FontWeight.w500,
       ),
+    );
+  }
+}
+
+class CartStatusBanner extends StatelessWidget {
+  const CartStatusBanner({super.key, required this.cart});
+
+  final CartEntity cart;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Material(
+      color: cart.pricingUnavailable
+          ? colors.grey.shade100
+          : colors.pink.shade50,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 10.h),
+        child: Text(_message, style: _style(context)),
+      ),
+    );
+  }
+
+  String get _message {
+    if (cart.pricingUnavailable) return AppString.cartPricingUnavailable;
+    return AppString.cartPricesUpdated;
+  }
+
+  TextStyle _style(BuildContext context) {
+    return TextStyle(
+      fontSize: 13.sp,
+      height: 1.35,
+      fontWeight: FontWeight.w500,
+      color: context.colors.grey.shade800,
     );
   }
 }

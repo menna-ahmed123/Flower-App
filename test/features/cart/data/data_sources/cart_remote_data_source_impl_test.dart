@@ -11,10 +11,14 @@ import 'cart_remote_data_source_impl_test.mocks.dart';
 @GenerateMocks([CartApiClient])
 void main() {
   provideDummy<CartResponse>(_cartResponse);
+  provideDummy<OrderResponse>(
+    const OrderResponse(success: true, statusCode: 200),
+  );
   _getCartTests();
   _addCartItemTests();
   _updateCartItemTests();
   _removeCartItemTests();
+  _previewCheckoutTests();
   _placeOrderTests();
   _processPaymentTests();
 }
@@ -48,7 +52,9 @@ void _getCartTests() {
 }
 
 Future<void> _getCartForwards(CartSourceCase c) async {
-  when(c.apiClient.getCart(ApiQueryParams.defaultStoreId)).thenAnswer((_) async {
+  when(c.apiClient.getCart(ApiQueryParams.defaultStoreId)).thenAnswer((
+    _,
+  ) async {
     return _cartResponse;
   });
   final result = await c.dataSource.getCart();
@@ -57,9 +63,9 @@ Future<void> _getCartForwards(CartSourceCase c) async {
 }
 
 void _getCartRethrows(CartSourceCase c) {
-  when(c.apiClient.getCart(ApiQueryParams.defaultStoreId)).thenThrow(
-    Exception('API Error'),
-  );
+  when(
+    c.apiClient.getCart(ApiQueryParams.defaultStoreId),
+  ).thenThrow(Exception('API Error'));
   expect(c.dataSource.getCart, throwsException);
 }
 
@@ -113,9 +119,9 @@ Future<void> _updateCartItemForwards(CartSourceCase c) async {
 void _updateCartItemRethrows(CartSourceCase c) {
   const itemId = 'item-1';
   const request = UpdateCartItemRequest(quantity: 3);
-  when(c.apiClient.updateCartItem(itemId, request)).thenThrow(
-    Exception('API Error'),
-  );
+  when(
+    c.apiClient.updateCartItem(itemId, request),
+  ).thenThrow(Exception('API Error'));
   expect(() => c.dataSource.updateCartItem(itemId, request), throwsException);
 }
 
@@ -158,9 +164,31 @@ void _placeOrderTests() {
 }
 
 Future<void> _placeOrderForwards(CartSourceCase c) async {
-  when(c.apiClient.placeOrder()).thenAnswer((_) async {});
-  await c.dataSource.placeOrder();
-  verify(c.apiClient.placeOrder()).called(1);
+  const request = CheckoutRequest(paymentMethod: 1, expectedTotal: 1600);
+  when(c.apiClient.placeOrder('key', request)).thenAnswer((_) async {
+    return const OrderResponse(success: true, statusCode: 200);
+  });
+  final result = await c.dataSource.placeOrder('key', request);
+  expect(result.success, isTrue);
+  verify(c.apiClient.placeOrder('key', request)).called(1);
+}
+
+void _previewCheckoutTests() {
+  group('previewCheckout', () {
+    final c = CartSourceCase();
+    setUp(c.setUp);
+    test('forwards the request', () => _previewCheckoutForwards(c));
+  });
+}
+
+Future<void> _previewCheckoutForwards(CartSourceCase c) async {
+  const request = CheckoutRequest(addressId: 'address-1');
+  when(c.apiClient.previewCheckout(request)).thenAnswer((_) async {
+    return _cartResponse;
+  });
+  final result = await c.dataSource.previewCheckout(request);
+  expect(result, _cartResponse);
+  verify(c.apiClient.previewCheckout(request)).called(1);
 }
 
 void _processPaymentTests() {

@@ -9,12 +9,20 @@ abstract final class CheckoutPaymentMethods {
   static const String cashOnDelivery = AppString.cashOnDelivery;
   static const String creditCard = AppString.creditCard;
 
-  static const List<String> all = [cashOnDelivery, creditCard];
-
   static bool requiresCharge(String? method) => method == creditCard;
+
+  static int apiValue(
+    String? method, {
+    List<PaymentMethodEntity> methods = const [],
+  }) {
+    for (final item in methods) {
+      if (item.name == method) return item.value;
+    }
+    return method == creditCard ? 2 : 1;
+  }
 }
 
-enum CheckoutDestination { payment, confirmation }
+enum CheckoutDestination { payment, confirmation, addAddress, emptyCart }
 
 class CheckoutState extends Equatable {
   const CheckoutState({
@@ -28,6 +36,10 @@ class CheckoutState extends Equatable {
     this.submitState = const BaseState(),
     this.paymentState = const BaseState(),
     this.destination,
+    this.orderId,
+    this.sessionUrl,
+    this.successUrl,
+    this.cancelUrl,
   });
 
   final AddressEntity? selectedAddress;
@@ -40,6 +52,22 @@ class CheckoutState extends Equatable {
   final BaseState<bool> submitState;
   final BaseState<bool> paymentState;
   final CheckoutDestination? destination;
+  final String? orderId;
+  final String? sessionUrl;
+  final String? successUrl;
+  final String? cancelUrl;
+
+  List<PaymentMethodEntity> get paymentMethods {
+    final methods = previewState.data?.paymentMethods ?? const [];
+    if (methods.isNotEmpty) return methods;
+    return const [
+      PaymentMethodEntity(
+        name: CheckoutPaymentMethods.cashOnDelivery,
+        value: 1,
+      ),
+      PaymentMethodEntity(name: CheckoutPaymentMethods.creditCard, value: 2),
+    ];
+  }
 
   bool get hasAddress => (selectedAddress?.id ?? '').isNotEmpty;
 
@@ -55,7 +83,9 @@ class CheckoutState extends Equatable {
     return hasAddress &&
         hasPaymentMethod &&
         isGiftRecipientValid &&
-        !submitState.isLoading;
+        !submitState.isLoading &&
+        !previewState.isLoading &&
+        previewState.data != null;
   }
 
   CheckoutState copyWith({
@@ -70,6 +100,10 @@ class CheckoutState extends Equatable {
     BaseState<bool>? paymentState,
     CheckoutDestination? destination,
     bool clearDestination = false,
+    String? orderId,
+    String? sessionUrl,
+    String? successUrl,
+    String? cancelUrl,
   }) {
     return CheckoutState(
       selectedAddress: selectedAddress ?? this.selectedAddress,
@@ -82,20 +116,28 @@ class CheckoutState extends Equatable {
       submitState: submitState ?? this.submitState,
       paymentState: paymentState ?? this.paymentState,
       destination: clearDestination ? null : (destination ?? this.destination),
+      orderId: orderId ?? this.orderId,
+      sessionUrl: sessionUrl ?? this.sessionUrl,
+      successUrl: successUrl ?? this.successUrl,
+      cancelUrl: cancelUrl ?? this.cancelUrl,
     );
   }
 
   @override
   List<Object?> get props => [
-        selectedAddress,
-        isGift,
-        recipientName,
-        recipientPhone,
-        paymentMethod,
-        showValidation,
-        previewState,
-        submitState,
-        paymentState,
-        destination,
-      ];
+    selectedAddress,
+    isGift,
+    recipientName,
+    recipientPhone,
+    paymentMethod,
+    showValidation,
+    previewState,
+    submitState,
+    paymentState,
+    destination,
+    orderId,
+    sessionUrl,
+    successUrl,
+    cancelUrl,
+  ];
 }

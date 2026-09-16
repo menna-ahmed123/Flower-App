@@ -5,11 +5,19 @@ abstract interface class CartRemoteDataSource {
 
   Future<CartResponse> addCartItem(AddCartItemRequest request);
 
-  Future<CartResponse> updateCartItem(String itemId, UpdateCartItemRequest request);
+  Future<CartResponse> updateCartItem(
+    String itemId,
+    UpdateCartItemRequest request,
+  );
 
   Future<void> removeCartItem(String itemId);
 
-  Future<void> placeOrder();
+  Future<CartResponse> previewCheckout(CheckoutRequest request);
+
+  Future<OrderResponse> placeOrder(
+    String idempotencyKey,
+    CheckoutRequest request,
+  );
 
   Future<void> processPayment();
 }

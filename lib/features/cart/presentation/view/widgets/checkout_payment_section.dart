@@ -14,19 +14,23 @@ class CheckoutPaymentSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CheckoutViewModel, CheckoutState>(
       buildWhen: (previous, current) =>
-          previous.paymentMethod != current.paymentMethod,
-      builder: (context, state) => _options(context, state.paymentMethod),
+          previous.paymentMethod != current.paymentMethod ||
+          previous.previewState != current.previewState,
+      builder: (context, state) => _options(context, state),
     );
   }
 
-  Widget _options(BuildContext context, String? selected) {
+  Widget _options(BuildContext context, CheckoutState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _title(context),
         SizedBox(height: 14.h),
-        for (final method in CheckoutPaymentMethods.all) ...[
-          CheckoutPaymentOption(method: method, selected: selected == method),
+        for (final method in state.paymentMethods) ...[
+          CheckoutPaymentOption(
+            method: method.name,
+            selected: state.paymentMethod == method.name,
+          ),
           SizedBox(height: 10.h),
         ],
       ],
@@ -61,8 +65,8 @@ class CheckoutPaymentOption extends StatelessWidget {
     return InkWell(
       onTap: () {
         context.read<CheckoutViewModel>().doEvent(
-              SelectCheckoutPayment(method),
-            );
+          SelectCheckoutPayment(method),
+        );
       },
       borderRadius: BorderRadius.circular(12.r),
       child: Container(
@@ -99,7 +103,9 @@ class CheckoutPaymentOption extends StatelessWidget {
       color: colors.white,
       borderRadius: BorderRadius.circular(12.r),
       border: Border.all(
-        color: selected ? colors.pink : colors.grey.shade600.withValues(alpha: 0.35),
+        color: selected
+            ? colors.pink
+            : colors.grey.shade600.withValues(alpha: 0.35),
         width: selected ? 1.5 : 1,
       ),
       boxShadow: [

@@ -295,8 +295,22 @@ class EmptyCartRepo implements CartRepo {
   }
 
   @override
-  Future<BaseResponse<bool>> placeOrder() async {
-    return const SuccessResponse(true);
+  Future<BaseResponse<CartEntity>> previewCheckout({
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) async {
+    return const SuccessResponse(CartEntity.empty());
+  }
+
+  @override
+  Future<BaseResponse<OrderEntity>> placeOrder({
+    required String idempotencyKey,
+    required int paymentMethod,
+    required double expectedTotal,
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) async {
+    return const SuccessResponse(OrderEntity());
   }
 
   @override
