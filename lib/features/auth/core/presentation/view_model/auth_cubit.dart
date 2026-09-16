@@ -1,4 +1,5 @@
 import 'package:flower_app/core/base/base_state.dart';
+import 'package:flower_app/core/network/token_refresh_scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -9,9 +10,11 @@ import 'auth_state.dart';
 
 @lazySingleton
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit(this._authRepository) : super(AuthState.initial());
+  AuthCubit(this._authRepository, this._tokenRefreshScheduler)
+      : super(AuthState.initial());
 
   final AuthRepository _authRepository;
+  final TokenRefreshScheduler _tokenRefreshScheduler;
 
   PendingAction? _pendingAction;
 
@@ -67,6 +70,12 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> _checkAuth() async {
     final isAuthenticated = await _authRepository.isAuthenticated();
 
+    if (isAuthenticated) {
+      // Resumes proactive refresh scheduling using whatever expiry is
+      // already in storage (e.g. app was relaunched while still logged in).
+      await _tokenRefreshScheduler.start();
+    }
+
     emit(
       state.copyWith(
         authState: BaseState(data: isAuthenticated),
@@ -78,6 +87,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> _logout() async {
     await _authRepository.logout();
 
+    _tokenRefreshScheduler.stop();
     _pendingAction = null;
 
     emit(

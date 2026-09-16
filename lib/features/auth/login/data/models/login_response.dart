@@ -51,6 +51,7 @@ class LoginData {
       accessToken: accessToken,
       refreshToken: refreshToken,
       role: role,
+      expiresIn: expiresIn,
     );
   }
 

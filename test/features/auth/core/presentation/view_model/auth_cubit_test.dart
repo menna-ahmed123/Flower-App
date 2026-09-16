@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../../../../core/network/fake_token_refresh_scheduler.dart';
 import 'auth_cubit_test.mocks.dart';
 
 @GenerateMocks([AuthRepository])
@@ -15,7 +16,7 @@ void main() {
 
   setUp(() {
     authRepository = MockAuthRepository();
-    authCubit = AuthCubit(authRepository);
+    authCubit = AuthCubit(authRepository, NoopTokenRefreshScheduler());
   });
 
   tearDown(() async {
