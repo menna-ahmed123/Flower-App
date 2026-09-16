@@ -19,6 +19,7 @@ class AppIcons {
   static const IconData microphone = Icons.mic_outlined;
   static const IconData calendar = Icons.calendar_today_outlined;
   static const IconData bank = Icons.account_balance_outlined;
+  static const IconData payments = Icons.payments_outlined;
   static const IconData send = Icons.send_outlined;
 
   static const IconData settings = Icons.tune;

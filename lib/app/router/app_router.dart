@@ -33,6 +33,10 @@ import 'package:flower_app/features/commerce/presentation/prodect_details/view/s
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
+import 'package:flower_app/features/orders/presentation/order_details/view/screen/order_details_screen.dart';
+import 'package:flower_app/features/orders/presentation/order_details/view_model/order_details_view_model.dart';
+import 'package:flower_app/features/orders/presentation/orders_list/view/screen/orders_screen.dart';
+import 'package:flower_app/features/orders/presentation/orders_list/view_model/orders_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -67,6 +71,8 @@ class AppRouter {
         _mainShell(),
          GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
         GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
+        GoRoute(path: AppRoutesName.myOrders, builder: _myOrdersBuilder),
+        GoRoute(path: AppRoutesName.orderDetails, builder: _orderDetailsBuilder),
       ],
     );
   }
@@ -305,6 +311,22 @@ class AppRouter {
       create: (_) =>
           getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
       child: const SavedAddressesScreen(),
+    );
+  }
+
+  static Widget _myOrdersBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<OrdersListViewModel>(),
+      child: const OrdersScreen(),
+    );
+  }
+
+  static Widget _orderDetailsBuilder(BuildContext context, GoRouterState state) {
+    final orderId = state.pathParameters['orderId'] ?? '';
+
+    return BlocProvider(
+      create: (_) => getIt<OrderDetailsViewModel>(),
+      child: OrderDetailsScreen(orderId: orderId),
     );
   }
 }

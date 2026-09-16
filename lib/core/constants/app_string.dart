@@ -183,11 +183,9 @@ abstract class AppString {
   static const String orderPlacedSuccess = 'Order placed successfully!';
   static const String orderFailed = 'Order failed. Please try again.';
   // ==================== Orders ====================
-  static const String myOrders = 'My Orders';
   static const String orderDetails = 'Order Details';
   static const String orderDate = 'Order Date: ';
   static const String orderStatus = 'Order Status: ';
-  static const String trackOrder = 'Track Order';
   static const String statusPending = 'Pending';
   static const String statusDelivered = 'Delivered';
   static const String statusCancelled = 'Cancelled';
@@ -211,6 +209,23 @@ abstract class AppString {
 
   static const String couldNotGetAddress = 'Could not get address from your location.';
   static const String couldNotGetLocation = 'Could not get your current location. Please check your location settings.';
+
+  // ==================== Orders ====================
+  static const String myOrders = 'My orders';
+  static const String activeOrders = 'Active order';
+  static const String completedOrders = 'Completed order';
+  static const String trackOrder = 'Track order';
+  static const String orderNumberPrefix = 'Order number#';
+  static const String deliveredOnPrefix = 'Delivered on';
+  static const String noOrdersFound = 'No orders found';
+  static const String orderPlaced = 'Received your order';
+  static const String orderPreparing = 'Preparing your order';
+  static const String orderOutForDelivery = 'Out for delivery';
+  static const String orderDelivered = 'Order delivered';
+  static const String orderCancelled = 'Order cancelled';
+  static const String deliveryInformation = 'Delivery information';
+  static const String orderItems = 'Items';
+  static const String couldNotGetOrderDetails = 'Could not get order details.';
 
    // ==================== Map ====================
 

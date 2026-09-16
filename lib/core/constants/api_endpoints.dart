@@ -78,6 +78,10 @@ class ApiEndpoints {
   static const String addressById = '/users/me/addresses/{id}';
   static const String setDefaultAddress = '/users/me/addresses/{addressId}/default';
 
+  //// Orders ////
+  static const String orders = '/orders';
+  static const String orderDetails = '/orders/{id}';
+
   //// Cart ////
   static const String cart = '/cart';
   static const String cartItems = '/cart/items';

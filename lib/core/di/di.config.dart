@@ -139,6 +139,21 @@ import '../../features/commerce/presentation/prodect_details/view_model/product_
     as _i784;
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart'
     as _i1068;
+import '../../features/orders/api/orders_api_client.dart' as _i776;
+import '../../features/orders/data/data_sources/orders_remote_data_source.dart'
+    as _i310;
+import '../../features/orders/data/data_sources/orders_remote_data_source_impl.dart'
+    as _i611;
+import '../../features/orders/data/repo/orders_repo_impl.dart' as _i404;
+import '../../features/orders/domain/repo/orders_repo.dart' as _i808;
+import '../../features/orders/domain/use_cases/get_order_details_use_case.dart'
+    as _i452;
+import '../../features/orders/domain/use_cases/get_orders_use_case.dart'
+    as _i755;
+import '../../features/orders/presentation/order_details/view_model/order_details_view_model.dart'
+    as _i553;
+import '../../features/orders/presentation/orders_list/view_model/orders_list_view_model.dart'
+    as _i11;
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
@@ -172,8 +187,31 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.lazySingleton<_i1058.TokenRefresher>(() => _i1058.ApiTokenRefresher());
+    gh.factory<_i310.OrdersRemoteDataSource>(
+      () => _i611.OrdersRemoteDataSourceImpl(
+        ordersApiClient: gh<_i776.OrdersApiClient>(),
+      ),
+    );
+    gh.factory<_i808.OrdersRepo>(
+      () => _i404.OrdersRepoImpl(
+        gh<_i185.SafeCall>(),
+        gh<_i310.OrdersRemoteDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.factory<_i452.GetOrderDetailsUseCase>(
+      () => _i452.GetOrderDetailsUseCase(gh<_i808.OrdersRepo>()),
+    );
+    gh.factory<_i755.GetOrdersUseCase>(
+      () => _i755.GetOrdersUseCase(gh<_i808.OrdersRepo>()),
+    );
+    gh.factory<_i11.OrdersListViewModel>(
+      () => _i11.OrdersListViewModel(gh<_i755.GetOrdersUseCase>()),
+    );
+    gh.factory<_i553.OrderDetailsViewModel>(
+      () => _i553.OrderDetailsViewModel(gh<_i452.GetOrderDetailsUseCase>()),
     );
     gh.factory<_i669.LocationService>(
       () => _i669.LocationService(gh<_i699.GeolocatorPlatform>()),

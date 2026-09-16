@@ -39,6 +39,14 @@ class ProfileScreen extends StatelessWidget {
                 context.push(AppRoutesName.saveAddress);
               }
             ),
+
+            SizedBox(height: 15.h),
+            AppButton(
+              text: AppString.myOrders,
+              onPressed: () {
+                context.push(AppRoutesName.myOrders);
+              },
+            ),
           ],
         ),
       ),

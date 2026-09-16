@@ -5,12 +5,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0));
 
-  const CustomAppBar({super.key, required this.title, this.onBack});
+  const CustomAppBar({super.key, required this.title, this.onBack, this.bottom});
 
   final String title;
   final VoidCallback? onBack;
+  final PreferredSizeWidget? bottom;
 
   @override
   State<CustomAppBar> createState() => _CustomAppBarState();
@@ -22,6 +23,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
     return AppBar(
       automaticallyImplyLeading: false,
       titleSpacing: 16,
+      bottom: widget.bottom,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
