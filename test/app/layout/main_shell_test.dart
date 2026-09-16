@@ -16,6 +16,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+
 void main() {
   late FakeAuthRepository authRepository;
   late AuthCubit authCubit;
@@ -36,8 +37,8 @@ void main() {
   });
 
   testWidgets('shows bottom bar on Home, Category, Cart, and Profile', (
-    tester,
-  ) async {
+      tester,
+      ) async {
     await _pumpShell(tester, router, authCubit, cartViewModel);
 
     await _expectBarVisible(tester, router, '/home');
@@ -47,8 +48,8 @@ void main() {
   });
 
   testWidgets('hides bottom bar on product details and other secondary routes', (
-    tester,
-  ) async {
+      tester,
+      ) async {
     await _pumpShell(tester, router, authCubit, cartViewModel);
 
     await _expectBarHidden(tester, router, '/product-details/abc');
@@ -57,8 +58,8 @@ void main() {
   });
 
   testWidgets('opens category when the categories tab is selected', (
-    tester,
-  ) async {
+      tester,
+      ) async {
     await _pumpShell(tester, router, authCubit, cartViewModel);
 
     await tester.tap(find.text(AppString.categories));
@@ -69,8 +70,8 @@ void main() {
   });
 
   testWidgets('opens cart when an authenticated user selects the cart tab', (
-    tester,
-  ) async {
+      tester,
+      ) async {
     await _signIn(authCubit);
     await _pumpShell(tester, router, authCubit, cartViewModel);
 
@@ -83,7 +84,7 @@ void main() {
 
   testWidgets(
     'opens profile when an authenticated user selects the profile tab',
-    (tester) async {
+        (tester) async {
       await _signIn(authCubit);
       await _pumpShell(tester, router, authCubit, cartViewModel);
 
@@ -96,8 +97,8 @@ void main() {
   );
 
   testWidgets('does not open cart when a guest selects the cart tab', (
-    tester,
-  ) async {
+      tester,
+      ) async {
     await _pumpShell(tester, router, authCubit, cartViewModel);
 
     await tester.tap(find.text(AppString.cart));
@@ -121,11 +122,11 @@ int _selectedIndex(WidgetTester tester) {
 }
 
 Future<void> _pumpShell(
-  WidgetTester tester,
-  GoRouter router,
-  AuthCubit authCubit,
-  CartViewModel cartViewModel,
-) async {
+    WidgetTester tester,
+    GoRouter router,
+    AuthCubit authCubit,
+    CartViewModel cartViewModel,
+    ) async {
   tester.view.physicalSize = const Size(375, 812);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -148,10 +149,10 @@ Future<void> _pumpShell(
 }
 
 Future<void> _expectBarVisible(
-  WidgetTester tester,
-  GoRouter router,
-  String location,
-) async {
+    WidgetTester tester,
+    GoRouter router,
+    String location,
+    ) async {
   router.go(location);
   await tester.pumpAndSettle();
   expect(find.byType(NavigationBar), findsOneWidget);
@@ -159,10 +160,10 @@ Future<void> _expectBarVisible(
 }
 
 Future<void> _expectBarHidden(
-  WidgetTester tester,
-  GoRouter router,
-  String location,
-) async {
+    WidgetTester tester,
+    GoRouter router,
+    String location,
+    ) async {
   router.go(location);
   await tester.pumpAndSettle();
   expect(find.byType(NavigationBar), findsNothing);
@@ -234,6 +235,15 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {}
+
+  @override
+  Future<void> startSessionRefresh() async {}
+
+  @override
+  void stopSessionRefresh() {}
+
+  @override
+  Stream<void> get sessionExpired => const Stream<void>.empty();
 }
 
 class EmptyCartRepo implements CartRepo {
@@ -260,6 +270,16 @@ class EmptyCartRepo implements CartRepo {
 
   @override
   Future<BaseResponse<bool>> removeItem({required String itemId}) async {
+    return const SuccessResponse(true);
+  }
+
+  @override
+  Future<BaseResponse<bool>> placeOrder() async {
+    return const SuccessResponse(true);
+  }
+
+  @override
+  Future<BaseResponse<bool>> processPayment() async {
     return const SuccessResponse(true);
   }
 }

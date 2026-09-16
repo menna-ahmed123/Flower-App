@@ -145,6 +145,8 @@ import '../modules/location_module.dart' as _i917;
 import '../modules/register_module.dart' as _i505;
 import '../network/auth_interceptors.dart' as _i466;
 import '../network/safe_call.dart' as _i185;
+import '../network/token_refresh_coordinator.dart' as _i381;
+import '../network/token_refresh_scheduler.dart' as _i95;
 import '../network/token_refresher.dart' as _i1058;
 import '../network/token_storage.dart' as _i964;
 import '../services/geocoding_service.dart' as _i980;
@@ -178,14 +180,30 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i669.LocationService>(
       () => _i669.LocationService(gh<_i699.GeolocatorPlatform>()),
     );
-    gh.lazySingleton<_i466.AuthInterceptors>(
-      () => _i466.AuthInterceptors(
+    gh.lazySingleton<_i381.TokenRefreshCoordinator>(
+      () => _i381.TokenRefreshCoordinator(
         gh<_i964.TokenStorage>(),
         gh<_i1058.TokenRefresher>(),
       ),
     );
+    gh.lazySingleton<_i466.AuthInterceptors>(
+      () => _i466.AuthInterceptors(
+        gh<_i964.TokenStorage>(),
+        gh<_i381.TokenRefreshCoordinator>(),
+      ),
+    );
+    gh.lazySingleton<_i95.TokenRefreshScheduler>(
+      () => _i95.TokenRefreshScheduler(
+        gh<_i964.TokenStorage>(),
+        gh<_i381.TokenRefreshCoordinator>(),
+      ),
+    );
     gh.lazySingleton<_i179.AuthRepository>(
-      () => _i436.AuthRepositoryImpl(gh<_i964.TokenStorage>()),
+      () => _i436.AuthRepositoryImpl(
+        gh<_i964.TokenStorage>(),
+        gh<_i95.TokenRefreshScheduler>(),
+        gh<_i381.TokenRefreshCoordinator>(),
+      ),
     );
     gh.lazySingleton<_i571.AuthCubit>(
       () => _i571.AuthCubit(gh<_i179.AuthRepository>()),

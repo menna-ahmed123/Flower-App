@@ -29,6 +29,7 @@ void main() {
     accessToken: 'access-token',
     refreshToken: 'refresh-token',
     role: 'Customer',
+    expiresIn: 900,
   );
 
   const String dummyErrorMessage = 'Dummy Message';

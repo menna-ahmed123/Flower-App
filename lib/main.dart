@@ -9,8 +9,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'app/router/app_router.dart';
+import 'app/router/app_routes.dart';
 import 'features/auth/core/presentation/view_model/auth_cubit.dart';
 import 'features/auth/core/presentation/view_model/auth_event.dart';
+import 'features/auth/core/presentation/view_model/auth_state.dart';
 import 'features/cart/presentation/view_model/cart_view_model.dart';
 
 Future<void> main() async {
@@ -52,27 +54,35 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) =>
-              getIt<AuthCubit>()..doEvent(const AuthEvent.authCheckRequested()),
+        BlocProvider.value(
+          value: getIt<AuthCubit>()
+            ..doEvent(const AuthEvent.authCheckRequested()),
         ),
         BlocProvider.value(value: getIt<CartViewModel>()),
       ],
-      child: ScreenUtilInit(
-        designSize: const Size(375, 812),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return MaterialApp.router(
-            routerConfig: _router,
-            theme: AppTheme(LightThemeColor()).themeData,
-            darkTheme: AppTheme(DarkThemeColor()).themeData,
-            debugShowCheckedModeBanner: false,
-            locale: context.locale,
-            supportedLocales: context.supportedLocales,
-            localizationsDelegates: context.localizationDelegates,
-          );
+      child: BlocListener<AuthCubit, AuthState>(
+        listenWhen: (previous, current) =>
+        current.sessionExpired && !previous.sessionExpired,
+        listener: (context, state) {
+          context.read<AuthCubit>().acknowledgeSessionExpired();
+          _router.go(AppRoutesName.login);
         },
+        child: ScreenUtilInit(
+          designSize: const Size(375, 812),
+          minTextAdapt: true,
+          splitScreenMode: true,
+          builder: (context, child) {
+            return MaterialApp.router(
+              routerConfig: _router,
+              theme: AppTheme(LightThemeColor()).themeData,
+              darkTheme: AppTheme(DarkThemeColor()).themeData,
+              debugShowCheckedModeBanner: false,
+              locale: context.locale,
+              supportedLocales: context.supportedLocales,
+              localizationsDelegates: context.localizationDelegates,
+            );
+          },
+        ),
       ),
     );
   }

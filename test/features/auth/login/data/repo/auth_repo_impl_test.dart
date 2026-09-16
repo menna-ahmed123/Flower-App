@@ -49,11 +49,12 @@ void main() {
     accessToken: 'access-token',
     refreshToken: 'refresh-token',
     role: 'Customer',
+    expiresIn: 900,
   );
   group("Login", () {
     test(
       "should return SuccessResponse and save tokens when login succeeds",
-      () async {
+          () async {
         provideDummy<BaseResponse<AuthEntity>>(SuccessResponse(authEntity));
         when(
           authRemoteDataSource.login(request),
@@ -63,6 +64,7 @@ void main() {
           tokenStorage.saveTokens(
             accessToken: "access-token",
             refreshToken: "refresh-token",
+            expiresIn: 900,
           ),
         ).thenAnswer((_) async {});
         final result = await authRepositoryImpl.signIn(request);
@@ -76,6 +78,7 @@ void main() {
           tokenStorage.saveTokens(
             accessToken: "access-token",
             refreshToken: "refresh-token",
+            expiresIn: 900,
           ),
         ).called(1);
       },
@@ -91,7 +94,7 @@ void main() {
   });
   test(
     "should return ErrorResponse and unsave tokens when login error",
-    () async {
+        () async {
       String dummyErrorMessage = "Dummy Message";
       final error = BadResponseError(dummyErrorMessage);
       provideDummy<BaseResponse<AuthEntity>>(ErrorResponse(appError: error));
