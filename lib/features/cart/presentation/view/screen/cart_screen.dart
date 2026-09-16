@@ -1,4 +1,3 @@
-import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
@@ -12,7 +11,6 @@ import 'package:flower_app/features/cart/presentation/view_model/cart_view_model
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -35,11 +33,11 @@ class CartBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CartViewModel, CartState>(
-      builder: (context, state) => _body(context, state),
+      builder: (context, state) => _body(state),
     );
   }
 
-  Widget _body(BuildContext context, CartState state) {
+  Widget _body(CartState state) {
     final request = state.cartState;
     if (request.isLoading && request.data == null) {
       return const Center(child: CircularProgressIndicator());
@@ -52,10 +50,7 @@ class CartBody extends StatelessWidget {
     return Column(
       children: [
         Expanded(child: CartItemsList(items: cart.items)),
-        CartFooter(
-          cart: cart,
-          onCheckout: () => context.push(AppRoutesName.checkout),
-        ),
+        CartFooter(cart: cart),
       ],
     );
   }

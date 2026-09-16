@@ -35,10 +35,4 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
       ApiQueryParams.defaultStoreId,
     );
   }
-
-  @override
-  Future<void> placeOrder() => cartApiClient.placeOrder();
-
-  @override
-  Future<void> processPayment() => cartApiClient.processPayment();
 }

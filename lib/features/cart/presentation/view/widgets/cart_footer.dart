@@ -6,10 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CartFooter extends StatelessWidget {
-  const CartFooter({super.key, required this.cart, this.onCheckout});
+  const CartFooter({super.key, required this.cart});
 
   final CartEntity cart;
-  final VoidCallback? onCheckout;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +34,7 @@ class CartFooter extends StatelessWidget {
           _row(context, AppString.deliveryFee, cart.deliveryFee),
         _row(context, AppString.total, cart.total, bold: true),
         SizedBox(height: 16.h),
-        AppButton(text: AppString.checkout, onPressed: onCheckout),
+        AppButton(text: AppString.checkout, onPressed: () {}),
       ],
     );
   }
