@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/di/di.dart';
-import 'package:flower_app/core/network/token_refresh_coordinator.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +12,7 @@ import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
 import 'features/auth/core/presentation/view_model/auth_cubit.dart';
 import 'features/auth/core/presentation/view_model/auth_event.dart';
+import 'features/auth/core/presentation/view_model/auth_state.dart';
 import 'features/cart/presentation/view_model/cart_view_model.dart';
 
 Future<void> main() async {
@@ -51,56 +49,40 @@ class _MyAppState extends State<MyApp> {
   late final GoRouter _router = AppRouter.createRouter(
     initialLocation: widget.initialLocation,
   );
-  late final AuthCubit _authCubit = getIt<AuthCubit>();
-
-  /// Listens for the coordinator confirming a session has truly ended
-  /// (refresh token invalid/expired), so we can clear auth state and
-  /// send the user back to the login screen from wherever they are.
-  StreamSubscription<void>? _sessionExpiredSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    _sessionExpiredSubscription = getIt<TokenRefreshCoordinator>()
-        .sessionExpired
-        .listen((_) => _handleSessionExpired());
-  }
-
-  void _handleSessionExpired() {
-    _authCubit.doEvent(const AuthEvent.authLogoutRequested());
-    _router.go(AppRoutesName.login);
-  }
-
-  @override
-  void dispose() {
-    _sessionExpiredSubscription?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(
-          value: _authCubit..doEvent(const AuthEvent.authCheckRequested()),
+          value: getIt<AuthCubit>()
+            ..doEvent(const AuthEvent.authCheckRequested()),
         ),
         BlocProvider.value(value: getIt<CartViewModel>()),
       ],
-      child: ScreenUtilInit(
-        designSize: const Size(375, 812),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return MaterialApp.router(
-            routerConfig: _router,
-            theme: AppTheme(LightThemeColor()).themeData,
-            darkTheme: AppTheme(DarkThemeColor()).themeData,
-            debugShowCheckedModeBanner: false,
-            locale: context.locale,
-            supportedLocales: context.supportedLocales,
-            localizationsDelegates: context.localizationDelegates,
-          );
+      child: BlocListener<AuthCubit, AuthState>(
+        listenWhen: (previous, current) =>
+        current.sessionExpired && !previous.sessionExpired,
+        listener: (context, state) {
+          context.read<AuthCubit>().acknowledgeSessionExpired();
+          _router.go(AppRoutesName.login);
         },
+        child: ScreenUtilInit(
+          designSize: const Size(375, 812),
+          minTextAdapt: true,
+          splitScreenMode: true,
+          builder: (context, child) {
+            return MaterialApp.router(
+              routerConfig: _router,
+              theme: AppTheme(LightThemeColor()).themeData,
+              darkTheme: AppTheme(DarkThemeColor()).themeData,
+              debugShowCheckedModeBanner: false,
+              locale: context.locale,
+              supportedLocales: context.supportedLocales,
+              localizationsDelegates: context.localizationDelegates,
+            );
+          },
+        ),
       ),
     );
   }

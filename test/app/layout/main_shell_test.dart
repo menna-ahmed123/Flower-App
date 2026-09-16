@@ -16,7 +16,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/network/fake_token_refresh_scheduler.dart';
 
 void main() {
   late FakeAuthRepository authRepository;
@@ -26,7 +25,7 @@ void main() {
 
   setUp(() {
     authRepository = FakeAuthRepository();
-    authCubit = AuthCubit(authRepository, NoopTokenRefreshScheduler());
+    authCubit = AuthCubit(authRepository);
     cartViewModel = CartViewModel(CartUseCase(EmptyCartRepo()));
     router = _testRouter();
   });
@@ -236,6 +235,15 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {}
+
+  @override
+  Future<void> startSessionRefresh() async {}
+
+  @override
+  void stopSessionRefresh() {}
+
+  @override
+  Stream<void> get sessionExpired => const Stream<void>.empty();
 }
 
 class EmptyCartRepo implements CartRepo {

@@ -37,7 +37,11 @@ class TokenRefreshCoordinator {
   /// thrown). Listen to this to react globally — e.g. navigate to the
   /// login screen — without every caller of [refresh] needing to check
   /// for [SessionExpiredException] itself.
-  Stream<void> get sessionExpired => _sessionExpiredController.stream;
+  ///
+  /// Computed once (not a getter) so every caller gets the exact same
+  /// [Stream] instance — a broadcast [StreamController]'s `.stream`
+  /// getter otherwise builds a new wrapper object on every access.
+  late final Stream<void> sessionExpired = _sessionExpiredController.stream;
 
   /// Reads the current refresh token from storage, exchanges it for new
   /// tokens, and persists them.
@@ -110,5 +114,13 @@ class TokenRefreshCoordinator {
         expiresIn: tokens.expiresIn,
       );
     }
+  }
+
+  /// Closes the [sessionExpired] stream. This is a [lazySingleton] that
+  /// normally lives for the app's whole lifetime, so production code
+  /// never needs to call this — it exists so tests can clean up between
+  /// cases without leaking StreamControllers.
+  void dispose() {
+    _sessionExpiredController.close();
   }
 }

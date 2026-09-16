@@ -8,6 +8,7 @@ abstract class AuthState with _$AuthState {
   const factory AuthState({
     @Default(BaseState<bool>()) BaseState<bool> authState,
     @Default(false) bool requiresAuthentication,
+    @Default(false) bool sessionExpired,
   }) = _AuthState;
 
   factory AuthState.initial() {

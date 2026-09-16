@@ -16,19 +16,37 @@ import 'package:injectable/injectable.dart';
 /// reactive flow still catches it on the next real request.
 @lazySingleton
 class TokenRefreshScheduler with WidgetsBindingObserver {
-  TokenRefreshScheduler(this._tokenStorage, this._coordinator);
+  TokenRefreshScheduler(this._tokenStorage, this._coordinator)
+      : _safetyMargin = _defaultSafetyMargin,
+        _retryDelay = _defaultRetryDelay;
+
+  /// Test-only constructor: lets tests use short durations instead of
+  /// waiting 30 real seconds for every scheduled refresh. Production code
+  /// always goes through the default (unnamed) constructor above, which
+  /// is the one `injectable` uses for dependency injection.
+  @visibleForTesting
+  TokenRefreshScheduler.withDurations(
+      this._tokenStorage,
+      this._coordinator, {
+        required Duration safetyMargin,
+        required Duration retryDelay,
+      }) : _safetyMargin = safetyMargin,
+        _retryDelay = retryDelay;
 
   final TokenStorage _tokenStorage;
   final TokenRefreshCoordinator _coordinator;
 
   /// Refresh this long before the actual expiry, to leave room for the
   /// network round-trip and clock differences between client and server.
-  static const _safetyMargin = Duration(seconds: 30);
+  static const _defaultSafetyMargin = Duration(seconds: 30);
 
   /// Backoff before retrying after a transient (network/server) failure,
   /// so a temporary outage doesn't silently give up on proactive refresh
   /// for the rest of the session.
-  static const _retryDelay = Duration(seconds: 30);
+  static const _defaultRetryDelay = Duration(seconds: 30);
+
+  final Duration _safetyMargin;
+  final Duration _retryDelay;
 
   Timer? _timer;
   bool _active = false;

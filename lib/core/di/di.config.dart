@@ -188,9 +188,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1058.TokenRefresher>(),
       ),
     );
-    gh.lazySingleton<_i179.AuthRepository>(
-      () => _i436.AuthRepositoryImpl(gh<_i964.TokenStorage>()),
-    );
     gh.lazySingleton<_i466.AuthInterceptors>(
       () => _i466.AuthInterceptors(
         gh<_i964.TokenStorage>(),
@@ -202,6 +199,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i964.TokenStorage>(),
         gh<_i381.TokenRefreshCoordinator>(),
       ),
+    );
+    gh.lazySingleton<_i179.AuthRepository>(
+      () => _i436.AuthRepositoryImpl(
+        gh<_i964.TokenStorage>(),
+        gh<_i95.TokenRefreshScheduler>(),
+        gh<_i381.TokenRefreshCoordinator>(),
+      ),
+    );
+    gh.lazySingleton<_i571.AuthCubit>(
+      () => _i571.AuthCubit(gh<_i179.AuthRepository>()),
     );
     gh.singleton<_i361.Dio>(
       () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),
@@ -260,12 +267,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i722.VerifyOtpUseCase>(
       () => _i722.VerifyOtpUseCase(
         forgetPasswordRepo: gh<_i488.ForgetPasswordRepo>(),
-      ),
-    );
-    gh.lazySingleton<_i571.AuthCubit>(
-      () => _i571.AuthCubit(
-        gh<_i179.AuthRepository>(),
-        gh<_i95.TokenRefreshScheduler>(),
       ),
     );
     gh.factory<_i926.RegisterRepo>(

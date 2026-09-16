@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flower_app/features/auth/core/domain/repos/auth_repository.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_event.dart';
@@ -6,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../../../../core/network/fake_token_refresh_scheduler.dart';
 import 'auth_cubit_test.mocks.dart';
 
 @GenerateMocks([AuthRepository])
@@ -16,7 +17,15 @@ void main() {
 
   setUp(() {
     authRepository = MockAuthRepository();
-    authCubit = AuthCubit(authRepository, NoopTokenRefreshScheduler());
+    // AuthCubit subscribes to this in its constructor, so it must return
+    // a real (empty) Stream rather than Mockito's default null dummy.
+    when(
+      authRepository.sessionExpired,
+    ).thenAnswer((_) => const Stream<void>.empty());
+    when(authRepository.startSessionRefresh()).thenAnswer((_) async {});
+    when(authRepository.stopSessionRefresh()).thenReturn(null);
+
+    authCubit = AuthCubit(authRepository);
   });
 
   tearDown(() async {
@@ -35,6 +44,7 @@ void main() {
 
       expect(authCubit.state.isAuthenticated, true);
       verify(authRepository.isAuthenticated()).called(1);
+      verify(authRepository.startSessionRefresh()).called(1);
     });
 
     test('should emit unauthenticated when user is not authenticated',
@@ -49,6 +59,7 @@ void main() {
 
           expect(authCubit.state.isAuthenticated, false);
           verify(authRepository.isAuthenticated()).called(1);
+          verifyNever(authRepository.startSessionRefresh());
         });
   });
 
@@ -63,19 +74,21 @@ void main() {
   });
 
   group('AuthLogoutRequested', () {
-    test('should logout and emit unauthenticated', () async {
-      when(
-        authRepository.logout(),
-      ).thenAnswer((_) async {});
+    test('should logout, stop session refresh, and emit unauthenticated',
+            () async {
+          when(
+            authRepository.logout(),
+          ).thenAnswer((_) async {});
 
-      await authCubit.doEvent(
-        const AuthLogoutRequested(),
-      );
+          await authCubit.doEvent(
+            const AuthLogoutRequested(),
+          );
 
-      verify(authRepository.logout()).called(1);
-      expect(authCubit.state.isAuthenticated, false);
-      expect(authCubit.state.requiresAuthentication, false);
-    });
+          verify(authRepository.logout()).called(1);
+          verify(authRepository.stopSessionRefresh()).called(1);
+          expect(authCubit.state.isAuthenticated, false);
+          expect(authCubit.state.requiresAuthentication, false);
+        });
   });
 
   group('AuthAuthenticationRequired', () {
@@ -229,6 +242,54 @@ void main() {
       await authCubit.replayPendingAction();
 
       expect(actionExecuted, false);
+    });
+  });
+
+  group('session expired', () {
+    test(
+      'marks unauthenticated, raises sessionExpired flag, and stops refresh',
+          () async {
+        final controller = StreamController<void>();
+        when(
+          authRepository.sessionExpired,
+        ).thenAnswer((_) => controller.stream);
+        when(
+          authRepository.isAuthenticated(),
+        ).thenAnswer((_) async => true);
+
+        final cubit = AuthCubit(authRepository);
+        await cubit.doEvent(const AuthCheckRequested());
+        expect(cubit.state.isAuthenticated, true);
+
+        controller.add(null);
+        await Future<void>.delayed(Duration.zero);
+
+        expect(cubit.state.isAuthenticated, false);
+        expect(cubit.state.sessionExpired, true);
+        verify(authRepository.stopSessionRefresh()).called(greaterThan(0));
+
+        await cubit.close();
+        await controller.close();
+      },
+    );
+
+    test('acknowledgeSessionExpired clears the flag', () async {
+      final controller = StreamController<void>();
+      when(
+        authRepository.sessionExpired,
+      ).thenAnswer((_) => controller.stream);
+
+      final cubit = AuthCubit(authRepository);
+      controller.add(null);
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.sessionExpired, true);
+
+      cubit.acknowledgeSessionExpired();
+
+      expect(cubit.state.sessionExpired, false);
+
+      await cubit.close();
+      await controller.close();
     });
   });
 }
