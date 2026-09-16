@@ -57,6 +57,39 @@ void main() {
     expect(find.text(AppString.appVersion), findsOneWidget);
   });
 
+  testWidgets('renders the pen icon next to the profile name', (
+    tester,
+  ) async {
+    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
+
+    expect(find.byKey(const Key('profileEditButton')), findsOneWidget);
+  });
+
+  testWidgets('tapping the pen icon navigates to edit profile', (
+    tester,
+  ) async {
+    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
+
+    await tester.tap(find.byKey(const Key('profileEditButton')));
+    await tester.pumpAndSettle();
+
+    expect(_path(router), '/edit-profile');
+  });
+
+  testWidgets('back navigation from edit profile returns to profile', (
+    tester,
+  ) async {
+    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
+
+    await tester.tap(find.byKey(const Key('profileEditButton')));
+    await tester.pumpAndSettle();
+
+    router.pop();
+    await tester.pumpAndSettle();
+
+    expect(_path(router), '/profile');
+  });
+
   testWidgets('navigates to saved addresses when the row is tapped', (
     tester,
   ) async {
@@ -163,6 +196,10 @@ GoRouter _testRouter() {
       GoRoute(
         path: '/save_address',
         builder: (_, _) => const Text('SAVE_ADDRESS'),
+      ),
+      GoRoute(
+        path: '/edit-profile',
+        builder: (_, _) => const Text('EDIT_PROFILE'),
       ),
     ],
   );
