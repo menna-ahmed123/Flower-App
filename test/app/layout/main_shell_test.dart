@@ -265,6 +265,15 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {}
+
+  @override
+  Future<void> startSessionRefresh() async {}
+
+  @override
+  void stopSessionRefresh() {}
+
+  @override
+  Stream<void> get sessionExpired => const Stream<void>.empty();
 }
 
 class EmptyCartRepo implements CartRepo {

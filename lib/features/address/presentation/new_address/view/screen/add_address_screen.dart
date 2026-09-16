@@ -1,6 +1,5 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
-import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/location_form.dart';
 import 'package:flower_app/features/address/presentation/new_address/view/widgets/location_map.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
@@ -135,12 +134,13 @@ class _AddAddressScreenState extends State<AddAddressScreen>
             ),
             BlocListener<SaveAddressViewModel, SaveAddressState>(
               listener: (context, state) {
+                // Success
                 if (state.isSaved) {
                   context.pop(true);
                   return;
                 }
-
                 final errorMessage = state.saveAddressState.errorMessage;
+
                 final isLoading = state.saveAddressState.isLoading;
 
                 if (!isLoading && errorMessage.isNotEmpty) {
@@ -151,24 +151,22 @@ class _AddAddressScreenState extends State<AddAddressScreen>
               },
             ),
           ],
-          child: BlocBuilder<AddressViewModel, AddressState>(
-            builder: (context, state) {
-              final location =
-                  state.locationState.data ??
-                  const LocationEntity(latitude: 30.0444, longitude: 31.2357);
 
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    BlocBuilder<AddressViewModel, AddressState>(
-                      buildWhen: (previous, current) {
-                        return previous.locationState.isLoading !=
-                            current.locationState.isLoading;
-                      },
-                      builder: (context, state) {
-                        if (state.locationState.isLoading) {
-                          return const LinearProgressIndicator();
-                        }
+          child: BlocBuilder<AddressViewModel, AddressState>(
+             builder: (context, state) {
+              final location = state.locationState.data;
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                BlocBuilder<AddressViewModel, AddressState>(
+                  buildWhen: (previous, current) =>
+                      previous.locationState.isLoading !=
+                      current.locationState.isLoading,
+                  builder: (context, state) {
+                    if (state.locationState.isLoading) {
+                      return const LinearProgressIndicator();
+                    }
 
                         return const SizedBox.shrink();
                       },

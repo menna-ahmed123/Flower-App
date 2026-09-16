@@ -22,6 +22,7 @@ class AuthRepositoryImpl implements AuthRepo {
       await tokenStorage.saveTokens(
         accessToken: response.data.accessToken,
         refreshToken: response.data.refreshToken,
+        expiresIn: response.data.expiresIn,
       );
       return response.data.toDomain();
     });
