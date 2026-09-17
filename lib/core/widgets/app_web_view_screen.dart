@@ -1,12 +1,11 @@
-import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/widgets/custom_app_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-/// Arguments for [AppRoutesName.webView]: the page to load and the title
+/// Arguments for the app's web-view route: the page to load and the title
 /// shown in the app bar.
 class WebViewArgs {
   const WebViewArgs({required this.url, required this.title});
@@ -15,26 +14,49 @@ class WebViewArgs {
   final String title;
 }
 
-/// Generic in-app browser for static hosted pages (About Us, Terms &
-/// Conditions, ...). Reusable across features via [AppRoutesName.webView].
 class AppWebViewScreen extends StatefulWidget {
-  const AppWebViewScreen({super.key, required this.url, required this.title});
+  const AppWebViewScreen({
+    super.key,
+    required this.url,
+    required this.title,
+    @visibleForTesting this.controller,
+  });
 
   final String url;
   final String title;
+
+  /// Overrides the real controller in tests; production callers should
+  /// leave this null.
+  @visibleForTesting
+  final WebViewController? controller;
 
   @override
   State<AppWebViewScreen> createState() => _AppWebViewScreenState();
 }
 
 class _AppWebViewScreenState extends State<AppWebViewScreen> {
-  late final WebViewController _controller = _buildController();
+  late final WebViewController _controller;
 
   bool _isLoading = true;
   bool _hasError = false;
 
-  WebViewController _buildController() {
-    return WebViewController()
+  @override
+  void initState() {
+    super.initState();
+    _controller = _configure(widget.controller ?? WebViewController());
+  }
+
+  @override
+  void didUpdateWidget(covariant AppWebViewScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.url != oldWidget.url) {
+      _setLoading();
+      _controller.loadRequest(Uri.parse(widget.url));
+    }
+  }
+
+  WebViewController _configure(WebViewController controller) {
+    return controller
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
@@ -60,45 +82,74 @@ class _AppWebViewScreenState extends State<AppWebViewScreen> {
     });
   }
 
-  void _onBack() {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go(AppRoutesName.profile);
-    }
+  void _retry() {
+    _setLoading();
+    _controller.reload();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: widget.title, onBack: _onBack),
+      appBar: CustomAppBar(
+        title: widget.title,
+        onBack: () => Navigator.of(context).maybePop(),
+      ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            if (!_hasError) WebViewWidget(controller: _controller),
-            if (_isLoading && !_hasError)
-              const Center(child: CircularProgressIndicator()),
-            if (_hasError) _buildError(),
-          ],
+        child: WebViewContentSwitcher(
+          isLoading: _isLoading,
+          hasError: _hasError,
+          onRetry: _retry,
+          webView: WebViewWidget(controller: _controller),
         ),
       ),
     );
   }
+}
 
-  Widget _buildError() {
+
+class WebViewContentSwitcher extends StatelessWidget {
+  const WebViewContentSwitcher({
+    super.key,
+    required this.isLoading,
+    required this.hasError,
+    required this.onRetry,
+    required this.webView,
+  });
+
+  final bool isLoading;
+  final bool hasError;
+  final VoidCallback onRetry;
+  final Widget webView;
+
+  @override
+  Widget build(BuildContext context) {
+    if (hasError) {
+      return _WebViewErrorView(onRetry: onRetry);
+    }
+
+    return Stack(
+      children: [
+        webView,
+        if (isLoading) const Center(child: CircularProgressIndicator()),
+      ],
+    );
+  }
+}
+
+class _WebViewErrorView extends StatelessWidget {
+  const _WebViewErrorView({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(AppString.somethingWrong, textAlign: TextAlign.center),
           SizedBox(height: 12.h),
-          TextButton(
-            onPressed: () {
-              _setLoading();
-              _controller.reload();
-            },
-            child: const Text(AppString.retry),
-          ),
+          TextButton(onPressed: onRetry, child: const Text(AppString.retry)),
         ],
       ),
     );
