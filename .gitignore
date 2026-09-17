@@ -36,7 +36,6 @@ migrate_working_dir/
 /build/
 /coverage/
 
-
 # Symbolication related
 app.*.symbols
 
@@ -58,3 +57,6 @@ app.*.map.json
 **/GeneratedPluginRegistrant.swift
 **/generated_plugin_registrant.cc
 **/generated_plugins.cmake
+
+# FVM Version Cache
+.fvm/

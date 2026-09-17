@@ -1,3 +1,4 @@
+import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'package:flower_app/core/base/base_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -8,7 +9,7 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 @lazySingleton
-class AuthCubit extends Cubit<AuthState> {
+class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
   AuthCubit(this._authRepository) : super(AuthState.initial());
 
   final AuthRepository _authRepository;
@@ -134,6 +135,9 @@ class AuthCubit extends Cubit<AuthState> {
   void clearPendingAction() {
     _pendingAction = null;
   }
+
+  @override
+  Future<void> logout() => doEvent(const AuthLogoutRequested());
 
   @override
   Future<void> close() {

@@ -32,7 +32,9 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
+import 'package:flower_app/features/profile/presentation/view/screen/edit_profile_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
+import 'package:flower_app/features/profile/presentation/view_model/profile_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -67,6 +69,7 @@ class AppRouter {
         _mainShell(),
          GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
         GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
+        GoRoute(path: AppRoutesName.editProfile, builder: _editProfileBuilder),
       ],
     );
   }
@@ -280,8 +283,16 @@ class AppRouter {
     );
   }
 
+  // ProfileViewModel is registered as a @lazySingleton (shared across the
+  // Profile and Edit Profile routes), so it is provided via BlocProvider
+  // .value rather than `create:` — flutter_bloc would otherwise close()
+  // the singleton when either screen is popped, leaving the next visit with
+  // a dead Cubit still cached in getIt.
   static Widget _profileBuilder(BuildContext context, GoRouterState state) {
-    return const ProfileScreen();
+    return BlocProvider.value(
+      value: getIt<ProfileViewModel>(),
+      child: const ProfileScreen(),
+    );
   }
 
   static Widget _addressBuilder(BuildContext context, GoRouterState state) {
@@ -305,6 +316,13 @@ class AppRouter {
       create: (_) =>
           getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
       child: const SavedAddressesScreen(),
+    );
+  }
+
+  static Widget _editProfileBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider.value(
+      value: getIt<ProfileViewModel>(),
+      child: const EditProfileScreen(),
     );
   }
 }
