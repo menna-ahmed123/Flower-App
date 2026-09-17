@@ -214,6 +214,7 @@ abstract class AppString {
   static const String aboutUs = 'About us';
   static const String termsAndConditionsRow = 'Terms & conditions';
   static const String changeProfilePicture = 'Change profile picture';
+  static const String editProfile = 'Edit Profile';
 
   static const String somethingWrong = 'Something went wrong';
   static const String retry = 'Retry';

@@ -14,11 +14,17 @@ class ProfileDisplayData extends Equatable {
   final String email;
   final String? photoUrl;
 
-  factory ProfileDisplayData.fromEntity(ProfileEntity entity) {
+  /// [mediaUrlResolver] defaults to [ApiEndpoints.mediaUrl] so call sites
+  /// don't need to pass anything, but tests can inject a fake resolver
+  /// instead of depending on ApiEndpoints' global mutable base-URL state.
+  factory ProfileDisplayData.fromEntity(
+    ProfileEntity entity, {
+    String Function(String?) mediaUrlResolver = ApiEndpoints.mediaUrl,
+  }) {
     return ProfileDisplayData(
       name: entity.fullName,
       email: entity.email ?? '',
-      photoUrl: ApiEndpoints.mediaUrl(entity.profilePictureUrl),
+      photoUrl: mediaUrlResolver(entity.profilePictureUrl),
     );
   }
 

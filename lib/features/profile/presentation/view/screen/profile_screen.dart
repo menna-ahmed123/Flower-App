@@ -1,9 +1,9 @@
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/constants/app_urls.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/features/auth/core/presentation/view_model/auth_event.dart';
-import 'package:flower_app/features/profile/presentation/models/profile_display_data.dart';
+import 'package:flower_app/core/widgets/app_web_view_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/language_bottom_sheet.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/logout_confirmation_dialog.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/profile_header.dart';
@@ -25,20 +25,18 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Local UI-only toggle: no notification-preferences state/API exists yet.
-  bool _notificationsEnabled = true;
-
   @override
   void initState() {
     super.initState();
-    final profileViewModel = context.read<ProfileViewModel>();
-    if (profileViewModel.state.profileState.data == null) {
-      profileViewModel.doEvent(ProfileRequested());
-    }
+    // The View always asks to be initialized; the ViewModel decides
+    // whether a network call is actually needed.
+    context.read<ProfileViewModel>().doEvent(ProfileInitialized());
   }
 
   void _onNotificationsChanged(bool value) {
-    setState(() => _notificationsEnabled = value);
+    context.read<ProfileViewModel>().doEvent(
+      NotificationToggleChanged(value),
+    );
   }
 
   Future<void> _onLanguageTap() {
@@ -51,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    await context.read<AuthCubit>().doEvent(const AuthLogoutRequested());
+    await context.read<AuthSessionController>().logout();
     if (!mounted) {
       return;
     }
@@ -60,6 +58,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _onSavedAddressTap() {
     context.push(AppRoutesName.saveAddress);
+  }
+
+  void _onEditProfileTap() {
+    context.push(AppRoutesName.editProfile);
+  }
+
+  void _onAboutUsTap() {
+    context.push(
+      AppRoutesName.webView,
+      extra: const WebViewArgs(url: AppUrls.aboutUs, title: AppString.aboutUs),
+    );
+  }
+
+  void _onTermsConditionsTap() {
+    context.push(
+      AppRoutesName.webView,
+      extra: const WebViewArgs(
+        url: AppUrls.termsAndConditions,
+        title: AppString.termsAndConditionsRow,
+      ),
+    );
   }
 
   @override
@@ -99,47 +118,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final profile = profileState.data;
+    final displayData = state.displayData;
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: 24.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const ProfileHeader(),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.h),
-            child: Center(
-              child: profile == null
-                  ? const SizedBox.shrink()
-                  : ProfileInfoSection(
-                      data: ProfileDisplayData.fromEntity(profile),
-                    ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: ProfileOptionsSection(
-              notificationsEnabled: _notificationsEnabled,
-              onNotificationsChanged: _onNotificationsChanged,
-              onSavedAddressTap: _onSavedAddressTap,
-              onLanguageTap: _onLanguageTap,
-              onLogoutTap: _onLogoutTap,
-              // My orders, About us and Terms & conditions have no
-              // destination in the app yet; left as integration points.
-            ),
-          ),
-          SizedBox(height: 24.h),
-          Center(
-            child: Text(
-              AppString.appVersion,
-              style: TextStyle(
-                color: context.colors.grey.shade900,
-                fontSize: 11.sp,
+    return RefreshIndicator(
+      onRefresh: () =>
+          context.read<ProfileViewModel>().doEvent(ProfileRequested()),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(bottom: 24.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ProfileHeader(),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Center(
+                child: displayData == null
+                    ? const SizedBox.shrink()
+                    : ProfileInfoSection(
+                        data: displayData,
+                        onEditTap: _onEditProfileTap,
+                      ),
               ),
             ),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: ProfileOptionsSection(
+                onNotificationsChanged: _onNotificationsChanged,
+                onSavedAddressTap: _onSavedAddressTap,
+                onLanguageTap: _onLanguageTap,
+                onAboutUsTap: _onAboutUsTap,
+                onTermsConditionsTap: _onTermsConditionsTap,
+                onLogoutTap: _onLogoutTap,
+                // My orders still has no destination in the app yet.
+              ),
+            ),
+            SizedBox(height: 24.h),
+            Center(
+              child: Text(
+                AppString.appVersion,
+                style: TextStyle(
+                  color: context.colors.grey.shade900,
+                  fontSize: 11.sp,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

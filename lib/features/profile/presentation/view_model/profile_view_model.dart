@@ -1,6 +1,7 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
+import 'package:flower_app/features/profile/presentation/models/profile_display_data.dart';
 import 'package:flower_app/features/profile/presentation/view_model/profile_event.dart';
 import 'package:flower_app/features/profile/presentation/view_model/profile_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,8 +17,16 @@ class ProfileViewModel extends Cubit<ProfileState> {
 
   Future<void> doEvent(ProfileEvent event) async {
     switch (event) {
+      case ProfileInitialized():
+        if (state.profileState.data == null) {
+          await _getProfile();
+        }
+        break;
       case ProfileRequested():
         await _getProfile();
+        break;
+      case NotificationToggleChanged(:final isEnabled):
+        emit(state.copyWith(isNotificationsEnabled: isEnabled));
         break;
     }
   }
@@ -43,6 +52,7 @@ class ProfileViewModel extends Cubit<ProfileState> {
               data: response.data,
               errorMessage: '',
             ),
+            displayData: ProfileDisplayData.fromEntity(response.data),
           ),
         );
         break;

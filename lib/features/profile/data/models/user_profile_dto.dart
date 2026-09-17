@@ -1,4 +1,4 @@
-import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+import 'package:flower_app/core/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 

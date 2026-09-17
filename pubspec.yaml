@@ -31,6 +31,7 @@ dependencies:
   retrofit: ^4.10.0
   pinput: ^6.0.2
   cached_network_image: ^3.4.1
+  flutter_svg: ^2.2.1
   freezed_annotation: ^3.1.0
   infinite_scroll_pagination: ^5.1.1
   flutter_dotenv: ^6.0.1
@@ -40,6 +41,7 @@ dependencies:
   geocoding: ^5.0.0
   flutter_map: ^8.3.2
   image_picker: ^1.1.2
+  webview_flutter: ^4.9.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+import 'package:flower_app/core/domain/entities/gender.dart';
 
 /// The authenticated user's own profile (GET /identity/users/me/profile).
 class ProfileEntity extends Equatable {
@@ -8,10 +8,10 @@ class ProfileEntity extends Equatable {
     required this.fullName,
     required this.firstName,
     required this.lastName,
-    required this.email,
-    required this.phoneNumber,
-    required this.gender,
-    required this.profilePictureUrl,
+    this.email,
+    this.phoneNumber,
+    this.gender,
+    this.profilePictureUrl,
     required this.roles,
   });
 
