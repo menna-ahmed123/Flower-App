@@ -1,7 +1,9 @@
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/constants/app_urls.dart';
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/core/widgets/app_web_view_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/language_bottom_sheet.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/logout_confirmation_dialog.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/profile_header.dart';
@@ -60,6 +62,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _onEditProfileTap() {
     context.push(AppRoutesName.editProfile);
+  }
+
+  void _onAboutUsTap() {
+    context.push(
+      AppRoutesName.webView,
+      extra: const WebViewArgs(url: AppUrls.aboutUs, title: AppString.aboutUs),
+    );
+  }
+
+  void _onTermsConditionsTap() {
+    context.push(
+      AppRoutesName.webView,
+      extra: const WebViewArgs(
+        url: AppUrls.termsAndConditions,
+        title: AppString.termsAndConditionsRow,
+      ),
+    );
   }
 
   @override
@@ -128,9 +147,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onNotificationsChanged: _onNotificationsChanged,
                 onSavedAddressTap: _onSavedAddressTap,
                 onLanguageTap: _onLanguageTap,
+                onAboutUsTap: _onAboutUsTap,
+                onTermsConditionsTap: _onTermsConditionsTap,
                 onLogoutTap: _onLogoutTap,
-                // My orders, About us and Terms & conditions have no
-                // destination in the app yet; left as integration points.
+                // My orders still has no destination in the app yet.
               ),
             ),
             SizedBox(height: 24.h),

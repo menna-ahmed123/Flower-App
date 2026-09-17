@@ -7,7 +7,9 @@ import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'package:flower_app/features/auth/core/domain/repos/auth_repository.dart';
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/constants/app_urls.dart';
 import 'package:flower_app/core/errors/app_error.dart';
+import 'package:flower_app/core/widgets/app_web_view_screen.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
@@ -104,6 +106,37 @@ void main() {
 
     expect(_path(router), '/save_address');
   });
+
+  testWidgets('tapping About Us opens the About Us web page', (tester) async {
+    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
+
+    await tester.tap(find.text(AppString.aboutUs));
+    await tester.pumpAndSettle();
+
+    expect(_path(router), '/web-view');
+    expect(
+      find.text('${AppString.aboutUs}|${AppUrls.aboutUs}'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+    'tapping Terms & Conditions opens the Terms & Conditions web page',
+    (tester) async {
+      await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
+
+      await tester.tap(find.text(AppString.termsAndConditionsRow));
+      await tester.pumpAndSettle();
+
+      expect(_path(router), '/web-view');
+      expect(
+        find.text(
+          '${AppString.termsAndConditionsRow}|${AppUrls.termsAndConditions}',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets(
     'toggling the switch dispatches NotificationToggleChanged and updates '
@@ -290,6 +323,13 @@ GoRouter _testRouter() {
       GoRoute(
         path: '/edit-profile',
         builder: (_, _) => const Text('EDIT_PROFILE'),
+      ),
+      GoRoute(
+        path: '/web-view',
+        builder: (_, state) {
+          final args = state.extra as WebViewArgs;
+          return Text('${args.title}|${args.url}');
+        },
       ),
     ],
   );
