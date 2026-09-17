@@ -58,7 +58,7 @@ class ProfileOptionRow extends StatelessWidget {
                 ),
               ),
             ),
-            if (trailing != null) trailing!,
+            ?trailing,
             if (showChevron) ...[
               SizedBox(width: 4.w),
               Icon(AppIcons.chevronRight, size: 24.w, color: colors.grey.shade900),
