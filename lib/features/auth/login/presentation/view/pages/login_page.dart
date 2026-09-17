@@ -2,7 +2,7 @@ import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
+import 'package:flower_app/core/widgets/custom_app_bar.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_button.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_text_feild.dart';
 import 'package:flower_app/features/auth/login/presentation/view_model/login_event.dart';

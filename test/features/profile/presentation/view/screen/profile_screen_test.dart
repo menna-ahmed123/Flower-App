@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
+import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'package:flower_app/features/auth/core/domain/repos/auth_repository.dart';
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
@@ -101,16 +105,72 @@ void main() {
     expect(_path(router), '/save_address');
   });
 
-  testWidgets('toggles the notification switch locally', (tester) async {
-    await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
+  testWidgets(
+    'toggling the switch dispatches NotificationToggleChanged and updates '
+    'ProfileState, which the switch then reflects',
+    (tester) async {
+      await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+      expect(profileViewModel.state.isNotificationsEnabled, isTrue);
 
-    await tester.tap(find.byType(Switch));
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+
+      expect(profileViewModel.state.isNotificationsEnabled, isFalse);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+    },
+  );
+
+  testWidgets('shows a loading indicator while the profile request is in '
+      'flight', (tester) async {
+    final controllableRepo = ControllableProfileRepo();
+    final viewModel = ProfileViewModel(GetProfileUseCase(controllableRepo));
+    addTearDown(viewModel.close);
+
+    await _pumpProfileScreenWhileLoading(tester, router, authCubit, viewModel);
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    controllableRepo.complete(const SuccessResponse(FakeProfileRepo.profile));
     await tester.pumpAndSettle();
 
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.text(FakeProfileRepo.profile.fullName), findsOneWidget);
   });
+
+  testWidgets(
+    'shows the error message with a retry button, and retrying reloads the '
+    'profile',
+    (tester) async {
+      final controllableRepo = ControllableProfileRepo();
+      final viewModel = ProfileViewModel(GetProfileUseCase(controllableRepo));
+      addTearDown(viewModel.close);
+
+      await _pumpProfileScreenWhileLoading(tester, router, authCubit, viewModel);
+
+      controllableRepo.complete(
+        ErrorResponse<ProfileEntity>(
+          appError: BadResponseError('Could not load profile'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Could not load profile'), findsOneWidget);
+      expect(find.text(AppString.retry), findsOneWidget);
+
+      controllableRepo.reset();
+      await tester.tap(find.text(AppString.retry));
+      await tester.pump();
+      controllableRepo.complete(
+        const SuccessResponse(FakeProfileRepo.profile),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Could not load profile'), findsNothing);
+      expect(find.text(FakeProfileRepo.profile.fullName), findsOneWidget);
+    },
+  );
 
   testWidgets('cancelling the logout dialog does not log the user out', (
     tester,
@@ -153,6 +213,32 @@ Future<void> _pumpProfileScreen(
   AuthCubit authCubit,
   ProfileViewModel profileViewModel,
 ) async {
+  await _pumpProfileScreenTree(tester, router, authCubit, profileViewModel);
+  await tester.pumpAndSettle();
+}
+
+/// Same widget tree as [_pumpProfileScreen], but pumps a single frame
+/// instead of settling. CircularProgressIndicator's indeterminate spinner
+/// never stops animating on its own, so a test that needs to observe the
+/// loading state (before completing a [ControllableProfileRepo] future)
+/// must use this instead — pumpAndSettle would time out waiting for an
+/// animation that's never meant to finish.
+Future<void> _pumpProfileScreenWhileLoading(
+  WidgetTester tester,
+  GoRouter router,
+  AuthCubit authCubit,
+  ProfileViewModel profileViewModel,
+) async {
+  await _pumpProfileScreenTree(tester, router, authCubit, profileViewModel);
+  await tester.pump();
+}
+
+Future<void> _pumpProfileScreenTree(
+  WidgetTester tester,
+  GoRouter router,
+  AuthCubit authCubit,
+  ProfileViewModel profileViewModel,
+) async {
   tester.view.physicalSize = const Size(375, 812);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -166,25 +252,29 @@ Future<void> _pumpProfileScreen(
       useOnlyLangCode: true,
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
-        builder: (context, _) => MultiBlocProvider(
+        builder: (context, _) => MultiRepositoryProvider(
           providers: [
-            BlocProvider.value(value: authCubit),
-            BlocProvider.value(value: profileViewModel),
+            RepositoryProvider<AuthSessionController>.value(value: authCubit),
           ],
-          child: Builder(
-            builder: (context) => MaterialApp.router(
-              theme: AppTheme(lightThemeColors).themeData,
-              routerConfig: router,
-              locale: context.locale,
-              supportedLocales: context.supportedLocales,
-              localizationsDelegates: context.localizationDelegates,
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: authCubit),
+              BlocProvider.value(value: profileViewModel),
+            ],
+            child: Builder(
+              builder: (context) => MaterialApp.router(
+                theme: AppTheme(lightThemeColors).themeData,
+                routerConfig: router,
+                locale: context.locale,
+                supportedLocales: context.supportedLocales,
+                localizationsDelegates: context.localizationDelegates,
+              ),
             ),
           ),
         ),
       ),
     ),
   );
-  await tester.pumpAndSettle();
 }
 
 GoRouter _testRouter() {
@@ -238,4 +328,22 @@ class FakeProfileRepo implements ProfileRepo {
   Future<BaseResponse<ProfileEntity>> getMyProfile() async {
     return const SuccessResponse(profile);
   }
+}
+
+/// A ProfileRepo whose getMyProfile() call only resolves once [complete] is
+/// called, so tests can assert on the in-between loading state. [reset]
+/// swaps in a fresh, not-yet-resolved call for a retry.
+class ControllableProfileRepo implements ProfileRepo {
+  Completer<BaseResponse<ProfileEntity>> _completer = Completer();
+
+  void complete(BaseResponse<ProfileEntity> response) {
+    _completer.complete(response);
+  }
+
+  void reset() {
+    _completer = Completer();
+  }
+
+  @override
+  Future<BaseResponse<ProfileEntity>> getMyProfile() => _completer.future;
 }

@@ -1,9 +1,7 @@
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
-import 'package:flower_app/features/auth/core/presentation/view_model/auth_event.dart';
-import 'package:flower_app/features/profile/presentation/models/profile_display_data.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/language_bottom_sheet.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/logout_confirmation_dialog.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/profile_header.dart';
@@ -25,27 +23,18 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Local UI-only toggle: no notification-preferences state/API exists yet.
-  // A ValueNotifier keeps this out of setState so only the switch row rebuilds.
-  final ValueNotifier<bool> _notificationsEnabled = ValueNotifier<bool>(true);
-
   @override
   void initState() {
     super.initState();
-    final profileViewModel = context.read<ProfileViewModel>();
-    if (profileViewModel.state.profileState.data == null) {
-      profileViewModel.doEvent(ProfileRequested());
-    }
-  }
-
-  @override
-  void dispose() {
-    _notificationsEnabled.dispose();
-    super.dispose();
+    // The View always asks to be initialized; the ViewModel decides
+    // whether a network call is actually needed.
+    context.read<ProfileViewModel>().doEvent(ProfileInitialized());
   }
 
   void _onNotificationsChanged(bool value) {
-    _notificationsEnabled.value = value;
+    context.read<ProfileViewModel>().doEvent(
+      NotificationToggleChanged(value),
+    );
   }
 
   Future<void> _onLanguageTap() {
@@ -58,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    await context.read<AuthCubit>().doEvent(const AuthLogoutRequested());
+    await context.read<AuthSessionController>().logout();
     if (!mounted) {
       return;
     }
@@ -110,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final profile = profileState.data;
+    final displayData = state.displayData;
 
     return RefreshIndicator(
       onRefresh: () =>
@@ -125,10 +114,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Padding(
               padding: EdgeInsets.symmetric(vertical: 16.h),
               child: Center(
-                child: profile == null
+                child: displayData == null
                     ? const SizedBox.shrink()
                     : ProfileInfoSection(
-                        data: ProfileDisplayData.fromEntity(profile),
+                        data: displayData,
                         onEditTap: _onEditProfileTap,
                       ),
               ),
@@ -136,7 +125,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: ProfileOptionsSection(
-                notificationsEnabled: _notificationsEnabled,
                 onNotificationsChanged: _onNotificationsChanged,
                 onSavedAddressTap: _onSavedAddressTap,
                 onLanguageTap: _onLanguageTap,

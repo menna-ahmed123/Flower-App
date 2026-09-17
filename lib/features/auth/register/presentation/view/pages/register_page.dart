@@ -5,7 +5,7 @@ import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_button.dart';
 import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_text_feild.dart';
-import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+import 'package:flower_app/core/domain/entities/gender.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_event.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_state.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';

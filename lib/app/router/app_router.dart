@@ -283,6 +283,11 @@ class AppRouter {
     );
   }
 
+  // ProfileViewModel is registered as a @lazySingleton (shared across the
+  // Profile and Edit Profile routes), so it is provided via BlocProvider
+  // .value rather than `create:` — flutter_bloc would otherwise close()
+  // the singleton when either screen is popped, leaving the next visit with
+  // a dead Cubit still cached in getIt.
   static Widget _profileBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider.value(
       value: getIt<ProfileViewModel>(),
@@ -315,6 +320,9 @@ class AppRouter {
   }
 
   static Widget _editProfileBuilder(BuildContext context, GoRouterState state) {
-    return const EditProfileScreen();
+    return BlocProvider.value(
+      value: getIt<ProfileViewModel>(),
+      child: const EditProfileScreen(),
+    );
   }
 }

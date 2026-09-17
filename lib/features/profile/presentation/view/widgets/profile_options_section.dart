@@ -3,7 +3,10 @@ import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/profile_option_row.dart';
+import 'package:flower_app/features/profile/presentation/view_model/profile_state.dart';
+import 'package:flower_app/features/profile/presentation/view_model/profile_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// The Profile screen's menu: navigation rows, the notification toggle and
@@ -11,7 +14,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ProfileOptionsSection extends StatelessWidget {
   const ProfileOptionsSection({
     super.key,
-    required this.notificationsEnabled,
     required this.onNotificationsChanged,
     this.onMyOrdersTap,
     this.onSavedAddressTap,
@@ -22,7 +24,6 @@ class ProfileOptionsSection extends StatelessWidget {
     required this.onLogoutTap,
   });
 
-  final ValueNotifier<bool> notificationsEnabled;
   final ValueChanged<bool> onNotificationsChanged;
 
   final VoidCallback? onMyOrdersTap;
@@ -54,9 +55,12 @@ class ProfileOptionsSection extends StatelessWidget {
           onTap: onSavedAddressTap,
         ),
         _sectionDivider(colors),
-        ValueListenableBuilder<bool>(
-          valueListenable: notificationsEnabled,
-          builder: (context, isEnabled, _) {
+        // Scoped to just this row: only the notification switch rebuilds
+        // when ProfileState.isNotificationsEnabled changes, not the rest
+        // of this section or the screen.
+        BlocSelector<ProfileViewModel, ProfileState, bool>(
+          selector: (state) => state.isNotificationsEnabled,
+          builder: (context, isEnabled) {
             return ProfileOptionRow(
               label: AppString.notification,
               leading: Switch(

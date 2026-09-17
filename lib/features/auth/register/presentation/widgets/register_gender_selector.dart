@@ -1,6 +1,6 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+import 'package:flower_app/core/domain/entities/gender.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

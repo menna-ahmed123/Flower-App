@@ -72,15 +72,20 @@ class ProfileInfoSection extends StatelessWidget {
     return CircleAvatar(
       radius: 40.5.r,
       backgroundColor: colors.lightPink,
+      // CircleAvatar already clips its child to a circle; no extra ClipOval
+      // needed here.
       child: photoUrl == null || photoUrl.isEmpty
           ? Icon(AppIcons.person, size: 40.w, color: colors.pink)
-          : ClipOval(
-              child: CachedNetworkImage(
-                imageUrl: photoUrl,
-                width: 81.w,
-                height: 81.w,
-                fit: BoxFit.cover,
-              ),
+          : CachedNetworkImage(
+              imageUrl: photoUrl,
+              width: 81.w,
+              height: 81.w,
+              fit: BoxFit.cover,
+              // A non-empty but broken/relative URL (e.g. unconfigured
+              // base URL) should still fall back to the placeholder icon
+              // instead of a blank circle.
+              errorWidget: (context, url, error) =>
+                  Icon(AppIcons.person, size: 40.w, color: colors.pink),
             ),
     );
   }

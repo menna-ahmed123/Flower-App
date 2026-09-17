@@ -1,6 +1,6 @@
 import 'package:flower_app/features/auth/register/data/models/register_request.dart';
 import 'package:flower_app/features/auth/register/data/models/register_response.dart';
-import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+import 'package:flower_app/core/domain/entities/gender.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/register_test_support.dart';
