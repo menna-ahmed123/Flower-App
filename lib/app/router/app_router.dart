@@ -32,6 +32,7 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
+import 'package:flower_app/core/widgets/app_web_view_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/edit_profile_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
 import 'package:flower_app/features/profile/presentation/view_model/profile_view_model.dart';
@@ -70,6 +71,7 @@ class AppRouter {
          GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
         GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
         GoRoute(path: AppRoutesName.editProfile, builder: _editProfileBuilder),
+        GoRoute(path: AppRoutesName.webView, builder: _webViewBuilder),
       ],
     );
   }
@@ -324,5 +326,14 @@ class AppRouter {
       value: getIt<ProfileViewModel>(),
       child: const EditProfileScreen(),
     );
+  }
+
+  static Widget _webViewBuilder(BuildContext context, GoRouterState state) {
+    final args = state.extra as WebViewArgs?;
+    if (args == null) {
+      return const Scaffold(body: Center(child: Text(AppString.pageNotFound)));
+    }
+
+    return AppWebViewScreen(url: args.url, title: args.title);
   }
 }
