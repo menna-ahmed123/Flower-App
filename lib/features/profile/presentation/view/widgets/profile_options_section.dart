@@ -22,7 +22,7 @@ class ProfileOptionsSection extends StatelessWidget {
     required this.onLogoutTap,
   });
 
-  final bool notificationsEnabled;
+  final ValueNotifier<bool> notificationsEnabled;
   final ValueChanged<bool> onNotificationsChanged;
 
   final VoidCallback? onMyOrdersTap;
@@ -54,15 +54,20 @@ class ProfileOptionsSection extends StatelessWidget {
           onTap: onSavedAddressTap,
         ),
         _sectionDivider(colors),
-        ProfileOptionRow(
-          label: AppString.notification,
-          leading: Switch(
-            value: notificationsEnabled,
-            activeColor: colors.white,
-            activeTrackColor: colors.pink,
-            onChanged: onNotificationsChanged,
-          ),
-          onTap: onNotificationRowTap,
+        ValueListenableBuilder<bool>(
+          valueListenable: notificationsEnabled,
+          builder: (context, isEnabled, _) {
+            return ProfileOptionRow(
+              label: AppString.notification,
+              leading: Switch(
+                value: isEnabled,
+                activeColor: colors.white,
+                activeTrackColor: colors.pink,
+                onChanged: onNotificationsChanged,
+              ),
+              onTap: onNotificationRowTap,
+            );
+          },
         ),
         _sectionDivider(colors),
         ProfileOptionRow(

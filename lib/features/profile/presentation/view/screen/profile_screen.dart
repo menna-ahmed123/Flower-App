@@ -26,7 +26,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   // Local UI-only toggle: no notification-preferences state/API exists yet.
-  bool _notificationsEnabled = true;
+  // A ValueNotifier keeps this out of setState so only the switch row rebuilds.
+  final ValueNotifier<bool> _notificationsEnabled = ValueNotifier<bool>(true);
 
   @override
   void initState() {
@@ -37,8 +38,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _notificationsEnabled.dispose();
+    super.dispose();
+  }
+
   void _onNotificationsChanged(bool value) {
-    setState(() => _notificationsEnabled = value);
+    _notificationsEnabled.value = value;
   }
 
   Future<void> _onLanguageTap() {
@@ -105,46 +112,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final profile = profileState.data;
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: 24.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const ProfileHeader(),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.h),
-            child: Center(
-              child: profile == null
-                  ? const SizedBox.shrink()
-                  : ProfileInfoSection(
-                      data: ProfileDisplayData.fromEntity(profile),
-                      onEditTap: _onEditProfileTap,
-                    ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: ProfileOptionsSection(
-              notificationsEnabled: _notificationsEnabled,
-              onNotificationsChanged: _onNotificationsChanged,
-              onSavedAddressTap: _onSavedAddressTap,
-              onLanguageTap: _onLanguageTap,
-              onLogoutTap: _onLogoutTap,
-              // My orders, About us and Terms & conditions have no
-              // destination in the app yet; left as integration points.
-            ),
-          ),
-          SizedBox(height: 24.h),
-          Center(
-            child: Text(
-              AppString.appVersion,
-              style: TextStyle(
-                color: context.colors.grey.shade900,
-                fontSize: 11.sp,
+    return RefreshIndicator(
+      onRefresh: () =>
+          context.read<ProfileViewModel>().doEvent(ProfileRequested()),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(bottom: 24.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ProfileHeader(),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Center(
+                child: profile == null
+                    ? const SizedBox.shrink()
+                    : ProfileInfoSection(
+                        data: ProfileDisplayData.fromEntity(profile),
+                        onEditTap: _onEditProfileTap,
+                      ),
               ),
             ),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: ProfileOptionsSection(
+                notificationsEnabled: _notificationsEnabled,
+                onNotificationsChanged: _onNotificationsChanged,
+                onSavedAddressTap: _onSavedAddressTap,
+                onLanguageTap: _onLanguageTap,
+                onLogoutTap: _onLogoutTap,
+                // My orders, About us and Terms & conditions have no
+                // destination in the app yet; left as integration points.
+              ),
+            ),
+            SizedBox(height: 24.h),
+            Center(
+              child: Text(
+                AppString.appVersion,
+                style: TextStyle(
+                  color: context.colors.grey.shade900,
+                  fontSize: 11.sp,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
