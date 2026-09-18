@@ -5,7 +5,7 @@ import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
-import 'package:flower_app/features/cart/domain/use_cases/cart_use_case.dart';
+import 'package:flower_app/features/cart/domain/use_cases/cart_use_cases.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,9 +13,17 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class CartViewModel extends Cubit<CartState> {
-  CartViewModel(this._cartUseCase) : super(const CartState());
+  CartViewModel(
+    this._getCartUseCase,
+    this._addCartItemUseCase,
+    this._updateCartItemUseCase,
+    this._removeCartItemUseCase,
+  ) : super(const CartState());
 
-  final CartUseCase _cartUseCase;
+  final GetCartUseCase _getCartUseCase;
+  final AddCartItemUseCase _addCartItemUseCase;
+  final UpdateCartItemUseCase _updateCartItemUseCase;
+  final RemoveCartItemUseCase _removeCartItemUseCase;
   final Map<String, Timer> _quantityTimers = {};
   final Map<String, CartItemEntity> _quantitySnapshots = {};
   int _pendingMutations = 0;
@@ -43,7 +51,7 @@ class CartViewModel extends Cubit<CartState> {
   Future<void> _loadCart() async {
     final generation = ++_loadGeneration;
     if (state.cartState.data == null) _emitLoading();
-    final response = await _cartUseCase.getCart();
+    final response = await _getCartUseCase.getCart();
     if (generation != _loadGeneration || _pendingMutations > 0) return;
     if (_quantityTimers.isNotEmpty) return;
     _applyLoadResponse(response);
@@ -53,7 +61,7 @@ class CartViewModel extends Cubit<CartState> {
     final previous = _currentCart();
     _emitCart(_optimisticAdd(previous, quantity));
     _pendingMutations++;
-    final response = await _cartUseCase.addItem(
+    final response = await _addCartItemUseCase.addItem(
       productId: productId,
       quantity: quantity,
     );
@@ -89,7 +97,7 @@ class CartViewModel extends Cubit<CartState> {
           .recalculated(),
     );
     _pendingMutations++;
-    final response = await _cartUseCase.removeItem(itemId: itemId);
+    final response = await _removeCartItemUseCase.removeItem(itemId: itemId);
     _pendingMutations--;
     _applyRemoveResponse(response, previous);
   }
@@ -112,7 +120,7 @@ class CartViewModel extends Cubit<CartState> {
     if (snapshot == null || current == null) return;
     if (current.quantity == snapshot.quantity) return;
     _pendingMutations++;
-    final response = await _cartUseCase.updateItem(
+    final response = await _updateCartItemUseCase.updateItem(
       itemId: itemId,
       quantity: current.quantity,
     );
@@ -305,7 +313,7 @@ class CartViewModel extends Cubit<CartState> {
   }
 
   Future<List<String>> _remoteItemIds() async {
-    final response = await _cartUseCase.getCart();
+    final response = await _getCartUseCase.getCart();
     if (response is! SuccessResponse<CartEntity>) return const [];
     return [
       for (final item in response.data.items)
@@ -315,7 +323,7 @@ class CartViewModel extends Cubit<CartState> {
 
   Future<void> _deleteItems(List<String> ids) async {
     for (final id in ids) {
-      await _cartUseCase.removeItem(itemId: id);
+      await _removeCartItemUseCase.removeItem(itemId: id);
     }
   }
 

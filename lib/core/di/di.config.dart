@@ -107,7 +107,8 @@ import '../../features/cart/data/data_sources/cart_remote_data_source_impl.dart'
     as _i916;
 import '../../features/cart/data/repo/cart_repo_impl.dart' as _i234;
 import '../../features/cart/domain/repo/cart_repo.dart' as _i379;
-import '../../features/cart/domain/use_cases/cart_use_case.dart' as _i886;
+import '../../features/cart/domain/use_cases/cart_use_cases.dart' as _i1057;
+import '../../features/cart/domain/use_cases/checkout_use_cases.dart' as _i497;
 import '../../features/cart/presentation/view_model/cart_view_model.dart'
     as _i572;
 import '../../features/cart/presentation/view_model/checkout_view_model.dart'
@@ -407,8 +408,41 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1017.SetDefaultAddressUseCase>(
       () => _i1017.SetDefaultAddressUseCase(gh<_i366.AddressRepo>()),
     );
-    gh.factory<_i886.CartUseCase>(
-      () => _i886.CartUseCase(gh<_i379.CartRepo>()),
+    gh.factory<_i1057.GetCartUseCase>(
+      () => _i1057.GetCartUseCase(gh<_i379.CartRepo>()),
+    );
+    gh.factory<_i1057.AddCartItemUseCase>(
+      () => _i1057.AddCartItemUseCase(gh<_i379.CartRepo>()),
+    );
+    gh.factory<_i1057.UpdateCartItemUseCase>(
+      () => _i1057.UpdateCartItemUseCase(gh<_i379.CartRepo>()),
+    );
+    gh.factory<_i1057.RemoveCartItemUseCase>(
+      () => _i1057.RemoveCartItemUseCase(gh<_i379.CartRepo>()),
+    );
+    gh.factory<_i497.PreviewCheckoutUseCase>(
+      () => _i497.PreviewCheckoutUseCase(gh<_i379.CartRepo>()),
+    );
+    gh.factory<_i497.PlaceOrderUseCase>(
+      () => _i497.PlaceOrderUseCase(gh<_i379.CartRepo>()),
+    );
+    gh.factory<_i497.ProcessPaymentUseCase>(
+      () => _i497.ProcessPaymentUseCase(gh<_i379.CartRepo>()),
+    );
+    gh.lazySingleton<_i572.CartViewModel>(
+      () => _i572.CartViewModel(
+        gh<_i1057.GetCartUseCase>(),
+        gh<_i1057.AddCartItemUseCase>(),
+        gh<_i1057.UpdateCartItemUseCase>(),
+        gh<_i1057.RemoveCartItemUseCase>(),
+      ),
+    );
+    gh.factory<_i179.CheckoutViewModel>(
+      () => _i179.CheckoutViewModel(
+        gh<_i497.PreviewCheckoutUseCase>(),
+        gh<_i497.PlaceOrderUseCase>(),
+        gh<_i497.ProcessPaymentUseCase>(),
+      ),
     );
     gh.factory<_i188.LoginViewModel>(
       () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
@@ -430,12 +464,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i458.AddAddressUseCase>(),
         gh<_i130.UpdateAddressUseCase>(),
       ),
-    );
-    gh.lazySingleton<_i572.CartViewModel>(
-      () => _i572.CartViewModel(gh<_i886.CartUseCase>()),
-    );
-    gh.factory<_i179.CheckoutViewModel>(
-      () => _i179.CheckoutViewModel(gh<_i886.CartUseCase>()),
     );
     gh.singleton<_i349.DefaultAddressViewModel>(
       () => _i349.DefaultAddressViewModel(

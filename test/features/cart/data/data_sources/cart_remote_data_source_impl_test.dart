@@ -1,7 +1,10 @@
 import 'package:flower_app/core/constants/api_query_params.dart';
 import 'package:flower_app/features/cart/api/cart_api_client.dart';
 import 'package:flower_app/features/cart/data/data_sources/cart_remote_data_source_impl.dart';
-import 'package:flower_app/features/cart/data/models/cart_models.dart';
+import 'package:flower_app/features/cart/data/models/cart_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_preview_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_request.dart';
+import 'package:flower_app/features/cart/data/models/order_response.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -11,6 +14,7 @@ import 'cart_remote_data_source_impl_test.mocks.dart';
 @GenerateMocks([CartApiClient])
 void main() {
   provideDummy<CartResponse>(_cartResponse);
+  provideDummy<CheckoutPreviewResponse>(_previewResponse);
   provideDummy<OrderResponse>(
     const OrderResponse(success: true, statusCode: 200),
   );
@@ -25,6 +29,13 @@ void main() {
 
 const _cartResponse = CartResponse(
   data: CartDataModel(id: 'cart-1', items: [], itemsCount: 0),
+  statusCode: 200,
+  success: true,
+  message: 'Success',
+);
+
+const _previewResponse = CheckoutPreviewResponse(
+  data: CheckoutPreviewDataModel(id: 'cart-1', items: [], itemsCount: 0),
   statusCode: 200,
   success: true,
   message: 'Success',
@@ -184,10 +195,10 @@ void _previewCheckoutTests() {
 Future<void> _previewCheckoutForwards(CartSourceCase c) async {
   const request = CheckoutRequest(addressId: 'address-1');
   when(c.apiClient.previewCheckout(request)).thenAnswer((_) async {
-    return _cartResponse;
+    return _previewResponse;
   });
   final result = await c.dataSource.previewCheckout(request);
-  expect(result, _cartResponse);
+  expect(result, _previewResponse);
   verify(c.apiClient.previewCheckout(request)).called(1);
 }
 

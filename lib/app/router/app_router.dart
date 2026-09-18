@@ -334,11 +334,6 @@ class AppRouter {
   }
 
   static String? _orderIdFromExtra(Object? extra) {
-    if (extra is String && extra.isNotEmpty) return extra;
-    if (extra is CheckoutViewModel) {
-      final id = extra.state.orderId;
-      return (id ?? '').isEmpty ? null : id;
-    }
-    return null;
+    return extra is String && extra.isNotEmpty ? extra : null;
   }
 }

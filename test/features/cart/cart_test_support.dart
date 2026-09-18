@@ -3,10 +3,12 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:flower_app/features/cart/domain/repo/cart_repo.dart';
-import 'package:flower_app/features/cart/domain/use_cases/cart_use_case.dart';
+import 'package:flower_app/features/cart/domain/use_cases/cart_use_cases.dart';
+import 'package:flower_app/features/cart/domain/use_cases/checkout_use_cases.dart';
 import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_state.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
+import 'package:flower_app/features/cart/presentation/view_model/checkout_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,6 +50,7 @@ class FakeCartRepo implements CartRepo {
   BaseResponse<OrderEntity> placeOrderResponse;
   BaseResponse<bool> paymentResponse;
   Duration placeOrderDelay = Duration.zero;
+  Duration getCartDelay = Duration.zero;
   int getCartCalls = 0;
   int previewCalls = 0;
   int placeOrderCalls = 0;
@@ -62,6 +65,9 @@ class FakeCartRepo implements CartRepo {
   @override
   Future<BaseResponse<CartEntity>> getCart() async {
     getCartCalls++;
+    if (getCartDelay > Duration.zero) {
+      await Future<void>.delayed(getCartDelay);
+    }
     return getCartResponse;
   }
 
@@ -137,13 +143,27 @@ class FakeCartRepo implements CartRepo {
 }
 
 class TestCartViewModel extends CartViewModel {
-  TestCartViewModel(super.useCase);
+  TestCartViewModel(CartRepo repo)
+    : super(
+        GetCartUseCase(repo),
+        AddCartItemUseCase(repo),
+        UpdateCartItemUseCase(repo),
+        RemoveCartItemUseCase(repo),
+      );
 
   void emitState(CartState state) => emit(state);
 }
 
+CheckoutViewModel testCheckoutViewModel(CartRepo repo) {
+  return CheckoutViewModel(
+    PreviewCheckoutUseCase(repo),
+    PlaceOrderUseCase(repo),
+    ProcessPaymentUseCase(repo),
+  );
+}
+
 TestCartViewModel testCartViewModel([FakeCartRepo? repo]) {
-  return TestCartViewModel(CartUseCase(repo ?? FakeCartRepo()));
+  return TestCartViewModel(repo ?? FakeCartRepo());
 }
 
 Future<void> pumpCartScreen(

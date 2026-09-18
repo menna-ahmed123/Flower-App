@@ -1,5 +1,8 @@
 import 'package:flower_app/core/constants/api_query_params.dart';
-import 'package:flower_app/features/cart/data/models/cart_models.dart';
+import 'package:flower_app/features/cart/data/models/cart_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_preview_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_request.dart';
+import 'package:flower_app/features/cart/data/models/order_response.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -81,7 +84,7 @@ void main() {
   });
 
   test('preview mapping uses API totals and deliveryAddress', () {
-    final preview = CartDataModel.fromJson({
+    final preview = CheckoutPreviewDataModel.fromJson({
       'items': [
         {
           'id': 'item-1',
@@ -100,7 +103,7 @@ void main() {
         'addressLine': '12 Nile',
         'city': 'Cairo',
       },
-    }).toPreviewDomain();
+    }).toDomain();
 
     expect(preview.subtotal, 80);
     expect(preview.deliveryFee, 20);
@@ -111,7 +114,7 @@ void main() {
   });
 
   test('preview items map unitPrice when line id is absent', () {
-    final preview = CartDataModel.fromJson({
+    final preview = CheckoutPreviewDataModel.fromJson({
       'items': [
         {
           'productId': 'product-1',
@@ -125,7 +128,7 @@ void main() {
       'deliveryFee': 50,
       'discount': 0,
       'total': 1048,
-    }).toPreviewDomain();
+    }).toDomain();
 
     expect(preview.items.single.id, 'product-1');
     expect(preview.items.single.price, 499);
@@ -149,13 +152,13 @@ void main() {
   });
 
   test('preview mapping reads payment methods from the API', () {
-    final preview = CartDataModel.fromJson({
+    final preview = CheckoutPreviewDataModel.fromJson({
       'paymentMethods': [
         {'name': 'Cash on Delivery', 'id': 1},
         {'label': 'Visa', 'paymentMethod': 2},
       ],
       'total': 1600,
-    }).toPreviewDomain();
+    }).toDomain();
     expect(preview.paymentMethods, [
       const PaymentMethodEntity(name: 'Cash on Delivery', value: 1),
       const PaymentMethodEntity(name: 'Visa', value: 2),
@@ -163,13 +166,13 @@ void main() {
   });
 
   test('preview mapping does not calculate missing totals', () {
-    final model = CartDataModel.fromJson({
+    final json = {
       'items': [
         {'id': 'item-1', 'productId': 'product-1', 'price': 50, 'quantity': 2},
       ],
-    });
-    expect(model.toPreviewDomain().total, 0);
-    expect(model.toDomain().total, 100);
+    };
+    expect(CheckoutPreviewDataModel.fromJson(json).toDomain().total, 0);
+    expect(CartDataModel.fromJson(json).toDomain().total, 100);
   });
 
   test('checkout request omits unused address and gift fields', () {

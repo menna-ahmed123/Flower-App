@@ -6,7 +6,7 @@ import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
-import 'package:flower_app/features/cart/domain/use_cases/cart_use_case.dart';
+import 'package:flower_app/features/cart/domain/use_cases/checkout_use_cases.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,9 +14,15 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class CheckoutViewModel extends Cubit<CheckoutState> {
-  CheckoutViewModel(this._cartUseCase) : super(const CheckoutState());
+  CheckoutViewModel(
+    this._previewCheckoutUseCase,
+    this._placeOrderUseCase,
+    this._processPaymentUseCase,
+  ) : super(const CheckoutState());
 
-  final CartUseCase _cartUseCase;
+  final PreviewCheckoutUseCase _previewCheckoutUseCase;
+  final PlaceOrderUseCase _placeOrderUseCase;
+  final ProcessPaymentUseCase _processPaymentUseCase;
   int _previewGeneration = 0;
   String? _previewKey;
   String? _idempotencyKey;
@@ -81,7 +87,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
         previewState: BaseState(isLoading: true, data: state.previewState.data),
       ),
     );
-    final response = await _cartUseCase.previewCheckout(
+    final response = await _previewCheckoutUseCase.previewCheckout(
       addressId: _addressId(),
       gift: _gift(),
     );
@@ -122,7 +128,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   }
 
   Future<BaseResponse<OrderEntity>> _submit() {
-    return _cartUseCase.placeOrder(
+    return _placeOrderUseCase.placeOrder(
       idempotencyKey: _idempotencyKey!,
       paymentMethod: CheckoutPaymentMethods.apiValue(
         state.paymentMethod,
@@ -315,7 +321,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   Future<void> _processPayment() async {
     if (state.paymentState.isLoading) return;
     emit(state.copyWith(paymentState: const BaseState(isLoading: true)));
-    final response = await _cartUseCase.processPayment();
+    final response = await _processPaymentUseCase.processPayment();
     switch (response) {
       case SuccessResponse<bool>():
         emit(

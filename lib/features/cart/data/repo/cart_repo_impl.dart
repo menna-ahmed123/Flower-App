@@ -3,7 +3,10 @@ import 'package:flower_app/core/errors/api_exception.dart';
 import 'package:flower_app/core/errors/error_parser.dart';
 import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/features/cart/data/data_sources/cart_remote_data_source.dart';
-import 'package:flower_app/features/cart/data/models/cart_models.dart';
+import 'package:flower_app/features/cart/data/models/cart_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_preview_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_request.dart';
+import 'package:flower_app/features/cart/data/models/order_response.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:flower_app/features/cart/domain/repo/cart_repo.dart';
 import 'package:injectable/injectable.dart';
@@ -64,10 +67,7 @@ class CartRepoImpl implements CartRepo {
   }) {
     return safeCall.safeApiCall(() async {
       final request = _checkoutRequest(addressId: addressId, gift: gift);
-      return _mapCart(
-        await cartRemoteDataSource.previewCheckout(request),
-        preview: true,
-      );
+      return _mapPreview(await cartRemoteDataSource.previewCheckout(request));
     });
   }
 
@@ -114,29 +114,28 @@ class CartRepoImpl implements CartRepo {
     );
   }
 
-  CartEntity _mapCart(CartResponse response, {bool preview = false}) {
-    if (response.success == false) {
-      throw ApiException(
-        message: (response.message ?? '').isNotEmpty
-            ? response.message!
-            : statusCodeToMessage(response.statusCode),
-        statusCode: response.statusCode,
-      );
-    }
-    final data = response.data;
-    if (data == null) return const CartEntity.empty();
-    return preview ? data.toPreviewDomain() : data.toDomain();
+  CartEntity _mapCart(CartResponse response) {
+    _ensureSuccess(response.success, response.message, response.statusCode);
+    return response.data?.toDomain() ?? const CartEntity.empty();
+  }
+
+  CartEntity _mapPreview(CheckoutPreviewResponse response) {
+    _ensureSuccess(response.success, response.message, response.statusCode);
+    return response.data?.toDomain() ?? const CartEntity.empty();
   }
 
   OrderEntity _mapOrder(OrderResponse response) {
-    if (response.success == false) {
-      throw ApiException(
-        message: (response.message ?? '').isNotEmpty
-            ? response.message!
-            : statusCodeToMessage(response.statusCode),
-        statusCode: response.statusCode,
-      );
-    }
+    _ensureSuccess(response.success, response.message, response.statusCode);
     return response.data?.toDomain() ?? const OrderEntity();
+  }
+
+  void _ensureSuccess(bool? success, String? message, int? statusCode) {
+    if (success != false) return;
+    throw ApiException(
+      message: (message ?? '').isNotEmpty
+          ? message!
+          : statusCodeToMessage(statusCode),
+      statusCode: statusCode,
+    );
   }
 }

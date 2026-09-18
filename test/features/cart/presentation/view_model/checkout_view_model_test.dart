@@ -3,7 +3,6 @@ import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
-import 'package:flower_app/features/cart/domain/use_cases/cart_use_case.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_state.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_view_model.dart';
@@ -35,7 +34,7 @@ class CheckoutCase {
 
   void setUp() {
     cartRepo = FakeCartRepo(previewResponse: const SuccessResponse(_preview));
-    viewModel = CheckoutViewModel(CartUseCase(cartRepo));
+    viewModel = testCheckoutViewModel(cartRepo);
   }
 
   Future<void> tearDown() => viewModel.close();

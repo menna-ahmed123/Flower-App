@@ -8,7 +8,7 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:flower_app/features/cart/domain/repo/cart_repo.dart';
-import 'package:flower_app/features/cart/domain/use_cases/cart_use_case.dart';
+import 'package:flower_app/features/cart/domain/use_cases/cart_use_cases.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,7 +34,13 @@ class MainShellCase {
   void setUp() {
     authRepository = FakeAuthRepository();
     authCubit = AuthCubit(authRepository);
-    cartViewModel = CartViewModel(CartUseCase(EmptyCartRepo()));
+    final cartRepo = EmptyCartRepo();
+    cartViewModel = CartViewModel(
+      GetCartUseCase(cartRepo),
+      AddCartItemUseCase(cartRepo),
+      UpdateCartItemUseCase(cartRepo),
+      RemoveCartItemUseCase(cartRepo),
+    );
     router = _testRouter();
   }
 

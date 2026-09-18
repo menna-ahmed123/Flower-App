@@ -4,32 +4,10 @@ import 'package:flower_app/features/cart/domain/repo/cart_repo.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class CartUseCase {
-  CartUseCase(this.cartRepo);
+class PreviewCheckoutUseCase {
+  PreviewCheckoutUseCase(this.cartRepo);
 
   final CartRepo cartRepo;
-
-  Future<BaseResponse<CartEntity>> getCart() {
-    return cartRepo.getCart();
-  }
-
-  Future<BaseResponse<CartEntity>> addItem({
-    required String productId,
-    int quantity = 1,
-  }) {
-    return cartRepo.addItem(productId: productId, quantity: quantity);
-  }
-
-  Future<BaseResponse<CartEntity>> updateItem({
-    required String itemId,
-    required int quantity,
-  }) {
-    return cartRepo.updateItem(itemId: itemId, quantity: quantity);
-  }
-
-  Future<BaseResponse<bool>> removeItem({required String itemId}) {
-    return cartRepo.removeItem(itemId: itemId);
-  }
 
   Future<BaseResponse<CartEntity>> previewCheckout({
     String? addressId,
@@ -37,6 +15,13 @@ class CartUseCase {
   }) {
     return cartRepo.previewCheckout(addressId: addressId, gift: gift);
   }
+}
+
+@injectable
+class PlaceOrderUseCase {
+  PlaceOrderUseCase(this.cartRepo);
+
+  final CartRepo cartRepo;
 
   Future<BaseResponse<OrderEntity>> placeOrder({
     required String idempotencyKey,
@@ -53,6 +38,13 @@ class CartUseCase {
       gift: gift,
     );
   }
+}
+
+@injectable
+class ProcessPaymentUseCase {
+  ProcessPaymentUseCase(this.cartRepo);
+
+  final CartRepo cartRepo;
 
   Future<BaseResponse<bool>> processPayment() => cartRepo.processPayment();
 }

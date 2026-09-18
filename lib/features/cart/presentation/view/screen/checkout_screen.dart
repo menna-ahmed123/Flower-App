@@ -107,14 +107,7 @@ class CheckoutBodyState extends State<CheckoutBody> {
 
   void _onCheckout(BuildContext context, CheckoutState state) {
     final destination = state.destination;
-    if (destination == CheckoutDestination.addAddress) {
-      _openAddAddressIfRequested(context);
-      return;
-    }
     if (destination != null) {
-      context.read<CheckoutViewModel>().doEvent(
-        const ClearCheckoutNavigation(),
-      );
       _go(context, destination);
       return;
     }
@@ -124,6 +117,10 @@ class CheckoutBodyState extends State<CheckoutBody> {
         context,
       ).showSnackBar(SnackBar(content: Text(error)));
     }
+  }
+
+  void _clearNavigation(BuildContext context) {
+    context.read<CheckoutViewModel>().doEvent(const ClearCheckoutNavigation());
   }
 
   void _openAddAddressIfRequested(BuildContext context) {
@@ -145,13 +142,16 @@ class CheckoutBodyState extends State<CheckoutBody> {
   ) async {
     switch (destination) {
       case CheckoutDestination.addAddress:
-        context.push(AppRoutesName.address);
+        _openAddAddressIfRequested(context);
       case CheckoutDestination.emptyCart:
+        _clearNavigation(context);
         context.read<CartViewModel>().doEvent(const LoadCart());
         if (context.canPop()) context.pop();
       case CheckoutDestination.confirmation:
+        _clearNavigation(context);
         await _openConfirmation(context);
       case CheckoutDestination.payment:
+        _clearNavigation(context);
         context.push(
           AppRoutesName.payment,
           extra: context.read<CheckoutViewModel>(),

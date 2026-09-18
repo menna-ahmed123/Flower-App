@@ -70,6 +70,7 @@ void main() {
   testWidgets('shows a loading indicator while line items are still missing', (
     tester,
   ) async {
+    repo.getCartDelay = const Duration(days: 1);
     viewModel.emitState(
       const CartState(
         cartState: BaseState(
@@ -89,6 +90,7 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(find.byType(CartEmptyState), findsNothing);
     expect(repo.getCartCalls, 1);
+    await tester.pump(const Duration(days: 1));
   });
 
   testWidgets('reloads the cart after local cart state is cleared', (

@@ -2,7 +2,7 @@ import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
-import 'package:flower_app/features/cart/domain/use_cases/cart_use_case.dart';
+import 'package:flower_app/features/cart/domain/use_cases/cart_use_cases.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,15 +11,17 @@ import 'package:mockito/mockito.dart';
 
 import 'cart_view_model_test.mocks.dart';
 
-@GenerateMocks([CartUseCase])
+@GenerateMocks([
+  GetCartUseCase,
+  AddCartItemUseCase,
+  UpdateCartItemUseCase,
+  RemoveCartItemUseCase,
+])
 void main() {
   provideDummy<BaseResponse<CartEntity>>(
     const SuccessResponse<CartEntity>(CartEntity.empty()),
   );
   provideDummy<BaseResponse<bool>>(const SuccessResponse<bool>(true));
-  provideDummy<BaseResponse<OrderEntity>>(
-    const SuccessResponse<OrderEntity>(OrderEntity()),
-  );
   _loadCartTests();
   _addCartTests();
   _stockQuantityTests();
@@ -51,12 +53,23 @@ CartEntity _cartWith(List<CartItemEntity> items) {
 }
 
 class CartViewModelCase {
-  late MockCartUseCase useCase;
+  late MockGetCartUseCase getCartUseCase;
+  late MockAddCartItemUseCase addCartItemUseCase;
+  late MockUpdateCartItemUseCase updateCartItemUseCase;
+  late MockRemoveCartItemUseCase removeCartItemUseCase;
   late CartViewModel viewModel;
 
   void setUp() {
-    useCase = MockCartUseCase();
-    viewModel = CartViewModel(useCase);
+    getCartUseCase = MockGetCartUseCase();
+    addCartItemUseCase = MockAddCartItemUseCase();
+    updateCartItemUseCase = MockUpdateCartItemUseCase();
+    removeCartItemUseCase = MockRemoveCartItemUseCase();
+    viewModel = CartViewModel(
+      getCartUseCase,
+      addCartItemUseCase,
+      updateCartItemUseCase,
+      removeCartItemUseCase,
+    );
   }
 
   Future<void> tearDown() => viewModel.close();
@@ -80,7 +93,7 @@ void _loadCartTests() {
 
 Future<void> _loadsSuccessfully(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   await vm.viewModel.doEvent(const LoadCart());
   expect(vm.viewModel.state.cartState.data?.items, [_rose]);
@@ -89,7 +102,7 @@ Future<void> _loadsSuccessfully(CartViewModelCase vm) async {
 }
 
 Future<void> _showsFirstLoad(CartViewModelCase vm) async {
-  when(vm.useCase.getCart()).thenAnswer((_) async {
+  when(vm.getCartUseCase.getCart()).thenAnswer((_) async {
     await Future<void>.delayed(const Duration(milliseconds: 20));
     return SuccessResponse(_cartWith([_rose]));
   });
@@ -103,10 +116,10 @@ Future<void> _showsFirstLoad(CartViewModelCase vm) async {
 
 Future<void> _noReloadSpinner(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   await vm.viewModel.doEvent(const LoadCart());
-  when(vm.useCase.getCart()).thenAnswer((_) async {
+  when(vm.getCartUseCase.getCart()).thenAnswer((_) async {
     await Future<void>.delayed(const Duration(milliseconds: 20));
     return SuccessResponse(_cartWith([_rose]));
   });
@@ -118,7 +131,7 @@ Future<void> _noReloadSpinner(CartViewModelCase vm) async {
 }
 
 Future<void> _loadFails(CartViewModelCase vm) async {
-  when(vm.useCase.getCart()).thenAnswer(
+  when(vm.getCartUseCase.getCart()).thenAnswer(
     (_) async => ErrorResponse(appError: BadResponseError('offline')),
   );
   await vm.viewModel.doEvent(const LoadCart());
@@ -129,10 +142,10 @@ Future<void> _loadFails(CartViewModelCase vm) async {
 
 Future<void> _loadKeepsCart(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   await vm.viewModel.doEvent(const LoadCart());
-  when(vm.useCase.getCart()).thenAnswer(
+  when(vm.getCartUseCase.getCart()).thenAnswer(
     (_) async => ErrorResponse(appError: BadResponseError('offline')),
   );
   await vm.viewModel.doEvent(const LoadCart());
@@ -142,7 +155,7 @@ Future<void> _loadKeepsCart(CartViewModelCase vm) async {
 
 Future<void> _resetClears(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   await vm.viewModel.doEvent(const LoadCart());
   await vm.viewModel.doEvent(const ResetCart());
@@ -171,7 +184,9 @@ void _addCartTests() {
 }
 
 Future<void> _addRollsBack(CartViewModelCase vm) async {
-  when(vm.useCase.addItem(productId: 'product-1', quantity: 1)).thenAnswer(
+  when(
+    vm.addCartItemUseCase.addItem(productId: 'product-1', quantity: 1),
+  ).thenAnswer(
     (_) async => ErrorResponse(appError: BadResponseError('failed')),
   );
   await vm.viewModel.doEvent(const AddCartItemEvent(productId: 'product-1'));
@@ -181,11 +196,11 @@ Future<void> _addRollsBack(CartViewModelCase vm) async {
 
 Future<void> _addIncrements(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => const SuccessResponse(CartEntity.empty()));
-  when(vm.useCase.addItem(productId: 'product-1', quantity: 1)).thenAnswer((
-    _,
-  ) async {
+  when(
+    vm.addCartItemUseCase.addItem(productId: 'product-1', quantity: 1),
+  ).thenAnswer((_) async {
     await Future<void>.delayed(const Duration(milliseconds: 20));
     return const SuccessResponse(CartEntity.empty());
   });
@@ -200,7 +215,7 @@ Future<void> _addIncrements(CartViewModelCase vm) async {
 Future<void> _addEmitsServer(CartViewModelCase vm) async {
   final server = _cartWith([_rose]);
   when(
-    vm.useCase.addItem(productId: 'product-1', quantity: 1),
+    vm.addCartItemUseCase.addItem(productId: 'product-1', quantity: 1),
   ).thenAnswer((_) async => SuccessResponse(server));
   await vm.viewModel.doEvent(const AddCartItemEvent(productId: 'product-1'));
   expect(vm.viewModel.state.cartState.data, server);
@@ -209,15 +224,16 @@ Future<void> _addEmitsServer(CartViewModelCase vm) async {
 
 Future<void> _addLoadsLines(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   when(
-    vm.useCase.addItem(productId: 'product-1', quantity: 1),
+    vm.addCartItemUseCase.addItem(productId: 'product-1', quantity: 1),
   ).thenAnswer((_) async => const SuccessResponse(CartEntity.empty()));
   await vm.viewModel.doEvent(const AddCartItemEvent(productId: 'product-1'));
+  await Future<void>.delayed(Duration.zero);
   expect(vm.viewModel.state.cartState.data?.items, [_rose]);
   expect(vm.viewModel.state.cartState.errorMessage, isEmpty);
-  verify(vm.useCase.getCart()).called(1);
+  verify(vm.getCartUseCase.getCart()).called(1);
 }
 
 void _stockQuantityTests() {
@@ -254,7 +270,7 @@ void _patchQuantityTests() {
 }
 
 Future<void> _blocksOverStock(CartViewModelCase vm) async {
-  when(vm.useCase.getCart()).thenAnswer(
+  when(vm.getCartUseCase.getCart()).thenAnswer(
     (_) async => SuccessResponse(_cartWith([_rose.copyWith(quantity: 5)])),
   );
   await vm.viewModel.doEvent(const LoadCart());
@@ -263,7 +279,7 @@ Future<void> _blocksOverStock(CartViewModelCase vm) async {
   );
   expect(vm.viewModel.state.cartState.data?.items.first.quantity, 5);
   verifyNever(
-    vm.useCase.updateItem(
+    vm.updateCartItemUseCase.updateItem(
       itemId: anyNamed('itemId'),
       quantity: anyNamed('quantity'),
     ),
@@ -272,9 +288,11 @@ Future<void> _blocksOverStock(CartViewModelCase vm) async {
 
 Future<void> _clampsStockLimit(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
-  when(vm.useCase.updateItem(itemId: 'item-1', quantity: 3)).thenAnswer(
+  when(
+    vm.updateCartItemUseCase.updateItem(itemId: 'item-1', quantity: 3),
+  ).thenAnswer(
     (_) async => ErrorResponse(
       appError: BadResponseError(
         'Conflict occurred.',
@@ -298,25 +316,27 @@ Future<void> _clampsStockLimit(CartViewModelCase vm) async {
 }
 
 Future<void> _decrementRemoves(CartViewModelCase vm) async {
-  when(vm.useCase.getCart()).thenAnswer(
+  when(vm.getCartUseCase.getCart()).thenAnswer(
     (_) async => SuccessResponse(_cartWith([_rose.copyWith(quantity: 1)])),
   );
   when(
-    vm.useCase.removeItem(itemId: 'item-1'),
+    vm.removeCartItemUseCase.removeItem(itemId: 'item-1'),
   ).thenAnswer((_) async => const SuccessResponse(true));
   await vm.viewModel.doEvent(const LoadCart());
   await vm.viewModel.doEvent(
     const ChangeCartItemQuantity(itemId: 'item-1', delta: -1),
   );
   expect(vm.viewModel.state.cartState.data?.items, isEmpty);
-  verify(vm.useCase.removeItem(itemId: 'item-1')).called(1);
+  verify(vm.removeCartItemUseCase.removeItem(itemId: 'item-1')).called(1);
 }
 
 Future<void> _quantityPatchRollsBack(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
-  when(vm.useCase.updateItem(itemId: 'item-1', quantity: 3)).thenAnswer(
+  when(
+    vm.updateCartItemUseCase.updateItem(itemId: 'item-1', quantity: 3),
+  ).thenAnswer(
     (_) async => ErrorResponse(appError: BadResponseError('failed')),
   );
   await vm.viewModel.doEvent(const LoadCart());
@@ -330,9 +350,11 @@ Future<void> _quantityPatchRollsBack(CartViewModelCase vm) async {
 
 Future<void> _rapidQuantityPatch(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
-  when(vm.useCase.updateItem(itemId: 'item-1', quantity: 5)).thenAnswer(
+  when(
+    vm.updateCartItemUseCase.updateItem(itemId: 'item-1', quantity: 5),
+  ).thenAnswer(
     (_) async => SuccessResponse(_cartWith([_rose.copyWith(quantity: 5)])),
   );
   await vm.viewModel.doEvent(const LoadCart());
@@ -346,7 +368,9 @@ Future<void> _rapidQuantityPatch(CartViewModelCase vm) async {
     const ChangeCartItemQuantity(itemId: 'item-1', delta: 1),
   );
   await Future<void>.delayed(const Duration(milliseconds: 450));
-  verify(vm.useCase.updateItem(itemId: 'item-1', quantity: 5)).called(1);
+  verify(
+    vm.updateCartItemUseCase.updateItem(itemId: 'item-1', quantity: 5),
+  ).called(1);
   expect(vm.viewModel.state.cartState.data?.items.first.quantity, 5);
 }
 
@@ -355,7 +379,7 @@ Future<void> _unknownQuantityNoOp(CartViewModelCase vm) async {
     const ChangeCartItemQuantity(itemId: 'missing', delta: 1),
   );
   verifyNever(
-    vm.useCase.updateItem(
+    vm.updateCartItemUseCase.updateItem(
       itemId: anyNamed('itemId'),
       quantity: anyNamed('quantity'),
     ),
@@ -365,9 +389,11 @@ Future<void> _unknownQuantityNoOp(CartViewModelCase vm) async {
 
 Future<void> _quantityIncrementSuccess(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
-  when(vm.useCase.updateItem(itemId: 'item-1', quantity: 3)).thenAnswer(
+  when(
+    vm.updateCartItemUseCase.updateItem(itemId: 'item-1', quantity: 3),
+  ).thenAnswer(
     (_) async => SuccessResponse(_cartWith([_rose.copyWith(quantity: 3)])),
   );
   await vm.viewModel.doEvent(const LoadCart());
@@ -395,9 +421,9 @@ void _removeCartTests() {
 
 Future<void> _removeRestores(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
-  when(vm.useCase.removeItem(itemId: 'item-1')).thenAnswer(
+  when(vm.removeCartItemUseCase.removeItem(itemId: 'item-1')).thenAnswer(
     (_) async => ErrorResponse(appError: BadResponseError('failed')),
   );
   await vm.viewModel.doEvent(const LoadCart());
@@ -408,15 +434,15 @@ Future<void> _removeRestores(CartViewModelCase vm) async {
 
 Future<void> _removeEmptyNoOp(CartViewModelCase vm) async {
   await vm.viewModel.doEvent(const RemoveCartItemEvent(itemId: 'item-1'));
-  verifyNever(vm.useCase.removeItem(itemId: anyNamed('itemId')));
+  verifyNever(vm.removeCartItemUseCase.removeItem(itemId: anyNamed('itemId')));
 }
 
 Future<void> _removeSuccess(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   when(
-    vm.useCase.removeItem(itemId: 'item-1'),
+    vm.removeCartItemUseCase.removeItem(itemId: 'item-1'),
   ).thenAnswer((_) async => const SuccessResponse(true));
   await vm.viewModel.doEvent(const LoadCart());
   await vm.viewModel.doEvent(const RemoveCartItemEvent(itemId: 'item-1'));
@@ -440,29 +466,29 @@ void _clearCartTests() {
 
 Future<void> _clearDeletesLocalLines(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   when(
-    vm.useCase.removeItem(itemId: 'item-1'),
+    vm.removeCartItemUseCase.removeItem(itemId: 'item-1'),
   ).thenAnswer((_) async => const SuccessResponse(true));
   await vm.viewModel.doEvent(const LoadCart());
   await vm.viewModel.doEvent(const ClearCart());
   expect(vm.viewModel.state.cartState.data, const CartEntity.empty());
   expect(vm.viewModel.state.itemCount, 0);
-  verify(vm.useCase.removeItem(itemId: 'item-1')).called(1);
-  verify(vm.useCase.getCart()).called(1);
+  verify(vm.removeCartItemUseCase.removeItem(itemId: 'item-1')).called(1);
+  verify(vm.getCartUseCase.getCart()).called(1);
 }
 
 Future<void> _clearFetchesRemoteLines(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   when(
-    vm.useCase.removeItem(itemId: 'item-1'),
+    vm.removeCartItemUseCase.removeItem(itemId: 'item-1'),
   ).thenAnswer((_) async => const SuccessResponse(true));
   await vm.viewModel.doEvent(const ClearCart());
-  verify(vm.useCase.getCart()).called(1);
-  verify(vm.useCase.removeItem(itemId: 'item-1')).called(1);
+  verify(vm.getCartUseCase.getCart()).called(1);
+  verify(vm.removeCartItemUseCase.removeItem(itemId: 'item-1')).called(1);
   expect(vm.viewModel.state.cartState.data, const CartEntity.empty());
   expect(vm.viewModel.state.itemCount, 0);
 }
@@ -486,7 +512,7 @@ void _raceCartTests() {
 }
 
 Future<void> _ignoresStaleLoad(CartViewModelCase vm) async {
-  when(vm.useCase.getCart()).thenAnswer((_) async {
+  when(vm.getCartUseCase.getCart()).thenAnswer((_) async {
     await Future<void>.delayed(const Duration(milliseconds: 40));
     return SuccessResponse(_cartWith([_rose]));
   });
@@ -498,13 +524,13 @@ Future<void> _ignoresStaleLoad(CartViewModelCase vm) async {
 }
 
 Future<void> _ignoresLoadDuringMutation(CartViewModelCase vm) async {
-  when(vm.useCase.getCart()).thenAnswer((_) async {
+  when(vm.getCartUseCase.getCart()).thenAnswer((_) async {
     await Future<void>.delayed(const Duration(milliseconds: 40));
     return SuccessResponse(_cartWith([_rose.copyWith(quantity: 9)]));
   });
-  when(vm.useCase.addItem(productId: 'product-1', quantity: 1)).thenAnswer((
-    _,
-  ) async {
+  when(
+    vm.addCartItemUseCase.addItem(productId: 'product-1', quantity: 1),
+  ).thenAnswer((_) async {
     await Future<void>.delayed(const Duration(milliseconds: 80));
     return SuccessResponse(_cartWith([_rose]));
   });
@@ -522,14 +548,16 @@ Future<void> _ignoresLoadDuringMutation(CartViewModelCase vm) async {
 
 Future<void> _ignoresLoadDuringDebounce(CartViewModelCase vm) async {
   when(
-    vm.useCase.getCart(),
+    vm.getCartUseCase.getCart(),
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   await vm.viewModel.doEvent(const LoadCart());
-  when(vm.useCase.getCart()).thenAnswer((_) async {
+  when(vm.getCartUseCase.getCart()).thenAnswer((_) async {
     await Future<void>.delayed(const Duration(milliseconds: 50));
     return SuccessResponse(_cartWith([_rose.copyWith(quantity: 9)]));
   });
-  when(vm.useCase.updateItem(itemId: 'item-1', quantity: 3)).thenAnswer(
+  when(
+    vm.updateCartItemUseCase.updateItem(itemId: 'item-1', quantity: 3),
+  ).thenAnswer(
     (_) async => SuccessResponse(_cartWith([_rose.copyWith(quantity: 3)])),
   );
   final load = vm.viewModel.doEvent(const LoadCart());
@@ -539,17 +567,19 @@ Future<void> _ignoresLoadDuringDebounce(CartViewModelCase vm) async {
   await load;
   expect(vm.viewModel.state.cartState.data?.items.first.quantity, 3);
   await Future<void>.delayed(const Duration(milliseconds: 450));
-  verify(vm.useCase.updateItem(itemId: 'item-1', quantity: 3)).called(1);
+  verify(
+    vm.updateCartItemUseCase.updateItem(itemId: 'item-1', quantity: 3),
+  ).called(1);
 }
 
 Future<void> _ignoresStaleLoadAfterAdd(CartViewModelCase vm) async {
-  when(vm.useCase.getCart()).thenAnswer((_) async {
+  when(vm.getCartUseCase.getCart()).thenAnswer((_) async {
     await Future<void>.delayed(const Duration(milliseconds: 80));
     return SuccessResponse(_cartWith([_rose.copyWith(quantity: 9)]));
   });
-  when(vm.useCase.addItem(productId: 'product-1', quantity: 1)).thenAnswer((
-    _,
-  ) async {
+  when(
+    vm.addCartItemUseCase.addItem(productId: 'product-1', quantity: 1),
+  ).thenAnswer((_) async {
     await Future<void>.delayed(const Duration(milliseconds: 20));
     return SuccessResponse(_cartWith([_rose]));
   });

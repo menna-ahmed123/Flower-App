@@ -1,4 +1,7 @@
-import 'package:flower_app/features/cart/data/models/cart_models.dart';
+import 'package:flower_app/features/cart/data/models/cart_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_preview_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_request.dart';
+import 'package:flower_app/features/cart/data/models/order_response.dart';
 
 abstract interface class CartRemoteDataSource {
   Future<CartResponse> getCart();
@@ -12,7 +15,7 @@ abstract interface class CartRemoteDataSource {
 
   Future<void> removeCartItem(String itemId);
 
-  Future<CartResponse> previewCheckout(CheckoutRequest request);
+  Future<CheckoutPreviewResponse> previewCheckout(CheckoutRequest request);
 
   Future<OrderResponse> placeOrder(
     String idempotencyKey,
