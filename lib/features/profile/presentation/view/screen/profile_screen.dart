@@ -4,6 +4,7 @@ import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/constants/app_urls.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/widgets/app_web_view_screen.dart';
+import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/language_bottom_sheet.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/logout_confirmation_dialog.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/profile_header.dart';
@@ -60,8 +61,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.push(AppRoutesName.saveAddress);
   }
 
-  void _onEditProfileTap() {
-    context.push(AppRoutesName.editProfile);
+ void _onEditProfileTap(ProfileEntity profile) {
+    context.push(AppRoutesName.editProfile, extra: profile);
   }
 
   void _onAboutUsTap() {
@@ -137,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? const SizedBox.shrink()
                     : ProfileInfoSection(
                         data: displayData,
-                        onEditTap: _onEditProfileTap,
+                        onEditTap: () => _onEditProfileTap(profileState.data!),
                       ),
               ),
             ),

@@ -1,4 +1,5 @@
-import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+
+import 'package:flower_app/core/domain/entities/gender.dart';
 
 sealed class EditProfileEvent {}
 

@@ -1,19 +1,17 @@
-<<<<<<< HEAD
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/core/widgets/app_text_field.dart';
+import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/gender_selector.dart';
-import 'package:flower_app/features/profile/presentation/view/widgets/profile_avatar_picker.dart';
-import 'package:flower_app/features/profile/presentation/view_model/update_profile_view_model.dart';
-
+import 'package:flower_app/features/profile/presentation/view/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+  const EditProfileScreen({super.key, required this.profile});
+    final ProfileEntity profile;
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -32,12 +30,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
+_firstNameController = TextEditingController(
+      text: widget.profile.firstName,
+    );
 
-    final profileViewModel = context.read<UpdateProfileViewModel>();
-    _firstNameController = TextEditingController();
-    _lastNameController = TextEditingController();
-    _emailController = TextEditingController();
-    _phoneController = TextEditingController();
+    _lastNameController = TextEditingController(text: widget.profile.lastName);
+
+    _emailController = TextEditingController(text: widget.profile.email ?? '');
+
+    _phoneController = TextEditingController(
+      text: widget.profile.phoneNumber ?? '',
+    );
   }
 
   @override
@@ -55,9 +58,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          AppString.myProfile,
-        ),
+        title: Text(AppString.myProfile),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 12.w),
@@ -77,12 +78,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 12.h,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             children: [
-              ProfileAvatarPicker(
+              ProfileAvatar(
+                photoUrl: widget.profile.profilePictureUrl,
+                showCamera: true,
                 onTap: () {
                   // TODO: image picker logic
                 },
@@ -161,7 +161,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     // TODO: navigate to change-password flow.
                   },
                   child: Text(
-                  "  AppString.change",
+                    "  AppString.change",
                     style: TextStyle(
                       color: colors.pink,
                       fontWeight: FontWeight.w600,
@@ -183,10 +183,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               SizedBox(height: 28.h),
 
-              AppButton(
-                text: "AppString.update",
-                onPressed: _onUpdatePressed,
-              ),
+              AppButton(text: "AppString.update", onPressed: _onUpdatePressed),
             ],
           ),
         ),
@@ -202,34 +199,3 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     // TODO: call UpdateProfileUseCase / Cubit with the form data.
   }
 }
-
-=======
-import 'package:flower_app/app/router/app_routes.dart';
-import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/core/widgets/custom_app_bar.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
-/// Placeholder destination for the Profile pen icon; the real Edit Profile
-/// feature (form, validation, update API) is implemented separately.
-class EditProfileScreen extends StatelessWidget {
-  const EditProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: AppString.editProfile,
-        onBack: () {
-          if (context.canPop()) {
-            context.pop();
-          } else {
-            context.go(AppRoutesName.profile);
-          }
-        },
-      ),
-      body: const SafeArea(child: SizedBox.shrink()),
-    );
-  }
-}
->>>>>>> origin/feature/profile-screen-
