@@ -29,8 +29,7 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listenWhen: (previous, current) =>
-      !previous.requiresAuthentication &&
-          current.requiresAuthentication,
+          !previous.requiresAuthentication && current.requiresAuthentication,
       listener: (context, state) {
         showLoginBottomSheet(context);
       },
@@ -55,53 +54,85 @@ class MainShell extends StatelessWidget {
               SnackBar(content: Text(state.cartState.errorMessage)),
             );
           },
-          child: Scaffold(
-            body: navigationShell,
-            bottomNavigationBar: _showBottomBar ? NavigationBar(
-              selectedIndex: navigationShell.currentIndex,
-              onDestinationSelected: (index) async {
-                if (index == 2 || index == 3) {
-                  await context.requireAuth(
-                    action: () async {
-                      navigationShell.goBranch(
-                        index,
-                        initialLocation: false,
-                      );
-                      if (index == 2) {
-                        await context.read<CartViewModel>().doEvent(LoadCart());
-                      }
-                    },
-                  );
-                } else {
-                  navigationShell.goBranch(
-                    index,
-                    initialLocation: index == navigationShell.currentIndex,
-                  );
-                }
-              },
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(AppIcons.home),
-                  label: AppString.home,
-                ),
-                NavigationDestination(
-                  icon: Icon(AppIcons.storefront),
-                  label: AppString.categories,
-                ),
-                NavigationDestination(
-                  icon: CartBadgeIcon(),
-                  label: AppString.cart,
-                ),
-                NavigationDestination(
-                  icon: Icon(AppIcons.person),
-                  label: AppString.profile,
-                ),
-              ],
-            )
-                : null,
+          child: _InitialCartLoader(
+            child: Scaffold(
+              body: navigationShell,
+              bottomNavigationBar: _showBottomBar
+                  ? NavigationBar(
+                      selectedIndex: navigationShell.currentIndex,
+                      onDestinationSelected: (index) async {
+                        if (index == 2 || index == 3) {
+                          await context.requireAuth(
+                            action: () async {
+                              navigationShell.goBranch(
+                                index,
+                                initialLocation: false,
+                              );
+                              if (index == 2) {
+                                await context.read<CartViewModel>().doEvent(
+                                  LoadCart(),
+                                );
+                              }
+                            },
+                          );
+                        } else {
+                          navigationShell.goBranch(
+                            index,
+                            initialLocation:
+                                index == navigationShell.currentIndex,
+                          );
+                        }
+                      },
+                      destinations: const [
+                        NavigationDestination(
+                          icon: Icon(AppIcons.home),
+                          label: AppString.home,
+                        ),
+                        NavigationDestination(
+                          icon: Icon(AppIcons.storefront),
+                          label: AppString.categories,
+                        ),
+                        NavigationDestination(
+                          icon: CartBadgeIcon(),
+                          label: AppString.cart,
+                        ),
+                        NavigationDestination(
+                          icon: Icon(AppIcons.person),
+                          label: AppString.profile,
+                        ),
+                      ],
+                    )
+                  : null,
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+class _InitialCartLoader extends StatefulWidget {
+  const _InitialCartLoader({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_InitialCartLoader> createState() => _InitialCartLoaderState();
+}
+
+class _InitialCartLoaderState extends State<_InitialCartLoader> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  void _load() {
+    if (!mounted) return;
+    if (!context.read<AuthCubit>().state.isAuthenticated) return;
+    context.read<CartViewModel>().doEvent(const LoadCart());
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

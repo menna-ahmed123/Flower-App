@@ -23,33 +23,51 @@ class QuantityStepper extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _button(context, const Icon(AppIcons.minus), onDecrement),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
-          child: Text(
-            '$quantity',
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w600,
-              color: context.colors.black,
-            ),
-          ),
+        _quantityLabel(context),
+        _button(
+          context,
+          const Icon(AppIcons.plus),
+          canIncrement ? onIncrement : null,
         ),
-        _button(context, const Icon(AppIcons.plus), canIncrement ? onIncrement : null),
       ],
     );
   }
 
+  Widget _quantityLabel(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      child: Text(
+        '$quantity',
+        style: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w700,
+          color: context.colors.black,
+        ),
+      ),
+    );
+  }
+
   Widget _button(BuildContext context, Widget icon, VoidCallback? onPressed) {
+    final colors = context.colors;
     return SizedBox(
-      width: 28.w,
-      height: 28.w,
+      width: 32.w,
+      height: 32.w,
       child: IconButton(
         padding: EdgeInsets.zero,
         onPressed: onPressed,
         iconSize: 16.w,
-        color: context.colors.pink,
+        color: colors.pink,
+        style: _buttonStyle(colors),
         icon: icon,
       ),
+    );
+  }
+
+  ButtonStyle _buttonStyle(AppColors colors) {
+    return IconButton.styleFrom(
+      backgroundColor: colors.pink.shade50,
+      disabledBackgroundColor: colors.grey.shade300,
+      shape: CircleBorder(side: BorderSide(color: colors.pink.shade100)),
     );
   }
 }
