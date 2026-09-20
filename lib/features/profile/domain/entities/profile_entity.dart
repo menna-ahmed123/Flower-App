@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flower_app/core/domain/entities/gender.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 
 /// The authenticated user's own profile (GET /identity/users/me/profile).
 class ProfileEntity extends Equatable {

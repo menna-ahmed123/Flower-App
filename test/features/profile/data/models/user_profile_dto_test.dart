@@ -1,5 +1,5 @@
-import 'package:flower_app/core/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/data/models/user_profile_dto.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

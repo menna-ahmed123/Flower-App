@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flower_app/core/domain/entities/gender.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 
 class UpdateProfileRequest extends Equatable {
   const UpdateProfileRequest({

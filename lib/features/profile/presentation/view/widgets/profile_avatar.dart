@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
@@ -82,15 +83,6 @@ class ProfileAvatar extends StatelessWidget {
       return Icon(AppIcons.person, size: 40.w, color: colors.pink);
     }
 
-    return ClipOval(
-      child: CachedNetworkImage(
-        imageUrl: photoUrl!,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorWidget: (context, url, error) =>
-            Icon(AppIcons.person, size: 40.w, color: colors.pink),
-      ),
-    );
+   return ClipOval( child: CachedNetworkImage( imageUrl: ApiEndpoints.mediaUrl(photoUrl), width: size, height: size, fit: BoxFit.cover, errorWidget: (context, url, error) => Icon( AppIcons.person, size: 40.w, color: colors.pink, ), ), );
   }
 }

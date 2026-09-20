@@ -152,6 +152,8 @@ import '../../features/profile/domain/use_case/update_profile_use_case.dart'
     as _i155;
 import '../../features/profile/presentation/view_model/profile_view_model.dart'
     as _i15;
+import '../../features/profile/presentation/view_model/update_profile_view_model.dart'
+    as _i374;
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
@@ -393,6 +395,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
+    );
+    gh.factory<_i374.UpdateProfileViewModel>(
+      () => _i374.UpdateProfileViewModel(gh<_i155.UpdateProfileUseCase>()),
     );
     gh.factory<_i369.HomeViewModel>(
       () => _i369.HomeViewModel(gh<_i1049.HomeUseCase>()),

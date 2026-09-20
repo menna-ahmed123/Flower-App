@@ -1,12 +1,14 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/core/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/use_case/update_profile_use_case.dart';
 import 'package:flower_app/features/profile/presentation/view_model/edit_profile_event.dart';
 import 'package:flower_app/features/profile/presentation/view_model/edit_profile_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 
+@Injectable()
 class UpdateProfileViewModel extends Cubit<EditProfileState> {
   final UpdateProfileUseCase _updateProfileUseCase;
 
@@ -22,6 +24,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
           event.email,
           event.phone,
           event.gender,
+          event.profilePicturePath,
         );
         break;
     }
@@ -33,6 +36,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
     String email,
     String phone,
     Gender? gender,
+    String? profilePicturePath,
   ) async {
     emit(
       state.copyWith(
@@ -49,6 +53,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
       email: email,
       phoneNumber: phone,
       gender: gender,
+      profilePicturePath: profilePicturePath,
     );
 
     final response = await _updateProfileUseCase(

@@ -393,4 +393,10 @@ class ControllableProfileRepo implements ProfileRepo {
 
   @override
   Future<BaseResponse<ProfileEntity>> getMyProfile() => _completer.future;
+
+  @override
+  Future<BaseResponse<ProfileEntity>> updateMyProfile(UpdateProfileRequest updateProfileRequest) {
+    // TODO: implement updateMyProfile
+    throw UnimplementedError();
+  }
 }

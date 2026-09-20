@@ -29,6 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+
     // The View always asks to be initialized; the ViewModel decides
     // whether a network call is actually needed.
     context.read<ProfileViewModel>().doEvent(ProfileInitialized());
@@ -46,14 +47,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _onLogoutTap() async {
     final confirmed = await LogoutConfirmationDialog.show(context);
+
     if (!confirmed || !mounted) {
       return;
     }
 
     await context.read<AuthSessionController>().logout();
+
     if (!mounted) {
       return;
     }
+
     context.go(AppRoutesName.login);
   }
 
@@ -61,14 +65,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.push(AppRoutesName.saveAddress);
   }
 
- void _onEditProfileTap(ProfileEntity profile) {
-    context.push(AppRoutesName.editProfile, extra: profile);
+  Future<void> _onEditProfileTap(ProfileEntity profile) async {
+    await context.push(
+      AppRoutesName.editProfile,
+      extra: profile,
+    );
+
+    if (mounted) {
+      context.read<ProfileViewModel>().doEvent(ProfileRequested());
+    }
   }
 
   void _onAboutUsTap() {
     context.push(
       AppRoutesName.webView,
-      extra: const WebViewArgs(url: AppUrls.aboutUs, title: AppString.aboutUs),
+      extra: const WebViewArgs(
+        url: AppUrls.aboutUs,
+        title: AppString.aboutUs,
+      ),
     );
   }
 
@@ -99,19 +113,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final profileState = state.profileState;
 
     if (profileState.isLoading && profileState.data == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
     }
 
-    if (profileState.errorMessage.isNotEmpty && profileState.data == null) {
+    if (profileState.errorMessage.isNotEmpty &&
+        profileState.data == null) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(profileState.errorMessage, textAlign: TextAlign.center),
+            Text(
+              profileState.errorMessage,
+              textAlign: TextAlign.center,
+            ),
             SizedBox(height: 12.h),
             TextButton(
-              onPressed: () =>
-                  context.read<ProfileViewModel>().doEvent(ProfileRequested()),
+              onPressed: () => context
+                  .read<ProfileViewModel>()
+                  .doEvent(ProfileRequested()),
               child: const Text(AppString.retry),
             ),
           ],
@@ -122,8 +143,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final displayData = state.displayData;
 
     return RefreshIndicator(
-      onRefresh: () =>
-          context.read<ProfileViewModel>().doEvent(ProfileRequested()),
+      onRefresh: () => context
+          .read<ProfileViewModel>()
+          .doEvent(ProfileRequested()),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.only(bottom: 24.h),
@@ -138,7 +160,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? const SizedBox.shrink()
                     : ProfileInfoSection(
                         data: displayData,
-                        onEditTap: () => _onEditProfileTap(profileState.data!),
+                        onEditTap: () =>
+                            _onEditProfileTap(profileState.data!),
                       ),
               ),
             ),
@@ -170,3 +193,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
