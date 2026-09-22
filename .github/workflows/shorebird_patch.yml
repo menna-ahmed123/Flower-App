@@ -33,6 +33,12 @@ jobs:
         run: |
           printf '%s\n' "$ENV_FILE" > .env
 
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Shorebird Patch
         uses: shorebirdtech/shorebird-patch@v1
         with:
