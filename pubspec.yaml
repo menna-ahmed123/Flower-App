@@ -60,4 +60,5 @@ flutter:
     - assets/images/
     - .env
     - assets/translations/
+    - shorebird.yaml
 
