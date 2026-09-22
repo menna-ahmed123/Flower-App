@@ -1,7 +1,9 @@
 name: Shorebird Patch
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - ci/cd
 
 env:
   SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
