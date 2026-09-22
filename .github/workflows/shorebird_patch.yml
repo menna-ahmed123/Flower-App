@@ -36,6 +36,12 @@ jobs:
       - name: Generate code
         run: |
           FLUTTER_BIN=$(find "$HOME/.config/shorebird" -path "*/bin/flutter" -type f | head -1)
+
+          if [ -z "$FLUTTER_BIN" ]; then
+            echo "Flutter binary not found in Shorebird cache."
+            exit 1
+          fi
+
           FLUTTER_DIR=$(dirname "$FLUTTER_BIN")
 
           echo "Using Flutter: $FLUTTER_BIN"
