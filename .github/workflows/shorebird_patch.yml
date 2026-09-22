@@ -1,7 +1,9 @@
 name: Shorebird Patch
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - ci/cd
 
 env:
   SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
@@ -51,4 +53,4 @@ jobs:
         uses: shorebirdtech/shorebird-patch@v1
         with:
           platform: android
-          release-version: latest
+          release-version: 1.0.0+2

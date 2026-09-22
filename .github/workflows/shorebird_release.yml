@@ -1,9 +1,7 @@
 name: Shorebird Release
 
 on:
-  push:
-    branches:
-      - ci/cd
+  workflow_dispatch:
 
 env:
   SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
