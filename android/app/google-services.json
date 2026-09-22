@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "62944179543",
+    "project_id": "test-deployment-6a22a",
+    "storage_bucket": "test-deployment-6a22a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:62944179543:android:170be97c343c25f81dfa12",
+        "android_client_info": {
+          "package_name": "com.example.flower_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxvWP8sKFQUgkzNjEVJKtiG2lwLU3kx5Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

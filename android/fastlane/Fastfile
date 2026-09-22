@@ -1,0 +1,35 @@
+default_platform(:android)
+
+platform :android do
+
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Build Android APK and distribute it through Firebase App Distribution"
+  lane :beta do
+    gradle(
+      task: "clean assembleRelease"
+    )
+
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID"],
+      service_credentials_file: ENV["GOOGLE_APPLICATION_CREDENTIALS"],
+      android_artifact_type: "APK",
+      android_artifact_path: File.expand_path(
+        "../../build/app/outputs/flutter-apk/app-release.apk",
+        __dir__
+      ),
+      groups: ENV["FIREBASE_GROUPS"]
+    )
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    gradle(task: "clean assembleRelease")
+    upload_to_play_store
+  end
+
+end
+
