@@ -1,8 +1,9 @@
 name: Firebase App Distribution
 
-
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - ci/cd
 
 jobs:
   distribute:
