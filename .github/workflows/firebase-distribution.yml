@@ -3,7 +3,7 @@ name: Firebase App Distribution
 on:
   push:
     branches:
-      - ci/cd*
+      - ci/cd
 
 jobs:
   distribute:
@@ -35,9 +35,12 @@ jobs:
         run: |
           echo "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/firebase-service-account.json"
 
-      - name: Install Ruby dependencies
-        working-directory: android
-        run: bundle install
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+          working-directory: android
 
       - name: Build and distribute with Fastlane
         working-directory: android
