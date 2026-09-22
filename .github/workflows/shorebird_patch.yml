@@ -33,11 +33,15 @@ jobs:
         run: |
           printf '%s\n' "$ENV_FILE" > .env
 
-      - name: Install dependencies
-        run: flutter pub get
-
       - name: Generate code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: |
+          FLUTTER_BIN=$(find "$HOME/.config/shorebird" -path "*/bin/flutter" -type f | head -1)
+          FLUTTER_DIR=$(dirname "$FLUTTER_BIN")
+
+          echo "Using Flutter: $FLUTTER_BIN"
+
+          "$FLUTTER_BIN" pub get
+          "$FLUTTER_DIR/dart" run build_runner build --delete-conflicting-outputs
 
       - name: Shorebird Patch
         uses: shorebirdtech/shorebird-patch@v1
