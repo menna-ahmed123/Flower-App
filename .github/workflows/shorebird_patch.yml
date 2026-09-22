@@ -37,3 +37,4 @@ jobs:
         uses: shorebirdtech/shorebird-patch@v1
         with:
           platform: android
+          release-version: latest
