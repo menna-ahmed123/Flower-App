@@ -2,6 +2,7 @@ import 'package:flower_app/app/layout/main_shell.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
+import 'package:flower_app/core/services/image_picker_service.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
@@ -344,6 +345,7 @@ class AppRouter {
               create: (_) => getIt<UpdateProfileViewModel>(),
               child: EditProfileScreen(
                 profile: profile,
+                imagePickerService: getIt<ImagePickerService>(),
               ),
             );
           },
