@@ -4,7 +4,7 @@ import 'package:flower_app/features/profile/data/models/update_profile_request.d
 abstract interface class ProfileRemoteDataSource {
   Future<ProfileResponse> getMyProfile();
 
-  Future<ProfileResponse> upadateMyProfile({
+  Future<ProfileResponse> updateMyProfile({
     required UpdateProfileRequest updateProfileRequest,
   });
 }

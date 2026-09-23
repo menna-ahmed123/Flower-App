@@ -23,12 +23,13 @@ class ProfileRepoImpl implements ProfileRepo {
 
   @override
   Future<BaseResponse<ProfileEntity>> updateMyProfile(
-      UpdateProfileRequest updateProfileRequest) {
+    UpdateProfileRequest updateProfileRequest,
+  ) {
     return safeCall.safeApiCall(() async {
-      final response = await remoteDataSource.upadateMyProfile(
-          updateProfileRequest: updateProfileRequest);
+      final response = await remoteDataSource.updateMyProfile(
+        updateProfileRequest: updateProfileRequest,
+      );
       return response.data.toDomain();
     });
-    
   }
 }

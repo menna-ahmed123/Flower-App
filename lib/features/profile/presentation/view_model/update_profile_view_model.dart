@@ -18,7 +18,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
   Future<void> doEvent(EditProfileEvent event) async {
     switch (event) {
       case UpdateProfileRequested():
-        await updateProfile(
+        await _updateProfile(
           event.firstName,
           event.lastName,
           event.email,
@@ -30,7 +30,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
     }
   }
 
-  Future<void> updateProfile(
+  Future<void> _updateProfile(
     String firstName,
     String lastName,
     String email,

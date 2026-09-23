@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
+import 'package:flower_app/core/services/image_picker_service.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/core/widgets/app_text_field.dart';
@@ -22,9 +23,11 @@ class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({
     super.key,
     required this.profile,
+    required this.imagePickerService,
   });
 
   final ProfileEntity profile;
+  final ImagePickerService imagePickerService;
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -38,9 +41,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
 
-  String? _selectedGender;
+  final ValueNotifier<XFile?> selectedImageNotifier = ValueNotifier<XFile?>(
+    null,
+  );
 
-  XFile? selectedImage;
+  final ValueNotifier<String?> selectedGenderNotifier = ValueNotifier<String?>(
+    null,
+  );
+
+  final ValueNotifier<bool> hasChangesNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -50,27 +59,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       text: widget.profile.firstName,
     );
 
-    _lastNameController = TextEditingController(
-      text: widget.profile.lastName,
-    );
+    _lastNameController = TextEditingController(text: widget.profile.lastName);
 
-    _emailController = TextEditingController(
-      text: widget.profile.email ?? '',
-    );
+    _emailController = TextEditingController(text: widget.profile.email ?? '');
 
     _phoneController = TextEditingController(
       text: widget.profile.phoneNumber ?? '',
     );
 
-    _selectedGender = widget.profile.gender?.name;
+    selectedGenderNotifier.value = widget.profile.gender?.name;
+
+    _firstNameController.addListener(_checkForChanges);
+    _lastNameController.addListener(_checkForChanges);
+    _emailController.addListener(_checkForChanges);
+    _phoneController.addListener(_checkForChanges);
   }
 
   @override
   void dispose() {
+    _firstNameController.removeListener(_checkForChanges);
+    _lastNameController.removeListener(_checkForChanges);
+    _emailController.removeListener(_checkForChanges);
+    _phoneController.removeListener(_checkForChanges);
+
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+
+    selectedImageNotifier.dispose();
+    selectedGenderNotifier.dispose();
+    hasChangesNotifier.dispose();
+
     super.dispose();
   }
 
@@ -104,28 +124,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             if (updateState.data != null) {
               context.pop();
             } else if (updateState.errorMessage.isNotEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(updateState.errorMessage),
-                ),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(updateState.errorMessage)));
             }
           },
           child: Form(
             key: _formKey,
             child: ListView(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 12.h,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               children: [
-                ProfileAvatar(
-                  imageFile: selectedImage != null
-                      ? File(selectedImage!.path)
-                      : null,
-                  photoUrl: widget.profile.profilePictureUrl,
-                  showCamera: true,
-                  onTap: pickImage,
+                ValueListenableBuilder<XFile?>(
+                  valueListenable: selectedImageNotifier,
+                  builder: (context, selectedImage, child) {
+                    return ProfileAvatar(
+                      imageFile: selectedImage != null
+                          ? File(selectedImage.path)
+                          : null,
+                      photoUrl: widget.profile.profilePictureUrl,
+                      showCamera: true,
+                      onTap: pickImage,
+                    );
+                  },
                 ),
                 SizedBox(height: 24.h),
                 Row(
@@ -162,26 +182,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   label: AppString.email,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return null;
-                    }
-
-                    return AppValidators.emailValidator(value);
-                  },
+                  validator: AppValidators.optionalEmailValidator,
                 ),
                 SizedBox(height: 12.h),
                 AppTextField(
                   label: AppString.phoneNumber,
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return null;
-                    }
-
-                    return AppValidators.phoneValidator(value);
-                  },
+                  validator: AppValidators.optionalPhoneValidator,
                 ),
                 SizedBox(height: 12.h),
                 AppTextField(
@@ -193,7 +201,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // TODO: navigate to change-password flow.
                     },
                     child: Text(
-                      "AppString.ch",
+                      AppString.changePassword,
                       style: TextStyle(
                         color: colors.pink,
                         fontWeight: FontWeight.w600,
@@ -202,18 +210,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 SizedBox(height: 20.h),
-                GenderSelector(
-                  selectedGender: _selectedGender,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedGender = value;
-                    });
+                ValueListenableBuilder<String?>(
+                  valueListenable: selectedGenderNotifier,
+                  builder: (context, selectedGender, child) {
+                    return GenderSelector(
+                      selectedGender: selectedGender,
+                      onChanged: (value) {
+                        selectedGenderNotifier.value = value;
+                        _checkForChanges();
+                      },
+                    );
                   },
                 ),
                 SizedBox(height: 28.h),
-                AppButton(
-                  text: "AppString.aboutUs",
-                  onPressed: _onUpdatePressed,
+                BlocBuilder<UpdateProfileViewModel, EditProfileState>(
+                  builder: (context, state) {
+                    final isLoading = state.updateProfileState.isLoading;
+
+                    return ValueListenableBuilder<bool>(
+                      valueListenable: hasChangesNotifier,
+                      builder: (context, hasChanges, child) {
+                        return AppButton(
+                          text: AppString.save,
+                          onPressed: hasChanges && !isLoading
+                              ? _onUpdatePressed
+                              : null,
+                          isLoading: isLoading,
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),
@@ -224,15 +250,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> pickImage() async {
-    final XFile? pickedImage = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final XFile? pickedImage = await widget.imagePickerService.pickImage();
 
     if (pickedImage != null) {
-      setState(() {
-        selectedImage = pickedImage;
-      });
+      selectedImageNotifier.value = pickedImage;
+      _checkForChanges();
     }
+  }
+
+  void _checkForChanges() {
+    final hasChanges =
+        _firstNameController.text.trim() != widget.profile.firstName.trim() ||
+        _lastNameController.text.trim() != widget.profile.lastName.trim() ||
+        _emailController.text.trim() != (widget.profile.email ?? '').trim() ||
+        _phoneController.text.trim() !=
+            (widget.profile.phoneNumber ?? '').trim() ||
+        selectedGenderNotifier.value != widget.profile.gender?.name ||
+        selectedImageNotifier.value != null;
+
+    hasChangesNotifier.value = hasChanges;
   }
 
   void _onUpdatePressed() {
@@ -246,10 +282,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         lastName: _lastNameController.text,
         email: _emailController.text,
         phone: _phoneController.text,
-        gender: Gender.fromString(_selectedGender),
-        profilePicturePath: selectedImage?.path,
+        gender: Gender.fromString(selectedGenderNotifier.value),
+        profilePicturePath: selectedImageNotifier.value?.path,
       ),
     );
   }
 }
-

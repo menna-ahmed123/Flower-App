@@ -18,15 +18,17 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     return profileApiClient.getMyProfile();
   }
 
-  @override
-  Future<ProfileResponse> upadateMyProfile({required UpdateProfileRequest updateProfileRequest}) {
+ @override
+  Future<ProfileResponse> updateMyProfile({
+    required UpdateProfileRequest updateProfileRequest,
+  }) {
     return profileApiClient.updateMyProfile(
-       updateProfileRequest.firstName,
-       updateProfileRequest.lastName,
-       updateProfileRequest.email??'',
-     updateProfileRequest.phoneNumber??'',
+      updateProfileRequest.firstName,
+      updateProfileRequest.lastName,
+      updateProfileRequest.email ?? '',
+      updateProfileRequest.phoneNumber ?? '',
       updateProfileRequest.gender?.apiValue ?? '',
-       updateProfileRequest.profilePicturePath != null
+      updateProfileRequest.profilePicturePath != null
           ? File(updateProfileRequest.profilePicturePath!)
           : null,
     );

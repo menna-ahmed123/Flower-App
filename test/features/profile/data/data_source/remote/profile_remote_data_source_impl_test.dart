@@ -67,7 +67,7 @@ void main() {
 
       // Act
 
-      final result = await profileRemoteDataSourceImpl.upadateMyProfile(
+      final result = await profileRemoteDataSourceImpl.updateMyProfile(
         updateProfileRequest: request,
       );
 
@@ -104,7 +104,7 @@ void main() {
       // Act & Assert
 
       expect(
-        () => profileRemoteDataSourceImpl.upadateMyProfile(
+        () => profileRemoteDataSourceImpl.updateMyProfile(
           updateProfileRequest: request,
         ),
         throwsA(error),
