@@ -42,6 +42,9 @@ import '../../features/auth/core/presentation/view_model/auth_cubit.dart';
 import '../../features/auth/core/presentation/view_model/auth_state.dart';
 import '../../features/commerce/presentation/search/view/screen/search_screen.dart';
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart';
+import '../../features/sessions/presentation/view/session_screen.dart';
+import '../../features/sessions/presentation/view_model/session_event.dart';
+import '../../features/sessions/presentation/view_model/session_view_model.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -67,6 +70,8 @@ class AppRouter {
         _mainShell(),
          GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
         GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
+        GoRoute(path: AppRoutesName.sessions, builder: _sessionsBuilder,
+        ),
       ],
     );
   }
@@ -305,6 +310,16 @@ class AppRouter {
       create: (_) =>
           getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
       child: const SavedAddressesScreen(),
+    );
+  }
+
+  static Widget _sessionsBuilder(
+      BuildContext context,
+      GoRouterState state,
+      ) {
+    return BlocProvider(
+      create: (_) => getIt<SessionsViewModel>()..onEvent(LoadSessions()),
+      child: const SessionsScreen(),
     );
   }
 }

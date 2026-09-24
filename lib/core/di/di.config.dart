@@ -139,6 +139,19 @@ import '../../features/commerce/presentation/prodect_details/view_model/product_
     as _i784;
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart'
     as _i1068;
+import '../../features/sessions/api/session_api_client.dart' as _i311;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source.dart'
+    as _i618;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source_impl.dart'
+    as _i613;
+import '../../features/sessions/data/repo/session_repo_impl.dart' as _i947;
+import '../../features/sessions/domain/repo/session_repo.dart' as _i843;
+import '../../features/sessions/domain/usecases/get_sessions_use_case.dart'
+    as _i827;
+import '../../features/sessions/domain/usecases/revoke_session_use_case.dart'
+    as _i145;
+import '../../features/sessions/presentation/view_model/session_view_model.dart'
+    as _i137;
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
@@ -174,11 +187,32 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.lazySingleton<_i1058.TokenRefresher>(() => _i1058.ApiTokenRefresher());
+    gh.factory<_i618.SessionRemoteDataSource>(
+      () => _i613.SessionRemoteDataSourceImpl(gh<_i311.SessionApiClient>()),
+    );
+    gh.factory<_i843.SessionRepo>(
+      () => _i947.SessionRepoImpl(
+        gh<_i618.SessionRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
+    );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
     );
+    gh.factory<_i827.GetSessionsUseCase>(
+      () => _i827.GetSessionsUseCase(gh<_i843.SessionRepo>()),
+    );
+    gh.factory<_i145.RevokeSessionUseCase>(
+      () => _i145.RevokeSessionUseCase(gh<_i843.SessionRepo>()),
+    );
     gh.factory<_i669.LocationService>(
       () => _i669.LocationService(gh<_i699.GeolocatorPlatform>()),
+    );
+    gh.factory<_i137.SessionsViewModel>(
+      () => _i137.SessionsViewModel(
+        gh<_i827.GetSessionsUseCase>(),
+        gh<_i145.RevokeSessionUseCase>(),
+      ),
     );
     gh.lazySingleton<_i381.TokenRefreshCoordinator>(
       () => _i381.TokenRefreshCoordinator(

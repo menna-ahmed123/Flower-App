@@ -4,6 +4,7 @@ class ApiQueryParams {
   static const String occasionId = 'occasionId';
   static const String categoryId = 'categoryId';
   static const String id = 'id';
+  static const String sessionId = 'sessionId';
   static const String storeId = 'storeId';
   static const String addressId = 'addressId';
   /// Nasr City store from the Team 1 Postman collection.

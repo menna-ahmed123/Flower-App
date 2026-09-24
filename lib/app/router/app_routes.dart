@@ -12,7 +12,7 @@ abstract final class AppRoutesName {
   static const String cart = '/cart';
   static const String profile = '/profile';
   static const String search = '/search';
-
+  static const String sessions = '/sessions';
   static const Set<String> mainTabPaths = {
     home,
     category,

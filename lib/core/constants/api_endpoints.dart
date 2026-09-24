@@ -65,6 +65,8 @@ class ApiEndpoints {
   static const String resetPassword = '/identity/auth/reset-password';
   static const String login = '/identity/auth/login';
   static const String register = '/identity/users/register';
+  static const String session = '/identity/auth/sessions';
+  static const String sessionById = '/identity/auth/sessions/{sessionId}';
 
   //// Commerce ////
   static const String home = '/catalog/home/layout';
