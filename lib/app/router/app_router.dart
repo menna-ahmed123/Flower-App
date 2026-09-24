@@ -345,7 +345,6 @@ class AppRouter {
               create: (_) => getIt<UpdateProfileViewModel>(),
               child: EditProfileScreen(
                 profile: profile,
-                imagePickerService: getIt<ImagePickerService>(),
               ),
             );
           },

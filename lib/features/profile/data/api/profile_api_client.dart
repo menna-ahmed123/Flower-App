@@ -14,15 +14,15 @@ abstract class ProfileApiClient {
 
   @GET(ApiEndpoints.myProfile)
   Future<ProfileResponse> getMyProfile();
-  
- @MultiPart()
+
+  @MultiPart()
   @PUT(ApiEndpoints.myProfile)
   Future<ProfileResponse> updateMyProfile(
     @Part(name: ApiRequestParams.firstName) String firstName,
     @Part(name: ApiRequestParams.lastName) String lastName,
-    @Part(name: ApiRequestParams.email) String email,
-    @Part(name: ApiRequestParams.phoneNumber) String phoneNumber,
-    @Part(name: ApiRequestParams.gender) String gender,
+    @Part(name: ApiRequestParams.email) String? email,
+    @Part(name: ApiRequestParams.phoneNumber) String? phoneNumber,
+    @Part(name: ApiRequestParams.gender) String? gender,
     @Part(name: ApiRequestParams.profilePicture) File? profilePicture,
   );
 }

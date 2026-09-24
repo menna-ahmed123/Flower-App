@@ -22,12 +22,12 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   Future<ProfileResponse> updateMyProfile({
     required UpdateProfileRequest updateProfileRequest,
   }) {
-    return profileApiClient.updateMyProfile(
+  return profileApiClient.updateMyProfile(
       updateProfileRequest.firstName,
       updateProfileRequest.lastName,
-      updateProfileRequest.email ?? '',
-      updateProfileRequest.phoneNumber ?? '',
-      updateProfileRequest.gender?.apiValue ?? '',
+      updateProfileRequest.email,
+      updateProfileRequest.phoneNumber,
+      updateProfileRequest.gender?.apiValue,
       updateProfileRequest.profilePicturePath != null
           ? File(updateProfileRequest.profilePicturePath!)
           : null,

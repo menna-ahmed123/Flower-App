@@ -75,7 +75,7 @@ group("updateMyProfile", () {
   test("return success when update is successful", () async {
     // Arrange
     when(
-      remoteDataSource.upadateMyProfile(
+      remoteDataSource.updateMyProfile(
         updateProfileRequest: updateProfileRequest,
       ),
     ).thenAnswer((_) async => response);
@@ -100,7 +100,7 @@ group("updateMyProfile", () {
     final error = BadResponseError('Update profile failed');
 
     when(
-      remoteDataSource.upadateMyProfile(
+      remoteDataSource.updateMyProfile(
         updateProfileRequest: updateProfileRequest,
       ),
     ).thenThrow(error);

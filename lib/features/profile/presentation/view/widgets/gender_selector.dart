@@ -1,5 +1,6 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -11,8 +12,8 @@ class GenderSelector extends StatelessWidget {
     required this.onChanged,
   });
 
-  final String? selectedGender;
-  final ValueChanged<String?> onChanged;
+  final Gender? selectedGender;
+  final ValueChanged<Gender?> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -29,24 +30,24 @@ class GenderSelector extends StatelessWidget {
           ),
         ),
         SizedBox(width: 16.w),
-        _buildOption(context, AppString.female),
+        _buildOption(context, Gender.female, AppString.female),
         SizedBox(width: 12.w),
-        _buildOption(context, AppString.male),
+        _buildOption(context, Gender.male, AppString.male),
       ],
     );
   }
 
-  Widget _buildOption(BuildContext context, String label) {
+  Widget _buildOption(BuildContext context, Gender gender, String label) {
     final colors = context.colors;
 
     return InkWell(
-      onTap: () => onChanged(label),
+      onTap: () => onChanged(gender),
       borderRadius: BorderRadius.circular(20.r),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Radio<String>(
-            value: label,
+          Radio<Gender>(
+            value: gender,
             groupValue: selectedGender,
             activeColor: colors.pink,
             onChanged: onChanged,

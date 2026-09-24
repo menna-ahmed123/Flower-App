@@ -1,5 +1,6 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/errors/app_error.dart';
+import 'package:flower_app/core/services/image_picker_service.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
@@ -13,15 +14,20 @@ import 'package:mockito/mockito.dart';
 
 import 'update_profile_view_model_test.mocks.dart';
 
-@GenerateMocks([UpdateProfileUseCase])
+@GenerateMocks([UpdateProfileUseCase, ImagePickerService])
 void main() {
   late MockUpdateProfileUseCase mockUpdateProfileUseCase;
+  late MockImagePickerService mockImagePickerService;
   late UpdateProfileViewModel updateProfileViewModel;
 
   setUp(() {
     mockUpdateProfileUseCase = MockUpdateProfileUseCase();
+    mockImagePickerService = MockImagePickerService();
 
-    updateProfileViewModel = UpdateProfileViewModel(mockUpdateProfileUseCase);
+    updateProfileViewModel = UpdateProfileViewModel(
+      mockUpdateProfileUseCase,
+      mockImagePickerService,
+    );
   });
 
   final dummyProfile = ProfileEntity(
@@ -105,8 +111,7 @@ void main() {
       // Arrange
 
       final errorResponse = ErrorResponse<ProfileEntity>(
-        appError: BadResponseError('Update profile failed')
-        ,
+        appError: BadResponseError('Update profile failed'),
       );
 
       when(

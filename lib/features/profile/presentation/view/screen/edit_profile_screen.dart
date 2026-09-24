@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
-import 'package:flower_app/core/services/image_picker_service.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/core/widgets/app_text_field.dart';
@@ -17,17 +16,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({
-    super.key,
-    required this.profile,
-    required this.imagePickerService,
-  });
+  const EditProfileScreen({super.key, required this.profile});
 
   final ProfileEntity profile;
-  final ImagePickerService imagePickerService;
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -41,15 +34,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
 
-  final ValueNotifier<XFile?> selectedImageNotifier = ValueNotifier<XFile?>(
+  final ValueNotifier<Gender?> selectedGenderNotifier = ValueNotifier<Gender?>(
     null,
   );
-
-  final ValueNotifier<String?> selectedGenderNotifier = ValueNotifier<String?>(
-    null,
-  );
-
-  final ValueNotifier<bool> hasChangesNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -67,29 +54,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       text: widget.profile.phoneNumber ?? '',
     );
 
-    selectedGenderNotifier.value = widget.profile.gender?.name;
+    selectedGenderNotifier.value = widget.profile.gender;
 
-    _firstNameController.addListener(_checkForChanges);
-    _lastNameController.addListener(_checkForChanges);
-    _emailController.addListener(_checkForChanges);
-    _phoneController.addListener(_checkForChanges);
+    context.read<UpdateProfileViewModel>().doEvent(
+      EditProfileInitialized(profile: widget.profile),
+    );
+
+    _firstNameController.addListener(_onFirstNameChanged);
+    _lastNameController.addListener(_onLastNameChanged);
+    _emailController.addListener(_onEmailChanged);
+    _phoneController.addListener(_onPhoneChanged);
   }
 
   @override
   void dispose() {
-    _firstNameController.removeListener(_checkForChanges);
-    _lastNameController.removeListener(_checkForChanges);
-    _emailController.removeListener(_checkForChanges);
-    _phoneController.removeListener(_checkForChanges);
+    _firstNameController.removeListener(_onFirstNameChanged);
+    _lastNameController.removeListener(_onLastNameChanged);
+    _emailController.removeListener(_onEmailChanged);
+    _phoneController.removeListener(_onPhoneChanged);
 
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
 
-    selectedImageNotifier.dispose();
     selectedGenderNotifier.dispose();
-    hasChangesNotifier.dispose();
 
     super.dispose();
   }
@@ -134,20 +123,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: ListView(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               children: [
-                ValueListenableBuilder<XFile?>(
-                  valueListenable: selectedImageNotifier,
-                  builder: (context, selectedImage, child) {
+                BlocBuilder<UpdateProfileViewModel, EditProfileState>(
+                  builder: (context, state) {
                     return ProfileAvatar(
-                      imageFile: selectedImage != null
-                          ? File(selectedImage.path)
+                      imageFile: state.selectedImagePath != null
+                          ? File(state.selectedImagePath!)
                           : null,
                       photoUrl: widget.profile.profilePictureUrl,
                       showCamera: true,
-                      onTap: pickImage,
+                      onTap: _pickImage,
                     );
                   },
                 ),
+
                 SizedBox(height: 24.h),
+
                 Row(
                   children: [
                     Expanded(
@@ -177,21 +167,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ],
                 ),
+
                 SizedBox(height: 12.h),
+
                 AppTextField(
                   label: AppString.email,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   validator: AppValidators.optionalEmailValidator,
                 ),
+
                 SizedBox(height: 12.h),
+
                 AppTextField(
                   label: AppString.phoneNumber,
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   validator: AppValidators.optionalPhoneValidator,
                 ),
+
                 SizedBox(height: 12.h),
+
                 AppTextField(
                   label: AppString.password,
                   readOnly: true,
@@ -209,35 +205,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                 ),
+
                 SizedBox(height: 20.h),
-                ValueListenableBuilder<String?>(
+
+                ValueListenableBuilder<Gender?>(
                   valueListenable: selectedGenderNotifier,
                   builder: (context, selectedGender, child) {
                     return GenderSelector(
                       selectedGender: selectedGender,
                       onChanged: (value) {
                         selectedGenderNotifier.value = value;
-                        _checkForChanges();
+
+                        context.read<UpdateProfileViewModel>().doEvent(
+                          GenderChanged(value),
+                        );
                       },
                     );
                   },
                 ),
+
                 SizedBox(height: 28.h),
+
                 BlocBuilder<UpdateProfileViewModel, EditProfileState>(
                   builder: (context, state) {
                     final isLoading = state.updateProfileState.isLoading;
 
-                    return ValueListenableBuilder<bool>(
-                      valueListenable: hasChangesNotifier,
-                      builder: (context, hasChanges, child) {
-                        return AppButton(
-                          text: AppString.save,
-                          onPressed: hasChanges && !isLoading
-                              ? _onUpdatePressed
-                              : null,
-                          isLoading: isLoading,
-                        );
-                      },
+                    return AppButton(
+                      text: AppString.save,
+                      onPressed: state.hasChanges && !isLoading
+                          ? _onUpdatePressed
+                          : null,
+                      isLoading: isLoading,
                     );
                   },
                 ),
@@ -249,26 +247,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Future<void> pickImage() async {
-    final XFile? pickedImage = await widget.imagePickerService.pickImage();
-
-    if (pickedImage != null) {
-      selectedImageNotifier.value = pickedImage;
-      _checkForChanges();
-    }
+  void _onFirstNameChanged() {
+    context.read<UpdateProfileViewModel>().doEvent(
+      FirstNameChanged(_firstNameController.text),
+    );
   }
 
-  void _checkForChanges() {
-    final hasChanges =
-        _firstNameController.text.trim() != widget.profile.firstName.trim() ||
-        _lastNameController.text.trim() != widget.profile.lastName.trim() ||
-        _emailController.text.trim() != (widget.profile.email ?? '').trim() ||
-        _phoneController.text.trim() !=
-            (widget.profile.phoneNumber ?? '').trim() ||
-        selectedGenderNotifier.value != widget.profile.gender?.name ||
-        selectedImageNotifier.value != null;
+  void _onLastNameChanged() {
+    context.read<UpdateProfileViewModel>().doEvent(
+      LastNameChanged(_lastNameController.text),
+    );
+  }
 
-    hasChangesNotifier.value = hasChanges;
+  void _onEmailChanged() {
+    context.read<UpdateProfileViewModel>().doEvent(
+      EmailChanged(_emailController.text),
+    );
+  }
+
+  void _onPhoneChanged() {
+    context.read<UpdateProfileViewModel>().doEvent(
+      PhoneChanged(_phoneController.text),
+    );
+  }
+
+  void _pickImage() {
+    context.read<UpdateProfileViewModel>().doEvent(PickProfileImageRequested());
   }
 
   void _onUpdatePressed() {
@@ -276,14 +280,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
+    final selectedImagePath = context
+        .read<UpdateProfileViewModel>()
+        .state
+        .selectedImagePath;
+
     context.read<UpdateProfileViewModel>().doEvent(
       UpdateProfileRequested(
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
         email: _emailController.text,
         phone: _phoneController.text,
-        gender: Gender.fromString(selectedGenderNotifier.value),
-        profilePicturePath: selectedImageNotifier.value?.path,
+        gender: selectedGenderNotifier.value,
+        profilePicturePath: selectedImagePath,
       ),
     );
   }
