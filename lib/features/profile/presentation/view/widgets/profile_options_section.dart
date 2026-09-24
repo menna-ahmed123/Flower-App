@@ -107,7 +107,7 @@ class ProfileOptionsSection extends StatelessWidget {
   Widget _sectionDivider(AppColors colors) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Divider(height: 1.h, color: colors.grey.shade600.withOpacity(0.3)),
+      child: Divider(height: 1.h, color: colors.grey.shade600.withValues(alpha: 0.3)),
     );
   }
 }

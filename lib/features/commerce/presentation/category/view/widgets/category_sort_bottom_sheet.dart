@@ -62,7 +62,7 @@ class _CategorySortBottomSheetState extends State<CategorySortBottomSheet> {
                 width: 48.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: context.colors.black.withOpacity(0.2),
+                  color: context.colors.black.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
@@ -112,7 +112,7 @@ class _CategorySortBottomSheetState extends State<CategorySortBottomSheet> {
           border: Border.all(
             color: isSelected
                 ? context.colors.pink
-                : context.colors.grey.shade600.withOpacity(0.2),
+                : context.colors.grey.shade600.withValues(alpha: 0.2),
             width: 1.w,
           ),
         ),

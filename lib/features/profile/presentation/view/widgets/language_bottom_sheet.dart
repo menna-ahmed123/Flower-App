@@ -68,7 +68,7 @@ class LanguageBottomSheet extends StatelessWidget {
         width: 80.w,
         height: 4.h,
         decoration: BoxDecoration(
-          color: context.colors.black.withOpacity(0.7),
+          color: context.colors.black.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(100.r),
         ),
       ),
@@ -98,7 +98,7 @@ class LanguageBottomSheet extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.r),
           boxShadow: [
             BoxShadow(
-              color: colors.shadow.withOpacity(0.1),
+              color: colors.shadow.withValues(alpha: 0.1),
               blurRadius: 2.5.r,
             ),
           ],

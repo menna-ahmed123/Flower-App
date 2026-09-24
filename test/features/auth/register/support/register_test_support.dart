@@ -7,7 +7,6 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/auth/register/data/models/register_request.dart';
 import 'package:flower_app/features/auth/register/data/models/register_response.dart';
-import 'package:flower_app/core/domain/entities/gender.dart';
 import 'package:flower_app/features/auth/register/domain/entity/register_entity.dart';
 import 'package:flower_app/features/auth/register/domain/repo/register_repo.dart';
 import 'package:flower_app/features/auth/register/domain/use_case/register_usecase.dart';
@@ -15,6 +14,7 @@ import 'package:flower_app/features/auth/register/presentation/view/pages/regist
 import 'package:flower_app/features/auth/register/presentation/view_model/register_event.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_gender_selector.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

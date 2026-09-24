@@ -13,6 +13,7 @@ import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:geolocator/geolocator.dart' as _i699;
 import 'package:get_it/get_it.dart' as _i174;
+import 'package:image_picker/image_picker.dart' as _i183;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
@@ -148,8 +149,12 @@ import '../../features/profile/data/repo/profile_repo_impl.dart' as _i256;
 import '../../features/profile/domain/repo/profile_repo.dart' as _i364;
 import '../../features/profile/domain/use_case/get_profile_use_case.dart'
     as _i114;
+import '../../features/profile/domain/use_case/update_profile_use_case.dart'
+    as _i155;
 import '../../features/profile/presentation/view_model/profile_view_model.dart'
     as _i15;
+import '../../features/profile/presentation/view_model/update_profile_view_model.dart'
+    as _i374;
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
@@ -178,6 +183,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
+    gh.lazySingleton<_i183.ImagePicker>(() => registerModule.imagePicker);
     await gh.lazySingletonAsync<_i460.SharedPreferences>(
       () => registerModule.prefs(),
       preResolve: true,
@@ -325,6 +331,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i114.GetProfileUseCase>(
       () => _i114.GetProfileUseCase(gh<_i364.ProfileRepo>()),
     );
+    gh.factory<_i155.UpdateProfileUseCase>(
+      () => _i155.UpdateProfileUseCase(gh<_i364.ProfileRepo>()),
+    );
     gh.factory<_i95.RegisterUseCase>(
       () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
     );
@@ -388,6 +397,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
+    );
+    gh.factory<_i374.UpdateProfileViewModel>(
+      () => _i374.UpdateProfileViewModel(gh<_i155.UpdateProfileUseCase>()),
     );
     gh.factory<_i369.HomeViewModel>(
       () => _i369.HomeViewModel(gh<_i1049.HomeUseCase>()),

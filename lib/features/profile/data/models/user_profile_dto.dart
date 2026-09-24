@@ -1,4 +1,4 @@
-import 'package:flower_app/core/domain/entities/gender.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -37,7 +37,7 @@ class UserProfileDto {
       lastName: lastName,
       email: email,
       phoneNumber: phoneNumber,
-      gender: GenderParsing.fromApiValue(gender),
+      gender: Gender.fromString(gender),
       profilePictureUrl: profilePictureUrl,
       roles: roles,
     );

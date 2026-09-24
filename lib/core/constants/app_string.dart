@@ -260,5 +260,9 @@ static const String location = 'Location';
   static const String unknown = 'Unknown';
   static const String selectDeliveryAddress = 'Select where you want your flowers delivered';
   static const String chooseDeliveryAddress = 'Choose delivery address';
+  static const String changePassword = 'Change Password';
+    static const String save = 'save';
+
+ 
 }
 
