@@ -187,32 +187,11 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.lazySingleton<_i1058.TokenRefresher>(() => _i1058.ApiTokenRefresher());
-    gh.factory<_i618.SessionRemoteDataSource>(
-      () => _i613.SessionRemoteDataSourceImpl(gh<_i311.SessionApiClient>()),
-    );
-    gh.factory<_i843.SessionRepo>(
-      () => _i947.SessionRepoImpl(
-        gh<_i618.SessionRemoteDataSource>(),
-        gh<_i185.SafeCall>(),
-      ),
-    );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
     );
-    gh.factory<_i827.GetSessionsUseCase>(
-      () => _i827.GetSessionsUseCase(gh<_i843.SessionRepo>()),
-    );
-    gh.factory<_i145.RevokeSessionUseCase>(
-      () => _i145.RevokeSessionUseCase(gh<_i843.SessionRepo>()),
-    );
     gh.factory<_i669.LocationService>(
       () => _i669.LocationService(gh<_i699.GeolocatorPlatform>()),
-    );
-    gh.factory<_i137.SessionsViewModel>(
-      () => _i137.SessionsViewModel(
-        gh<_i827.GetSessionsUseCase>(),
-        gh<_i145.RevokeSessionUseCase>(),
-      ),
     );
     gh.lazySingleton<_i381.TokenRefreshCoordinator>(
       () => _i381.TokenRefreshCoordinator(
@@ -263,6 +242,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i1046.CartApiClient>(
       () => apiModule.provideCartApiClient(gh<_i361.Dio>()),
     );
+    gh.singleton<_i311.SessionApiClient>(
+      () => apiModule.provideSessionApiClient(gh<_i361.Dio>()),
+    );
     gh.factory<_i24.ForgetPasswordRemoteDataSource>(
       () => _i159.ForgetPasswordRemoteDataSourceImpl(
         forgetPasswordApiClient: gh<_i597.ForgetPasswordApiClient>(),
@@ -312,6 +294,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i682.OccasionUseCase>(
       () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
+    );
+    gh.factory<_i618.SessionRemoteDataSource>(
+      () => _i613.SessionRemoteDataSourceImpl(gh<_i311.SessionApiClient>()),
     );
     gh.factory<_i581.AddressRemoteDataSource>(
       () => _i784.AddressRemoteDataSourceImpl(
@@ -375,6 +360,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i94.RequestLocationPermissionUseCase>(
       () => _i94.RequestLocationPermissionUseCase(gh<_i366.AddressRepo>()),
     );
+    gh.factory<_i843.SessionRepo>(
+      () => _i947.SessionRepoImpl(
+        gh<_i618.SessionRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
+    );
     gh.factory<_i242.CategoryUseCase>(
       () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
     );
@@ -415,6 +406,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
     );
+    gh.factory<_i827.GetSessionsUseCase>(
+      () => _i827.GetSessionsUseCase(gh<_i843.SessionRepo>()),
+    );
+    gh.factory<_i145.RevokeSessionUseCase>(
+      () => _i145.RevokeSessionUseCase(gh<_i843.SessionRepo>()),
+    );
     gh.factory<_i369.HomeViewModel>(
       () => _i369.HomeViewModel(gh<_i1049.HomeUseCase>()),
     );
@@ -441,6 +438,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i886.CartUseCase>(
       () => _i886.CartUseCase(gh<_i379.CartRepo>()),
+    );
+    gh.factory<_i137.SessionsViewModel>(
+      () => _i137.SessionsViewModel(
+        gh<_i827.GetSessionsUseCase>(),
+        gh<_i145.RevokeSessionUseCase>(),
+      ),
     );
     gh.factory<_i188.LoginViewModel>(
       () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),

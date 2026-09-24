@@ -7,6 +7,8 @@ import 'package:flower_app/features/cart/api/cart_api_client.dart';
 import 'package:flower_app/features/commerce/api/commerce_api_client.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../features/sessions/api/session_api_client.dart';
+
 @module
 abstract class ApiModule {
   @singleton
@@ -26,4 +28,7 @@ abstract class ApiModule {
 
   @singleton
   CartApiClient provideCartApiClient(Dio dio) => CartApiClient(dio);
+
+  @singleton
+  SessionApiClient provideSessionApiClient(Dio dio) => SessionApiClient(dio);
 }

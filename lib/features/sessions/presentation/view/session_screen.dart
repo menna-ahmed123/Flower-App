@@ -16,9 +16,14 @@ class SessionsScreen extends StatelessWidget {
         title: const Text('Active Sessions'),
       ),
       body: BlocConsumer<SessionsViewModel, SessionsState>(
+        listenWhen: (previous, current) {
+          final previousError = previous.sessionsState.errorMessage;
+          final currentError = current.sessionsState.errorMessage;
+
+          return previousError.isEmpty && currentError.isNotEmpty;
+        },
         listener: (context, state) {
-          if (state.sessionsState.errorMessage.isNotEmpty &&
-              state.sessionsState.data != null) {
+          if (state.sessionsState.data != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.sessionsState.errorMessage),
@@ -174,14 +179,16 @@ class _SessionInfo extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 105,
+          Flexible(
+            flex: 2,
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
+          const SizedBox(width: 8),
           Expanded(
+            flex: 3,
             child: Text(
               value,
               style: Theme.of(context).textTheme.bodyMedium,

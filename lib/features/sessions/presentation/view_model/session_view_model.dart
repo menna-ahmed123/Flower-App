@@ -8,7 +8,7 @@ import 'package:injectable/injectable.dart';
 import '../../domain/usecases/get_sessions_use_case.dart';
 import '../../domain/usecases/revoke_session_use_case.dart';
 
-@injectable
+@Injectable()
 class SessionsViewModel extends Cubit<SessionsState> {
   SessionsViewModel(this._getSessionsUseCase, this._revokeSessionUseCase)
       : super(const SessionsState());
@@ -75,11 +75,13 @@ class SessionsViewModel extends Cubit<SessionsState> {
 
         emit(
           state.copyWith(
-            sessionsState: state.sessionsState.copyWith(data: remaining),
+            sessionsState: state.sessionsState.copyWith(
+              data: remaining,
+              errorMessage: '',
+            ),
             clearRevokingSessionId: true,
           ),
         );
-
       case ErrorResponse<bool>():
         emit(
           state.copyWith(
