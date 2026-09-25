@@ -1,0 +1,57 @@
+name: Shorebird Release
+
+on:
+  push:
+    branches:
+      - ci/cd
+
+env:
+  SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+  FLUTTER_VERSION: '3.47.4'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+        with:
+          cache: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Create .env
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          printf '%s\n' "$ENV_FILE" > .env
+
+      - name: Generate code
+        run: |
+          FLUTTER_BIN=$(find "$HOME/.config/shorebird" -path "*/bin/flutter" -type f | head -1)
+
+          if [ -z "$FLUTTER_BIN" ]; then
+            echo "Flutter binary not found in Shorebird cache."
+            exit 1
+          fi
+
+          FLUTTER_DIR=$(dirname "$FLUTTER_BIN")
+
+          echo "Using Flutter: $FLUTTER_BIN"
+
+          "$FLUTTER_BIN" pub get
+          "$FLUTTER_DIR/dart" run build_runner build --delete-conflicting-outputs
+
+      - name: Shorebird Release
+        uses: shorebirdtech/shorebird-release@v1
+        with:
+          platform: android
+          flutter-version: ${{ env.FLUTTER_VERSION }}
