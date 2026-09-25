@@ -14,48 +14,105 @@ import 'login_usecase_test.mocks.dart';
 void main() {
   late AuthRepo authRepo;
   late LoginUseCase loginUseCase;
-  setUpAll(() {
+
+  setUp(() {
     authRepo = MockAuthRepo();
     loginUseCase = LoginUseCase(authRepo);
   });
-  final request = LoginRequest(email: 'test@gmail.com', password: '123456');
+
+  final request = LoginRequest(
+    email: 'test@gmail.com',
+    password: '123456',
+  );
+
   final authEntity = AuthEntity(
     accessToken: 'access-token',
     refreshToken: 'refresh-token',
     role: 'Customer',
+    expiresIn: 900,
   );
-  String dummyErrorMessage = "Dummy Message";
 
-  group("test use case states", () {
-    test("test login use case success state", () async {
-      //Arrange
-      provideDummy<BaseResponse<AuthEntity>>(SuccessResponse(authEntity));
-      when(
-        authRepo.signIn(request),
-      ).thenAnswer((_) async => SuccessResponse<AuthEntity>(authEntity));
-      // act
-      final result = await loginUseCase(request);
+  const String dummyErrorMessage = 'Dummy Message';
 
-      // assert
-      expect(result, isA<SuccessResponse<AuthEntity>>());
-      final successResponse = result as SuccessResponse<AuthEntity>;
-      expect(successResponse.data, authEntity);
-    });
-  });
-  test("test login use case error state", () async {
-    //Arrange
-    final error = BadResponseError(dummyErrorMessage);
+  group('test login use case states', () {
+    test(
+      'test login use case success state',
+          () async {
+        // Arrange
+        provideDummy<BaseResponse<AuthEntity>>(
+          SuccessResponse<AuthEntity>(authEntity),
+        );
 
-    provideDummy<BaseResponse<AuthEntity>>(ErrorResponse(appError: error));
-    when(
-      authRepo.signIn(request),
-    ).thenAnswer((_) async => ErrorResponse(appError: error));
-    // act
-    final result = await loginUseCase(request);
+        when(
+          authRepo.signIn(request),
+        ).thenAnswer(
+              (_) async => SuccessResponse<AuthEntity>(authEntity),
+        );
 
-    // assert
-    expect(result, isA<ErrorResponse<AuthEntity>>());
-    final errorResponse = result as ErrorResponse<AuthEntity>;
-    expect(errorResponse.errorMessage, dummyErrorMessage);
+        // Act
+        final result = await loginUseCase(request);
+
+        // Assert
+        expect(
+          result,
+          isA<SuccessResponse<AuthEntity>>(),
+        );
+
+        final successResponse =
+        result as SuccessResponse<AuthEntity>;
+
+        expect(
+          successResponse.data,
+          authEntity,
+        );
+
+        verify(
+          authRepo.signIn(request),
+        ).called(1);
+      },
+    );
+
+    test(
+      'test login use case error state',
+          () async {
+        // Arrange
+        final error = BadResponseError(dummyErrorMessage);
+
+        provideDummy<BaseResponse<AuthEntity>>(
+          ErrorResponse<AuthEntity>(
+            appError: error,
+          ),
+        );
+
+        when(
+          authRepo.signIn(request),
+        ).thenAnswer(
+              (_) async => ErrorResponse<AuthEntity>(
+            appError: error,
+          ),
+        );
+
+        // Act
+        final result = await loginUseCase(request);
+
+        // Assert
+        expect(
+          result,
+          isA<ErrorResponse<AuthEntity>>(),
+        );
+
+        final errorResponse =
+        result as ErrorResponse<AuthEntity>;
+
+        expect(
+          errorResponse.errorMessage,
+          dummyErrorMessage,
+        );
+
+        verify(
+          authRepo.signIn(request),
+        ).called(1);
+      },
+    );
   });
 }

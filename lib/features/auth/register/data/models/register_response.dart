@@ -56,7 +56,6 @@ class RegisterData {
   Map<String, dynamic> toJson() => _$RegisterDataToJson(this);
 }
 
-@JsonSerializable()
 class RegisterUser {
   final String id;
   final String email;

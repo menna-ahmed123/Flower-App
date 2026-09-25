@@ -125,7 +125,6 @@ abstract class AppString {
   static const String oldest = 'Old';
   static const String discount = 'Discount';
 
-
   // ==================== Product Details ====================
   static const String addToCart = 'Add to cart';
   static const String buyNow = 'Buy Now';
@@ -144,6 +143,12 @@ abstract class AppString {
   static const String cart = 'Cart';
   static const String myCart = 'My Cart';
   static const String cartIsEmpty = 'Your cart is empty';
+  static const String cartPricesUpdated =
+      'Some prices or stock changed. Review your cart before checkout.';
+  static const String cartPricingUnavailable =
+      'Live prices are temporarily unavailable.';
+  static const String priceUpdated = 'Price updated';
+  static const String stockLimit = 'Only the available quantity can be added.';
   static const String orderSummary = 'Order Summary';
   static const String subtotal = 'Subtotal';
   static const String deliveryFee = 'Delivery Fee';
@@ -159,7 +164,9 @@ abstract class AppString {
 
   // ==================== Address & Checkout ====================
   static const String shippingAddress = 'Shipping Address';
+  static const String deliveryAddress = 'Delivery address';
   static const String addAddress = 'Add Address';
+  static const String addNew = 'Add new';
   static const String address = 'Address';
   static const String selectAddress = 'Select Address';
   static const String enterAddress = "Enter the address";
@@ -180,8 +187,20 @@ abstract class AppString {
   static const String paymentMethod = 'Payment Method';
   static const String cashOnDelivery = 'Cash on Delivery';
   static const String creditCard = 'Credit Card';
+  static const String thisIsAGift = 'It is a gift';
+  static const String name = 'Name';
+  static const String enterTheName = 'Enter the name';
+  static const String payNow = 'Pay Now';
+  static const String payment = 'Payment';
+  static const String confirmation = 'Confirmation';
   static const String orderPlacedSuccess = 'Order placed successfully!';
   static const String orderFailed = 'Order failed. Please try again.';
+  static const String paymentFailed = 'Payment failed. Please try again.';
+  static const String deliveryUnavailable =
+      'Delivery is unavailable for the selected address.';
+  static const String itemsUnavailable = 'Some items are unavailable.';
+  static const String priceChanged =
+      'Prices changed. Please review the summary and confirm again.';
   // ==================== Orders ====================
   static const String myOrders = 'My Orders';
   static const String orderDetails = 'Order Details';
@@ -209,10 +228,12 @@ abstract class AppString {
   static const String retry = 'Retry';
   static const String noData = 'No data found';
 
-  static const String couldNotGetAddress = 'Could not get address from your location.';
-  static const String couldNotGetLocation = 'Could not get your current location. Please check your location settings.';
+  static const String couldNotGetAddress =
+      'Could not get address from your location.';
+  static const String couldNotGetLocation =
+      'Could not get your current location. Please check your location settings.';
 
-   // ==================== Map ====================
+  // ==================== Map ====================
 
   static final String mapTilerApiKey = dotenv.env['MAPTILER_API_KEY'] ?? '';
 
@@ -222,7 +243,7 @@ abstract class AppString {
   static const String mapLanguage = 'en';
 
   static const String userAgentPackageName = 'com.example.flower_app';
-static const String location = 'Location';
+  static const String location = 'Location';
 
   static const String locationServicesDisabled =
       'Location services are disabled.';
@@ -247,7 +268,7 @@ static const String location = 'Location';
   static const String unknownCity = 'Unknown city';
   static const String defaultAddress = 'Default Address';
   static const String unknown = 'Unknown';
-  static const String selectDeliveryAddress = 'Select where you want your flowers delivered';
+  static const String selectDeliveryAddress =
+      'Select where you want your flowers delivered';
   static const String chooseDeliveryAddress = 'Choose delivery address';
 }
-

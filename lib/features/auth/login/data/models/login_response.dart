@@ -44,6 +44,7 @@ class LoginData {
       accessToken: token,
       refreshToken: refreshToken,
       role: user.roles.isEmpty ? '' : user.roles.first,
+      expiresIn: 0,
     );
   }
 

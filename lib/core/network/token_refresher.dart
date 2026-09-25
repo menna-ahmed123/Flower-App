@@ -4,12 +4,20 @@ import 'package:injectable/injectable.dart';
 
 /// Pair of tokens returned by a successful refresh (or login) operation.
 class AuthTokens {
-  const AuthTokens({required this.accessToken, this.refreshToken});
+  const AuthTokens({
+    required this.accessToken,
+    this.refreshToken,
+    this.expiresIn,
+  });
 
   final String accessToken;
 
   /// When null, the existing refresh token should be kept.
   final String? refreshToken;
+
+  /// Access token lifetime in seconds, when the backend returns it.
+  /// Used to schedule the next proactive refresh.
+  final int? expiresIn;
 }
 
 /// Performs the HTTP refresh-token call.
@@ -19,7 +27,7 @@ abstract interface class TokenRefresher {
   /// Returns `null` when refresh cannot be performed (not configured, or
   /// backend reported failure without a transport-level error).
   /// Throws [DioException] (or other) on transport/HTTP failure so the
-  /// interceptor can distinguish network errors from auth expiration.
+  /// caller can distinguish network errors from auth expiration.
   Future<AuthTokens?> refresh(String refreshToken);
 }
 
@@ -46,9 +54,9 @@ class ApiTokenRefresher implements TokenRefresher {
 
   @override
   Future<AuthTokens?> refresh(String refreshToken) async {
-    // Let DioException propagate as-is (network/400/401/etc.) so
-    // AuthInterceptors can tell an expired refresh token apart from a
-    // transient network/server error.
+    // Let DioException propagate as-is (network/400/401/etc.) so the
+    // caller can tell an expired refresh token apart from a transient
+    // network/server error.
     final response = await _dio.post<Map<String, dynamic>>(
       _refreshPath,
       data: {'refreshToken': refreshToken},
@@ -70,9 +78,12 @@ class ApiTokenRefresher implements TokenRefresher {
     }
 
     final newRefreshToken = data['refreshToken'];
+    final expiresIn = data['expiresIn'];
+
     return AuthTokens(
       accessToken: accessToken,
       refreshToken: newRefreshToken is String ? newRefreshToken : null,
+      expiresIn: expiresIn is int ? expiresIn : null,
     );
   }
 }

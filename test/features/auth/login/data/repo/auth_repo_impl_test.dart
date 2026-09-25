@@ -55,6 +55,7 @@ void main() {
     accessToken: 'access-token',
     refreshToken: 'refresh-token',
     role: 'Customer',
+    expiresIn: 900,
   );
   group("Login", () {
     test(
@@ -69,6 +70,7 @@ void main() {
           tokenStorage.saveTokens(
             accessToken: "access-token",
             refreshToken: "refresh-token",
+            expiresIn: null,
           ),
         ).thenAnswer((_) async {});
         final result = await authRepositoryImpl.signIn(request);
@@ -82,6 +84,7 @@ void main() {
           tokenStorage.saveTokens(
             accessToken: "access-token",
             refreshToken: "refresh-token",
+            expiresIn: null,
           ),
         ).called(1);
       },
