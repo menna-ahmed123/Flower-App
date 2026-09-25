@@ -13,12 +13,7 @@ import 'reset_password_use_case_test.mocks.dart';
 void main() {
   provideDummy<BaseResponse<ResetPasswordEntity>>(
     SuccessResponse(
-      ResetPasswordEntity(
-        isSuccess: true,
-        statusCode: 200,
-        message: 'Dummy response',
-        errors: null,
-      ),
+      ResetPasswordEntity(success: true, message: 'Dummy response'),
     ),
   );
 
@@ -32,17 +27,15 @@ void main() {
     useCase = ResetPasswordUseCase(forgetPasswordRepo: mockForgetPasswordRepo);
 
     params = ResetPasswordParams(
-      resetToken: 'reset-token',
-      newPassword: 'Password123',
+      otpToken: 'otp-token',
+      password: 'Password123',
       confirmPassword: 'Password123',
     );
 
     response = SuccessResponse<ResetPasswordEntity>(
       ResetPasswordEntity(
-        isSuccess: true,
-        statusCode: 200,
+        success: true,
         message: 'Password reset successfully',
-        errors: null,
       ),
     );
   });

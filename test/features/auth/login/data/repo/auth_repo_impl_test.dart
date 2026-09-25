@@ -32,17 +32,23 @@ void main() {
   });
   final request = LoginRequest(email: 'test@test.com', password: '123456');
   final response = LoginResponse(
-    isSuccess: true,
-    statusCode: 200,
+    status: true,
+    code: 200,
     message: 'Login successful',
     data: LoginData(
-      accessToken: 'access-token',
+      user: LoginUser(
+        id: 'user-1',
+        email: 'test@test.com',
+        phone: '01012345678',
+        name: 'Test User',
+        roles: ['CUSTOMER'],
+        createdAt: DateTime.parse('2026-01-01T00:00:00Z'),
+        updatedAt: DateTime.parse('2026-01-01T00:00:00Z'),
+        gender: 'MALE',
+        notificationStatus: 'ON',
+      ),
+      token: 'access-token',
       refreshToken: 'refresh-token',
-      expiresIn: 900,
-      role: 'Customer',
-      driverApplicationStatus: 'PendingReview',
-      canAccessDriverHome: true,
-      driverApplicationRejectionReason: null,
     ),
   );
   final authEntity = AuthEntity(

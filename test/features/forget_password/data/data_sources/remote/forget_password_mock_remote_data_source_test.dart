@@ -22,7 +22,7 @@ void main() {
 
     expect(result, isA<SuccessResponse<ForgetPasswordResponseModel>>());
     final response = result as SuccessResponse<ForgetPasswordResponseModel>;
-    expect(response.data.cooldownRemainingSeconds, 30);
+    expect(response.data.data, true);
   });
 
   test('returns dummy success for verify OTP', () async {
@@ -35,24 +35,23 @@ void main() {
 
     expect(result, isA<SuccessResponse<VerifyOtpResponseModel>>());
     final response = result as SuccessResponse<VerifyOtpResponseModel>;
-    expect(response.data.status, 'success');
-    expect(response.data.resetToken, 'mock-reset-token');
-    expect(response.data.expiresAtUtc, isNotNull);
+    expect(response.data.data.otpToken, 'mock-otp-token');
+    expect(response.data.data.expiresInMinutes, 10);
   });
 
   test('returns dummy success for reset password', () async {
     final result = await dataSource.resetPassword(
       requestModel: ResetPasswordRequestModel(
-        resetToken: 'mock-reset-token',
-        newPassword: 'Password123',
+        otpToken: 'mock-otp-token',
+        password: 'Password123',
         confirmPassword: 'Password123',
       ),
     );
 
     expect(result, isA<SuccessResponse<ResetPasswordResponseModel>>());
     final response = result as SuccessResponse<ResetPasswordResponseModel>;
-    expect(response.data.isSuccess, true);
-    expect(response.data.statusCode, 200);
+    expect(response.data.data, true);
+    expect(response.data.code, 200);
     expect(response.data.message, 'Password reset successfully');
     expect(response.data.errors, isNull);
   });
@@ -64,9 +63,7 @@ class _ForgetPasswordRemoteDataSourceFake
   Future<BaseResponse<ForgetPasswordResponseModel>> forgetPassword({
     required ForgetPasswordRequestModel requestModel,
   }) async {
-    return SuccessResponse(
-      ForgetPasswordResponseModel(cooldownRemainingSeconds: 30),
-    );
+    return SuccessResponse(ForgetPasswordResponseModel(data: true));
   }
 
   @override
@@ -75,9 +72,7 @@ class _ForgetPasswordRemoteDataSourceFake
   }) async {
     return SuccessResponse(
       VerifyOtpResponseModel(
-        status: 'success',
-        resetToken: 'mock-reset-token',
-        expiresAtUtc: DateTime.now().toUtc().add(const Duration(minutes: 10)),
+        data: VerifyOtpData(otpToken: 'mock-otp-token', expiresInMinutes: 10),
       ),
     );
   }
@@ -88,10 +83,10 @@ class _ForgetPasswordRemoteDataSourceFake
   }) async {
     return SuccessResponse(
       ResetPasswordResponseModel(
-        isSuccess: true,
-        statusCode: 200,
+        status: true,
+        code: 200,
         message: 'Password reset successfully',
-        errors: null,
+        data: true,
       ),
     );
   }

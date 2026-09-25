@@ -29,9 +29,7 @@ void main() {
 
   test('returns success when forget password API succeeds', () async {
     final requestModel = ForgetPasswordRequestModel(email: 'test@gmail.com');
-    final apiResponse = ForgetPasswordResponseModel(
-      cooldownRemainingSeconds: 30,
-    );
+    final apiResponse = ForgetPasswordResponseModel(data: true);
     when(
       mockApiClient.forgotPassword(requestModel),
     ).thenAnswer((_) async => apiResponse);
@@ -40,7 +38,7 @@ void main() {
 
     expect(result, isA<SuccessResponse<ForgetPasswordResponseModel>>());
     final response = result as SuccessResponse<ForgetPasswordResponseModel>;
-    expect(response.data.cooldownRemainingSeconds, 30);
+    expect(response.data.data, true);
     verify(mockApiClient.forgotPassword(requestModel)).called(1);
   });
 
@@ -49,11 +47,8 @@ void main() {
       email: 'test@gmail.com',
       otp: '123456',
     );
-    final expiresAt = DateTime.utc(2026, 1, 1, 12);
     final apiResponse = VerifyOtpResponseModel(
-      status: 'success',
-      resetToken: 'mock-reset-token',
-      expiresAtUtc: expiresAt,
+      data: VerifyOtpData(otpToken: 'mock-otp-token', expiresInMinutes: 10),
     );
     when(
       mockApiClient.verifyOtp(requestModel),
@@ -63,23 +58,22 @@ void main() {
 
     expect(result, isA<SuccessResponse<VerifyOtpResponseModel>>());
     final response = result as SuccessResponse<VerifyOtpResponseModel>;
-    expect(response.data.status, 'success');
-    expect(response.data.resetToken, 'mock-reset-token');
-    expect(response.data.expiresAtUtc, expiresAt);
+    expect(response.data.data.otpToken, 'mock-otp-token');
+    expect(response.data.data.expiresInMinutes, 10);
     verify(mockApiClient.verifyOtp(requestModel)).called(1);
   });
 
   test('returns success when reset password API succeeds', () async {
     final requestModel = ResetPasswordRequestModel(
-      resetToken: 'mock-reset-token',
-      newPassword: 'Password123',
+      otpToken: 'mock-otp-token',
+      password: 'Password123',
       confirmPassword: 'Password123',
     );
     final apiResponse = ResetPasswordResponseModel(
-      isSuccess: true,
-      statusCode: 200,
+      status: true,
+      code: 200,
       message: 'Password reset successfully',
-      errors: null,
+      data: true,
     );
     when(
       mockApiClient.resetPassword(requestModel),
@@ -89,8 +83,8 @@ void main() {
 
     expect(result, isA<SuccessResponse<ResetPasswordResponseModel>>());
     final response = result as SuccessResponse<ResetPasswordResponseModel>;
-    expect(response.data.isSuccess, true);
-    expect(response.data.statusCode, 200);
+    expect(response.data.data, true);
+    expect(response.data.code, 200);
     expect(response.data.message, 'Password reset successfully');
     verify(mockApiClient.resetPassword(requestModel)).called(1);
   });

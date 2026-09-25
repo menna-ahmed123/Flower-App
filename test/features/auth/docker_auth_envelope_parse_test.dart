@@ -6,35 +6,39 @@ void main() {
   test('parses Docker login envelope with success alias', () {
     final response = LoginResponse.fromJson({
       'data': {
-        'accessToken': 'access-token',
+        'user': {
+          'id': 'user-1',
+          'email': 'test@test.com',
+          'phone': '01012345678',
+          'name': 'Test User',
+          'roles': ['CUSTOMER'],
+          'createdAt': '2026-01-01T00:00:00Z',
+          'updatedAt': '2026-01-01T00:00:00Z',
+          'gender': 'MALE',
+          'notificationStatus': 'ON',
+        },
+        'token': 'access-token',
         'refreshToken': 'refresh-token',
-        'expiresIn': 900,
-        'role': 'Customer',
-        'driverApplicationStatus': null,
-        'canAccessDriverHome': true,
-        'driverApplicationRejectionReason': null,
       },
-      'statusCode': 200,
-      'success': true,
+      'status': true,
+      'code': 200,
       'message': 'Login successful.',
-      'messageLocalized': 'Login successful.',
     });
 
-    expect(response.isSuccess, isTrue);
-    expect(response.data.accessToken, 'access-token');
-    expect(response.data.refreshToken, 'refresh-token');
-    expect(response.data.role, 'Customer');
+    expect(response.status, isTrue);
+    expect(response.data?.token, 'access-token');
+    expect(response.data?.refreshToken, 'refresh-token');
+    expect(response.data?.user.roles, ['CUSTOMER']);
   });
 
   test('parses Docker forgot-password nested data envelope', () {
     final response = ForgetPasswordResponseModel.fromJson({
-      'data': {'cooldownRemainingSeconds': 30},
-      'statusCode': 200,
-      'success': true,
+      'data': true,
+      'status': true,
+      'code': 200,
       'message': 'If this email is registered, a code has been sent.',
-      'messageLocalized': 'If this email is registered, a code has been sent.',
     });
 
-    expect(response.cooldownRemainingSeconds, 30);
+    expect(response.data, isTrue);
   });
 }

@@ -21,12 +21,14 @@ class RegisterRepositoryImpl implements RegisterRepo {
       final data = response.data;
       if (!response.isSuccess || data == null) {
         throw ApiException(
-          message: response.message,
-          statusCode: response.statusCode,
-          errors: response.errors,
+          message: response.message ?? 'Registration failed',
+          statusCode: response.code,
+          errors: response.errors is Map<String, dynamic>
+              ? response.errors as Map<String, dynamic>
+              : null,
         );
       }
-      return data.toDomain(message: response.message);
+      return data.toDomain(message: response.message ?? '');
     });
   }
 }

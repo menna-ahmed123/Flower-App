@@ -34,11 +34,7 @@ void main() {
 void _registerDummy() {
   provideDummy<BaseResponse<VerifyOtpEntity>>(
     SuccessResponse<VerifyOtpEntity>(
-      VerifyOtpEntity(
-        status: 'verified',
-        resetToken: 'test-reset-token',
-        expiresAtUtc: DateTime.utc(2026, 8, 16, 4, 0),
-      ),
+      VerifyOtpEntity(otpToken: 'test-otp-token', expiresInMinutes: 10),
     ),
   );
 }
@@ -54,11 +50,7 @@ Future<void> _testVerifyOtpSuccess(
   );
 
   final successResponse = SuccessResponse<VerifyOtpEntity>(
-    VerifyOtpEntity(
-      status: 'verified',
-      resetToken: 'test-reset-token',
-      expiresAtUtc: DateTime.utc(2026, 8, 16, 4, 0),
-    ),
+    VerifyOtpEntity(otpToken: 'test-otp-token', expiresInMinutes: 10),
   );
 
   when(
@@ -73,9 +65,6 @@ Future<void> _testVerifyOtpSuccess(
 
   final successResult = result as SuccessResponse<VerifyOtpEntity>;
 
-  expect(successResult.data.status, 'verified');
-
-  expect(successResult.data.resetToken, 'test-reset-token');
-
-  expect(successResult.data.expiresAtUtc, DateTime.utc(2026, 8, 16, 4, 0));
+  expect(successResult.data.otpToken, 'test-otp-token');
+  expect(successResult.data.expiresInMinutes, 10);
 }
