@@ -12,7 +12,9 @@ class ApiEndpoints {
 
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
-    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? '');
+    _resolvedBaseUrl = normalizeBaseUrl(
+      dotenv.env['BASE_URL'] ?? 'http://192.168.1.7:5000/',
+    );
   }
 
   static String normalizeBaseUrl(String raw) {
@@ -25,8 +27,7 @@ class ApiEndpoints {
       iosSimulator: _isIosSimulator(),
     );
     if (url.endsWith('/')) url = url.substring(0, url.length - 1);
-    if (url.endsWith('/api/v1')) return url;
-    return '$url/api/v1';
+    return url;
   }
 
   static String rewriteHostForLocalClient(
@@ -61,11 +62,11 @@ class ApiEndpoints {
   }
 
   //// AUTH ////
-  static const String forgotPassword = '/identity/auth/forgot-password';
-  static const String verifyOtp = '/identity/auth/verify-otp';
-  static const String resetPassword = '/identity/auth/reset-password';
-  static const String login = '/identity/auth/login';
-  static const String register = '/identity/users/register';
+  static const String forgotPassword = '/api/identity/auth/forget-password';
+  static const String verifyOtp = '/api/identity/auth/otp-verification';
+  static const String resetPassword = '/api/identity/auth/reset-password';
+  static const String login = '/api/identity/auth/login';
+  static const String register = '/api/identity/auth/register';
 
   //// Commerce ////
   static const String home = '/catalog/home/layout';

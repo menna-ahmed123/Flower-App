@@ -6,8 +6,15 @@ part 'login_request.g.dart';
 class LoginRequest {
   final String email;
   final String password;
+  final String deviceId;
+  final String fcmToken;
 
-  LoginRequest({required this.email, required this.password});
+  LoginRequest({
+    required this.email,
+    required this.password,
+    this.deviceId = '',
+    this.fcmToken = '',
+  });
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) =>
       _$LoginRequestFromJson(json);

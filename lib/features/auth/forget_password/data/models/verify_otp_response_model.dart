@@ -5,30 +5,44 @@ part 'verify_otp_response_model.g.dart';
 
 @JsonSerializable()
 class VerifyOtpResponseModel {
-  final String status;
-  final String resetToken;
-  final DateTime expiresAtUtc;
+  final Object? status;
+  final int? code;
+  final String? message;
+  final VerifyOtpData data;
+  final dynamic pagination;
+  final dynamic errors;
 
   VerifyOtpResponseModel({
-    required this.status,
-    required this.resetToken,
-    required this.expiresAtUtc,
+    this.status,
+    this.code,
+    this.message,
+    required this.data,
+    this.pagination,
+    this.errors,
   });
 
-  factory VerifyOtpResponseModel.fromJson(Map<String, dynamic> json) {
-    final payload = json['data'] is Map<String, dynamic>
-        ? json['data'] as Map<String, dynamic>
-        : json;
-    return _$VerifyOtpResponseModelFromJson(payload);
-  }
+  factory VerifyOtpResponseModel.fromJson(Map<String, dynamic> json) =>
+      _$VerifyOtpResponseModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$VerifyOtpResponseModelToJson(this);
 
   VerifyOtpEntity toDomain() {
     return VerifyOtpEntity(
-      status: status,
-      resetToken: resetToken,
-      expiresAtUtc: expiresAtUtc,
+      otpToken: data.otpToken,
+      expiresInMinutes: data.expiresInMinutes,
     );
   }
+}
+
+@JsonSerializable()
+class VerifyOtpData {
+  final String otpToken;
+  final num expiresInMinutes;
+
+  VerifyOtpData({required this.otpToken, required this.expiresInMinutes});
+
+  factory VerifyOtpData.fromJson(Map<String, dynamic> json) =>
+      _$VerifyOtpDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VerifyOtpDataToJson(this);
 }

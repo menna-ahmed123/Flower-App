@@ -32,17 +32,23 @@ void main() {
   });
   final request = LoginRequest(email: 'test@test.com', password: '123456');
   final response = LoginResponse(
-    isSuccess: true,
-    statusCode: 200,
+    status: true,
+    code: 200,
     message: 'Login successful',
     data: LoginData(
-      accessToken: 'access-token',
+      user: LoginUser(
+        id: 'user-1',
+        email: 'test@test.com',
+        phone: '01012345678',
+        name: 'Test User',
+        roles: ['CUSTOMER'],
+        createdAt: DateTime.parse('2026-01-01T00:00:00Z'),
+        updatedAt: DateTime.parse('2026-01-01T00:00:00Z'),
+        gender: 'MALE',
+        notificationStatus: 'ON',
+      ),
+      token: 'access-token',
       refreshToken: 'refresh-token',
-      expiresIn: 900,
-      role: 'Customer',
-      driverApplicationStatus: 'PendingReview',
-      canAccessDriverHome: true,
-      driverApplicationRejectionReason: null,
     ),
   );
   final authEntity = AuthEntity(
@@ -54,7 +60,7 @@ void main() {
   group("Login", () {
     test(
       "should return SuccessResponse and save tokens when login succeeds",
-          () async {
+      () async {
         provideDummy<BaseResponse<AuthEntity>>(SuccessResponse(authEntity));
         when(
           authRemoteDataSource.login(request),
@@ -64,7 +70,7 @@ void main() {
           tokenStorage.saveTokens(
             accessToken: "access-token",
             refreshToken: "refresh-token",
-            expiresIn: 900,
+            expiresIn: null,
           ),
         ).thenAnswer((_) async {});
         final result = await authRepositoryImpl.signIn(request);
@@ -78,7 +84,7 @@ void main() {
           tokenStorage.saveTokens(
             accessToken: "access-token",
             refreshToken: "refresh-token",
-            expiresIn: 900,
+            expiresIn: null,
           ),
         ).called(1);
       },
@@ -94,7 +100,7 @@ void main() {
   });
   test(
     "should return ErrorResponse and unsave tokens when login error",
-        () async {
+    () async {
       String dummyErrorMessage = "Dummy Message";
       final error = BadResponseError(dummyErrorMessage);
       provideDummy<BaseResponse<AuthEntity>>(ErrorResponse(appError: error));

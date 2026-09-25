@@ -118,7 +118,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(useCase.callCount, 1);
       expect(useCase.lastRequest?.email, 'sara@example.com');
-      expect(useCase.lastRequest?.fullName, 'Sara Ali');
+      expect(useCase.lastRequest?.firstName, 'Sara');
+      expect(useCase.lastRequest?.lastName, 'Ali');
       expect(find.text('Login Screen'), findsOneWidget);
       expect(find.text('Account registered successfully.'), findsOneWidget);
     });

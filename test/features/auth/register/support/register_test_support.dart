@@ -34,17 +34,19 @@ const SuccessResponse<RegisterEntity> fakeRegisterSuccess = SuccessResponse(
 );
 
 RegisterRequest validRegisterRequest({
-  String fullName = 'Sara Ali',
+  String firstName = 'Sara',
+  String lastName = 'Ali',
   String email = 'sara@example.com',
-  String phoneNumber = '01012345678',
-  String gender = 'Female',
+  String phone = '01012345678',
+  int gender = 1,
   String password = 'Pass1234',
   String confirmPassword = 'Pass1234',
 }) {
   return RegisterRequest(
-    fullName: fullName,
+    firstName: firstName,
+    lastName: lastName,
     email: email,
-    phoneNumber: phoneNumber,
+    phone: phone,
     gender: gender,
     password: password,
     confirmPassword: confirmPassword,
@@ -58,7 +60,7 @@ RegisterSubmitted validRegisterSubmitted({
   String password = 'Pass1234',
   String confirmPassword = 'Pass1234',
   String phoneNumber = '01012345678',
-  String gender = 'Female',
+  Gender gender = Gender.female,
 }) {
   return RegisterSubmitted(
     firstName: firstName,
@@ -75,26 +77,37 @@ RegisterResponse successfulRegisterResponse({
   String message = 'Account registered successfully.',
 }) {
   return RegisterResponse(
-    isSuccess: true,
-    statusCode: 201,
+    status: true,
+    code: 201,
     message: message,
     data: RegisterData(
-      userId: 'user-1',
-      email: 'sara@example.com',
-      role: 'Customer',
-      status: 'Active',
+      token: 'register-token',
+      user: RegisterUser(
+        id: 'user-1',
+        email: 'sara@example.com',
+        phone: '01012345678',
+        name: 'Sara Ali',
+        roles: ['CUSTOMER'],
+        createdAt: DateTime.parse('2026-01-01T00:00:00Z'),
+        gender: 'FEMALE',
+        notificationStatus: 'ON',
+      ),
     ),
   );
 }
 
 Map<String, dynamic> expectedFemaleBody() {
   return {
-    'fullName': 'Sara Ali',
+    'FirstName': 'Sara',
+    'LastName': 'Ali',
     'email': 'sara@example.com',
-    'phoneNumber': '01012345678',
-    'gender': 'Female',
+    'phone': '01012345678',
+    'gender': 1,
     'password': 'Pass1234',
     'confirmPassword': 'Pass1234',
+    'deviceId': null,
+    'fcmToken': null,
+    'notificationStatus': 0,
   };
 }
 

@@ -210,7 +210,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                             confirmPassword:
                                                 _confirmPasswordController.text,
                                             phoneNumber: _phoneController.text,
-                                            gender: _gender.apiValue,
+                                            gender: _gender,
                                           ),
                                         );
                                       }

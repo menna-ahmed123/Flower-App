@@ -41,17 +41,20 @@ class _ResetPasswordBodyState extends State<ResetPasswordBody> {
       return;
     }
 
-    final resetToken = context
+    final otpToken = context
         .read<ForgetPasswordCubit>()
         .state
         .verifyOtpState
         ?.data
-        ?.resetToken;
+        ?.otpToken;
+    if (otpToken == null || otpToken.isEmpty) {
+      return;
+    }
 
     final params = ResetPasswordParams(
       confirmPassword: _confirmPasswordController.text.trim(),
-      newPassword: _passwordController.text.trim(),
-      resetToken: resetToken,
+      password: _passwordController.text.trim(),
+      otpToken: otpToken,
     );
 
     context.read<ForgetPasswordCubit>().onEvent(

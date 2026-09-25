@@ -19,12 +19,17 @@ class AuthRepositoryImpl implements AuthRepo {
   Future<BaseResponse<AuthEntity>> signIn(LoginRequest request) {
     return safeCall.safeApiCall(() async {
       final response = await remoteDatasource.login(request);
+      final data = response.data;
+      if (data == null) {
+        throw StateError(
+          response.message ?? 'Login response did not contain data',
+        );
+      }
       await tokenStorage.saveTokens(
-        accessToken: response.data.accessToken,
-        refreshToken: response.data.refreshToken,
-        expiresIn: response.data.expiresIn,
+        accessToken: data.token,
+        refreshToken: data.refreshToken,
       );
-      return response.data.toDomain();
+      return data.toDomain();
     });
   }
 

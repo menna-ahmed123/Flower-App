@@ -5,39 +5,30 @@ part 'reset_password_response_model.g.dart';
 
 @JsonSerializable()
 class ResetPasswordResponseModel {
-  @JsonKey(name: "isSuccess")
-  final bool? isSuccess;
-  @JsonKey(name: "statusCode")
-  final int? statusCode;
-  @JsonKey(name: "message")
+  final Object? status;
+  final int? code;
   final String? message;
-  @JsonKey(name: "errors")
-  final List<String>? errors;
+  final bool data;
+  final dynamic pagination;
+  final dynamic errors;
 
   ResetPasswordResponseModel({
-    this.isSuccess,
-    this.statusCode,
+    this.status,
+    this.code,
     this.message,
+    required this.data,
+    this.pagination,
     this.errors,
   });
 
-  factory ResetPasswordResponseModel.fromJson(Map<String, dynamic> json) {
-    return _$ResetPasswordResponseModelFromJson({
-      ...json,
-      'isSuccess': json['isSuccess'] ?? json['success'],
-    });
-  }
+  factory ResetPasswordResponseModel.fromJson(Map<String, dynamic> json) =>
+      _$ResetPasswordResponseModelFromJson(json);
 
   Map<String, dynamic> toJson() {
     return _$ResetPasswordResponseModelToJson(this);
   }
 
   ResetPasswordEntity toDomain() {
-    return ResetPasswordEntity(
-      message: message,
-      isSuccess: isSuccess,
-      statusCode: statusCode,
-      errors: errors,
-    );
+    return ResetPasswordEntity(success: data, message: message);
   }
 }

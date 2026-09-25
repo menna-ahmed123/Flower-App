@@ -31,26 +31,26 @@ abstract interface class TokenRefresher {
   Future<AuthTokens?> refresh(String refreshToken);
 }
 
-/// Real implementation calling `POST /api/v1/identity/auth/refresh`.
+/// Real implementation calling `POST /api/identity/auth/refresh`.
 ///
 /// Uses its own [Dio] instance (no [AuthInterceptors] attached) so the
 /// refresh call can never trigger another refresh or get stuck in a loop.
 @LazySingleton(as: TokenRefresher)
 class ApiTokenRefresher implements TokenRefresher {
   ApiTokenRefresher()
-      : _dio = Dio(
-    BaseOptions(
-      baseUrl: ApiEndpoints.resolvedBaseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      sendTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: const {'Content-Type': 'application/json'},
-    ),
-  );
+    : _dio = Dio(
+        BaseOptions(
+          baseUrl: ApiEndpoints.resolvedBaseUrl,
+          connectTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+          headers: const {'Content-Type': 'application/json'},
+        ),
+      );
 
   final Dio _dio;
 
-  static const _refreshPath = '/identity/auth/refresh';
+  static const _refreshPath = '/api/identity/auth/refresh';
 
   @override
   Future<AuthTokens?> refresh(String refreshToken) async {
