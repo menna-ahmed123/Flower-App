@@ -236,13 +236,22 @@ class CartViewModel extends Cubit<CartState> {
     _loadCart();
   }
 
-  void _applyRemoveResponse(BaseResponse<bool> response, CartEntity previous) {
+  void _applyRemoveResponse(
+    BaseResponse<CartEntity> response,
+    CartEntity previous,
+  ) {
     switch (response) {
-      case SuccessResponse<bool>():
-        _loadGeneration++;
-      case ErrorResponse<bool>():
+      case SuccessResponse<CartEntity>():
+        _emitRemovedCart(response.data);
+      case ErrorResponse<CartEntity>():
         _emitError(response.errorMessage, cart: previous);
     }
+  }
+
+  void _emitRemovedCart(CartEntity cart) {
+    _loadGeneration++;
+    if (_pendingMutations != 0 || _quantityTimers.isNotEmpty) return;
+    _emitCart(cart);
   }
 
   CartEntity? _currentCart() => state.cartState.data;
@@ -298,25 +307,28 @@ class CartViewModel extends Cubit<CartState> {
     _loadGeneration++;
     _pendingMutations = 0;
     _cancelQuantityTimers();
-    final ids = await _remainingItemIds();
-    _emitCart(const CartEntity.empty());
-    await _deleteItems(ids);
+    final cart = await _purchasedCart();
+    if (cart == null || cart.items.isEmpty) {
+      if (cart != null) _emitCart(cart);
+      return;
+    }
+    await _deleteItems(_itemIds(cart));
+    final refreshed = await _purchasedCart();
+    if (refreshed != null) _emitCart(refreshed);
   }
 
-  Future<List<String>> _remainingItemIds() async {
-    final local = [
-      for (final item in _currentCart()?.items ?? const <CartItemEntity>[])
-        if (item.id.isNotEmpty) item.id,
-    ];
-    if (local.isNotEmpty) return local;
-    return _remoteItemIds();
-  }
-
-  Future<List<String>> _remoteItemIds() async {
+  Future<CartEntity?> _purchasedCart() async {
     final response = await _getCartUseCase.getCart();
-    if (response is! SuccessResponse<CartEntity>) return const [];
+    if (response is SuccessResponse<CartEntity>) return response.data;
+    if (response is ErrorResponse<CartEntity>) {
+      _emitError(response.errorMessage, keepData: true);
+    }
+    return null;
+  }
+
+  List<String> _itemIds(CartEntity cart) {
     return [
-      for (final item in response.data.items)
+      for (final item in cart.items)
         if (item.id.isNotEmpty) item.id,
     ];
   }

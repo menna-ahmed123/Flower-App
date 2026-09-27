@@ -6,21 +6,28 @@ import 'package:flower_app/features/cart/data/models/order_response.dart';
 abstract interface class CartRemoteDataSource {
   Future<CartResponse> getCart();
 
-  Future<CartResponse> addCartItem(AddCartItemRequest request);
+  Future<AddCartItemResponse> addCartItem(AddCartItemRequest request);
 
   Future<CartResponse> updateCartItem(
     String itemId,
     UpdateCartItemRequest request,
   );
 
-  Future<void> removeCartItem(String itemId);
+  Future<CartResponse> removeCartItem(String itemId);
 
-  Future<CheckoutPreviewResponse> previewCheckout(CheckoutRequest request);
+  Future<CheckoutDetailsResponse> checkoutDetails(String cartId);
+
+  Future<EstimateDeliveryResponse> estimateDelivery({
+    required String addressId,
+    required String cartId,
+  });
 
   Future<OrderResponse> placeOrder(
     String idempotencyKey,
-    CheckoutRequest request,
+    PlaceOrderRequest request,
   );
 
-  Future<void> processPayment();
+  Future<PaymentCheckoutResponse> createPaymentCheckout(
+    PaymentCheckoutRequest request,
+  );
 }

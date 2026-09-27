@@ -1,146 +1,187 @@
-import 'package:flower_app/features/address/data/models/address_dto.dart';
-import 'package:flower_app/features/cart/data/models/cart_response.dart';
+import 'dart:convert';
+
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'checkout_preview_response.g.dart';
 
 @JsonSerializable()
-class CheckoutPreviewResponse {
-  final CheckoutPreviewDataModel? data;
-  final int? statusCode;
-  final bool? success;
+class CheckoutDetailsResponse {
+  final Object? status;
+  final int? code;
   final String? message;
-  final String? messageLocalized;
+  final CheckoutDetailsDataModel? data;
+  final Object? pagination;
+  final Object? errors;
 
-  const CheckoutPreviewResponse({
-    this.data,
-    this.statusCode,
-    this.success,
+  const CheckoutDetailsResponse({
+    this.status,
+    this.code,
     this.message,
-    this.messageLocalized,
+    this.data,
+    this.pagination,
+    this.errors,
   });
 
-  factory CheckoutPreviewResponse.fromJson(Map<String, dynamic> json) =>
-      _$CheckoutPreviewResponseFromJson(json);
+  factory CheckoutDetailsResponse.fromJson(Map<String, dynamic> json) =>
+      _$CheckoutDetailsResponseFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CheckoutPreviewResponseToJson(this);
+  Map<String, dynamic> toJson() => _$CheckoutDetailsResponseToJson(this);
 }
 
 @JsonSerializable()
-class CheckoutPreviewDataModel {
-  final String? id;
-  final List<CartItemModel>? items;
+class CheckoutDetailsDataModel {
+  final String? cartId;
+  final String? addressId;
+  final bool? isServiceable;
   final double? subtotal;
-  final double? total;
   final double? deliveryFee;
-  final double? discount;
-  final int? itemsCount;
-  @JsonKey(fromJson: _deliveryAddressFromJson)
-  final AddressDto? deliveryAddress;
-  @JsonKey(fromJson: _paymentMethodsFromJson)
-  final List<PaymentMethodModel>? paymentMethods;
+  final double? total;
+  final String? estimatedDeliveryAt;
+  final List<CheckoutPaymentMethodModel>? paymentMethods;
+  final bool? isGift;
+  final String? giftRecipientName;
+  final String? giftRecipientPhone;
 
-  const CheckoutPreviewDataModel({
-    this.id,
-    this.items,
+  const CheckoutDetailsDataModel({
+    this.cartId,
+    this.addressId,
+    this.isServiceable,
     this.subtotal,
-    this.total,
     this.deliveryFee,
-    this.discount,
-    this.itemsCount,
-    this.deliveryAddress,
+    this.total,
+    this.estimatedDeliveryAt,
     this.paymentMethods,
+    this.isGift,
+    this.giftRecipientName,
+    this.giftRecipientPhone,
   });
 
-  factory CheckoutPreviewDataModel.fromJson(Map<String, dynamic> json) =>
-      _$CheckoutPreviewDataModelFromJson(_normalizePreviewJson(json));
+  factory CheckoutDetailsDataModel.fromJson(Map<String, dynamic> json) =>
+      _$CheckoutDetailsDataModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CheckoutPreviewDataModelToJson(this);
+  Map<String, dynamic> toJson() => _$CheckoutDetailsDataModelToJson(this);
 
   CartEntity toDomain() {
-    final cartItems = items ?? [];
-    final lines = [for (final item in cartItems) item.toDomain()];
     return CartEntity(
-      id: id ?? '',
-      items: lines,
+      id: cartId ?? '',
+      items: const [],
       subtotal: subtotal ?? 0,
       deliveryFee: deliveryFee ?? 0,
-      discount: discount ?? 0,
       total: total ?? 0,
-      itemCount: itemsCount ?? CartEntity.sumQuantities(lines),
-      deliveryAddress: deliveryAddress?.toDomain(),
+      itemCount: 0,
+      isServiceable: isServiceable ?? true,
+      estimatedDeliveryAt: estimatedDeliveryAt,
       paymentMethods: [
-        for (final method in paymentMethods ?? const <PaymentMethodModel>[])
-          method.toDomain(),
+        for (final method in paymentMethods ?? const [])
+          if ((method.method ?? '').trim().isNotEmpty) method.toDomain(),
       ],
     );
   }
 }
 
 @JsonSerializable()
-class PaymentMethodModel {
-  final String? name;
-  final String? label;
-  final int? id;
-  final int? paymentMethod;
-  final int? value;
+class CheckoutPaymentMethodModel {
+  final String? method;
+  final List<String>? gateways;
 
-  const PaymentMethodModel({
-    this.name,
-    this.label,
-    this.id,
-    this.paymentMethod,
-    this.value,
-  });
+  const CheckoutPaymentMethodModel({this.method, this.gateways});
 
-  factory PaymentMethodModel.fromJson(Map<String, dynamic> json) =>
-      _$PaymentMethodModelFromJson(json);
+  factory CheckoutPaymentMethodModel.fromJson(Map<String, dynamic> json) =>
+      _$CheckoutPaymentMethodModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$PaymentMethodModelToJson(this);
+  Map<String, dynamic> toJson() => _$CheckoutPaymentMethodModelToJson(this);
 
   PaymentMethodEntity toDomain() {
-    final resolvedName = (name ?? label ?? '').trim();
+    final raw = (method ?? '').trim();
     return PaymentMethodEntity(
-      name: resolvedName,
-      value: id ?? paymentMethod ?? value ?? _paymentValue(resolvedName),
+      name: _displayMethod(raw),
+      apiMethod: _requestMethod(raw),
+      gateway: _gateway(gateways),
     );
   }
 }
 
-Map<String, dynamic> _normalizePreviewJson(Map<String, dynamic> json) {
-  return {
-    ...json,
-    'items': json['items'] ?? json['lines'],
-    'itemsCount': json['itemsCount'] ?? json['itemCount'],
+@JsonSerializable()
+class EstimateDeliveryResponse {
+  final Object? status;
+  final int? code;
+  final String? message;
+  final Map<String, dynamic>? data;
+  final Object? pagination;
+  final Object? errors;
+
+  const EstimateDeliveryResponse({
+    this.status,
+    this.code,
+    this.message,
+    this.data,
+    this.pagination,
+    this.errors,
+  });
+
+  factory EstimateDeliveryResponse.fromJson(Map<String, dynamic> json) =>
+      _$EstimateDeliveryResponseFromJson(json);
+
+  factory EstimateDeliveryResponse.parse(Object? body) {
+    final json = _estimateJson(body);
+    if (json == null) return const EstimateDeliveryResponse();
+    return EstimateDeliveryResponse.fromJson(json);
+  }
+
+  Map<String, dynamic> toJson() => _$EstimateDeliveryResponseToJson(this);
+
+  DeliveryEstimateEntity toDomain() {
+    final payload = data;
+    if (payload == null || payload.isEmpty) {
+      return const DeliveryEstimateEntity();
+    }
+    return DeliveryEstimateEntity(
+      subtotal: _nullableDouble(payload, 'subtotal'),
+      deliveryFee: _nullableDouble(payload, 'deliveryFee'),
+      total: _nullableDouble(payload, 'total'),
+      estimatedDeliveryAt: payload['estimatedDeliveryAt'] as String?,
+      isServiceable: payload['isServiceable'] as bool?,
+      hasData: true,
+      includesDeliveryAt: payload.containsKey('estimatedDeliveryAt'),
+    );
+  }
+}
+
+Map<String, dynamic>? _estimateJson(Object? body) {
+  if (body is Map) {
+    return body.map((key, value) => MapEntry(key.toString(), value));
+  }
+  if (body is! String || body.trim().isEmpty) return null;
+  final decoded = jsonDecode(body);
+  if (decoded is! Map) return null;
+  return decoded.map((key, value) => MapEntry(key.toString(), value));
+}
+
+double? _nullableDouble(Map<String, dynamic> json, String key) {
+  if (!json.containsKey(key) || json[key] == null) return null;
+  final value = json[key];
+  return value is num ? value.toDouble() : null;
+}
+
+String _displayMethod(String method) {
+  return switch (method.toUpperCase()) {
+    'COD' => AppString.cashOnDelivery,
+    'CARD' => AppString.creditCard,
+    _ => method,
   };
 }
 
-AddressDto? _deliveryAddressFromJson(Object? value) {
-  if (value is! Map || value.isEmpty) return null;
-  final json = value.map((key, nested) => MapEntry(key.toString(), nested));
-  return AddressDto.fromJson({...json, 'id': json['id'] ?? json['addressId']});
+String _requestMethod(String method) {
+  return switch (method.toUpperCase()) {
+    'COD' => 'cod',
+    'CARD' => 'Card',
+    _ => method,
+  };
 }
 
-List<PaymentMethodModel>? _paymentMethodsFromJson(Object? value) {
-  if (value is! List) return null;
-  return [for (final item in value) ?_paymentMethodModel(item)];
-}
-
-PaymentMethodModel? _paymentMethodModel(Object? item) {
-  if (item is String && item.trim().isNotEmpty) {
-    return PaymentMethodModel(name: item);
-  }
-  if (item is! Map) return null;
-  final model = PaymentMethodModel.fromJson(
-    item.map((key, nested) => MapEntry(key.toString(), nested)),
-  );
-  final name = (model.name ?? model.label ?? '').trim();
-  return name.isEmpty ? null : model;
-}
-
-int _paymentValue(String name) {
-  final normalized = name.toLowerCase();
-  if (normalized.contains('card') || normalized.contains('credit')) return 2;
-  return 1;
+String? _gateway(List<String>? gateways) {
+  if (gateways == null || gateways.isEmpty) return null;
+  return gateways.first;
 }

@@ -5,18 +5,20 @@ part 'order_response.g.dart';
 
 @JsonSerializable()
 class OrderResponse {
-  final OrderDataModel? data;
-  final int? statusCode;
-  final bool? success;
+  final Object? status;
+  final int? code;
   final String? message;
-  final String? messageLocalized;
+  final OrderDataModel? data;
+  final Object? pagination;
+  final Object? errors;
 
   const OrderResponse({
-    this.data,
-    this.statusCode,
-    this.success,
+    this.status,
+    this.code,
     this.message,
-    this.messageLocalized,
+    this.data,
+    this.pagination,
+    this.errors,
   });
 
   factory OrderResponse.fromJson(Map<String, dynamic> json) =>
@@ -29,45 +31,26 @@ class OrderResponse {
 class OrderDataModel {
   final String? orderId;
   final String? orderNumber;
-  final int? status;
-  final int? paymentMethod;
-  final int? paymentStatus;
-  final bool? paymentRequired;
-  final String? sessionUrl;
-  final String? successUrl;
-  final String? cancelUrl;
+  final String? status;
+  final String? paymentStatus;
+  final String? paymentMethod;
   final double? subtotal;
   final double? deliveryFee;
-  final double? discount;
   final double? total;
 
   const OrderDataModel({
     this.orderId,
     this.orderNumber,
     this.status,
-    this.paymentMethod,
     this.paymentStatus,
-    this.paymentRequired,
-    this.sessionUrl,
-    this.successUrl,
-    this.cancelUrl,
+    this.paymentMethod,
     this.subtotal,
     this.deliveryFee,
-    this.discount,
     this.total,
   });
 
   factory OrderDataModel.fromJson(Map<String, dynamic> json) =>
-      _$OrderDataModelFromJson({
-        ...json,
-        'sessionUrl':
-            json['sessionUrl'] ??
-            json['paymentUrl'] ??
-            json['checkoutUrl'] ??
-            json['checkoutSessionUrl'],
-        'successUrl': json['successUrl'] ?? json['success_url'],
-        'cancelUrl': json['cancelUrl'] ?? json['cancel_url'],
-      });
+      _$OrderDataModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$OrderDataModelToJson(this);
 
@@ -76,16 +59,62 @@ class OrderDataModel {
       orderId: orderId ?? '',
       orderNumber: orderNumber ?? '',
       status: status,
-      paymentMethod: paymentMethod ?? 1,
-      paymentStatus: paymentStatus ?? 0,
-      paymentRequired: paymentRequired,
-      sessionUrl: sessionUrl,
-      successUrl: successUrl,
-      cancelUrl: cancelUrl,
+      paymentMethod: paymentMethod ?? '',
+      paymentStatus: paymentStatus ?? '',
       subtotal: subtotal ?? 0,
       deliveryFee: deliveryFee ?? 0,
-      discount: discount ?? 0,
       total: total ?? 0,
     );
   }
+}
+
+@JsonSerializable()
+class PaymentCheckoutResponse {
+  final PaymentCheckoutValue? value;
+  final bool? isSuccess;
+  final bool? isFailure;
+  final PaymentCheckoutError? error;
+
+  const PaymentCheckoutResponse({
+    this.value,
+    this.isSuccess,
+    this.isFailure,
+    this.error,
+  });
+
+  factory PaymentCheckoutResponse.fromJson(Map<String, dynamic> json) =>
+      _$PaymentCheckoutResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PaymentCheckoutResponseToJson(this);
+}
+
+@JsonSerializable()
+class PaymentCheckoutValue {
+  final String? checkoutUrl;
+  final String? stripeSessionId;
+  final String? paymentAttemptId;
+
+  const PaymentCheckoutValue({
+    this.checkoutUrl,
+    this.stripeSessionId,
+    this.paymentAttemptId,
+  });
+
+  factory PaymentCheckoutValue.fromJson(Map<String, dynamic> json) =>
+      _$PaymentCheckoutValueFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PaymentCheckoutValueToJson(this);
+}
+
+@JsonSerializable()
+class PaymentCheckoutError {
+  final String? code;
+  final String? message;
+
+  const PaymentCheckoutError({this.code, this.message});
+
+  factory PaymentCheckoutError.fromJson(Map<String, dynamic> json) =>
+      _$PaymentCheckoutErrorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PaymentCheckoutErrorToJson(this);
 }

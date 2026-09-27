@@ -14,20 +14,29 @@ abstract interface class CartRepo {
     required int quantity,
   });
 
-  Future<BaseResponse<bool>> removeItem({required String itemId});
+  Future<BaseResponse<CartEntity>> removeItem({required String itemId});
 
-  Future<BaseResponse<CartEntity>> previewCheckout({
-    String? addressId,
-    CheckoutGiftEntity? gift,
+  Future<BaseResponse<CartEntity>> checkoutDetails({required String cartId});
+
+  Future<BaseResponse<DeliveryEstimateEntity>> estimateDelivery({
+    required String addressId,
+    required String cartId,
   });
 
   Future<BaseResponse<OrderEntity>> placeOrder({
     required String idempotencyKey,
-    required int paymentMethod,
-    required double expectedTotal,
-    String? addressId,
-    CheckoutGiftEntity? gift,
+    required String cartId,
+    required String addressId,
+    required bool isGift,
+    String? recipientName,
+    String? recipientPhone,
+    required String paymentMethod,
+    String? paymentGateway,
   });
 
-  Future<BaseResponse<bool>> processPayment();
+  Future<BaseResponse<PaymentCheckoutEntity>> createPaymentCheckout({
+    required String orderId,
+    required double amountTotal,
+    required String currency,
+  });
 }

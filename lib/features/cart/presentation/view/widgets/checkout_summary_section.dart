@@ -1,3 +1,4 @@
+import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
@@ -32,9 +33,37 @@ class CheckoutSummarySection extends StatelessWidget {
     if (preview.errorMessage.isNotEmpty && preview.data == null) {
       return CheckoutPreviewError(message: preview.errorMessage);
     }
-    return CheckoutSummaryRows(
-      cart: preview.data ?? const CartEntity.empty(),
-      loading: preview.isLoading,
+    return _loadedSummary(context, preview);
+  }
+
+  Widget _loadedSummary(BuildContext context, BaseState<CartEntity> preview) {
+    final cart = preview.data ?? const CartEntity.empty();
+    return Column(
+      children: [
+        if (_summaryMessage(cart, preview).isNotEmpty)
+          _summaryNotice(context, _summaryMessage(cart, preview)),
+        CheckoutSummaryRows(cart: cart, loading: preview.isLoading),
+      ],
+    );
+  }
+
+  String _summaryMessage(CartEntity cart, BaseState<CartEntity> preview) {
+    if (!cart.isServiceable) return AppString.deliveryUnavailable;
+    return preview.errorMessage;
+  }
+
+  Widget _summaryNotice(BuildContext context, String message) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+          color: context.colors.grey.shade800,
+        ),
+      ),
     );
   }
 }

@@ -147,10 +147,10 @@ void main() {
     expect(find.byType(CartLine), findsOneWidget);
 
     await viewModel.doEvent(const ClearCart());
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(repo.removedItemIds, ['item-1']);
-    expect(repo.getCartCalls, 0);
+    expect(repo.getCartCalls, 2);
     expect(viewModel.state.itemCount, 0);
     expect(find.byType(CartEmptyState), findsOneWidget);
     expect(find.text(AppString.cartIsEmpty), findsOneWidget);

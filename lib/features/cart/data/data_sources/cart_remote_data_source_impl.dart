@@ -1,4 +1,3 @@
-import 'package:flower_app/core/constants/api_query_params.dart';
 import 'package:flower_app/features/cart/api/cart_api_client.dart';
 import 'package:flower_app/features/cart/data/data_sources/cart_remote_data_source.dart';
 import 'package:flower_app/features/cart/data/models/cart_response.dart';
@@ -14,12 +13,10 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   final CartApiClient cartApiClient;
 
   @override
-  Future<CartResponse> getCart() {
-    return cartApiClient.getCart(ApiQueryParams.defaultStoreId);
-  }
+  Future<CartResponse> getCart() => cartApiClient.getCart();
 
   @override
-  Future<CartResponse> addCartItem(AddCartItemRequest request) {
+  Future<AddCartItemResponse> addCartItem(AddCartItemRequest request) {
     return cartApiClient.addCartItem(request);
   }
 
@@ -32,23 +29,36 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   }
 
   @override
-  Future<void> removeCartItem(String itemId) {
-    return cartApiClient.removeCartItem(itemId, ApiQueryParams.defaultStoreId);
+  Future<CartResponse> removeCartItem(String itemId) {
+    return cartApiClient.removeCartItem(itemId);
   }
 
   @override
-  Future<CheckoutPreviewResponse> previewCheckout(CheckoutRequest request) {
-    return cartApiClient.previewCheckout(request);
+  Future<CheckoutDetailsResponse> checkoutDetails(String cartId) {
+    return cartApiClient.checkoutDetails(cartId);
+  }
+
+  @override
+  Future<EstimateDeliveryResponse> estimateDelivery({
+    required String addressId,
+    required String cartId,
+  }) async {
+    final response = await cartApiClient.estimateDelivery(addressId, cartId);
+    return EstimateDeliveryResponse.parse(response.data);
   }
 
   @override
   Future<OrderResponse> placeOrder(
     String idempotencyKey,
-    CheckoutRequest request,
+    PlaceOrderRequest request,
   ) {
     return cartApiClient.placeOrder(idempotencyKey, request);
   }
 
   @override
-  Future<void> processPayment() => cartApiClient.processPayment();
+  Future<PaymentCheckoutResponse> createPaymentCheckout(
+    PaymentCheckoutRequest request,
+  ) {
+    return cartApiClient.createPaymentCheckout(request);
+  }
 }
