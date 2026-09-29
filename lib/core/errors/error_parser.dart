@@ -16,6 +16,8 @@ AppError _parseApiException(ApiException exception) {
 }
 
 AppError _parseDioException(DioException exception) {
+  // ignore: avoid_print
+  print('🔴 DioException: type=${exception.type} | message=${exception.message} | error=${exception.error} | uri=${exception.requestOptions.uri}');
   return switch (exception.type) {
     DioExceptionType.connectionTimeout ||
     DioExceptionType.sendTimeout ||
