@@ -8,6 +8,11 @@ class ImagePickerService {
   ImagePickerService(this._imagePicker);
 
   Future<XFile?> pickImage() {
-    return _imagePicker.pickImage(source: ImageSource.gallery);
+    return _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    );
   }
 }

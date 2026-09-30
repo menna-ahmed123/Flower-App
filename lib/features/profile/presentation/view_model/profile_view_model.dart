@@ -25,6 +25,14 @@ class ProfileViewModel extends Cubit<ProfileState> {
       case ProfileRequested():
         await _getProfile();
         break;
+      case ProfileUpdated(:final profile):
+        emit(
+          state.copyWith(
+            profileState: state.profileState.copyWith(data: profile),
+            displayData: ProfileDisplayData.fromEntity(profile),
+          ),
+        );
+        break;
       case NotificationToggleChanged(:final isEnabled):
         emit(state.copyWith(isNotificationsEnabled: isEnabled));
         break;

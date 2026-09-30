@@ -19,21 +19,25 @@ class GenderSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Row(
-      children: [
-        Text(
-          AppString.gender,
-          style: TextStyle(
-            color: colors.black,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
+    return RadioGroup<Gender>(
+      groupValue: selectedGender,
+      onChanged: onChanged,
+      child: Row(
+        children: [
+          Text(
+            AppString.gender,
+            style: TextStyle(
+              color: colors.black,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        SizedBox(width: 16.w),
-        _buildOption(context, Gender.female, AppString.female),
-        SizedBox(width: 12.w),
-        _buildOption(context, Gender.male, AppString.male),
-      ],
+          SizedBox(width: 16.w),
+          _buildOption(context, Gender.female, AppString.female),
+          SizedBox(width: 12.w),
+          _buildOption(context, Gender.male, AppString.male),
+        ],
+      ),
     );
   }
 
@@ -48,9 +52,7 @@ class GenderSelector extends StatelessWidget {
         children: [
           Radio<Gender>(
             value: gender,
-            groupValue: selectedGender,
-            activeColor: colors.pink,
-            onChanged: onChanged,
+            fillColor: WidgetStatePropertyAll(colors.pink),
           ),
           Text(
             label,

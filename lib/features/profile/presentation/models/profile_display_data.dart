@@ -5,12 +5,14 @@ import 'package:flower_app/features/profile/domain/entities/profile_entity.dart'
 /// Presentation-only shape for the fields [ProfileInfoSection] renders.
 class ProfileDisplayData extends Equatable {
   const ProfileDisplayData({
-    required this.name,
+    required this.firstName,
+    required this.lastName,
     required this.email,
     this.photoUrl,
   });
 
-  final String name;
+  final String firstName;
+  final String lastName;
   final String email;
   final String? photoUrl;
 
@@ -22,12 +24,13 @@ class ProfileDisplayData extends Equatable {
     String Function(String?) mediaUrlResolver = ApiEndpoints.mediaUrl,
   }) {
     return ProfileDisplayData(
-      name: entity.fullName,
-      email: entity.email ?? '',
+      firstName: entity.firstName,
+      lastName: entity.lastName,
+      email: entity.email,
       photoUrl: mediaUrlResolver(entity.profilePictureUrl),
     );
   }
 
   @override
-  List<Object?> get props => [name, email, photoUrl];
+  List<Object?> get props => [firstName, lastName, email, photoUrl];
 }

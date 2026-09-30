@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/services/image_picker_service.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
+import 'package:flower_app/features/profile/domain/profile_constants.dart';
 import 'package:flower_app/features/profile/domain/use_case/update_profile_use_case.dart';
 import 'package:flower_app/features/profile/presentation/view_model/edit_profile_event.dart';
 import 'package:flower_app/features/profile/presentation/view_model/edit_profile_state.dart';
@@ -23,9 +26,8 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
 
   String _firstName = '';
   String _lastName = '';
-  String _email = '';
   String _phone = '';
-  Gender? _gender;
+  Gender _gender = Gender.male;
 
   Future<void> doEvent(EditProfileEvent event) async {
     switch (event) {
@@ -40,16 +42,12 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
         _lastName = event.value;
         _updateHasChanges();
 
-      case EmailChanged():
-        _email = event.value;
-        _updateHasChanges();
-
       case PhoneChanged():
         _phone = event.value;
         _updateHasChanges();
 
       case GenderChanged():
-        _gender = event.value;
+        _gender = event.value ?? Gender.male;
         _updateHasChanges();
 
       case PickProfileImageRequested():
@@ -59,10 +57,9 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
         await _updateProfile(
           event.firstName,
           event.lastName,
-          event.email,
           event.phone,
-          event.gender,
-          event.profilePicturePath,
+          event.gender ?? Gender.male,
+          event.profilePicture,
         );
     }
   }
@@ -72,8 +69,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
 
     _firstName = profile.firstName;
     _lastName = profile.lastName;
-    _email = profile.email ?? '';
-    _phone = profile.phoneNumber ?? '';
+    _phone = profile.phoneNumber;
     _gender = profile.gender;
 
     emit(
@@ -93,10 +89,9 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
     final hasChanges =
         _firstName.trim() != profile.firstName.trim() ||
         _lastName.trim() != profile.lastName.trim() ||
-        _email.trim() != (profile.email ?? '').trim() ||
-        _phone.trim() != (profile.phoneNumber ?? '').trim() ||
+        _phone.trim() != profile.phoneNumber.trim() ||
         _gender != profile.gender ||
-        state.selectedImagePath != null;
+        state.selectedImage != null;
 
     emit(
       state.copyWith(
@@ -109,9 +104,27 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
     final pickedImage = await _imagePickerService.pickImage();
 
     if (pickedImage != null) {
+      final imageFile = File(pickedImage.path);
+      final extension = pickedImage.path.split('.').last.toLowerCase();
+      if (!ProfileConstants.allowedExtensions.contains(extension)) {
+        emit(state.copyWith(
+          updateProfileState: state.updateProfileState.copyWith(
+            errorMessage: 'Please choose a JPG, JPEG, PNG, or WEBP image.',
+          ),
+        ));
+        return;
+      }
+      if (await imageFile.length() > ProfileConstants.maxImageBytes) {
+        emit(state.copyWith(
+          updateProfileState: state.updateProfileState.copyWith(
+            errorMessage: 'Profile image must be 5 MB or smaller.',
+          ),
+        ));
+        return;
+      }
       emit(
         state.copyWith(
-          selectedImagePath: pickedImage.path,
+          selectedImage: imageFile,
         ),
       );
 
@@ -122,10 +135,9 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
   Future<void> _updateProfile(
     String firstName,
     String lastName,
-    String email,
     String phone,
-    Gender? gender,
-    String? profilePicturePath,
+    Gender gender,
+    File? profilePicture,
   ) async {
     emit(
       state.copyWith(
@@ -139,10 +151,9 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
     final request = UpdateProfileRequest(
       firstName: firstName,
       lastName: lastName,
-      email: email,
       phoneNumber: phone,
       gender: gender,
-      profilePicturePath: profilePicturePath,
+      profilePicture: profilePicture,
     );
 
     final response = await _updateProfileUseCase(

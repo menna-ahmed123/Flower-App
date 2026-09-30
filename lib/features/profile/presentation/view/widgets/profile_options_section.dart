@@ -65,7 +65,7 @@ class ProfileOptionsSection extends StatelessWidget {
               label: AppString.notification,
               leading: Switch(
                 value: isEnabled,
-                activeColor: colors.white,
+                activeThumbColor: colors.white,
                 activeTrackColor: colors.pink,
                 onChanged: onNotificationsChanged,
               ),

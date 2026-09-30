@@ -13,6 +13,7 @@ import 'package:flower_app/core/widgets/app_web_view_screen.dart';
 import 'package:flower_app/features/auth/core/presentation/view_model/auth_cubit.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/domain/repo/profile_repo.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
@@ -52,8 +53,8 @@ void main() {
   ) async {
     await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
-    expect(find.text(FakeProfileRepo.profile.fullName), findsOneWidget);
-    expect(find.text(FakeProfileRepo.profile.email!), findsOneWidget);
+    expect(find.text('${FakeProfileRepo.profile.firstName} ${FakeProfileRepo.profile.lastName}'), findsOneWidget);
+    expect(find.text(FakeProfileRepo.profile.email), findsOneWidget);
     expect(find.text(AppString.myOrders), findsOneWidget);
     expect(find.text(AppString.savedAddresses), findsOneWidget);
     expect(find.text(AppString.notification), findsOneWidget);
@@ -170,7 +171,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CircularProgressIndicator), findsNothing);
-    expect(find.text(FakeProfileRepo.profile.fullName), findsOneWidget);
+    expect(find.text('${FakeProfileRepo.profile.firstName} ${FakeProfileRepo.profile.lastName}'), findsOneWidget);
   });
 
   testWidgets(
@@ -202,7 +203,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Could not load profile'), findsNothing);
-      expect(find.text(FakeProfileRepo.profile.fullName), findsOneWidget);
+      expect(find.text('${FakeProfileRepo.profile.firstName} ${FakeProfileRepo.profile.lastName}'), findsOneWidget);
     },
   );
 
@@ -354,15 +355,13 @@ class FakeAuthRepository implements AuthRepository {
 
 class FakeProfileRepo implements ProfileRepo {
   static const profile = ProfileEntity(
-    userId: 'u1',
-    fullName: 'Nour Mohamed',
+    id: 'u1',
     firstName: 'Nour',
     lastName: 'Mohamed',
     email: 'Nour_Mohamed@gmail.com',
     phoneNumber: '01010000001',
-    gender: null,
+    gender: Gender.male,
     profilePictureUrl: null,
-    roles: ['Customer'],
   );
 
   @override

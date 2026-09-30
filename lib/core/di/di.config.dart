@@ -164,6 +164,7 @@ import '../network/safe_call.dart' as _i185;
 import '../network/token_refresher.dart' as _i1058;
 import '../network/token_storage.dart' as _i964;
 import '../services/geocoding_service.dart' as _i980;
+import '../services/image_picker_service.dart' as _i644;
 import '../services/location_service.dart' as _i669;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -189,6 +190,9 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.lazySingleton<_i1058.TokenRefresher>(() => _i1058.ApiTokenRefresher());
+    gh.lazySingleton<_i644.ImagePickerService>(
+      () => _i644.ImagePickerService(gh<_i183.ImagePicker>()),
+    );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
     );
@@ -380,6 +384,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i969.BestSellerViewModel>(
       () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
     );
+    gh.factory<_i374.UpdateProfileViewModel>(
+      () => _i374.UpdateProfileViewModel(
+        gh<_i155.UpdateProfileUseCase>(),
+        gh<_i644.ImagePickerService>(),
+      ),
+    );
     gh.factory<_i458.AddAddressUseCase>(
       () => _i458.AddAddressUseCase(repo: gh<_i366.AddressRepo>()),
     );
@@ -397,9 +407,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
-    );
-    gh.factory<_i374.UpdateProfileViewModel>(
-      () => _i374.UpdateProfileViewModel(gh<_i155.UpdateProfileUseCase>()),
     );
     gh.factory<_i369.HomeViewModel>(
       () => _i369.HomeViewModel(gh<_i1049.HomeUseCase>()),

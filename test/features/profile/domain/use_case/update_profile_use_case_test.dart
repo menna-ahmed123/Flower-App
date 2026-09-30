@@ -18,15 +18,13 @@ void main() {
 
   final dummyResponse = SuccessResponse(
     ProfileEntity(
-      userId: '',
-      fullName: '',
+      id: '',
       firstName: '',
       lastName: '',
       email: '',
       phoneNumber: '',
-      gender: null,
+      gender: Gender.male,
       profilePictureUrl: '',
-      roles: [],
     ),
   );
 
@@ -45,7 +43,6 @@ void main() {
         final updateProfileRequest = UpdateProfileRequest(
           firstName: 'Menna',
           lastName: 'Ahmed',
-          email: 'menna@test.com',
           phoneNumber: '01000000000',
           gender: Gender.female,
         );
@@ -74,7 +71,6 @@ void main() {
     final updateProfileRequest = UpdateProfileRequest(
       firstName: 'Menna',
       lastName: 'Ahmed',
-      email: 'menna@test.com',
       phoneNumber: '01000000000',
       gender: Gender.female,
     );

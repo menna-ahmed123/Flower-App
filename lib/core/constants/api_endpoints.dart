@@ -65,7 +65,8 @@ class ApiEndpoints {
   static const String resetPassword = '/identity/auth/reset-password';
   static const String login = '/identity/auth/login';
   static const String register = '/identity/users/register';
-  static const String myProfile = '/identity/users/me/profile';
+  static const String getMyProfile = '/identity/users/me';
+  static const String updateProfile = '/identity/users/profile';
 
   //// Commerce ////
   static const String home = '/catalog/home/layout';

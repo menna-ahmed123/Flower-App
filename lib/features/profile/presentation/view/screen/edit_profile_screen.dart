@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/core/theme/app_color.dart';
@@ -7,6 +5,7 @@ import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/core/widgets/app_text_field.dart';
 import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
+import 'package:flower_app/features/profile/domain/profile_validators.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/gender_selector.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/profile_avatar.dart';
 import 'package:flower_app/features/profile/presentation/view_model/edit_profile_event.dart';
@@ -48,10 +47,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     _lastNameController = TextEditingController(text: widget.profile.lastName);
 
-    _emailController = TextEditingController(text: widget.profile.email ?? '');
+    _emailController = TextEditingController(text: widget.profile.email);
 
     _phoneController = TextEditingController(
-      text: widget.profile.phoneNumber ?? '',
+      text: widget.profile.phoneNumber,
     );
 
     selectedGenderNotifier.value = widget.profile.gender;
@@ -62,7 +61,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     _firstNameController.addListener(_onFirstNameChanged);
     _lastNameController.addListener(_onLastNameChanged);
-    _emailController.addListener(_onEmailChanged);
     _phoneController.addListener(_onPhoneChanged);
   }
 
@@ -70,7 +68,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void dispose() {
     _firstNameController.removeListener(_onFirstNameChanged);
     _lastNameController.removeListener(_onLastNameChanged);
-    _emailController.removeListener(_onEmailChanged);
     _phoneController.removeListener(_onPhoneChanged);
 
     _firstNameController.dispose();
@@ -111,7 +108,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             final updateState = state.updateProfileState;
 
             if (updateState.data != null) {
-              context.pop();
+              context.pop(updateState.data);
             } else if (updateState.errorMessage.isNotEmpty) {
               ScaffoldMessenger.of(
                 context,
@@ -126,9 +123,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 BlocBuilder<UpdateProfileViewModel, EditProfileState>(
                   builder: (context, state) {
                     return ProfileAvatar(
-                      imageFile: state.selectedImagePath != null
-                          ? File(state.selectedImagePath!)
-                          : null,
+                        imageFile: state.selectedImage,
                       photoUrl: widget.profile.profilePictureUrl,
                       showCamera: true,
                       onTap: _pickImage,
@@ -174,7 +169,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   label: AppString.email,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  validator: AppValidators.optionalEmailValidator,
+                  readOnly: true,
                 ),
 
                 SizedBox(height: 12.h),
@@ -183,7 +178,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   label: AppString.phoneNumber,
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  validator: AppValidators.optionalPhoneValidator,
+                  validator: ProfileValidators.egyptianPhone,
                 ),
 
                 SizedBox(height: 12.h),
@@ -259,12 +254,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  void _onEmailChanged() {
-    context.read<UpdateProfileViewModel>().doEvent(
-      EmailChanged(_emailController.text),
-    );
-  }
-
   void _onPhoneChanged() {
     context.read<UpdateProfileViewModel>().doEvent(
       PhoneChanged(_phoneController.text),
@@ -280,19 +269,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    final selectedImagePath = context
-        .read<UpdateProfileViewModel>()
-        .state
-        .selectedImagePath;
+    final selectedImage = context.read<UpdateProfileViewModel>().state.selectedImage;
 
     context.read<UpdateProfileViewModel>().doEvent(
       UpdateProfileRequested(
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
-        email: _emailController.text,
         phone: _phoneController.text,
-        gender: selectedGenderNotifier.value,
-        profilePicturePath: selectedImagePath,
+        gender: selectedGenderNotifier.value ?? Gender.male,
+        profilePicture: selectedImage,
       ),
     );
   }

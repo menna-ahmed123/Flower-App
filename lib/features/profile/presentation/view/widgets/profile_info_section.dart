@@ -27,7 +27,7 @@ class ProfileInfoSection extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              data.name,
+              '${data.firstName} ${data.lastName}',
               style: TextStyle(
                 color: colors.black,
                 fontSize: 18.sp,

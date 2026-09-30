@@ -3,6 +3,7 @@ import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/domain/use_case/get_profile_use_case.dart';
 import 'package:flower_app/features/profile/presentation/view_model/profile_event.dart';
 import 'package:flower_app/features/profile/presentation/view_model/profile_state.dart';
@@ -132,13 +133,11 @@ void main() {
 }
 
 const _profile = ProfileEntity(
-  userId: 'u1',
-  fullName: 'Mariam Ahmed',
+  id: 'u1',
   firstName: 'Mariam',
   lastName: 'Ahmed',
   email: 'mariam@example.com',
   phoneNumber: '01010000001',
-  gender: null,
+  gender: Gender.male,
   profilePictureUrl: null,
-  roles: ['Customer'],
 );

@@ -1,26 +1,27 @@
 import 'package:equatable/equatable.dart';
+import 'dart:io';
 import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 
 class EditProfileState extends Equatable {
   final BaseState<ProfileEntity> updateProfileState;
-  final String? selectedImagePath;
+  final File? selectedImage;
   final bool hasChanges;
 
   const EditProfileState({
     this.updateProfileState = const BaseState(),
-    this.selectedImagePath,
+    this.selectedImage,
     this.hasChanges = false,
   });
 
   EditProfileState copyWith({
     BaseState<ProfileEntity>? updateProfileState,
-    String? selectedImagePath,
+    File? selectedImage,
     bool? hasChanges,
   }) {
     return EditProfileState(
       updateProfileState: updateProfileState ?? this.updateProfileState,
-      selectedImagePath: selectedImagePath ?? this.selectedImagePath,
+      selectedImage: selectedImage ?? this.selectedImage,
       hasChanges: hasChanges ?? this.hasChanges,
     );
   }
@@ -28,7 +29,7 @@ class EditProfileState extends Equatable {
   @override
   List<Object?> get props => [
     updateProfileState,
-    selectedImagePath,
+    selectedImage,
     hasChanges,
   ];
 }

@@ -31,11 +31,12 @@ void main() {
   });
 
   final dummyProfile = ProfileEntity(
-    userId: 'userId',
-    fullName: 'Full Name',
+    id: 'userId',
     firstName: 'firstName',
     lastName: 'lastName',
-    roles: ['Customer'],
+    email: 'user@example.com',
+    phoneNumber: '01000000000',
+    gender: Gender.male,
   );
 
   final dummySuccessResponse = SuccessResponse<ProfileEntity>(dummyProfile);
@@ -43,7 +44,6 @@ void main() {
   final updateProfileRequest = UpdateProfileRequest(
     firstName: 'Menna',
     lastName: 'Ahmed',
-    email: 'menna@test.com',
     phoneNumber: '01000000000',
     gender: Gender.female,
   );
@@ -91,10 +91,9 @@ void main() {
         UpdateProfileRequested(
           firstName: updateProfileRequest.firstName,
           lastName: updateProfileRequest.lastName,
-          email: updateProfileRequest.email ?? '',
-          phone: updateProfileRequest.phoneNumber ?? '',
+          phone: updateProfileRequest.phoneNumber,
           gender: updateProfileRequest.gender,
-          profilePicturePath: updateProfileRequest.profilePicturePath,
+          profilePicture: updateProfileRequest.profilePicture,
         ),
       );
 
@@ -146,10 +145,9 @@ void main() {
         UpdateProfileRequested(
           firstName: updateProfileRequest.firstName,
           lastName: updateProfileRequest.lastName,
-          email: updateProfileRequest.email ?? '',
-          phone: updateProfileRequest.phoneNumber ?? '',
+          phone: updateProfileRequest.phoneNumber,
           gender: updateProfileRequest.gender,
-          profilePicturePath: updateProfileRequest.profilePicturePath,
+          profilePicture: updateProfileRequest.profilePicture,
         ),
       );
 

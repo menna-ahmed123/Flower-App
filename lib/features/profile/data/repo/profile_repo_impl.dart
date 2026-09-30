@@ -1,4 +1,5 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/errors/api_exception.dart';
 import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
@@ -17,7 +18,8 @@ class ProfileRepoImpl implements ProfileRepo {
   Future<BaseResponse<ProfileEntity>> getMyProfile() {
     return safeCall.safeApiCall(() async {
       final response = await remoteDataSource.getMyProfile();
-      return response.data.toDomain();
+      _validateResponse(response);
+      return response.data!.toDomain();
     });
   }
 
@@ -29,7 +31,17 @@ class ProfileRepoImpl implements ProfileRepo {
       final response = await remoteDataSource.updateMyProfile(
         updateProfileRequest: updateProfileRequest,
       );
-      return response.data.toDomain();
+      _validateResponse(response);
+      return response.data!.toDomain();
     });
+  }
+
+  void _validateResponse(dynamic response) {
+    if (!response.status || response.errors != null || response.data == null) {
+      throw ApiException(
+        message: response.errorMessage,
+        statusCode: response.code,
+      );
+    }
   }
 }

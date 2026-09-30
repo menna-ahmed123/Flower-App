@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:flower_app/features/profile/data/api/profile_api_client.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
-import 'package:flower_app/features/profile/data/models/profile_response.dart';
+import 'package:flower_app/core/base/api_response.dart';
+import 'package:flower_app/features/profile/data/models/profile_model.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
-import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: ProfileRemoteDataSource)
@@ -14,25 +12,20 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   ProfileRemoteDataSourceImpl(this.profileApiClient);
 
   @override
-  Future<ProfileResponse> getMyProfile() {
+  Future<ApiResponse<ProfileModel>> getMyProfile() {
     return profileApiClient.getMyProfile();
   }
 
  @override
-  Future<ProfileResponse> updateMyProfile({
+  Future<ApiResponse<ProfileModel>> updateMyProfile({
     required UpdateProfileRequest updateProfileRequest,
   }) {
-  return profileApiClient.updateMyProfile(
+    return profileApiClient.updateMyProfile(
       updateProfileRequest.firstName,
       updateProfileRequest.lastName,
-      updateProfileRequest.email,
       updateProfileRequest.phoneNumber,
-      updateProfileRequest.gender?.apiValue,
-      updateProfileRequest.profilePicturePath != null
-          ? File(updateProfileRequest.profilePicturePath!)
-          : null,
+      updateProfileRequest.gender.value.toString(),
+      updateProfileRequest.profilePicture,
     );
   }
-
-  
 }

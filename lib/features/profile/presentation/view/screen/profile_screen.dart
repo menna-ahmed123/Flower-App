@@ -66,13 +66,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _onEditProfileTap(ProfileEntity profile) async {
-    await context.push(
+    final updatedProfile = await context.push<ProfileEntity>(
       AppRoutesName.editProfile,
       extra: profile,
     );
 
-    if (mounted) {
-      context.read<ProfileViewModel>().doEvent(ProfileRequested());
+    if (mounted && updatedProfile != null) {
+      context.read<ProfileViewModel>().doEvent(ProfileUpdated(updatedProfile));
     }
   }
 

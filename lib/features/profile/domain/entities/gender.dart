@@ -1,12 +1,17 @@
 enum Gender {
-  female,
-  male;
+  male(0),
+  female(1);
 
-  static Gender? fromString(String? value) {
-    return switch (value?.toLowerCase()) {
-      'female' => Gender.female,
-      'male' => Gender.male,
-      _ => null,
+  const Gender(this.value);
+
+  final int value;
+
+  // TODO: confirm with backend: 0 = Male and 1 = Female.
+  static Gender fromValue(int? value) {
+    return switch (value) {
+      0 => Gender.male,
+      1 => Gender.female,
+      _ => Gender.male,
     };
   }
 }
