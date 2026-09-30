@@ -102,7 +102,6 @@ class _AddAddressScreenState extends State<AddAddressScreen>
             }
           },
         ),
-
         body: MultiBlocListener(
           listeners: [
             BlocListener<AddressViewModel, AddressState>(
@@ -189,7 +188,6 @@ class _AddAddressScreenState extends State<AddAddressScreen>
                         ),
                       ),
                     ),
-
                     BlocBuilder<AddressViewModel, AddressState>(
                       buildWhen: (previous, current) {
                         return previous.addressState.data !=
@@ -200,20 +198,20 @@ class _AddAddressScreenState extends State<AddAddressScreen>
                       builder: (context, state) {
                         return LocationForm(
                           address: state.addressState.data,
-
                           onSave: (address) {
                             final saveViewModel = context
                                 .read<SaveAddressViewModel>();
+
                             if (widget.address == null) {
                               saveViewModel.doEvent(AddAddress(address));
                               return;
                             }
+
                             saveViewModel.doEvent(EditAddress(address));
                           },
                         );
                       },
                     ),
-
                     const SizedBox(height: 20),
                   ],
                 ),
