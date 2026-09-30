@@ -69,12 +69,12 @@ class ApiEndpoints {
   static const String register = '/api/identity/auth/register';
 
   //// Commerce ////
-  static const String home = 'api/catalog/home/layout';
-  static const String allCategories = 'api/catalog/categories';
-  static const String allOccasions = 'api/catalog/occasions';
-  static const String allProducts = 'api/catalog/products';
-  static const String productDetails = 'api/catalog/products/{Product-id}';
-  static const String searchProducts = 'api/catalog/products/search';
+  static const String home = '/api/catalog/home/layout';
+  static const String allCategories = '/api/catalog/categories';
+  static const String allOccasions = '/api/catalog/occasions';
+  static const String allProducts = '/api/catalog/products';
+  static const String productDetails = '/api/catalog/products/{Product-id}';
+  static const String searchProducts = '/api/catalog/products/search';
 
   ////Address///
   static const String addAddress = '/users/me/addresses';

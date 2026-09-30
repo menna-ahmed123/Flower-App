@@ -29,7 +29,7 @@ class _CommerceApiClient implements CommerceApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'api/catalog/home/layout',
+            '/api/catalog/home/layout',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -56,7 +56,7 @@ class _CommerceApiClient implements CommerceApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'api/catalog/categories',
+            '/api/catalog/categories',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -83,7 +83,7 @@ class _CommerceApiClient implements CommerceApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'api/catalog/occasions',
+            '/api/catalog/occasions',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -123,7 +123,7 @@ class _CommerceApiClient implements CommerceApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'api/catalog/products',
+            '/api/catalog/products',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -150,7 +150,7 @@ class _CommerceApiClient implements CommerceApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'api/catalog/products/${id}',
+            '/api/catalog/products/${id}',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -188,7 +188,7 @@ class _CommerceApiClient implements CommerceApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'api/catalog/products/search',
+            '/api/catalog/products/search',
             queryParameters: queryParameters,
             data: _data,
           )
