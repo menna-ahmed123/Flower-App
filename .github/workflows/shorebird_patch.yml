@@ -3,7 +3,7 @@ name: Shorebird Patch
 on:
   push:
     branches:
-      - ci/cd
+      - 'hotfix/**'
 
 env:
   SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
@@ -11,6 +11,7 @@ env:
 jobs:
   patch:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -49,8 +50,13 @@ jobs:
           "$FLUTTER_BIN" pub get
           "$FLUTTER_DIR/dart" run build_runner build --delete-conflicting-outputs
 
+      - name: Read version from pubspec.yaml
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
+
       - name: Shorebird Patch
         uses: shorebirdtech/shorebird-patch@v1
         with:
           platform: android
-          release-version: 1.0.0+2
+          release-version: ${{ env.RELEASE_VERSION }}

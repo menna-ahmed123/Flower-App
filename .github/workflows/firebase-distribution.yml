@@ -3,7 +3,7 @@ name: Firebase App Distribution
 on:
   push:
     branches:
-      - ci/cd
+      - 'hotfix/**'
 
 jobs:
   distribute:

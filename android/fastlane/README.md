@@ -23,10 +23,10 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Runs all the tests
 
-### android beta
+### android firebase_distribution
 
 ```sh
-[bundle exec] fastlane android beta
+[bundle exec] fastlane android firebase_distribution
 ```
 
 Build Android APK and distribute it through Firebase App Distribution

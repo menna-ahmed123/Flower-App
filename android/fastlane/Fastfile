@@ -8,10 +8,11 @@ platform :android do
   end
 
   desc "Build Android APK and distribute it through Firebase App Distribution"
-  lane :beta do
-    gradle(
-      task: "clean assembleRelease"
-    )
+  lane :firebase_distribution do
+    sh("flutter clean")
+    sh("flutter pub get")
+    sh("dart run build_runner build --delete-conflicting-outputs")
+    sh("flutter build apk --release")
 
     firebase_app_distribution(
       app: ENV["FIREBASE_APP_ID"],
@@ -32,4 +33,3 @@ platform :android do
   end
 
 end
-

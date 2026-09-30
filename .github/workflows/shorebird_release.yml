@@ -3,7 +3,7 @@ name: Shorebird Release
 on:
   push:
     branches:
-      - ci/cd
+      - 'release/**'
 
 env:
   SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
