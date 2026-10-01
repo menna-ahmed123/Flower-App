@@ -1,16 +1,14 @@
 import 'package:equatable/equatable.dart';
 
 class VerifyOtpEntity extends Equatable {
-  final String status;
-  final String resetToken;
-  final DateTime expiresAtUtc;
+  final String otpToken;
+  final num expiresInMinutes;
 
   const VerifyOtpEntity({
-    required this.status,
-    required this.resetToken,
-    required this.expiresAtUtc,
+    required this.otpToken,
+    required this.expiresInMinutes,
   });
 
   @override
-  List<Object?> get props => [status, resetToken, expiresAtUtc];
+  List<Object?> get props => [otpToken, expiresInMinutes];
 }

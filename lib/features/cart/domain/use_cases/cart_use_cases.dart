@@ -4,14 +4,21 @@ import 'package:flower_app/features/cart/domain/repo/cart_repo.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class CartUseCase {
-  CartUseCase(this.cartRepo);
+class GetCartUseCase {
+  GetCartUseCase(this.cartRepo);
 
   final CartRepo cartRepo;
 
   Future<BaseResponse<CartEntity>> getCart() {
     return cartRepo.getCart();
   }
+}
+
+@injectable
+class AddCartItemUseCase {
+  AddCartItemUseCase(this.cartRepo);
+
+  final CartRepo cartRepo;
 
   Future<BaseResponse<CartEntity>> addItem({
     required String productId,
@@ -19,6 +26,13 @@ class CartUseCase {
   }) {
     return cartRepo.addItem(productId: productId, quantity: quantity);
   }
+}
+
+@injectable
+class UpdateCartItemUseCase {
+  UpdateCartItemUseCase(this.cartRepo);
+
+  final CartRepo cartRepo;
 
   Future<BaseResponse<CartEntity>> updateItem({
     required String itemId,
@@ -26,6 +40,13 @@ class CartUseCase {
   }) {
     return cartRepo.updateItem(itemId: itemId, quantity: quantity);
   }
+}
+
+@injectable
+class RemoveCartItemUseCase {
+  RemoveCartItemUseCase(this.cartRepo);
+
+  final CartRepo cartRepo;
 
   Future<BaseResponse<bool>> removeItem({required String itemId}) {
     return cartRepo.removeItem(itemId: itemId);

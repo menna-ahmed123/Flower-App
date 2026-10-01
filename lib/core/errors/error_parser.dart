@@ -48,18 +48,49 @@ AppError _connectionError(DioException exception) {
 AppError _parseBadResponse(DioException exception) {
   final data = exception.response?.data;
   if (data is Map<String, dynamic>) {
-    final fieldErrors = fieldErrorsMessage(data['errors']) ??
-        fieldErrorsMessage(_validationFieldErrors(data['data']));
-    if (fieldErrors != null) return BadResponseError(fieldErrors);
+    final payload = _mapOrNull(data['data']);
+    final code = _errorCode(payload) ?? _errorCode(data);
+    final fieldErrors =
+        fieldErrorsMessage(data['errors']) ??
+        fieldErrorsMessage(_validationFieldErrors(payload));
+    if (fieldErrors != null) {
+      return BadResponseError(fieldErrors, code: code, data: payload);
+    }
     if (data['message'] != null) {
-      return BadResponseError(data['message'].toString());
+      return BadResponseError(
+        data['message'].toString(),
+        code: code,
+        data: payload,
+      );
     }
     if (data['error'] != null) {
-      return BadResponseError(data['error'].toString());
+      return BadResponseError(
+        data['error'].toString(),
+        code: code,
+        data: payload,
+      );
+    }
+    if (code != null) {
+      return BadResponseError(
+        statusCodeToMessage(exception.response?.statusCode),
+        code: code,
+        data: payload,
+      );
     }
   }
   if (exception.response?.statusCode == 401) return UnauthorizedError();
   return BadResponseError(statusCodeToMessage(exception.response?.statusCode));
+}
+
+Map<String, dynamic>? _mapOrNull(dynamic raw) {
+  if (raw is! Map) return null;
+  return Map<String, dynamic>.from(raw);
+}
+
+String? _errorCode(Map<String, dynamic>? raw) {
+  final code = raw?['code'];
+  if (code is! String || code.isEmpty) return null;
+  return code;
 }
 
 /// Docker identity validation failures put field errors in `data`
@@ -68,7 +99,8 @@ Map<String, dynamic>? _validationFieldErrors(dynamic raw) {
   if (raw is! Map) return null;
   if (raw.containsKey('userId') ||
       raw.containsKey('accessToken') ||
-      raw.containsKey('refreshToken')) {
+      raw.containsKey('refreshToken') ||
+      raw.containsKey('code')) {
     return null;
   }
   final map = Map<String, dynamic>.from(raw);

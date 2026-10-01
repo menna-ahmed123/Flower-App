@@ -34,7 +34,7 @@ void genderGroup() {
       );
       await tester.tap(find.text(AppString.male));
       await tester.pumpAndSettle();
-      expect(find.text('selected:Male'), findsOneWidget);
+      expect(find.text('selected:0'), findsOneWidget);
     });
   });
 }

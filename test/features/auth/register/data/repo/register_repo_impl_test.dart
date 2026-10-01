@@ -42,8 +42,8 @@ void main() {
         final successResult = result as SuccessResponse<RegisterEntity>;
         expect(successResult.data.userId, 'user-1');
         expect(successResult.data.email, 'sara@example.com');
-        expect(successResult.data.role, 'Customer');
-        expect(successResult.data.status, 'Active');
+        expect(successResult.data.role, 'CUSTOMER');
+        expect(successResult.data.status, 'ON');
         expect(successResult.data.message, 'Account registered successfully.');
         verify(remoteDataSource.register(request)).called(1);
       },
@@ -81,14 +81,21 @@ void main() {
       provideDummy<BaseResponse<RegisterEntity>>(fakeRegisterSuccess);
       when(remoteDataSource.register(request)).thenAnswer(
         (_) async => RegisterResponse(
-          isSuccess: false,
-          statusCode: 400,
+          status: false,
+          code: 400,
           message: 'Sign up failed',
           data: RegisterData(
-            userId: 'user-1',
-            email: 'sara@example.com',
-            role: 'Customer',
-            status: 'Active',
+            token: 'register-token',
+            user: RegisterUser(
+              id: 'user-1',
+              email: 'sara@example.com',
+              phone: '01012345678',
+              name: 'Sara Ali',
+              roles: ['CUSTOMER'],
+              createdAt: DateTime.parse('2026-01-01T00:00:00Z'),
+              gender: 'FEMALE',
+              notificationStatus: 'ON',
+            ),
           ),
         ),
       );
@@ -106,8 +113,8 @@ void main() {
         provideDummy<BaseResponse<RegisterEntity>>(fakeRegisterSuccess);
         when(remoteDataSource.register(request)).thenAnswer(
           (_) async => RegisterResponse(
-            isSuccess: true,
-            statusCode: 201,
+            status: true,
+            code: 201,
             message: 'Missing data',
           ),
         );

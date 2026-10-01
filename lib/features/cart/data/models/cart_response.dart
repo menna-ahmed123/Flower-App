@@ -3,7 +3,7 @@ import 'package:flower_app/core/constants/api_query_params.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'cart_models.g.dart';
+part 'cart_response.g.dart';
 
 @JsonSerializable()
 class CartResponse {
@@ -34,7 +34,11 @@ class CartDataModel {
   final double? subtotal;
   final double? total;
   final double? deliveryFee;
+  final double? discount;
   final int? itemsCount;
+  final bool? hasChanges;
+  final bool? pricingUnavailable;
+  final bool? isEmpty;
 
   const CartDataModel({
     this.id,
@@ -42,7 +46,11 @@ class CartDataModel {
     this.subtotal,
     this.total,
     this.deliveryFee,
+    this.discount,
     this.itemsCount,
+    this.hasChanges,
+    this.pricingUnavailable,
+    this.isEmpty,
   });
 
   factory CartDataModel.fromJson(Map<String, dynamic> json) =>
@@ -58,8 +66,13 @@ class CartDataModel {
       items: lines,
       subtotal: subtotal ?? CartEntity.sumLines(lines),
       deliveryFee: deliveryFee ?? 0,
-      total: total ?? (subtotal ?? CartEntity.sumLines(lines)) + (deliveryFee ?? 0),
+      discount: discount ?? 0,
+      total:
+          total ??
+          (subtotal ?? CartEntity.sumLines(lines)) + (deliveryFee ?? 0),
       itemCount: itemsCount ?? CartEntity.sumQuantities(lines),
+      hasChanges: hasChanges ?? false,
+      pricingUnavailable: pricingUnavailable ?? false,
     );
   }
 }
@@ -77,6 +90,9 @@ class CartItemModel {
   final int? quantity;
   final int? availableQuantity;
   final int? stock;
+  final bool? priceChanged;
+  final bool? outOfStock;
+  final bool? inStock;
 
   const CartItemModel({
     this.id,
@@ -90,6 +106,9 @@ class CartItemModel {
     this.quantity,
     this.availableQuantity,
     this.stock,
+    this.priceChanged,
+    this.outOfStock,
+    this.inStock,
   });
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) =>
@@ -99,7 +118,7 @@ class CartItemModel {
 
   CartItemEntity toDomain() {
     return CartItemEntity(
-      id: id ?? '',
+      id: (id ?? '').isNotEmpty ? id! : (productId ?? ''),
       productId: productId ?? '',
       name: name ?? productName ?? '',
       imageUrl: ApiEndpoints.mediaUrl(imageUrl),
@@ -107,6 +126,8 @@ class CartItemModel {
       price: price ?? unitPrice ?? 0,
       quantity: quantity ?? 1,
       stock: availableQuantity ?? stock,
+      priceChanged: priceChanged ?? false,
+      outOfStock: outOfStock ?? inStock == false,
     );
   }
 }

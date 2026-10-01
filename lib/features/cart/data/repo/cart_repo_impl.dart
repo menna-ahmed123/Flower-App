@@ -3,7 +3,10 @@ import 'package:flower_app/core/errors/api_exception.dart';
 import 'package:flower_app/core/errors/error_parser.dart';
 import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/features/cart/data/data_sources/cart_remote_data_source.dart';
-import 'package:flower_app/features/cart/data/models/cart_models.dart';
+import 'package:flower_app/features/cart/data/models/cart_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_preview_response.dart';
+import 'package:flower_app/features/cart/data/models/checkout_request.dart';
+import 'package:flower_app/features/cart/data/models/order_response.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:flower_app/features/cart/domain/repo/cart_repo.dart';
 import 'package:injectable/injectable.dart';
@@ -57,15 +60,82 @@ class CartRepoImpl implements CartRepo {
     });
   }
 
-  CartEntity _mapCart(CartResponse response) {
-    if (response.success == false) {
-      throw ApiException(
-        message: (response.message ?? '').isNotEmpty
-            ? response.message!
-            : statusCodeToMessage(response.statusCode),
-        statusCode: response.statusCode,
+  @override
+  Future<BaseResponse<CartEntity>> previewCheckout({
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) {
+    return safeCall.safeApiCall(() async {
+      final request = _checkoutRequest(addressId: addressId, gift: gift);
+      return _mapPreview(await cartRemoteDataSource.previewCheckout(request));
+    });
+  }
+
+  @override
+  Future<BaseResponse<OrderEntity>> placeOrder({
+    required String idempotencyKey,
+    required int paymentMethod,
+    required double expectedTotal,
+    String? addressId,
+    CheckoutGiftEntity? gift,
+  }) {
+    return safeCall.safeApiCall(() async {
+      final request = _checkoutRequest(
+        addressId: addressId,
+        gift: gift,
+        paymentMethod: paymentMethod,
+        expectedTotal: expectedTotal,
       );
-    }
+      return _mapOrder(
+        await cartRemoteDataSource.placeOrder(idempotencyKey, request),
+      );
+    });
+  }
+
+  @override
+  Future<BaseResponse<bool>> processPayment() {
+    return safeCall.safeApiCall(() async {
+      await cartRemoteDataSource.processPayment();
+      return true;
+    });
+  }
+
+  CheckoutRequest _checkoutRequest({
+    String? addressId,
+    CheckoutGiftEntity? gift,
+    int? paymentMethod,
+    double? expectedTotal,
+  }) {
+    return CheckoutRequest(
+      addressId: gift == null ? addressId : null,
+      gift: gift == null ? null : CheckoutGiftRequest.fromEntity(gift),
+      paymentMethod: paymentMethod,
+      expectedTotal: expectedTotal,
+    );
+  }
+
+  CartEntity _mapCart(CartResponse response) {
+    _ensureSuccess(response.success, response.message, response.statusCode);
     return response.data?.toDomain() ?? const CartEntity.empty();
+  }
+
+  CartEntity _mapPreview(CheckoutPreviewResponse response) {
+    _ensureSuccess(response.success, response.message, response.statusCode);
+    return response.data?.toDomain() ?? const CartEntity.empty();
+  }
+
+  OrderEntity _mapOrder(OrderResponse response) {
+    _ensureSuccess(response.success, response.message, response.statusCode);
+    return response.data?.toDomain() ?? const OrderEntity();
+  }
+
+  void _ensureSuccess(bool? success, String? message, int? statusCode) {
+    if (success != false) return;
+    throw ApiException(
+      message: (message ?? '').isNotEmpty
+          ? message!
+          : statusCodeToMessage(statusCode),
+      statusCode: statusCode,
+    );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/auth/register/data/models/register_request.dart';
+import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
 import 'package:flower_app/features/auth/register/domain/entity/register_entity.dart';
 import 'package:flower_app/features/auth/register/domain/use_case/register_usecase.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_state.dart';
@@ -92,12 +93,12 @@ void main() {
   test('maps Male gender for OpenAPI contract', () async {
     when(mockRegisterUseCase(any)).thenAnswer((_) async => fakeRegisterSuccess);
 
-    viewModel.doEvent(validRegisterSubmitted(gender: 'Male'));
+    viewModel.doEvent(validRegisterSubmitted(gender: Gender.male));
     await Future<void>.delayed(Duration.zero);
 
     final captured =
         verify(mockRegisterUseCase(captureAny)).captured.single
             as RegisterRequest;
-    expect(captured.gender, 'Male');
+    expect(captured.gender, 0);
   });
 }

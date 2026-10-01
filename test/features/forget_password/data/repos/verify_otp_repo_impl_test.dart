@@ -20,9 +20,7 @@ void _runVerifyOtpRepoTests() {
   provideDummy<BaseResponse<VerifyOtpResponseModel>>(
     SuccessResponse<VerifyOtpResponseModel>(
       VerifyOtpResponseModel(
-        resetToken: 'test-reset-token',
-        expiresAtUtc: DateTime.utc(2026, 8, 16, 4),
-        status: 'verified',
+        data: VerifyOtpData(otpToken: 'test-otp-token', expiresInMinutes: 10),
       ),
     ),
   );
@@ -49,9 +47,7 @@ void _verifySuccessTest(
 
     final response = SuccessResponse<VerifyOtpResponseModel>(
       VerifyOtpResponseModel(
-        resetToken: 'test-reset-token',
-        expiresAtUtc: DateTime.utc(2026, 8, 16, 4),
-        status: 'verified',
+        data: VerifyOtpData(otpToken: 'test-otp-token', expiresInMinutes: 10),
       ),
     );
 
@@ -65,9 +61,8 @@ void _verifySuccessTest(
 
     final success = result as SuccessResponse<VerifyOtpEntity>;
 
-    expect(success.data.resetToken, 'test-reset-token');
-    expect(success.data.expiresAtUtc, DateTime.utc(2026, 8, 16, 4));
-    expect(success.data.status, 'verified');
+    expect(success.data.otpToken, 'test-otp-token');
+    expect(success.data.expiresInMinutes, 10);
 
     verify(
       getDataSource().verifyOtp(requestModel: anyNamed('requestModel')),

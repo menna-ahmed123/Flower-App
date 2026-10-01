@@ -6,17 +6,14 @@ part 'reset_password_request_model.g.dart';
 
 @JsonSerializable()
 class ResetPasswordRequestModel {
-  @JsonKey(name: "resetToken")
-  final String? resetToken;
-  @JsonKey(name: "newPassword")
-  final String? newPassword;
-  @JsonKey(name: "confirmPassword")
-  final String? confirmPassword;
+  final String otpToken;
+  final String password;
+  final String confirmPassword;
 
   ResetPasswordRequestModel({
-    this.resetToken,
-    this.newPassword,
-    this.confirmPassword,
+    required this.otpToken,
+    required this.password,
+    required this.confirmPassword,
   });
 
   factory ResetPasswordRequestModel.fromJson(Map<String, dynamic> json) {
@@ -30,8 +27,8 @@ class ResetPasswordRequestModel {
   factory ResetPasswordRequestModel.fromDomain(ResetPasswordParams params) {
     return ResetPasswordRequestModel(
       confirmPassword: params.confirmPassword,
-      newPassword: params.newPassword,
-      resetToken: params.resetToken,
+      password: params.password,
+      otpToken: params.otpToken,
     );
   }
 }

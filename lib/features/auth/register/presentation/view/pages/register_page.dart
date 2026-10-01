@@ -10,7 +10,8 @@ import 'package:flower_app/features/auth/register/presentation/view_model/regist
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_form_footer.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_gender_selector.dart';
-import 'package:flower_app/features/profile/domain/entities/gender.dart';
+import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart' as profile;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -174,11 +175,15 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       SizedBox(height: 8.h),
                       RegisterGenderSelector(
-                        value: _gender,
+                        value: _gender == Gender.male
+                            ? profile.Gender.male
+                            : profile.Gender.female,
                         enabled: true,
                         onChanged: (value) {
                           setState(() {
-                            _gender = value;
+                            _gender = value == profile.Gender.male
+                                ? Gender.male
+                                : Gender.female;
                           });
                         },
                       ),
@@ -210,7 +215,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                             confirmPassword:
                                                 _confirmPasswordController.text,
                                             phoneNumber: _phoneController.text,
-                                            gender: _gender.apiValue,
+                                            gender: _gender,
                                           ),
                                         );
                                       }

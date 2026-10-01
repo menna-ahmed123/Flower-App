@@ -1,4 +1,5 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
 import 'package:flower_app/features/auth/register/data/models/register_request.dart';
 import 'package:flower_app/features/auth/register/domain/entity/register_entity.dart';
 import 'package:flower_app/features/auth/register/domain/use_case/register_usecase.dart';
@@ -31,10 +32,11 @@ class RegisterViewModel extends Cubit<RegisterState> {
       ),
     );
     final request = RegisterRequest(
-      fullName: '${event.firstName.trim()} ${event.lastName.trim()}'.trim(),
+      firstName: event.firstName.trim(),
+      lastName: event.lastName.trim(),
       email: event.email.trim(),
-      phoneNumber: event.phoneNumber.trim(),
-      gender: event.gender,
+      phone: event.phoneNumber.trim(),
+      gender: event.gender.apiValue,
       password: event.password,
       confirmPassword: event.confirmPassword,
     );

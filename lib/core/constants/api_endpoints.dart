@@ -12,7 +12,9 @@ class ApiEndpoints {
 
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
-    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? '');
+    _resolvedBaseUrl = normalizeBaseUrl(
+      dotenv.env['BASE_URL'] ?? 'http://192.168.1.3:5000',
+    );
   }
 
   static String normalizeBaseUrl(String raw) {
@@ -25,8 +27,7 @@ class ApiEndpoints {
       iosSimulator: _isIosSimulator(),
     );
     if (url.endsWith('/')) url = url.substring(0, url.length - 1);
-    if (url.endsWith('/api/v1')) return url;
-    return '$url/api/v1';
+    return url;
   }
 
   static String rewriteHostForLocalClient(
@@ -59,14 +60,14 @@ class ApiEndpoints {
     final origin = Uri.parse(_resolvedBaseUrl).origin;
     return path.startsWith('/') ? '$origin$path' : '$origin/$path';
   }
+
   //// AUTH ////
-  static const String forgotPassword = '/identity/auth/forgot-password';
-  static const String verifyOtp = '/identity/auth/verify-otp';
-  static const String resetPassword = '/identity/auth/reset-password';
-  static const String login = '/identity/auth/login';
-  static const String register = '/identity/users/register';
-  static const String getMyProfile = '/identity/users/me';
-  static const String updateProfile = '/identity/users/profile';
+  static const String forgotPassword = '/api/identity/auth/forget-password';
+  static const String verifyOtp = '/api/identity/auth/otp-verification';
+  static const String resetPassword = '/api/identity/auth/reset-password';
+  static const String login = '/api/identity/auth/login';
+  static const String register = '/api/identity/auth/register';
+  static const String refreshToken = '/api/identity/auth/refresh-token';
 
   //// Commerce ////
   static const String home = '/catalog/home/layout';
@@ -78,12 +79,22 @@ class ApiEndpoints {
   ////Address///
   static const String addAddress = '/users/me/addresses';
   static const String addressById = '/users/me/addresses/{id}';
-  static const String setDefaultAddress = '/users/me/addresses/{addressId}/default';
+  static const String setDefaultAddress =
+      '/users/me/addresses/{addressId}/default';
+        static const String updateProfile = '/identity/users/profile';
+        static const String getMyProfile = '/identity/users/me';
+
 
   //// Cart ////
   static const String cart = '/cart';
   static const String cartItems = '/cart/items';
   static const String cartItem = '/cart/items/{id}';
+
+  //// Orders & Payments ////
+  static const String orders = '/orders';
+  static const String checkoutPreview = '/orders/checkout/preview';
+  static const String checkout = '/orders/checkout';
+  static const String paymentsCharge = '/payments/charge';
 }
 
 Future<void> _ensureDotEnv() async {

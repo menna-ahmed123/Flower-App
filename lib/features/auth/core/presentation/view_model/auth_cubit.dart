@@ -1,4 +1,6 @@
 import 'package:flower_app/core/auth/auth_session_controller.dart';
+import 'dart:async';
+
 import 'package:flower_app/core/base/base_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -9,12 +11,17 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 @lazySingleton
-class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
-  AuthCubit(this._authRepository) : super(AuthState.initial());
+class AuthCubit extends Cubit<AuthState> {
+  AuthCubit(this._authRepository) : super(AuthState.initial()) {
+    _sessionExpiredSubscription = _authRepository.sessionExpired.listen(
+          (_) => _handleSessionExpired(),
+    );
+  }
 
   final AuthRepository _authRepository;
 
   PendingAction? _pendingAction;
+  late final StreamSubscription<void> _sessionExpiredSubscription;
 
   Future<void> doEvent(AuthEvent event) async {
     switch (event) {
@@ -68,6 +75,10 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
   Future<void> _checkAuth() async {
     final isAuthenticated = await _authRepository.isAuthenticated();
 
+    if (isAuthenticated) {
+      await _authRepository.startSessionRefresh();
+    }
+
     emit(
       state.copyWith(
         authState: BaseState(data: isAuthenticated),
@@ -79,6 +90,7 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
   Future<void> _logout() async {
     await _authRepository.logout();
 
+    _authRepository.stopSessionRefresh();
     _pendingAction = null;
 
     emit(
@@ -104,6 +116,7 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
       ),
     );
   }
+
   Future<void> _handleAuthenticationSuccess() async {
     await _checkAuth();
 
@@ -118,6 +131,24 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
     );
 
     await replayPendingAction();
+  }
+
+  void _handleSessionExpired() {
+    _authRepository.stopSessionRefresh();
+    _pendingAction = null;
+
+    emit(
+      state.copyWith(
+        authState: const BaseState(data: false),
+        requiresAuthentication: false,
+        sessionExpired: true,
+      ),
+    );
+  }
+
+  void acknowledgeSessionExpired() {
+    if (!state.sessionExpired) return;
+    emit(state.copyWith(sessionExpired: false));
   }
 
   Future<void> replayPendingAction() async {
@@ -141,6 +172,7 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
 
   @override
   Future<void> close() {
+    _sessionExpiredSubscription.cancel();
     _pendingAction = null;
     return super.close();
   }
