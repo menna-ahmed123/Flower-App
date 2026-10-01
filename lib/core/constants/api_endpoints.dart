@@ -13,7 +13,7 @@ class ApiEndpoints {
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
     _resolvedBaseUrl = normalizeBaseUrl(
-      dotenv.env['BASE_URL'] ?? 'http://192.168.1.7:5000/',
+      dotenv.env['BASE_URL'] ?? 'http://192.168.1.3:5000',
     );
   }
 
@@ -67,6 +67,7 @@ class ApiEndpoints {
   static const String resetPassword = '/api/identity/auth/reset-password';
   static const String login = '/api/identity/auth/login';
   static const String register = '/api/identity/auth/register';
+  static const String refreshToken = '/api/identity/auth/refresh-token';
 
   //// Commerce ////
   static const String home = '/catalog/home/layout';
