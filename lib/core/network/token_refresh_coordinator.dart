@@ -102,18 +102,15 @@ class TokenRefreshCoordinator {
 
   Future<void> _persist(AuthTokens tokens) async {
     final newRefresh = tokens.refreshToken;
-    if (newRefresh != null && newRefresh.isNotEmpty) {
-      await _tokenStorage.saveTokens(
-        accessToken: tokens.accessToken,
-        refreshToken: newRefresh,
-        expiresIn: tokens.expiresIn,
-      );
-    } else {
-      await _tokenStorage.saveAccessToken(
-        tokens.accessToken,
-        expiresIn: tokens.expiresIn,
-      );
+    if (newRefresh.isEmpty) {
+      throw StateError('Refresh response did not include a new refresh token');
     }
+
+    await _tokenStorage.saveTokens(
+      accessToken: tokens.accessToken,
+      refreshToken: newRefresh,
+      expiresIn: tokens.expiresIn,
+    );
   }
 
   /// Closes the [sessionExpired] stream. This is a [lazySingleton] that

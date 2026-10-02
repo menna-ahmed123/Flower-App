@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
+import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/core/network/token_refresh_coordinator.dart';
 import 'package:flower_app/core/network/token_storage.dart';
@@ -45,9 +46,9 @@ class AuthInterceptors extends Interceptor {
 
   @override
   Future<void> onRequest(
-      RequestOptions options,
-      RequestInterceptorHandler handler,
-      ) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     final token = await _tokenStorage.getAccessToken();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -57,9 +58,9 @@ class AuthInterceptors extends Interceptor {
 
   @override
   void onResponse(
-      Response<dynamic> response,
-      ResponseInterceptorHandler handler,
-      ) {
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
     handler.next(response);
   }
 
@@ -69,15 +70,16 @@ class AuthInterceptors extends Interceptor {
   }
 
   Future<void> _handleError(
-      DioException err,
-      ErrorInterceptorHandler handler,
-      ) async {
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     final options = err.requestOptions;
     final statusCode = err.response?.statusCode;
     final skipRefresh = options.extra[AuthRequestExtra.skipRefresh] == true;
     final alreadyRetried = options.extra[AuthRequestExtra.retried] == true;
+    final isAuthEndpoint = _isAuthEndpoint(options.path);
 
-    if (statusCode != 401 || skipRefresh || alreadyRetried) {
+    if (statusCode != 401 || skipRefresh || alreadyRetried || isAuthEndpoint) {
       return handler.next(err);
     }
 
@@ -115,10 +117,16 @@ class AuthInterceptors extends Interceptor {
     }
   }
 
+  bool _isAuthEndpoint(String path) {
+    return path == ApiEndpoints.login ||
+        path == ApiEndpoints.register ||
+        path == ApiEndpoints.refreshToken;
+  }
+
   Future<Response<dynamic>> _retryRequest(
-      RequestOptions options,
-      String accessToken,
-      ) {
+    RequestOptions options,
+    String accessToken,
+  ) {
     final dio = _dio;
     if (dio == null) {
       throw StateError('AuthInterceptors.attachDio was not called');
