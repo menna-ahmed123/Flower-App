@@ -128,11 +128,12 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
   AddAddressRequest _toRequest(AddressEntity address) {
     return AddAddressRequest(
       recipientName: address.recipientName ?? '',
-      phone: address.phoneNumber ?? '',
       addressLine: address.address ?? '',
-      city: address.city ?? '',
       area: address.area ?? '',
       label: address.label ?? 'Home',
+       recipientPhone: address.phoneNumber ?? '',
+        governorateId: address.governorateId?? 0, 
+        cityId: address.cityId??0,
     );
   }
 }

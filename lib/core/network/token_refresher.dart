@@ -31,7 +31,7 @@ abstract interface class TokenRefresher {
   Future<AuthTokens?> refresh(String refreshToken);
 }
 
-/// Real implementation calling `POST /api/identity/auth/refresh`.
+/// Real implementation calling `POST /api/identity/auth/refresh-token`.
 ///
 /// Uses its own [Dio] instance (no [AuthInterceptors] attached) so the
 /// refresh call can never trigger another refresh or get stuck in a loop.
@@ -50,15 +50,13 @@ class ApiTokenRefresher implements TokenRefresher {
 
   final Dio _dio;
 
-  static const _refreshPath = '/api/identity/auth/refresh';
-
   @override
   Future<AuthTokens?> refresh(String refreshToken) async {
     // Let DioException propagate as-is (network/400/401/etc.) so the
     // caller can tell an expired refresh token apart from a transient
     // network/server error.
     final response = await _dio.post<Map<String, dynamic>>(
-      _refreshPath,
+      ApiEndpoints.refreshToken,
       data: {'refreshToken': refreshToken},
     );
 

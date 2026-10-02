@@ -176,9 +176,11 @@ class AddressRepoImpl implements AddressRepo {
 
       return AddressEntity(
         address: request.addressLine,
-        phoneNumber: request.phone,
+        cityId: request.cityId,
+        governorateId: request.governorateId,
+        phoneNumber: request.recipientPhone,
+        latitude: request.lat,
         recipientName: request.recipientName,
-        city: request.city,
         area: request.area,
         label: request.label,
       );

@@ -12,9 +12,7 @@ class ApiEndpoints {
 
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
-    _resolvedBaseUrl = normalizeBaseUrl(
-      dotenv.env['BASE_URL'] ?? 'http://192.168.1.7:5000/',
-    );
+    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? '');
   }
 
   static String normalizeBaseUrl(String raw) {
@@ -67,6 +65,7 @@ class ApiEndpoints {
   static const String resetPassword = '/api/identity/auth/reset-password';
   static const String login = '/api/identity/auth/login';
   static const String register = '/api/identity/auth/register';
+  static const String refreshToken = '/api/identity/auth/refresh-token';
 
   //// Commerce ////
   static const String home = '/catalog/home/layout';
@@ -76,10 +75,11 @@ class ApiEndpoints {
   static const String productDetails = '/catalog/products/{id}';
 
   ////Address///
-  static const String addAddress = '/users/me/addresses';
-  static const String addressById = '/users/me/addresses/{id}';
+  static const String addAddress = '/api/address-cart/users/me/addresses';
+  static const String addressById = '/api/address-cart/users/me/addresses/{id}';
+  static const String getAddress = '/api/address-cart/addresses';
   static const String setDefaultAddress =
-      '/users/me/addresses/{addressId}/default';
+      '/api/address-cart/users/me/addresses/{address-id}/default';
 
   //// Cart ////
   static const String cart = '/cart';

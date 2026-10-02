@@ -5,18 +5,24 @@ part 'add_address_request.g.dart';
 @JsonSerializable()
 class AddAddressRequest {
   final String recipientName;
-  final String phone;
+  final String recipientPhone;
   final String addressLine;
-  final String city;
+  final int governorateId;
+  final int cityId;
   final String area;
+  final double? lat;
+  final double? lng;
   final String label;
 
   AddAddressRequest({
     required this.recipientName,
-    required this.phone,
+    required this.recipientPhone,
     required this.addressLine,
-    required this.city,
+    required this.governorateId,
+    required this.cityId,
     required this.area,
+    this.lat,
+    this.lng,
     required this.label,
   });
 

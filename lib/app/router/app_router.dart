@@ -295,9 +295,8 @@ class AppRouter {
   }
 
   static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
-    return BlocProvider(
-      create: (_) =>
-          getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
+    return BlocProvider.value(
+      value: getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
       child: const SavedAddressesScreen(),
     );
   }
@@ -316,13 +315,89 @@ class AppRouter {
     final viewModel = state.extra is CheckoutViewModel
         ? state.extra as CheckoutViewModel
         : getIt<CheckoutViewModel>();
-    return BlocProvider.value(
-      value: viewModel,
-      child: const PaymentScreen(),
-    );
+    return BlocProvider.value(value: viewModel, child: const PaymentScreen());
   }
 
   static Widget _confirmationBuilder(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     BuildContext context,
     GoRouterState state,
   ) {

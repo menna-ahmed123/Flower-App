@@ -92,23 +92,48 @@ class _LocationFormState extends State<LocationForm> {
         _areaController.text != (original.area ?? '');
   }
 
-  void _submitForm() {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+ void _submitForm() {
+  final formState = _formKey.currentState;
 
-    final address = AddressEntity(
-      id: widget.address?.id,
-      label: widget.address?.label,
-      address: _addressController.text.trim(),
-      phoneNumber: _phoneController.text.trim(),
-      recipientName: _nameController.text.trim(),
-      city: _cityController.text.trim(),
-      area: _areaController.text.trim(),
-    );
-
-    widget.onSave?.call(address);
+  if (formState == null) {
+    debugPrint('❌ FormState is null');
+    return;
   }
+
+  final isValid = formState.validate();
+
+  if (!isValid) {
+    return;
+  }
+
+  final original = widget.address;
+
+  final address = AddressEntity(
+    id: original?.id,
+    label: original?.label,
+    address: _addressController.text.trim(),
+    phoneNumber: _phoneController.text.trim(),
+    recipientName: _nameController.text.trim(),
+    city: _cityController.text.trim(),
+    area: _areaController.text.trim(),
+    governorateId: original?.governorateId,
+    cityId: original?.cityId,
+    latitude: original?.latitude,
+    longitude: original?.longitude,
+    isDefault: original?.isDefault ?? false,
+  );
+
+  debugPrint('========== ADDRESS TO SAVE ==========');
+  debugPrint('id: ${address.id}');
+  debugPrint('label: ${address.label}');
+  debugPrint('governorateId: ${address.governorateId}');
+  debugPrint('cityId: ${address.cityId}');
+  debugPrint('latitude: ${address.latitude}');
+  debugPrint('longitude: ${address.longitude}');
+  debugPrint('=====================================');
+
+  widget.onSave?.call(address);
+}
 
   @override
   Widget build(BuildContext context) {
