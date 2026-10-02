@@ -12,7 +12,9 @@ class ApiEndpoints {
 
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
-    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? '');
+    _resolvedBaseUrl = normalizeBaseUrl(
+      dotenv.env['BASE_URL'] ?? '',
+    );
   }
 
   static String normalizeBaseUrl(String raw) {
@@ -76,7 +78,7 @@ class ApiEndpoints {
 
   ////Address///
   static const String addAddress = '/api/address-cart/users/me/addresses';
-  static const String addressById = '/api/address-cart/users/me/addresses/{id}';
+  static const String addressById = '/api/address-cart/users/me/addresses/{address-id}';
   static const String getAddress = '/api/address-cart/addresses';
   static const String setDefaultAddress =
       '/api/address-cart/users/me/addresses/{address-id}/default';

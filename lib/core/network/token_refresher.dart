@@ -1,19 +1,18 @@
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
+import 'package:flower_app/core/network/refresh_token_models.dart';
 import 'package:injectable/injectable.dart';
 
 /// Pair of tokens returned by a successful refresh (or login) operation.
 class AuthTokens {
   const AuthTokens({
     required this.accessToken,
-    this.refreshToken,
+    required this.refreshToken,
     this.expiresIn,
   });
 
   final String accessToken;
-
-  /// When null, the existing refresh token should be kept.
-  final String? refreshToken;
+  final String refreshToken;
 
   /// Access token lifetime in seconds, when the backend returns it.
   /// Used to schedule the next proactive refresh.
@@ -57,31 +56,24 @@ class ApiTokenRefresher implements TokenRefresher {
     // network/server error.
     final response = await _dio.post<Map<String, dynamic>>(
       ApiEndpoints.refreshToken,
-      data: {'refreshToken': refreshToken},
+      data: RefreshTokenRequest(refreshToken: refreshToken).toJson(),
     );
 
     final body = response.data;
-    if (body == null || body['isSuccess'] != true) {
+    if (body == null) {
       return null;
     }
 
-    final data = body['data'];
-    if (data is! Map<String, dynamic>) {
+    final parsed = RefreshTokenResponse.fromJson(body);
+    if (parsed.status != true || parsed.data == null) {
       return null;
     }
 
-    final accessToken = data['accessToken'];
-    if (accessToken is! String || accessToken.isEmpty) {
+    final data = parsed.data!;
+    if (data.token.isEmpty || data.refreshToken.isEmpty) {
       return null;
     }
 
-    final newRefreshToken = data['refreshToken'];
-    final expiresIn = data['expiresIn'];
-
-    return AuthTokens(
-      accessToken: accessToken,
-      refreshToken: newRefreshToken is String ? newRefreshToken : null,
-      expiresIn: expiresIn is int ? expiresIn : null,
-    );
+    return AuthTokens(accessToken: data.token, refreshToken: data.refreshToken);
   }
 }
