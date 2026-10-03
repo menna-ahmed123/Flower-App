@@ -269,16 +269,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    final selectedImage = context.read<UpdateProfileViewModel>().state.selectedImage;
-
     context.read<UpdateProfileViewModel>().doEvent(
-      UpdateProfileRequested(
-        firstName: _firstNameController.text,
-        lastName: _lastNameController.text,
-        phone: _phoneController.text,
-        gender: selectedGenderNotifier.value ?? Gender.male,
-        profilePicture: selectedImage,
-      ),
+      UpdateProfileRequested(),
     );
   }
 }

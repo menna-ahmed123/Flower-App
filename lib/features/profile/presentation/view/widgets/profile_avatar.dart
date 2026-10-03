@@ -83,14 +83,17 @@ class ProfileAvatar extends StatelessWidget {
       return Icon(AppIcons.person, size: 40.w, color: colors.pink);
     }
 
-return ClipOval(
+    final imageUrl = ApiEndpoints.mediaUrl(photoUrl);
+
+    return ClipOval(
       child: CachedNetworkImage(
-        imageUrl: ApiEndpoints.mediaUrl(photoUrl),
+        key: ValueKey(imageUrl),
+        imageUrl: imageUrl,
         width: size,
         height: size,
         fit: BoxFit.cover,
-        errorWidget: (context, url, error) =>
-            Icon(AppIcons.person, size: 40.w, color: colors.pink),
+        errorWidget: (context, url, error) => Icon(AppIcons.person, size: 40.w, color: colors.pink),
       ),
-    );  }
+    );
+  }
 }

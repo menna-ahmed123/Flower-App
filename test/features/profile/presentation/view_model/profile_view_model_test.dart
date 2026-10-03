@@ -53,6 +53,43 @@ void main() {
     );
 
     blocTest<ProfileViewModel, ProfileState>(
+      'replaces stale profile data with the freshly fetched profile',
+      build: () {
+        const freshProfile = ProfileEntity(
+          id: 'u1',
+          firstName: 'Mariam',
+          lastName: 'Ahmed',
+          email: 'mariam@example.com',
+          phoneNumber: '01010000001',
+          gender: Gender.male,
+          profilePictureUrl: 'Storage/Users/u1/new.jpg',
+        );
+        when(
+          getProfileUseCase(),
+        ).thenAnswer((_) async => const SuccessResponse(freshProfile));
+        return buildViewModel();
+      },
+      seed: () => const ProfileState(
+        profileState: BaseState(data: _profile),
+      ),
+      act: (cubit) => cubit.doEvent(ProfileRequested()),
+      expect: () => [
+        isA<ProfileState>().having(
+          (s) => s.profileState.isLoading,
+          'isLoading',
+          true,
+        ),
+        isA<ProfileState>()
+            .having((s) => s.profileState.isLoading, 'isLoading', false)
+            .having(
+              (s) => s.profileState.data?.profilePictureUrl,
+              'profilePictureUrl',
+              'Storage/Users/u1/new.jpg',
+            ),
+      ],
+    );
+
+    blocTest<ProfileViewModel, ProfileState>(
       'emits loading then error on failure',
       build: () {
         when(getProfileUseCase()).thenAnswer(

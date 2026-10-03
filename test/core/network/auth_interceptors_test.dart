@@ -46,10 +46,10 @@ class _ScriptedHttpAdapter implements HttpClientAdapter {
 
   @override
   Future<ResponseBody> fetch(
-      RequestOptions options,
-      Stream<List<int>>? requestStream,
-      Future<void>? cancelFuture,
-      ) async {
+    RequestOptions options,
+    Stream<List<int>>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
     requestHeaders.add(Map<String, dynamic>.from(options.headers));
     final index = callCount.clamp(0, _responses.length - 1);
     callCount++;
@@ -153,7 +153,7 @@ void main() {
         built.dio.get<dynamic>('/protected'),
         throwsA(
           isA<DioException>().having(
-                (e) => e.response?.statusCode,
+            (e) => e.response?.statusCode,
             'statusCode',
             401,
           ),
@@ -172,7 +172,7 @@ void main() {
         built.dio.get<dynamic>('/protected'),
         throwsA(
           isA<DioException>().having(
-                (e) => e.response?.statusCode,
+            (e) => e.response?.statusCode,
             'statusCode',
             401,
           ),
@@ -197,7 +197,7 @@ void main() {
         built.dio.get<dynamic>('/protected'),
         throwsA(
           isA<DioException>().having(
-                (e) => e.error,
+            (e) => e.error,
             'error',
             isA<ForceLogin>(),
           ),
@@ -219,7 +219,7 @@ void main() {
         built.dio.get<dynamic>('/protected'),
         throwsA(
           isA<DioException>().having(
-                (e) => e.response?.statusCode,
+            (e) => e.response?.statusCode,
             'statusCode',
             401,
           ),
@@ -235,6 +235,7 @@ void main() {
         responses: [401, 401],
         refreshedTokens: const AuthTokens(
           accessToken: 'new-access',
+          refreshToken: 'new-refresh',
           expiresIn: 900,
         ),
       );
@@ -243,7 +244,7 @@ void main() {
         built.dio.get<dynamic>('/protected'),
         throwsA(
           isA<DioException>().having(
-                (e) => e.response?.statusCode,
+            (e) => e.response?.statusCode,
             'statusCode',
             401,
           ),

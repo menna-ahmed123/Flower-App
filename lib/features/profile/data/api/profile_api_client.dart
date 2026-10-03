@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/base/api_response.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
@@ -23,6 +21,6 @@ abstract class ProfileApiClient {
     @Part(name: ApiRequestParams.lastName) String lastName,
     @Part(name: ApiRequestParams.phoneNumber) String phoneNumber,
     @Part(name: ApiRequestParams.gender) String gender,
-    @Part(name: ApiRequestParams.profilePicture) File? profilePicture,
+    @Part(name: ApiRequestParams.profilePicture) MultipartFile? profilePicture,
   );
 }

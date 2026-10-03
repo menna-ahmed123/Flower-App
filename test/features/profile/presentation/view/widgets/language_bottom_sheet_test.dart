@@ -6,13 +6,17 @@ import 'package:flower_app/features/profile/presentation/view/widgets/language_b
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
     await EasyLocalization.ensureInitialized();
   });
 
   Future<BuildContext> pumpHost(WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(375, 812);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -48,6 +52,8 @@ void main() {
         ),
       ),
     );
+
+    await tester.pumpAndSettle();
 
     return hostContext;
   }

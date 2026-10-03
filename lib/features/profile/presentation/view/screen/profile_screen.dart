@@ -72,7 +72,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (mounted && updatedProfile != null) {
-      context.read<ProfileViewModel>().doEvent(ProfileUpdated(updatedProfile));
+      final profileViewModel = context.read<ProfileViewModel>();
+      await profileViewModel.doEvent(ProfileUpdated(updatedProfile));
+      if (mounted) {
+        await profileViewModel.doEvent(ProfileRequested());
+      }
     }
   }
 

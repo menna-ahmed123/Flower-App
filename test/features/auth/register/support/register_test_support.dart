@@ -14,7 +14,10 @@ import 'package:flower_app/features/auth/register/presentation/view/pages/regist
 import 'package:flower_app/features/auth/register/presentation/view_model/register_event.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_gender_selector.dart';
-import 'package:flower_app/features/profile/domain/entities/gender.dart';
+import 'package:flower_app/features/auth/register/domain/entity/gender.dart'
+    as register_gender;
+import 'package:flower_app/features/profile/domain/entities/gender.dart'
+    as profile_gender;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -60,7 +63,7 @@ RegisterSubmitted validRegisterSubmitted({
   String password = 'Pass1234',
   String confirmPassword = 'Pass1234',
   String phoneNumber = '01012345678',
-  Gender gender = Gender.female,
+  register_gender.Gender gender = register_gender.Gender.female,
 }) {
   return RegisterSubmitted(
     firstName: firstName,
@@ -243,7 +246,7 @@ Future<void> tapSignUp(WidgetTester tester) async {
 class RegisterGenderSelectorHarness extends StatefulWidget {
   const RegisterGenderSelectorHarness({super.key, required this.initial});
 
-  final Gender initial;
+  final profile_gender.Gender initial;
 
   @override
   State<RegisterGenderSelectorHarness> createState() =>
@@ -252,7 +255,7 @@ class RegisterGenderSelectorHarness extends StatefulWidget {
 
 class RegisterGenderSelectorHarnessState
     extends State<RegisterGenderSelectorHarness> {
-  late Gender value;
+  late profile_gender.Gender value;
 
   @override
   void initState() {
@@ -260,7 +263,8 @@ class RegisterGenderSelectorHarnessState
     value = widget.initial;
   }
 
-  void onGenderChanged(Gender gender) => setState(() => value = gender);
+  void onGenderChanged(profile_gender.Gender gender) =>
+      setState(() => value = gender);
 
   @override
   Widget build(BuildContext context) {

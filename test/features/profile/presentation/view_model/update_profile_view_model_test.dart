@@ -9,6 +9,8 @@ import 'package:flower_app/features/profile/presentation/view_model/edit_profile
 import 'package:flower_app/features/profile/presentation/view_model/edit_profile_state.dart';
 import 'package:flower_app/features/profile/presentation/view_model/update_profile_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -54,6 +56,14 @@ void main() {
     test('should update profile successfully', () async {
       // Arrange
 
+      await updateProfileViewModel.doEvent(
+        EditProfileInitialized(profile: dummyProfile),
+      );
+      await updateProfileViewModel.doEvent(FirstNameChanged('Menna'));
+      await updateProfileViewModel.doEvent(LastNameChanged('Ahmed'));
+      await updateProfileViewModel.doEvent(PhoneChanged('01000000000'));
+      await updateProfileViewModel.doEvent(GenderChanged(Gender.female));
+
       when(
         mockUpdateProfileUseCase(updateProfileRequest: updateProfileRequest),
       ).thenAnswer((_) async => dummySuccessResponse);
@@ -88,13 +98,7 @@ void main() {
       // Act
 
       await updateProfileViewModel.doEvent(
-        UpdateProfileRequested(
-          firstName: updateProfileRequest.firstName,
-          lastName: updateProfileRequest.lastName,
-          phone: updateProfileRequest.phoneNumber,
-          gender: updateProfileRequest.gender,
-          profilePicture: updateProfileRequest.profilePicture,
-        ),
+        UpdateProfileRequested(),
       );
 
       // Assert
@@ -108,6 +112,14 @@ void main() {
 
     test('should return error when update profile fails', () async {
       // Arrange
+
+      await updateProfileViewModel.doEvent(
+        EditProfileInitialized(profile: dummyProfile),
+      );
+      await updateProfileViewModel.doEvent(FirstNameChanged('Menna'));
+      await updateProfileViewModel.doEvent(LastNameChanged('Ahmed'));
+      await updateProfileViewModel.doEvent(PhoneChanged('01000000000'));
+      await updateProfileViewModel.doEvent(GenderChanged(Gender.female));
 
       final errorResponse = ErrorResponse<ProfileEntity>(
         appError: BadResponseError('Update profile failed'),
@@ -142,13 +154,7 @@ void main() {
       // Act
 
       await updateProfileViewModel.doEvent(
-        UpdateProfileRequested(
-          firstName: updateProfileRequest.firstName,
-          lastName: updateProfileRequest.lastName,
-          phone: updateProfileRequest.phoneNumber,
-          gender: updateProfileRequest.gender,
-          profilePicture: updateProfileRequest.profilePicture,
-        ),
+        UpdateProfileRequested(),
       );
 
       // Assert
@@ -158,6 +164,38 @@ void main() {
       verify(
         mockUpdateProfileUseCase(updateProfileRequest: updateProfileRequest),
       ).called(1);
+    });
+
+    test('includes the selected local image in the update request', () async {
+      final directory = await Directory.systemTemp.createTemp('profile-test');
+      final imageFile = File('${directory.path}/avatar.jpg');
+      await imageFile.writeAsBytes(List<int>.filled(10, 1));
+
+      await updateProfileViewModel.doEvent(
+        EditProfileInitialized(profile: dummyProfile),
+      );
+      when(mockImagePickerService.pickImage()).thenAnswer(
+        (_) async => XFile(imageFile.path),
+      );
+      when(
+        mockUpdateProfileUseCase(
+          updateProfileRequest: anyNamed('updateProfileRequest'),
+        ),
+      ).thenAnswer((_) async => dummySuccessResponse);
+
+      await updateProfileViewModel.doEvent(PickProfileImageRequested());
+      expect(updateProfileViewModel.state.selectedImage?.path, imageFile.path);
+
+      await updateProfileViewModel.doEvent(UpdateProfileRequested());
+
+      final captured = verify(
+        mockUpdateProfileUseCase(
+          updateProfileRequest: captureAnyNamed('updateProfileRequest'),
+        ),
+      ).captured.single as UpdateProfileRequest;
+      expect(captured.profilePicture?.path, imageFile.path);
+
+      await directory.delete(recursive: true);
     });
   });
 }

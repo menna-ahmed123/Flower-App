@@ -54,13 +54,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
         await _pickImage();
 
       case UpdateProfileRequested():
-        await _updateProfile(
-          event.firstName,
-          event.lastName,
-          event.phone,
-          event.gender ?? Gender.male,
-          event.profilePicture,
-        );
+        await _updateProfile();
     }
   }
 
@@ -101,9 +95,11 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
   }
 
   Future<void> _pickImage() async {
-    final pickedImage = await _imagePickerService.pickImage();
+    try {
+      final pickedImage = await _imagePickerService.pickImage();
 
-    if (pickedImage != null) {
+      if (pickedImage == null) return;
+
       final imageFile = File(pickedImage.path);
       final extension = pickedImage.path.split('.').last.toLowerCase();
       if (!ProfileConstants.allowedExtensions.contains(extension)) {
@@ -129,16 +125,18 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
       );
 
       _updateHasChanges();
+    } catch (_) {
+      emit(
+        state.copyWith(
+          updateProfileState: state.updateProfileState.copyWith(
+            errorMessage: 'Unable to select profile image.',
+          ),
+        ),
+      );
     }
   }
 
-  Future<void> _updateProfile(
-    String firstName,
-    String lastName,
-    String phone,
-    Gender gender,
-    File? profilePicture,
-  ) async {
+  Future<void> _updateProfile() async {
     emit(
       state.copyWith(
         updateProfileState: state.updateProfileState.copyWith(
@@ -149,11 +147,11 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
     );
 
     final request = UpdateProfileRequest(
-      firstName: firstName,
-      lastName: lastName,
-      phoneNumber: phone,
-      gender: gender,
-      profilePicture: profilePicture,
+      firstName: _firstName,
+      lastName: _lastName,
+      phoneNumber: _phone,
+      gender: _gender,
+      profilePicture: state.selectedImage,
     );
 
     final response = await _updateProfileUseCase(

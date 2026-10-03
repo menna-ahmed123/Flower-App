@@ -23,6 +23,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late FakeAuthRepository authRepository;
@@ -31,6 +32,8 @@ void main() {
   late GoRouter router;
 
   setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
     await EasyLocalization.ensureInitialized();
   });
 
@@ -48,12 +51,15 @@ void main() {
     router.dispose();
   });
 
-  testWidgets('renders profile info, options and app version', (
-    tester,
-  ) async {
+  testWidgets('renders profile info, options and app version', (tester) async {
     await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
-    expect(find.text('${FakeProfileRepo.profile.firstName} ${FakeProfileRepo.profile.lastName}'), findsOneWidget);
+    expect(
+      find.text(
+        '${FakeProfileRepo.profile.firstName} ${FakeProfileRepo.profile.lastName}',
+      ),
+      findsOneWidget,
+    );
     expect(find.text(FakeProfileRepo.profile.email), findsOneWidget);
     expect(find.text(AppString.myOrders), findsOneWidget);
     expect(find.text(AppString.savedAddresses), findsOneWidget);
@@ -65,17 +71,13 @@ void main() {
     expect(find.text(AppString.appVersion), findsOneWidget);
   });
 
-  testWidgets('renders the pen icon next to the profile name', (
-    tester,
-  ) async {
+  testWidgets('renders the pen icon next to the profile name', (tester) async {
     await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
     expect(find.byKey(const Key('profileEditButton')), findsOneWidget);
   });
 
-  testWidgets('tapping the pen icon navigates to edit profile', (
-    tester,
-  ) async {
+  testWidgets('tapping the pen icon navigates to edit profile', (tester) async {
     await _pumpProfileScreen(tester, router, authCubit, profileViewModel);
 
     await tester.tap(find.byKey(const Key('profileEditButton')));
@@ -171,7 +173,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CircularProgressIndicator), findsNothing);
-    expect(find.text('${FakeProfileRepo.profile.firstName} ${FakeProfileRepo.profile.lastName}'), findsOneWidget);
+    expect(
+      find.text(
+        '${FakeProfileRepo.profile.firstName} ${FakeProfileRepo.profile.lastName}',
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
@@ -182,7 +189,12 @@ void main() {
       final viewModel = ProfileViewModel(GetProfileUseCase(controllableRepo));
       addTearDown(viewModel.close);
 
-      await _pumpProfileScreenWhileLoading(tester, router, authCubit, viewModel);
+      await _pumpProfileScreenWhileLoading(
+        tester,
+        router,
+        authCubit,
+        viewModel,
+      );
 
       controllableRepo.complete(
         ErrorResponse<ProfileEntity>(
@@ -197,13 +209,16 @@ void main() {
       controllableRepo.reset();
       await tester.tap(find.text(AppString.retry));
       await tester.pump();
-      controllableRepo.complete(
-        const SuccessResponse(FakeProfileRepo.profile),
-      );
+      controllableRepo.complete(const SuccessResponse(FakeProfileRepo.profile));
       await tester.pumpAndSettle();
 
       expect(find.text('Could not load profile'), findsNothing);
-      expect(find.text('${FakeProfileRepo.profile.firstName} ${FakeProfileRepo.profile.lastName}'), findsOneWidget);
+      expect(
+        find.text(
+          '${FakeProfileRepo.profile.firstName} ${FakeProfileRepo.profile.lastName}',
+        ),
+        findsOneWidget,
+      );
     },
   );
 
@@ -274,6 +289,7 @@ Future<void> _pumpProfileScreenTree(
   AuthCubit authCubit,
   ProfileViewModel profileViewModel,
 ) async {
+  SharedPreferences.setMockInitialValues({});
   tester.view.physicalSize = const Size(375, 812);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -289,7 +305,9 @@ Future<void> _pumpProfileScreenTree(
         designSize: const Size(375, 812),
         builder: (context, _) => MultiRepositoryProvider(
           providers: [
-            RepositoryProvider<AuthSessionController>.value(value: authCubit),
+            RepositoryProvider<AuthSessionController>.value(
+              value: FakeAuthSessionController(),
+            ),
           ],
           child: MultiBlocProvider(
             providers: [
@@ -351,6 +369,20 @@ class FakeAuthRepository implements AuthRepository {
     loggedOut = true;
     authenticated = false;
   }
+
+  @override
+  Future<void> startSessionRefresh() async {}
+
+  @override
+  void stopSessionRefresh() {}
+
+  @override
+  Stream<void> get sessionExpired => const Stream<void>.empty();
+}
+
+class FakeAuthSessionController implements AuthSessionController {
+  @override
+  Future<void> logout() async {}
 }
 
 class FakeProfileRepo implements ProfileRepo {
@@ -370,7 +402,9 @@ class FakeProfileRepo implements ProfileRepo {
   }
 
   @override
-  Future<BaseResponse<ProfileEntity>> updateMyProfile(UpdateProfileRequest updateProfileRequest) {
+  Future<BaseResponse<ProfileEntity>> updateMyProfile(
+    UpdateProfileRequest updateProfileRequest,
+  ) {
     // TODO: implement updateMyProfile
     throw UnimplementedError();
   }
@@ -394,7 +428,9 @@ class ControllableProfileRepo implements ProfileRepo {
   Future<BaseResponse<ProfileEntity>> getMyProfile() => _completer.future;
 
   @override
-  Future<BaseResponse<ProfileEntity>> updateMyProfile(UpdateProfileRequest updateProfileRequest) {
+  Future<BaseResponse<ProfileEntity>> updateMyProfile(
+    UpdateProfileRequest updateProfileRequest,
+  ) {
     // TODO: implement updateMyProfile
     throw UnimplementedError();
   }

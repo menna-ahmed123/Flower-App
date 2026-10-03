@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 
@@ -38,17 +36,5 @@ class GenderChanged extends EditProfileEvent {
 class PickProfileImageRequested extends EditProfileEvent {}
 
 class UpdateProfileRequested extends EditProfileEvent {
-  final String firstName;
-  final String lastName;
-  final String phone;
-  final Gender? gender;
-  final File? profilePicture;
-
-  UpdateProfileRequested({
-    required this.firstName,
-    required this.lastName,
-    required this.phone,
-    required this.gender,
-    this.profilePicture,
-  });
+  UpdateProfileRequested();
 }

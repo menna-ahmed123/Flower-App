@@ -81,9 +81,9 @@ class ApiEndpoints {
   static const String addressById = '/users/me/addresses/{id}';
   static const String setDefaultAddress =
       '/users/me/addresses/{addressId}/default';
-        static const String updateProfile = '/identity/users/profile';
-        static const String getMyProfile = '/identity/users/me';
-
+          //// Profile ////
+  static const String getMyProfile = '/api/identity/users/me';
+  static const String updateProfile = '/api/identity/users/profile';
 
   //// Cart ////
   static const String cart = '/cart';
