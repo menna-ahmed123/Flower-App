@@ -17,43 +17,39 @@ import 'commerce_remote_data_source_impl_test.mocks.dart';
 void main() {
   provideDummy<CategoriesResponse>(
     CategoriesResponse(
-      data: [CategoryModel(id: '1', name: 'Flowers')],
-      statusCode: 200,
-      success: true,
+      status: true,
+      code: 200,
       message: 'Success',
-      messageLocalized: 'Success',
+      data: [CategoryModel(id: '1', name: 'Flowers')],
     ),
   );
 
   provideDummy<ProductsResponse>(
-    ProductsResponse(
-      data: ProductsDataDto(page: 1, pageSize: 10, totalCount: 0, items: []),
-      statusCode: 200,
-      success: true,
+    const ProductsResponse(
+      status: true,
+      code: 200,
       message: 'Success',
-      messageLocalized: 'Success',
+      data: [],
     ),
   );
 
   provideDummy<ProductDetailsResponseModel>(
     ProductDetailsResponseModel(
+      status: true,
+      code: 200,
+      message: 'Success',
       data: ProductDetailsModel(
         id: '40000000-0000-0000-0000-000000000009',
         name: 'Red Roses',
         description: 'Beautiful red roses',
-        imageUrls: ['https://example.com/rose.jpg'],
-        includedItems: [],
+        images: ['https://example.com/rose.jpg'],
+        includes: ['Red roses: 15'],
         price: 500.0,
         discountedPrice: 450.0,
         discountPercent: 10.0,
-        requiresStoreSelection: false,
         inStock: true,
-        availableQuantity: 10,
+        availableStock: 10,
       ),
-      statusCode: 200,
-      success: true,
-      message: 'Success',
-      messageLocalized: 'Success',
     ),
   );
 
@@ -62,7 +58,6 @@ void main() {
 
   setUp(() {
     commerceApiClient = MockCommerceApiClient();
-
     datasourceImpl = CommerceRemoteDataSourceImpl(commerceApiClient);
   });
 
@@ -72,11 +67,10 @@ void main() {
     test('should return categories response when api call succeeds', () async {
       // Arrange
       final response = CategoriesResponse(
-        data: [CategoryModel(id: '1', name: 'Flowers')],
-        statusCode: 200,
-        success: true,
+        status: true,
+        code: 200,
         message: 'Success',
-        messageLocalized: 'Success',
+        data: [CategoryModel(id: '1', name: 'Flowers')],
       );
 
       when(
@@ -88,7 +82,6 @@ void main() {
 
       // Assert
       expect(result, response);
-
       verify(commerceApiClient.getAllCategories()).called(1);
     });
 
@@ -117,17 +110,11 @@ void main() {
         // Arrange
         const categoryId = '1';
 
-        final response = ProductsResponse(
-          data: ProductsDataDto(
-            page: 1,
-            pageSize: 10,
-            totalCount: 0,
-            items: [],
-          ),
-          statusCode: 200,
-          success: true,
+        const response = ProductsResponse(
+          status: true,
+          code: 200,
           message: 'Success',
-          messageLocalized: 'Success',
+          data: [],
         );
 
         when(
@@ -139,7 +126,6 @@ void main() {
 
         // Assert
         expect(result, response);
-
         verify(commerceApiClient.getProducts(categoryId: categoryId)).called(1);
       },
     );
@@ -172,23 +158,21 @@ void main() {
         const productId = '40000000-0000-0000-0000-000000000009';
 
         final response = ProductDetailsResponseModel(
+          status: true,
+          code: 200,
+          message: 'Success',
           data: ProductDetailsModel(
             id: productId,
             name: 'Red Roses',
             description: 'Beautiful red roses',
-            imageUrls: ['https://example.com/rose.jpg'],
-            includedItems: [],
+            images: ['https://example.com/rose.jpg'],
+            includes: ['Red roses: 15'],
             price: 500.0,
             discountedPrice: 450.0,
             discountPercent: 10.0,
-            requiresStoreSelection: false,
             inStock: true,
-            availableQuantity: 10,
+            availableStock: 10,
           ),
-          statusCode: 200,
-          success: true,
-          message: 'Success',
-          messageLocalized: 'Success',
         );
 
         when(
@@ -200,7 +184,6 @@ void main() {
 
         // Assert
         expect(result, response);
-
         verify(commerceApiClient.getProductDetails(productId)).called(1);
       },
     );

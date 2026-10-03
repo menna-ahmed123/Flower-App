@@ -9,6 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'app/router/app_router.dart';
+import 'core/auth/auth_session_controller.dart';
 import 'app/router/app_routes.dart';
 import 'features/auth/core/presentation/view_model/auth_cubit.dart';
 import 'features/auth/core/presentation/view_model/auth_event.dart';
@@ -19,6 +20,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env', isOptional: true);
   await ApiEndpoints.loadBaseUrl();
+  // ignore: avoid_print
+  print('🌐 BASE_URL resolved: ${ApiEndpoints.resolvedBaseUrl}');
   await configureDependencies();
   await EasyLocalization.ensureInitialized();
 
@@ -50,9 +53,16 @@ class _MyAppState extends State<MyApp> {
     initialLocation: widget.initialLocation,
   );
 
+  // Created once and shared as both the concrete AuthCubit (for screens that
+  // need its full state, e.g. Home) and the narrower AuthSessionController
+  // (for features like Profile that only need to trigger a logout without
+  // depending on the Auth feature's own presentation layer).
+  late final AuthCubit _authCubit = getIt<AuthCubit>()
+    ..doEvent(const AuthEvent.authCheckRequested());
+
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
         BlocProvider.value(
           value: getIt<AuthCubit>()

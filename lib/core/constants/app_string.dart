@@ -215,7 +215,6 @@ abstract class AppString {
   // ==================== Profile & Settings ====================
   static const String profile = 'Profile';
   static const String myProfile = 'My Profile';
-  static const String editProfile = 'Edit Profile';
   static const String savedAddresses = 'Saved Addresses';
   static const String settings = 'Settings';
   static const String language = 'Language';
@@ -223,6 +222,18 @@ abstract class AppString {
   static const String logout = 'Logout';
   static const String appVersion = 'Version 1.0.0';
   static const String helpSupport = 'Help & Support';
+
+  // ==================== Profile Screen ====================
+  static const String notification = 'Notification';
+  static const String changeLanguage = 'Change Language';
+  static const String arabicLanguage = 'Arabic';
+  static const String englishLanguage = 'English';
+  static const String logoutDialogTitle = 'LOGOUT';
+  static const String confirmLogoutMessage = 'Confirm logout!!';
+  static const String aboutUs = 'About us';
+  static const String termsAndConditionsRow = 'Terms & conditions';
+  static const String changeProfilePicture = 'Change profile picture';
+  static const String editProfile = 'Edit Profile';
 
   static const String somethingWrong = 'Something went wrong';
   static const String retry = 'Retry';
@@ -271,4 +282,8 @@ abstract class AppString {
   static const String selectDeliveryAddress =
       'Select where you want your flowers delivered';
   static const String chooseDeliveryAddress = 'Choose delivery address';
+  static const String changePassword = 'Change Password';
+    static const String save = 'save';
+
+ 
 }

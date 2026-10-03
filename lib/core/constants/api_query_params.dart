@@ -1,7 +1,7 @@
 class ApiQueryParams {
   ApiQueryParams._();
 
-  static const String occasionId = 'occasionId';
+  static const String occasionId = 'OccasionId';
   static const String categoryId = 'categoryId';
   static const String id = 'id';
   static const String addressId = 'addressId';

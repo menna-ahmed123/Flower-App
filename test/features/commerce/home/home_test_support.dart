@@ -20,7 +20,7 @@ HomeSectionDto sectionDto({
     id: id,
     title: title,
     order: order,
-    enabled: enabled,
+    isEnabled: enabled,
     payload: payload,
   );
 }

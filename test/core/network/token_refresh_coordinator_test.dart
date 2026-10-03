@@ -62,43 +62,42 @@ void main() {
   });
 
   group('successful refresh', () {
-    test('persists the new tokens (including expiry) and returns them', () async {
+    test(
+      'persists the new tokens (including expiry) and returns them',
+      () async {
+        final refresher = _ScriptedTokenRefresher([
+          (_) async => const AuthTokens(
+            accessToken: 'new-access',
+            refreshToken: 'new-refresh',
+            expiresIn: 900,
+          ),
+        ]);
+        final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
+
+        final result = await coordinator.refresh();
+
+        expect(result?.accessToken, 'new-access');
+        expect(tokenStorage.accessToken, 'new-access');
+        expect(tokenStorage.refreshToken, 'new-refresh');
+        expect(tokenStorage.accessTokenExpiry, isNotNull);
+        expect(refresher.refreshTokensReceived, ['old-refresh']);
+      },
+    );
+
+    test('rejects a response with an empty refresh token', () async {
       final refresher = _ScriptedTokenRefresher([
-            (_) async => const AuthTokens(
+        (_) async => const AuthTokens(
           accessToken: 'new-access',
-          refreshToken: 'new-refresh',
+          refreshToken: '',
           expiresIn: 900,
         ),
       ]);
       final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
 
-      final result = await coordinator.refresh();
-
-      expect(result?.accessToken, 'new-access');
-      expect(tokenStorage.accessToken, 'new-access');
-      expect(tokenStorage.refreshToken, 'new-refresh');
-      expect(tokenStorage.accessTokenExpiry, isNotNull);
-      expect(refresher.refreshTokensReceived, ['old-refresh']);
+      await expectLater(coordinator.refresh(), throwsA(isA<StateError>()));
+      expect(tokenStorage.accessToken, 'old-access');
+      expect(tokenStorage.refreshToken, 'old-refresh');
     });
-
-    test(
-      'rejects a refresh response that omits the new refresh token',
-          () async {
-        final refresher = _ScriptedTokenRefresher([
-              (_) async => const AuthTokens(
-                accessToken: 'new-access',
-                refreshToken: '',
-                expiresIn: 900,
-              ),
-        ]);
-        final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
-
-        await expectLater(coordinator.refresh(), throwsA(isA<StateError>()));
-
-        expect(tokenStorage.accessToken, 'old-access');
-        expect(tokenStorage.refreshToken, 'old-refresh');
-      },
-    );
   });
 
   group('backend reports failure without a transport error', () {
@@ -115,24 +114,27 @@ void main() {
   });
 
   group('invalid refresh token (401/400 from the refresh call)', () {
-    test('clears the session and throws SessionExpiredException on 401', () async {
-      final refresher = _ScriptedTokenRefresher([
-            (_) async => throw _dioError(401),
-      ]);
-      final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
+    test(
+      'clears the session and throws SessionExpiredException on 401',
+      () async {
+        final refresher = _ScriptedTokenRefresher([
+          (_) async => throw _dioError(401),
+        ]);
+        final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
 
-      await expectLater(
-        coordinator.refresh(),
-        throwsA(isA<SessionExpiredException>()),
-      );
-      expect(tokenStorage.clearCount, 1);
-      expect(tokenStorage.accessToken, isNull);
-      expect(tokenStorage.refreshToken, isNull);
-    });
+        await expectLater(
+          coordinator.refresh(),
+          throwsA(isA<SessionExpiredException>()),
+        );
+        expect(tokenStorage.clearCount, 1);
+        expect(tokenStorage.accessToken, isNull);
+        expect(tokenStorage.refreshToken, isNull);
+      },
+    );
 
     test('also treats 400 as an invalid refresh token', () async {
       final refresher = _ScriptedTokenRefresher([
-            (_) async => throw _dioError(400),
+        (_) async => throw _dioError(400),
       ]);
       final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
 
@@ -147,7 +149,7 @@ void main() {
   group('transient network/server error', () {
     test('rethrows the DioException without clearing the session', () async {
       final refresher = _ScriptedTokenRefresher([
-            (_) async => throw _dioError(500),
+        (_) async => throw _dioError(500),
       ]);
       final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
 
@@ -184,16 +186,16 @@ void main() {
 
     test('a call after completion triggers a fresh refresh', () async {
       final refresher = _ScriptedTokenRefresher([
-            (_) async => const AuthTokens(
-              accessToken: 'first',
-              refreshToken: 'first-refresh',
-              expiresIn: 900,
-            ),
-            (_) async => const AuthTokens(
-              accessToken: 'second',
-              refreshToken: 'second-refresh',
-              expiresIn: 900,
-            ),
+        (_) async => const AuthTokens(
+          accessToken: 'first',
+          refreshToken: 'first-refresh',
+          expiresIn: 900,
+        ),
+        (_) async => const AuthTokens(
+          accessToken: 'second',
+          refreshToken: 'second-refresh',
+          expiresIn: 900,
+        ),
       ]);
       final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
 

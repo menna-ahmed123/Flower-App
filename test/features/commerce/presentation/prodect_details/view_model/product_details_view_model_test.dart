@@ -38,11 +38,10 @@ void main() {
         name: 'Red Rose',
         description: 'Beautiful red rose',
         imageUrls: ['https://example.com/rose.jpg'],
-        includedItems: [],
+        includesRaw: ['Red roses: 15'],
         price: 500.0,
         discountedPrice: 450.0,
         discountPercent: 10.0,
-        requiresStoreSelection: false,
         inStock: true,
         availableQuantity: 10,
       );

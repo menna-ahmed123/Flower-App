@@ -22,6 +22,18 @@ void main() {
       mapHomeDeepLink('/product_details?id=flower-1'),
       '/product-details/flower-1',
     );
+    expect(mapHomeDeepLink('flowerapp://categories'), AppRoutesName.category);
+    expect(mapHomeDeepLink('flowerapp://occasions'), AppRoutesName.occasion);
+    expect(
+      mapHomeDeepLink('flowerapp://products/flower-1'),
+      '/product-details/flower-1',
+    );
+    expect(
+      mapHomeDeepLink('flowerapp://best-sellers'),
+      AppRoutesName.bestSeller,
+    );
+    expect(mapHomeDeepLink('flowerapp://promotions'), isEmpty);
+    expect(mapHomeDeepLink('https://example.com/categories'), isEmpty);
   });
 
   testWidgets('renders sections in API order and skips unknown types', (
@@ -53,7 +65,11 @@ List<HomeSectionEntity> _orderedSections() {
   return [
     sectionEntity(type: HomeSectionTypes.banner, id: 'b', title: 'Hero'),
     sectionEntity(type: 'unknown_type', id: 'u', title: 'Mystery'),
-    sectionEntity(type: HomeSectionTypes.productRail, id: 'p', title: 'Best seller'),
+    sectionEntity(
+      type: HomeSectionTypes.productRail,
+      id: 'p',
+      title: 'Best seller',
+    ),
     sectionEntity(
       type: HomeSectionTypes.categoryRail,
       id: 'c',
