@@ -17,7 +17,7 @@ class CategoriesResponse {
   @JsonKey(name: "pagination")
   final Pagination? pagination;
   @JsonKey(name: "errors")
-  final dynamic? errors;
+  final dynamic errors;
 
   CategoriesResponse ({
     this.status,

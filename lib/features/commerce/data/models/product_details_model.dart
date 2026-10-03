@@ -7,7 +7,7 @@ part 'product_details_model.g.dart';
 /// Product detail data as returned by GET /api/catalog/products/{id} (new API).
 /// Key changes from old API:
 ///   - imageUrls  → images
-///   - includedItems (List<IncludedItemModel>) → includes (List<String>)
+///   - includedItems (`List<IncludedItemModel>`) → includes (`List<String>`)
 ///   - availableQuantity → availableStock
 ///   - added: availabilityStatus, categoryIds, occasionIds
 @JsonSerializable()
@@ -45,7 +45,7 @@ class ProductDetailsModel {
   final List<String>? images;
 
   /// New format: flat list of strings like ["Pink roses: 15", "White wrap"].
-  /// Old API had List<IncludedItemModel> with name+quantity.
+  /// Old API had `List<IncludedItemModel>` with name+quantity.
   @JsonKey(name: 'includes')
   final List<String>? includes;
 

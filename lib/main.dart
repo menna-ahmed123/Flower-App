@@ -64,11 +64,9 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        BlocProvider.value(
-          value: getIt<AuthCubit>()
-            ..doEvent(const AuthEvent.authCheckRequested()),
-        ),
-        BlocProvider.value(value: getIt<CartViewModel>()),
+        RepositoryProvider<AuthSessionController>.value(value: _authCubit),
+        BlocProvider<AuthCubit>.value(value: _authCubit),
+        BlocProvider<CartViewModel>.value(value: getIt<CartViewModel>()),
       ],
       child: BlocListener<AuthCubit, AuthState>(
         listenWhen: (previous, current) =>

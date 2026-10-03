@@ -2,7 +2,6 @@ import 'package:flower_app/app/layout/main_shell.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/route_success_snack_bar.dart';
-import 'package:flower_app/core/services/image_picker_service.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
@@ -45,7 +44,6 @@ import 'package:flower_app/features/profile/presentation/view_model/profile_view
 import 'package:flower_app/features/profile/presentation/view_model/update_profile_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/core/domain/repos/auth_repository.dart';
@@ -83,7 +81,20 @@ class AppRouter {
           path: AppRoutesName.saveAddress,
           builder: _saveAddressBuilder,
         ),
-      
+        GoRoute(path: AppRoutesName.checkout, builder: _checkoutBuilder),
+        GoRoute(path: AppRoutesName.payment, builder: _paymentBuilder),
+        GoRoute(
+          path: AppRoutesName.confirmation,
+          builder: _confirmationBuilder,
+        ),
+        GoRoute(path: AppRoutesName.trackOrder, builder: _trackOrderBuilder),
+        GoRoute(
+          path: AppRoutesName.webView,
+          builder: (context, state) {
+            final args = state.extra as WebViewArgs;
+            return AppWebViewScreen(url: args.url, title: args.title);
+          },
+        ),
       ],
     );
   }

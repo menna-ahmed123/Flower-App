@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'refresh_token_models.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class RefreshTokenRequest {
   const RefreshTokenRequest({required this.refreshToken});
 
@@ -11,7 +11,7 @@ class RefreshTokenRequest {
   Map<String, dynamic> toJson() => _$RefreshTokenRequestToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 class RefreshTokenResponse {
   const RefreshTokenResponse({
     this.status,
@@ -33,7 +33,7 @@ class RefreshTokenResponse {
       _$RefreshTokenResponseFromJson(json);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 class RefreshTokenData {
   const RefreshTokenData({required this.token, required this.refreshToken});
 

@@ -11,7 +11,7 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 @lazySingleton
-class AuthCubit extends Cubit<AuthState> {
+class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
   AuthCubit(this._authRepository) : super(AuthState.initial()) {
     _sessionExpiredSubscription = _authRepository.sessionExpired.listen(
           (_) => _handleSessionExpired(),
