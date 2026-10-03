@@ -14,34 +14,41 @@ abstract class CartApiClient {
   factory CartApiClient(Dio dio, {String baseUrl}) = _CartApiClient;
 
   @GET(ApiEndpoints.cart)
-  Future<CartResponse> getCart(@Query(ApiQueryParams.storeId) String storeId);
+  Future<CartResponse> getCart();
 
   @POST(ApiEndpoints.cartItems)
-  Future<CartResponse> addCartItem(@Body() AddCartItemRequest request);
+  Future<AddCartItemResponse> addCartItem(@Body() AddCartItemRequest request);
 
-  @PUT(ApiEndpoints.cartItem)
+  @PATCH(ApiEndpoints.cartItem)
   Future<CartResponse> updateCartItem(
-    @Path(ApiQueryParams.id) String id,
+    @Path(ApiQueryParams.itemId) String itemId,
     @Body() UpdateCartItemRequest request,
   );
 
   @DELETE(ApiEndpoints.cartItem)
-  Future<void> removeCartItem(
-    @Path(ApiQueryParams.id) String id,
-    @Query(ApiQueryParams.storeId) String storeId,
+  Future<CartResponse> removeCartItem(
+    @Path(ApiQueryParams.itemId) String itemId,
   );
 
-  @POST(ApiEndpoints.checkoutPreview)
-  Future<CheckoutPreviewResponse> previewCheckout(
-    @Body() CheckoutRequest request,
+  @GET(ApiEndpoints.checkoutDetails)
+  Future<CheckoutDetailsResponse> checkoutDetails(
+    @Query(ApiQueryParams.cartId) String cartId,
   );
 
-  @POST(ApiEndpoints.checkout)
+  @GET(ApiEndpoints.estimateDelivery)
+  Future<HttpResponse<dynamic>> estimateDelivery(
+    @Query(ApiQueryParams.estimateAddressId) String addressId,
+    @Query(ApiQueryParams.estimateCartId) String cartId,
+  );
+
+  @POST(ApiEndpoints.placeOrder)
   Future<OrderResponse> placeOrder(
     @Header(ApiQueryParams.idempotencyKey) String idempotencyKey,
-    @Body() CheckoutRequest request,
+    @Body() PlaceOrderRequest request,
   );
 
-  @POST(ApiEndpoints.paymentsCharge)
-  Future<void> processPayment();
+  @POST(ApiEndpoints.paymentCheckout)
+  Future<PaymentCheckoutResponse> createPaymentCheckout(
+    @Body() PaymentCheckoutRequest request,
+  );
 }

@@ -11,7 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../cart_test_support.dart';
 
 void main() {
-  _previewTests();
+  _detailsTests();
+  _estimateTests();
   _giftTests();
   _submitGuardTests();
   _placeOrderTests();
@@ -19,13 +20,30 @@ void main() {
 }
 
 const _address = AddressEntity(id: 'address-1', city: 'Cairo');
-const _preview = CartEntity(
+const _line = CartItemEntity(
+  id: 'item-1',
+  productId: 'product-1',
+  name: 'Red Rose',
+  imageUrl: '',
+  price: 100,
+  quantity: 1,
+);
+const _stockedCart = CartEntity(
+  id: 'cart-1',
+  items: [_line],
+  subtotal: 100,
+  deliveryFee: 0,
+  total: 100,
+  itemCount: 1,
+);
+const _details = CartEntity(
   id: 'cart-1',
   items: [],
   subtotal: 100,
   deliveryFee: 0,
   total: 100,
-  itemCount: 1,
+  itemCount: 0,
+  paymentMethods: checkoutPaymentMethods,
 );
 
 class CheckoutCase {
@@ -33,13 +51,17 @@ class CheckoutCase {
   late CheckoutViewModel viewModel;
 
   void setUp() {
-    cartRepo = FakeCartRepo(previewResponse: const SuccessResponse(_preview));
+    cartRepo = FakeCartRepo(
+      getCartResponse: const SuccessResponse(_stockedCart),
+      detailsResponse: const SuccessResponse(_details),
+    );
     viewModel = testCheckoutViewModel(cartRepo);
   }
 
   Future<void> tearDown() => viewModel.close();
 
   Future<void> readyToSubmit() async {
+    await viewModel.doEvent(const LoadCheckoutPreview());
     await viewModel.doEvent(const SelectCheckoutAddress(_address));
     await viewModel.doEvent(
       const SelectCheckoutPayment(CheckoutPaymentMethods.cashOnDelivery),
@@ -47,104 +69,160 @@ class CheckoutCase {
   }
 }
 
-void _previewTests() {
-  group('preview', () {
+void _detailsTests() {
+  group('checkout details', () {
     final c = CheckoutCase();
     setUp(c.setUp);
     tearDown(c.tearDown);
-    test('loads checkout preview from cart', () => _loadsPreview(c));
-    test('selecting an address refreshes the preview once', () {
-      return _selectsAddressOnce(c);
+    test('loads checkout details for the cart id', () => _loadsDetails(c));
+    test('address required opens add address', () => _addressRequired(c));
+    test('non-serviceable address stays on checkout', () {
+      return _notServiceable(c);
     });
-    test('address required preview opens add address', () {
-      return _previewAddressRequired(c);
-    });
-    test('default address preview omits addressId', () {
-      return _defaultAddressOmitsId(c);
-    });
-    test('selected non-default address sends addressId', () {
-      return _selectedAddressSendsId(c);
-    });
-    test('gift preview omits addressId and sends gift', () {
-      return _giftPreviewOmitsAddressId(c);
-    });
-    test('address not serviceable stays on checkout', () {
-      return _previewAddressNotServiceable(c);
-    });
-    test('empty cart preview opens the empty cart state', () {
-      return _previewCartEmpty(c);
-    });
+    test('empty cart opens the empty cart state', () => _emptyCart(c));
   });
 }
 
-Future<void> _loadsPreview(CheckoutCase c) async {
+Future<void> _loadsDetails(CheckoutCase c) async {
   await c.viewModel.doEvent(const LoadCheckoutPreview());
-  expect(c.cartRepo.previewCalls, 1);
+  expect(c.cartRepo.getCartCalls, 1);
+  expect(c.cartRepo.detailsCalls, 1);
+  expect(c.cartRepo.lastDetailsCartId, 'cart-1');
+  expect(c.cartRepo.estimateCalls, 0);
   expect(c.viewModel.state.previewState.data?.total, 100);
+  expect(c.viewModel.state.paymentMethods, checkoutPaymentMethods);
 }
 
-Future<void> _selectsAddressOnce(CheckoutCase c) async {
-  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
-  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
-  expect(c.viewModel.state.selectedAddress, _address);
-  expect(c.cartRepo.previewCalls, 1);
-}
-
-Future<void> _previewAddressRequired(CheckoutCase c) async {
-  c.cartRepo.previewResponse = ErrorResponse(
+Future<void> _addressRequired(CheckoutCase c) async {
+  c.cartRepo.detailsResponse = ErrorResponse(
     appError: BadResponseError('required', code: 'AddressRequired'),
   );
   await c.viewModel.doEvent(const LoadCheckoutPreview());
   expect(c.viewModel.state.destination, CheckoutDestination.addAddress);
 }
 
-Future<void> _defaultAddressOmitsId(CheckoutCase c) async {
+Future<void> _notServiceable(CheckoutCase c) async {
+  c.cartRepo.detailsResponse = const SuccessResponse(
+    CartEntity(
+      id: 'cart-1',
+      items: [],
+      subtotal: 517.90,
+      deliveryFee: 0,
+      total: 517.90,
+      itemCount: 0,
+      isServiceable: false,
+      paymentMethods: checkoutPaymentMethods,
+    ),
+  );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  expect(c.viewModel.state.destination, isNull);
+  expect(c.viewModel.state.previewState.data?.total, 517.90);
+  expect(c.viewModel.state.previewState.data?.isServiceable, isFalse);
+  expect(
+    c.viewModel.state.previewState.errorMessage,
+    AppString.deliveryUnavailable,
+  );
+  expect(c.viewModel.state.canSubmit, isFalse);
+}
+
+Future<void> _emptyCart(CheckoutCase c) async {
+  c.cartRepo.getCartResponse = const SuccessResponse(CartEntity.empty());
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  expect(c.cartRepo.detailsCalls, 0);
+  expect(c.viewModel.state.destination, CheckoutDestination.emptyCart);
+  expect(c.viewModel.state.previewState.errorMessage, AppString.cartIsEmpty);
+}
+
+void _estimateTests() {
+  group('delivery estimate', () {
+    final c = CheckoutCase();
+    setUp(c.setUp);
+    tearDown(c.tearDown);
+    test('selecting an address requests one estimate', () {
+      return _selectsAddressOnce(c);
+    });
+    test('an address chosen while details load estimates once', () {
+      return _estimatesOnceDuringLoad(c);
+    });
+    test('default address still sends AddressId and CartId', () {
+      return _defaultAddressSendsIds(c);
+    });
+    test('estimate updates totals and does not invent a missing fee', () {
+      return _appliesEstimate(c);
+    });
+    test('non-serviceable estimate blocks submit', () {
+      return _estimateNotServiceable(c);
+    });
+  });
+}
+
+Future<void> _estimatesOnceDuringLoad(CheckoutCase c) async {
+  c.cartRepo.detailsDelay = const Duration(milliseconds: 30);
+  final load = c.viewModel.doEvent(const LoadCheckoutPreview());
+  await Future<void>.delayed(Duration.zero);
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  await load;
+  expect(c.cartRepo.detailsCalls, 1);
+  expect(c.cartRepo.estimateCalls, 1);
+  expect(c.cartRepo.lastEstimateAddressId, 'address-1');
+  expect(c.cartRepo.lastEstimateCartId, 'cart-1');
+  expect(c.viewModel.state.previewState.data?.total, 100);
+}
+
+Future<void> _selectsAddressOnce(CheckoutCase c) async {
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  expect(c.viewModel.state.selectedAddress, _address);
+  expect(c.cartRepo.estimateCalls, 1);
+  expect(c.cartRepo.lastEstimateAddressId, 'address-1');
+  expect(c.cartRepo.lastEstimateCartId, 'cart-1');
+}
+
+Future<void> _defaultAddressSendsIds(CheckoutCase c) async {
   const address = AddressEntity(
     id: 'address-default',
     city: 'Cairo',
     isDefault: true,
   );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
   await c.viewModel.doEvent(const SelectCheckoutAddress(address));
-  expect(c.cartRepo.lastPreviewAddressId, isNull);
-  expect(c.cartRepo.lastPreviewGift, isNull);
+  expect(c.cartRepo.lastEstimateAddressId, 'address-default');
+  expect(c.cartRepo.lastEstimateCartId, 'cart-1');
 }
 
-Future<void> _selectedAddressSendsId(CheckoutCase c) async {
-  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
-  expect(c.cartRepo.lastPreviewAddressId, 'address-1');
-  expect(c.cartRepo.lastPreviewGift, isNull);
-}
-
-Future<void> _giftPreviewOmitsAddressId(CheckoutCase c) async {
-  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
-  await c.viewModel.doEvent(
-    const UpdateGiftRecipient(name: 'Mona', phone: '01001112222'),
-  );
-  await c.viewModel.doEvent(const ToggleCheckoutGift(true));
-  expect(c.cartRepo.lastPreviewAddressId, isNull);
-  expect(c.cartRepo.lastPreviewGift?.recipientName, 'Mona');
-  expect(c.cartRepo.lastPreviewGift?.phone, '01001112222');
-}
-
-Future<void> _previewAddressNotServiceable(CheckoutCase c) async {
-  c.cartRepo.previewResponse = ErrorResponse(
-    appError: BadResponseError('unserviceable', code: 'AddressNotServiceable'),
+Future<void> _appliesEstimate(CheckoutCase c) async {
+  c.cartRepo.estimateResponse = const SuccessResponse(
+    DeliveryEstimateEntity(deliveryFee: 25, total: 125, hasData: true),
   );
   await c.viewModel.doEvent(const LoadCheckoutPreview());
-  expect(c.viewModel.state.destination, isNull);
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  expect(c.viewModel.state.previewState.data?.subtotal, 100);
+  expect(c.viewModel.state.previewState.data?.deliveryFee, 25);
+  expect(c.viewModel.state.previewState.data?.total, 125);
+  c.cartRepo.estimateResponse = const SuccessResponse(DeliveryEstimateEntity());
+  await c.viewModel.doEvent(
+    const SelectCheckoutAddress(AddressEntity(id: 'address-2')),
+  );
+  expect(c.viewModel.state.previewState.data?.deliveryFee, 25);
+  expect(c.viewModel.state.previewState.data?.total, 125);
+}
+
+Future<void> _estimateNotServiceable(CheckoutCase c) async {
+  c.cartRepo.estimateResponse = const SuccessResponse(
+    DeliveryEstimateEntity(isServiceable: false, hasData: true),
+  );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  await c.viewModel.doEvent(
+    const SelectCheckoutPayment(CheckoutPaymentMethods.cashOnDelivery),
+  );
+  expect(c.viewModel.state.previewState.data?.isServiceable, isFalse);
+  expect(c.viewModel.state.canSubmit, isFalse);
   expect(
     c.viewModel.state.previewState.errorMessage,
     AppString.deliveryUnavailable,
   );
-}
-
-Future<void> _previewCartEmpty(CheckoutCase c) async {
-  c.cartRepo.previewResponse = ErrorResponse(
-    appError: BadResponseError('empty', code: 'CartEmpty'),
-  );
-  await c.viewModel.doEvent(const LoadCheckoutPreview());
-  expect(c.viewModel.state.destination, CheckoutDestination.emptyCart);
-  expect(c.viewModel.state.previewState.errorMessage, AppString.cartIsEmpty);
 }
 
 void _giftTests() {
@@ -152,8 +230,23 @@ void _giftTests() {
     final c = CheckoutCase();
     setUp(c.setUp);
     tearDown(c.tearDown);
+    test('toggling gift does not request another estimate', () {
+      return _giftStaysLocal(c);
+    });
     test('toggling gift keeps recipient values', () => _keepsRecipient(c));
   });
+}
+
+Future<void> _giftStaysLocal(CheckoutCase c) async {
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  await c.viewModel.doEvent(
+    const UpdateGiftRecipient(name: 'Mona', phone: '01001112222'),
+  );
+  await c.viewModel.doEvent(const ToggleCheckoutGift(true));
+  expect(c.cartRepo.estimateCalls, 1);
+  expect(c.cartRepo.detailsCalls, 1);
+  expect(c.viewModel.state.isGift, isTrue);
 }
 
 Future<void> _keepsRecipient(CheckoutCase c) async {
@@ -172,15 +265,14 @@ void _submitGuardTests() {
     final c = CheckoutCase();
     setUp(c.setUp);
     tearDown(c.tearDown);
-    test(
-      'blocks place order without address or payment',
-      () => _blocksEmpty(c),
-    );
+    test('blocks place order without address or payment', () {
+      return _blocksEmpty(c);
+    });
     test('blocks place order when gift recipient is invalid', () {
       return _blocksInvalidGift(c);
     });
-    test('blocks place order without a successful preview', () {
-      return _blocksFailedPreview(c);
+    test('blocks place order without checkout details', () {
+      return _blocksFailedDetails(c);
     });
   });
 }
@@ -199,10 +291,11 @@ Future<void> _blocksInvalidGift(CheckoutCase c) async {
   expect(c.viewModel.state.showValidation, isTrue);
 }
 
-Future<void> _blocksFailedPreview(CheckoutCase c) async {
-  c.cartRepo.previewResponse = ErrorResponse(
+Future<void> _blocksFailedDetails(CheckoutCase c) async {
+  c.cartRepo.detailsResponse = ErrorResponse(
     appError: BadResponseError('failed'),
   );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
   await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
   await c.viewModel.doEvent(
     const SelectCheckoutPayment(CheckoutPaymentMethods.cashOnDelivery),
@@ -217,15 +310,11 @@ void _placeOrderTests() {
     final c = CheckoutCase();
     setUp(c.setUp);
     tearDown(c.tearDown);
-    test('places cash order and goes to confirmation', () {
-      return _placesCashOrder(c);
-    });
-    test('credit card place order goes to payment', () => _placesCardOrder(c));
-    test('place order uses payment method value from preview', () {
-      return _usesPreviewPaymentMethod(c);
-    });
-    test('missing paymentRequired does not confirm cash order', () {
-      return _rejectsMissingPaymentRequired(c);
+    test('places a COD order and opens confirmation', () => _placesCod(c));
+    test('places a card order and opens payment', () => _placesCard(c));
+    test('places a gift order with the recipient', () => _placesGift(c));
+    test('a placed order without PLACED status does not confirm', () {
+      return _rejectsUnplaced(c);
     });
     test('failed place order keeps form state', () => _keepsFormOnFailure(c));
     test('prevents duplicate place order while submitting', () {
@@ -237,74 +326,88 @@ void _placeOrderTests() {
     test('items unavailable shows backend item details', () {
       return _showsItemsUnavailable(c);
     });
-    test('price changed updates preview totals', () {
-      return _appliesPriceChanged(c);
-    });
+    test(
+      'price changed updates checkout totals',
+      () => _appliesPriceChanged(c),
+    );
   });
 }
 
-Future<void> _placesCashOrder(CheckoutCase c) async {
+Future<void> _placesCod(CheckoutCase c) async {
   c.cartRepo.placeOrderResponse = const SuccessResponse(
-    OrderEntity(orderId: 'order-cash', status: 0, paymentRequired: false),
+    OrderEntity(
+      orderId: 'order-cash',
+      orderNumber: 'ORD-1',
+      status: 'PLACED',
+      paymentMethod: 'COD',
+      paymentStatus: 'PENDING',
+      total: 100,
+    ),
   );
   await c.readyToSubmit();
   await c.viewModel.doEvent(const SubmitPlaceOrder());
   expect(c.cartRepo.placeOrderCalls, 1);
-  expect(c.cartRepo.lastExpectedTotal, 100);
+  expect(c.cartRepo.lastCartId, 'cart-1');
+  expect(c.cartRepo.lastAddressId, 'address-1');
+  expect(c.cartRepo.lastIsGift, isFalse);
+  expect(c.cartRepo.lastRecipientName, isNull);
+  expect(c.cartRepo.lastPaymentMethod, 'cod');
+  expect(c.cartRepo.lastPaymentGateway, isNull);
+  expect(c.cartRepo.idempotencyKeys.single, isNotEmpty);
   expect(c.viewModel.state.destination, CheckoutDestination.confirmation);
   expect(c.viewModel.state.orderId, 'order-cash');
+  expect(c.viewModel.state.sessionUrl, isNull);
 }
 
-Future<void> _rejectsMissingPaymentRequired(CheckoutCase c) async {
-  c.cartRepo.placeOrderResponse = const SuccessResponse(OrderEntity(status: 0));
-  await c.readyToSubmit();
-  await c.viewModel.doEvent(const SubmitPlaceOrder());
-  expect(c.viewModel.state.destination, isNull);
-  expect(c.viewModel.state.submitState.errorMessage, AppString.orderFailed);
-}
-
-Future<void> _placesCardOrder(CheckoutCase c) async {
+Future<void> _placesCard(CheckoutCase c) async {
   c.cartRepo.placeOrderResponse = const SuccessResponse(
     OrderEntity(
       orderId: 'order-card',
-      paymentRequired: true,
-      status: 6,
-      sessionUrl: 'https://pay.example/session',
-      successUrl: 'https://app.example/success',
-      cancelUrl: 'https://app.example/cancel',
+      status: 'PLACED',
+      paymentMethod: 'Card',
+      paymentStatus: 'PENDING',
+      total: 100,
     ),
   );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
   await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
   await c.viewModel.doEvent(
     const SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
   );
   await c.viewModel.doEvent(const SubmitPlaceOrder());
+  expect(c.cartRepo.lastPaymentMethod, 'Card');
+  expect(c.cartRepo.lastPaymentGateway, 'Stripe');
   expect(c.viewModel.state.destination, CheckoutDestination.payment);
   expect(c.viewModel.state.orderId, 'order-card');
-  expect(c.viewModel.state.sessionUrl, 'https://pay.example/session');
-  expect(c.viewModel.state.successUrl, 'https://app.example/success');
-  expect(c.viewModel.state.cancelUrl, 'https://app.example/cancel');
+  expect(c.viewModel.state.sessionUrl, isNull);
 }
 
-Future<void> _usesPreviewPaymentMethod(CheckoutCase c) async {
-  c.cartRepo.previewResponse = const SuccessResponse(
-    CartEntity(
-      id: 'cart-1',
-      items: [],
-      subtotal: 100,
-      deliveryFee: 0,
-      total: 100,
-      itemCount: 1,
-      paymentMethods: [
-        PaymentMethodEntity(name: 'Visa', value: 2),
-        PaymentMethodEntity(name: 'Wallet', value: 3),
-      ],
-    ),
+Future<void> _placesGift(CheckoutCase c) async {
+  await c.readyToSubmit();
+  await c.viewModel.doEvent(
+    const UpdateGiftRecipient(name: 'Nada Ahmed', phone: '01098887966'),
   );
-  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
-  await c.viewModel.doEvent(const SelectCheckoutPayment('Visa'));
+  await c.viewModel.doEvent(const ToggleCheckoutGift(true));
+  c.cartRepo.placeOrderResponse = const SuccessResponse(
+    OrderEntity(orderId: 'order-gift', status: 'PLACED', paymentMethod: 'COD'),
+  );
   await c.viewModel.doEvent(const SubmitPlaceOrder());
-  expect(c.cartRepo.lastPaymentMethod, 2);
+  expect(c.cartRepo.lastIsGift, isTrue);
+  expect(c.cartRepo.lastRecipientName, 'Nada Ahmed');
+  expect(c.cartRepo.lastRecipientPhone, '01098887966');
+  expect(c.cartRepo.lastAddressId, 'address-1');
+  expect(c.cartRepo.lastPaymentMethod, 'cod');
+  expect(c.viewModel.state.destination, CheckoutDestination.confirmation);
+}
+
+Future<void> _rejectsUnplaced(CheckoutCase c) async {
+  c.cartRepo.placeOrderResponse = const SuccessResponse(
+    OrderEntity(orderId: 'order-cash', paymentMethod: 'COD'),
+  );
+  await c.readyToSubmit();
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
+  expect(c.viewModel.state.destination, isNull);
+  expect(c.viewModel.state.submitState.errorMessage, AppString.orderFailed);
 }
 
 Future<void> _keepsFormOnFailure(CheckoutCase c) async {
@@ -396,15 +499,65 @@ void _paymentTests() {
     final c = CheckoutCase();
     setUp(c.setUp);
     tearDown(c.tearDown);
-    test(
-      'payment success navigates to confirmation',
-      () => _paysSuccessfully(c),
-    );
+    test('card checkout stores the Stripe session and does not confirm', () {
+      return _createsCheckoutSession(c);
+    });
+    test('payment failure does not confirm the order', () {
+      return _paymentFails(c);
+    });
   });
 }
 
-Future<void> _paysSuccessfully(CheckoutCase c) async {
+Future<void> _createsCheckoutSession(CheckoutCase c) async {
+  c.cartRepo.placeOrderResponse = const SuccessResponse(
+    OrderEntity(orderId: 'order-card', status: 'PLACED', total: 58.98),
+  );
+  c.cartRepo.paymentResponse = const SuccessResponse(
+    PaymentCheckoutEntity(
+      checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test',
+      stripeSessionId: 'cs_test',
+      paymentAttemptId: 'attempt-1',
+    ),
+  );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  await c.viewModel.doEvent(
+    const SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
+  );
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
   await c.viewModel.doEvent(const ProcessCheckoutPayment());
   expect(c.cartRepo.paymentCalls, 1);
-  expect(c.viewModel.state.destination, CheckoutDestination.confirmation);
+  expect(c.cartRepo.lastPaymentOrderId, 'order-card');
+  expect(c.cartRepo.lastAmountTotal, 58.98);
+  expect(c.cartRepo.lastCurrency, 'USD');
+  expect(
+    c.viewModel.state.sessionUrl,
+    'https://checkout.stripe.com/c/pay/cs_test',
+  );
+  expect(c.viewModel.state.stripeSessionId, 'cs_test');
+  expect(c.viewModel.state.paymentAttemptId, 'attempt-1');
+  expect(c.viewModel.state.destination, CheckoutDestination.payment);
+}
+
+Future<void> _paymentFails(CheckoutCase c) async {
+  c.cartRepo.placeOrderResponse = const SuccessResponse(
+    OrderEntity(orderId: 'order-card', status: 'PLACED', total: 100),
+  );
+  c.cartRepo.paymentResponse = ErrorResponse(
+    appError: BadResponseError('Payment checkout failed'),
+  );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  await c.viewModel.doEvent(
+    const SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
+  );
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
+  await c.viewModel.doEvent(const ClearCheckoutNavigation());
+  await c.viewModel.doEvent(const ProcessCheckoutPayment());
+  expect(c.viewModel.state.destination, isNull);
+  expect(c.viewModel.state.sessionUrl, isNull);
+  expect(
+    c.viewModel.state.paymentState.errorMessage,
+    'Payment checkout failed',
+  );
 }

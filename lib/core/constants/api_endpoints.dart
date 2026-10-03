@@ -87,15 +87,16 @@ class ApiEndpoints {
   static const String updateProfile = '/api/identity/users/profile';
 
   //// Cart ////
-  static const String cart = '/cart';
-  static const String cartItems = '/cart/items';
-  static const String cartItem = '/cart/items/{id}';
+  static const String cart = '/api/address-cart/cart';
+  static const String cartItems = '/api/address-cart/cart/items';
+  static const String cartItem = '/api/address-cart/cart/items/{itemId}';
 
   //// Orders & Payments ////
-  static const String orders = '/orders';
-  static const String checkoutPreview = '/orders/checkout/preview';
-  static const String checkout = '/orders/checkout';
-  static const String paymentsCharge = '/payments/charge';
+  static const String checkoutDetails = '/api/orders/checkout/details';
+  static const String estimateDelivery =
+      '/api/orders/checkout/estimate-delivery';
+  static const String placeOrder = '/api/orders/place';
+  static const String paymentCheckout = '/api/payment/checkout';
 }
 
 Future<void> _ensureDotEnv() async {

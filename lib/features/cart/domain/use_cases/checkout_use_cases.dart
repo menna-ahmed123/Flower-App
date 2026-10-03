@@ -9,11 +9,17 @@ class PreviewCheckoutUseCase {
 
   final CartRepo cartRepo;
 
-  Future<BaseResponse<CartEntity>> previewCheckout({
-    String? addressId,
-    CheckoutGiftEntity? gift,
+  Future<BaseResponse<CartEntity>> getCart() => cartRepo.getCart();
+
+  Future<BaseResponse<CartEntity>> checkoutDetails({required String cartId}) {
+    return cartRepo.checkoutDetails(cartId: cartId);
+  }
+
+  Future<BaseResponse<DeliveryEstimateEntity>> estimateDelivery({
+    required String addressId,
+    required String cartId,
   }) {
-    return cartRepo.previewCheckout(addressId: addressId, gift: gift);
+    return cartRepo.estimateDelivery(addressId: addressId, cartId: cartId);
   }
 }
 
@@ -25,17 +31,23 @@ class PlaceOrderUseCase {
 
   Future<BaseResponse<OrderEntity>> placeOrder({
     required String idempotencyKey,
-    required int paymentMethod,
-    required double expectedTotal,
-    String? addressId,
-    CheckoutGiftEntity? gift,
+    required String cartId,
+    required String addressId,
+    required bool isGift,
+    String? recipientName,
+    String? recipientPhone,
+    required String paymentMethod,
+    String? paymentGateway,
   }) {
     return cartRepo.placeOrder(
       idempotencyKey: idempotencyKey,
-      paymentMethod: paymentMethod,
-      expectedTotal: expectedTotal,
+      cartId: cartId,
       addressId: addressId,
-      gift: gift,
+      isGift: isGift,
+      recipientName: recipientName,
+      recipientPhone: recipientPhone,
+      paymentMethod: paymentMethod,
+      paymentGateway: paymentGateway,
     );
   }
 }
@@ -46,5 +58,15 @@ class ProcessPaymentUseCase {
 
   final CartRepo cartRepo;
 
-  Future<BaseResponse<bool>> processPayment() => cartRepo.processPayment();
+  Future<BaseResponse<PaymentCheckoutEntity>> createPaymentCheckout({
+    required String orderId,
+    required double amountTotal,
+    required String currency,
+  }) {
+    return cartRepo.createPaymentCheckout(
+      orderId: orderId,
+      amountTotal: amountTotal,
+      currency: currency,
+    );
+  }
 }

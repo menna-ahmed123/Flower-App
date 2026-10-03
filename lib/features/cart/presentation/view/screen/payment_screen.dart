@@ -27,6 +27,7 @@ class PaymentScreen extends StatelessWidget {
       body: BlocListener<CheckoutViewModel, CheckoutState>(
         listenWhen: (previous, current) =>
             previous.destination != current.destination ||
+            previous.sessionUrl != current.sessionUrl ||
             previous.paymentState.errorMessage !=
                 current.paymentState.errorMessage,
         listener: _onPayment,
@@ -67,6 +68,10 @@ class PaymentBody extends StatelessWidget {
               AppString.creditCard,
               style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
             ),
+            if ((state.sessionUrl ?? '').isNotEmpty) ...[
+              SizedBox(height: 16.h),
+              SelectableText(state.sessionUrl!),
+            ],
             const Spacer(),
             _payButton(context, state),
           ],

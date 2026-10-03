@@ -1,5 +1,4 @@
 import 'package:flower_app/core/constants/api_endpoints.dart';
-import 'package:flower_app/core/constants/api_query_params.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -7,18 +6,20 @@ part 'cart_response.g.dart';
 
 @JsonSerializable()
 class CartResponse {
-  final CartDataModel? data;
-  final int? statusCode;
-  final bool? success;
+  final Object? status;
+  final int? code;
   final String? message;
-  final String? messageLocalized;
+  final CartDataModel? data;
+  final dynamic pagination;
+  final dynamic errors;
 
   const CartResponse({
-    this.data,
-    this.statusCode,
-    this.success,
+    this.status,
+    this.code,
     this.message,
-    this.messageLocalized,
+    this.data,
+    this.pagination,
+    this.errors,
   });
 
   factory CartResponse.fromJson(Map<String, dynamic> json) =>
@@ -29,105 +30,95 @@ class CartResponse {
 
 @JsonSerializable()
 class CartDataModel {
-  final String? id;
+  final String? cartId;
   final List<CartItemModel>? items;
+  final int? totalQuantity;
+  final int? lineCount;
   final double? subtotal;
-  final double? total;
   final double? deliveryFee;
-  final double? discount;
-  final int? itemsCount;
+  final double? total;
   final bool? hasChanges;
-  final bool? pricingUnavailable;
-  final bool? isEmpty;
 
   const CartDataModel({
-    this.id,
+    this.cartId,
     this.items,
+    this.totalQuantity,
+    this.lineCount,
     this.subtotal,
-    this.total,
     this.deliveryFee,
-    this.discount,
-    this.itemsCount,
+    this.total,
     this.hasChanges,
-    this.pricingUnavailable,
-    this.isEmpty,
   });
 
   factory CartDataModel.fromJson(Map<String, dynamic> json) =>
-      _$CartDataModelFromJson(_normalizeCartDataJson(json));
+      _$CartDataModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$CartDataModelToJson(this);
 
   CartEntity toDomain() {
-    final cartItems = items ?? [];
-    final lines = [for (final item in cartItems) item.toDomain()];
+    final lines = [
+      for (final item in items ?? const <CartItemModel>[]) item.toDomain(),
+    ];
+    final lineSum = CartEntity.sumLines(lines);
     return CartEntity(
-      id: id ?? '',
+      id: cartId ?? '',
       items: lines,
-      subtotal: subtotal ?? CartEntity.sumLines(lines),
+      subtotal: subtotal ?? lineSum,
       deliveryFee: deliveryFee ?? 0,
-      discount: discount ?? 0,
-      total:
-          total ??
-          (subtotal ?? CartEntity.sumLines(lines)) + (deliveryFee ?? 0),
-      itemCount: itemsCount ?? CartEntity.sumQuantities(lines),
+      total: total ?? (subtotal ?? lineSum) + (deliveryFee ?? 0),
+      itemCount: totalQuantity ?? CartEntity.sumQuantities(lines),
       hasChanges: hasChanges ?? false,
-      pricingUnavailable: pricingUnavailable ?? false,
     );
   }
 }
 
 @JsonSerializable()
 class CartItemModel {
-  final String? id;
+  final String? itemId;
   final String? productId;
-  final String? name;
   final String? productName;
-  final String? imageUrl;
-  final String? attributes;
-  final double? price;
+  final String? productImage;
   final double? unitPrice;
+  final double? priceAtAdd;
   final int? quantity;
-  final int? availableQuantity;
-  final int? stock;
+  final double? lineSubtotal;
+  final int? availableStock;
+  final bool? isAvailable;
   final bool? priceChanged;
-  final bool? outOfStock;
-  final bool? inStock;
+  final bool? stockChanged;
 
   const CartItemModel({
-    this.id,
+    this.itemId,
     this.productId,
-    this.name,
     this.productName,
-    this.imageUrl,
-    this.attributes,
-    this.price,
+    this.productImage,
     this.unitPrice,
+    this.priceAtAdd,
     this.quantity,
-    this.availableQuantity,
-    this.stock,
+    this.lineSubtotal,
+    this.availableStock,
+    this.isAvailable,
     this.priceChanged,
-    this.outOfStock,
-    this.inStock,
+    this.stockChanged,
   });
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) =>
-      _$CartItemModelFromJson(json);
+      _$CartItemModelFromJson(_cartItemJson(json));
 
   Map<String, dynamic> toJson() => _$CartItemModelToJson(this);
 
   CartItemEntity toDomain() {
+    final id = (itemId ?? '').isNotEmpty ? itemId! : (productId ?? '');
     return CartItemEntity(
-      id: (id ?? '').isNotEmpty ? id! : (productId ?? ''),
+      id: id,
       productId: productId ?? '',
-      name: name ?? productName ?? '',
-      imageUrl: ApiEndpoints.mediaUrl(imageUrl),
-      attributes: attributes,
-      price: price ?? unitPrice ?? 0,
+      name: productName ?? '',
+      imageUrl: ApiEndpoints.mediaUrl(productImage),
+      price: unitPrice ?? 0,
       quantity: quantity ?? 1,
-      stock: availableQuantity ?? stock,
+      stock: availableStock,
       priceChanged: priceChanged ?? false,
-      outOfStock: outOfStock ?? inStock == false,
+      outOfStock: isAvailable == false,
     );
   }
 }
@@ -136,13 +127,8 @@ class CartItemModel {
 class AddCartItemRequest {
   final String productId;
   final int quantity;
-  final String storeId;
 
-  const AddCartItemRequest({
-    required this.productId,
-    this.quantity = 1,
-    this.storeId = ApiQueryParams.defaultStoreId,
-  });
+  const AddCartItemRequest({required this.productId, this.quantity = 1});
 
   factory AddCartItemRequest.fromJson(Map<String, dynamic> json) =>
       _$AddCartItemRequestFromJson(json);
@@ -151,14 +137,56 @@ class AddCartItemRequest {
 }
 
 @JsonSerializable()
+class AddCartItemResponse {
+  final Object? status;
+  final int? code;
+  final String? message;
+  final AddCartItemDataModel? data;
+  final dynamic pagination;
+  final dynamic errors;
+
+  const AddCartItemResponse({
+    this.status,
+    this.code,
+    this.message,
+    this.data,
+    this.pagination,
+    this.errors,
+  });
+
+  factory AddCartItemResponse.fromJson(Map<String, dynamic> json) =>
+      _$AddCartItemResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AddCartItemResponseToJson(this);
+}
+
+@JsonSerializable()
+class AddCartItemDataModel {
+  final String? cartId;
+  final String? itemId;
+  final String? productId;
+  final int? quantity;
+  final double? priceAtAdd;
+
+  const AddCartItemDataModel({
+    this.cartId,
+    this.itemId,
+    this.productId,
+    this.quantity,
+    this.priceAtAdd,
+  });
+
+  factory AddCartItemDataModel.fromJson(Map<String, dynamic> json) =>
+      _$AddCartItemDataModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AddCartItemDataModelToJson(this);
+}
+
+@JsonSerializable()
 class UpdateCartItemRequest {
   final int quantity;
-  final String storeId;
 
-  const UpdateCartItemRequest({
-    required this.quantity,
-    this.storeId = ApiQueryParams.defaultStoreId,
-  });
+  const UpdateCartItemRequest({required this.quantity});
 
   factory UpdateCartItemRequest.fromJson(Map<String, dynamic> json) =>
       _$UpdateCartItemRequestFromJson(json);
@@ -166,10 +194,29 @@ class UpdateCartItemRequest {
   Map<String, dynamic> toJson() => _$UpdateCartItemRequestToJson(this);
 }
 
-Map<String, dynamic> _normalizeCartDataJson(Map<String, dynamic> json) {
+Map<String, dynamic> _cartItemJson(Map<String, dynamic> json) {
   return {
-    ...json,
-    'items': json['items'] ?? json['lines'],
-    'itemsCount': json['itemsCount'] ?? json['itemCount'],
+    'itemId': json['itemId'] ?? json['id'],
+    'productId': json['productId'],
+    'productName': json['productName'] ?? json['name'],
+    'productImage': json['productImage'] ?? json['imageUrl'],
+    'unitPrice': json['unitPrice'] ?? json['price'],
+    'priceAtAdd': json['priceAtAdd'],
+    'quantity': json['quantity'],
+    'lineSubtotal': json['lineSubtotal'],
+    'availableStock':
+        json['availableStock'] ?? json['availableQuantity'] ?? json['stock'],
+    'isAvailable': _itemAvailable(json),
+    'priceChanged': json['priceChanged'],
+    'stockChanged': json['stockChanged'],
   };
+}
+
+bool? _itemAvailable(Map<String, dynamic> json) {
+  final available = json['isAvailable'];
+  if (available is bool) return available;
+  final inStock = json['inStock'];
+  if (inStock is bool) return inStock;
+  if (json['outOfStock'] == true) return false;
+  return null;
 }

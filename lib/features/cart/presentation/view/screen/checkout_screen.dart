@@ -152,11 +152,17 @@ class CheckoutBodyState extends State<CheckoutBody> {
         await _openConfirmation(context);
       case CheckoutDestination.payment:
         _clearNavigation(context);
-        context.push(
-          AppRoutesName.payment,
-          extra: context.read<CheckoutViewModel>(),
-        );
+        await _openPayment(context);
     }
+  }
+
+  Future<void> _openPayment(BuildContext context) async {
+    await context.read<CartViewModel>().doEvent(const ClearCart());
+    if (!context.mounted) return;
+    context.push(
+      AppRoutesName.payment,
+      extra: context.read<CheckoutViewModel>(),
+    );
   }
 
   Future<void> _openConfirmation(BuildContext context) async {
