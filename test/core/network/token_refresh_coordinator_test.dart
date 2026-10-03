@@ -82,16 +82,20 @@ void main() {
     });
 
     test(
-      'keeps the existing refresh token when the backend omits one',
+      'rejects a refresh response that omits the new refresh token',
           () async {
         final refresher = _ScriptedTokenRefresher([
-              (_) async => const AuthTokens(accessToken: 'new-access', expiresIn: 900),
+              (_) async => const AuthTokens(
+                accessToken: 'new-access',
+                refreshToken: '',
+                expiresIn: 900,
+              ),
         ]);
         final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
 
-        await coordinator.refresh();
+        await expectLater(coordinator.refresh(), throwsA(isA<StateError>()));
 
-        expect(tokenStorage.accessToken, 'new-access');
+        expect(tokenStorage.accessToken, 'old-access');
         expect(tokenStorage.refreshToken, 'old-refresh');
       },
     );
@@ -164,7 +168,11 @@ void main() {
       final second = coordinator.refresh();
 
       completer.complete(
-        const AuthTokens(accessToken: 'new-access', expiresIn: 900),
+        const AuthTokens(
+          accessToken: 'new-access',
+          refreshToken: 'new-refresh',
+          expiresIn: 900,
+        ),
       );
 
       final results = await Future.wait([first, second]);
@@ -176,8 +184,16 @@ void main() {
 
     test('a call after completion triggers a fresh refresh', () async {
       final refresher = _ScriptedTokenRefresher([
-            (_) async => const AuthTokens(accessToken: 'first', expiresIn: 900),
-            (_) async => const AuthTokens(accessToken: 'second', expiresIn: 900),
+            (_) async => const AuthTokens(
+              accessToken: 'first',
+              refreshToken: 'first-refresh',
+              expiresIn: 900,
+            ),
+            (_) async => const AuthTokens(
+              accessToken: 'second',
+              refreshToken: 'second-refresh',
+              expiresIn: 900,
+            ),
       ]);
       final coordinator = TokenRefreshCoordinator(tokenStorage, refresher);
 

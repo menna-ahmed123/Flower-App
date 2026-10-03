@@ -235,6 +235,7 @@ void main() {
         responses: [401, 401],
         refreshedTokens: const AuthTokens(
           accessToken: 'new-access',
+          refreshToken: 'new-refresh',
           expiresIn: 900,
         ),
       );
