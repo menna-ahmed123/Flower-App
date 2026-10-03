@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'address_dto.g.dart';
 
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class AddressDto {
   final String id;
   final String recipientName;

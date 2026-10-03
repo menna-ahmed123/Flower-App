@@ -1,6 +1,5 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/widgets/custom_app_bar.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:webview_flutter/webview_flutter.dart';
