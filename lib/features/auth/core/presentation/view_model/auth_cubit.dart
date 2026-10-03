@@ -1,3 +1,4 @@
+import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'dart:async';
 
 import 'package:flower_app/core/base/base_state.dart';
@@ -165,6 +166,9 @@ class AuthCubit extends Cubit<AuthState> {
   void clearPendingAction() {
     _pendingAction = null;
   }
+
+  @override
+  Future<void> logout() => doEvent(const AuthLogoutRequested());
 
   @override
   Future<void> close() {

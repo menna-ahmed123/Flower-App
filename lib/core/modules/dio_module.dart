@@ -56,6 +56,7 @@ abstract class DioModule {
       return;
     }
 
+    // TEMP-DEBUG Dio request/response logging is enabled only in debug mode.
     dio.interceptors.add(
       PrettyDioLogger(
         requestHeader: true,
