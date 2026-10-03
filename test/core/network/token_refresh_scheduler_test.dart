@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/network/token_refresh_coordinator.dart';
 import 'package:flower_app/core/network/token_refresh_scheduler.dart';
@@ -85,7 +83,11 @@ void main() {
         const Duration(seconds: 1),
       );
       final refresher = _ScriptedTokenRefresher([
-            (_) async => const AuthTokens(accessToken: 'new', expiresIn: 900),
+        (_) async => const AuthTokens(
+          accessToken: 'new',
+          refreshToken: 'new-refresh',
+          expiresIn: 900,
+        ),
       ]);
       final scheduler = buildScheduler(refresher);
 
@@ -106,7 +108,11 @@ void main() {
         _safetyMargin + const Duration(milliseconds: 30),
       );
       final refresher = _ScriptedTokenRefresher([
-            (_) async => const AuthTokens(accessToken: 'new', expiresIn: 900),
+        (_) async => const AuthTokens(
+          accessToken: 'new',
+          refreshToken: 'new-refresh',
+          expiresIn: 900,
+        ),
       ]);
       final scheduler = buildScheduler(refresher);
 
@@ -129,7 +135,11 @@ void main() {
         const Duration(seconds: 1),
       );
       final refresher = _ScriptedTokenRefresher([
-            (_) async => const AuthTokens(accessToken: 'first', expiresIn: 900),
+        (_) async => const AuthTokens(
+          accessToken: 'first',
+          refreshToken: 'first-refresh',
+          expiresIn: 900,
+        ),
       ]);
       final scheduler = buildScheduler(refresher);
 
@@ -154,7 +164,7 @@ void main() {
         const Duration(seconds: 1),
       );
       final refresher = _ScriptedTokenRefresher([
-            (_) async => throw _dioError(401),
+        (_) async => throw _dioError(401),
       ]);
       final scheduler = buildScheduler(refresher);
 
@@ -177,8 +187,12 @@ void main() {
         const Duration(seconds: 1),
       );
       final refresher = _ScriptedTokenRefresher([
-            (_) async => throw _dioError(500),
-            (_) async => const AuthTokens(accessToken: 'new', expiresIn: 900),
+        (_) async => throw _dioError(500),
+        (_) async => const AuthTokens(
+          accessToken: 'new',
+          refreshToken: 'new-refresh',
+          expiresIn: 900,
+        ),
       ]);
       final scheduler = buildScheduler(refresher);
 
@@ -199,7 +213,11 @@ void main() {
         _safetyMargin + const Duration(milliseconds: 30),
       );
       final refresher = _ScriptedTokenRefresher([
-            (_) async => const AuthTokens(accessToken: 'new', expiresIn: 900),
+        (_) async => const AuthTokens(
+          accessToken: 'new',
+          refreshToken: 'new-refresh',
+          expiresIn: 900,
+        ),
       ]);
       final scheduler = buildScheduler(refresher);
 
@@ -221,7 +239,11 @@ void main() {
         const Duration(minutes: 10),
       );
       final refresher = _ScriptedTokenRefresher([
-            (_) async => const AuthTokens(accessToken: 'new', expiresIn: 900),
+        (_) async => const AuthTokens(
+          accessToken: 'new',
+          refreshToken: 'new-refresh',
+          expiresIn: 900,
+        ),
       ]);
       final scheduler = buildScheduler(refresher);
       await scheduler.start();

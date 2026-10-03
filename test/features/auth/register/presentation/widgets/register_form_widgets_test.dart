@@ -1,5 +1,5 @@
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+import 'package:flower_app/features/profile/domain/entities/gender.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -34,7 +34,7 @@ void genderGroup() {
       );
       await tester.tap(find.text(AppString.male));
       await tester.pumpAndSettle();
-      expect(find.text('selected:0'), findsOneWidget);
+      expect(find.text('selected:Male'), findsOneWidget);
     });
   });
 }
