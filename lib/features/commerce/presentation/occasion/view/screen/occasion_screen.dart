@@ -70,7 +70,7 @@ class _OccasionScreenState extends State<OccasionScreen> {
                                       id: '',
                                       name: tab,
                                       imageUrl: '',
-                                      sortOrder: 0,
+                                      displayOrder: 0,
                                     ),
                               );
 

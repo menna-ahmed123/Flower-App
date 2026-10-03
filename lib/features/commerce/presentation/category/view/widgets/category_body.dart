@@ -25,7 +25,10 @@ class CategoryBody extends StatelessWidget {
         final categories =
             state.categoriesState.data ?? const <CategoryEntity>[];
 
-        final tabs = categories.map((category) => category.name).toList();
+        final tabs = categories
+            .map((category) => category.name)
+            .whereType<String>()
+            .toList();
 
         return Column(
           children: [
@@ -41,7 +44,7 @@ class CategoryBody extends StatelessWidget {
                 );
 
                 context.read<CategoryViewModel>().onEvent(
-                  SelectCategoryTab(categoryId: selectedCategory.id, tab: tab),
+                  SelectCategoryTab(categoryId: selectedCategory.id ?? '', tab: tab),
                 );
               },
             ),

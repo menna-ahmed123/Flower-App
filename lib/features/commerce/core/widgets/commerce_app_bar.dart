@@ -1,7 +1,9 @@
+import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class CommerceAppBar extends StatelessWidget {
   final String title;
@@ -12,7 +14,10 @@ class CommerceAppBar extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          leading: Icon(AppIcons.arrowBack),
+          leading: IconButton(
+            onPressed: () => _goBack(context),
+            icon: Icon(AppIcons.arrowBack),
+          ),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -25,5 +30,14 @@ class CommerceAppBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _goBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+
+    context.go(AppRoutesName.home);
   }
 }

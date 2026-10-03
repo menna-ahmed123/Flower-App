@@ -1,46 +1,46 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:flower_app/features/commerce/data/models/product_dto.dart';
+
+import 'categories_response.dart' show Pagination;
+import 'product_dto.dart';
 
 part 'product_response.g.dart';
 
+/// Response wrapper for GET /api/catalog/products (new API format).
+/// data is now a flat List (not a paginated object), pagination is top-level.
+/// { status, code, message, data: [...], pagination, errors }
 @JsonSerializable()
 class ProductsResponse {
-  final ProductsDataDto data;
-  final int statusCode;
-  final bool success;
-  final String message;
-  final String messageLocalized;
-
   const ProductsResponse({
-    required this.data,
-    required this.statusCode,
-    required this.success,
+    required this.status,
+    required this.code,
     required this.message,
-    required this.messageLocalized,
+    required this.data,
+    this.pagination,
+    this.errors,
   });
+
+  @JsonKey(name: 'status', defaultValue: true)
+  final bool status;
+
+  @JsonKey(name: 'code', defaultValue: 200)
+  final int code;
+
+  @JsonKey(name: 'message', defaultValue: '')
+  final String message;
+
+  @JsonKey(name: 'data', defaultValue: [])
+  final List<ProductDto> data;
+
+  @JsonKey(name: 'pagination')
+  final Pagination? pagination;
+
+  @JsonKey(name: 'errors')
+  final dynamic errors;
 
   factory ProductsResponse.fromJson(Map<String, dynamic> json) =>
       _$ProductsResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProductsResponseToJson(this);
-}
 
-@JsonSerializable()
-class ProductsDataDto {
-  final int page;
-  final int pageSize;
-  final int totalCount;
-  final List<ProductDto> items;
-
-  const ProductsDataDto({
-    required this.page,
-    required this.pageSize,
-    required this.totalCount,
-    required this.items,
-  });
-
-  factory ProductsDataDto.fromJson(Map<String, dynamic> json) =>
-      _$ProductsDataDtoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ProductsDataDtoToJson(this);
+  bool get isSuccess => status && (code >= 200 && code < 300);
 }

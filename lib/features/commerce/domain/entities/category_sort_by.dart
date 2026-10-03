@@ -1,14 +1,15 @@
 import 'package:flower_app/core/constants/app_string.dart';
 
 enum CategorySortBy {
-  lowestPrice(1),
-  highestPrice(2),
-  newest(3),
-  oldest(4),
-  discount(5);
+  lowestPrice(1, 'PriceLowToHigh'),
+  highestPrice(2, 'PriceHighToLow'),
+  newest(3, 'Newest'),
+  oldest(4, 'Oldest'),
+  discount(5, 'Discount');
 
   final int value;
-  const CategorySortBy(this.value);
+  final String apiValue;
+  const CategorySortBy(this.value, this.apiValue);
 
   String get title {
     switch (this) {

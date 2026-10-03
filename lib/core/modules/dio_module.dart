@@ -19,8 +19,10 @@ abstract class DioModule {
   }
 
   BaseOptions _createBaseOptions() {
+    final baseUrl = ApiEndpoints.resolvedBaseUrl;
+    assert(baseUrl.isNotEmpty, 'BASE_URL is empty — check .env loading order');
     return BaseOptions(
-      baseUrl: ApiEndpoints.resolvedBaseUrl,
+      baseUrl: baseUrl,
       receiveTimeout: const Duration(seconds: 60),
       connectTimeout: const Duration(seconds: 60),
       sendTimeout: const Duration(seconds: 60),
@@ -31,6 +33,22 @@ abstract class DioModule {
   void _configureInterceptors(Dio dio, AuthInterceptors authInterceptors) {
     dio.interceptors.add(authInterceptors);
     authInterceptors.attachDio(dio);
+    if (kDebugMode) {
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            // ignore: avoid_print
+            print('🚀 REQUEST: ${options.method} ${options.uri}');
+            handler.next(options);
+          },
+          onError: (err, handler) {
+            // ignore: avoid_print
+            print('❌ ERROR: ${err.type} | ${err.message} | uri: ${err.requestOptions.uri}');
+            handler.next(err);
+          },
+        ),
+      );
+    }
   }
 
   void _addDebugLogger(Dio dio) {

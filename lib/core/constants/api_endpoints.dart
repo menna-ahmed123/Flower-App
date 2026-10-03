@@ -19,14 +19,14 @@ class ApiEndpoints {
 
   static String normalizeBaseUrl(String raw) {
     var url = raw.trim();
-    if (url.endsWith('/')) url = url.substring(0, url.length - 1);
     if (url.isEmpty) return url;
     url = rewriteHostForLocalClient(
       url,
       androidEmulator: _isAndroidEmulator(),
       iosSimulator: _isIosSimulator(),
     );
-    if (url.endsWith('/')) url = url.substring(0, url.length - 1);
+    // Ensure trailing slash so Dio can concatenate relative paths correctly
+    if (!url.endsWith('/')) url = '$url/';
     return url;
   }
 
@@ -70,11 +70,12 @@ class ApiEndpoints {
   static const String refreshToken = '/api/identity/auth/refresh-token';
 
   //// Commerce ////
-  static const String home = '/catalog/home/layout';
-  static const String allCategories = '/catalog/categories';
-  static const String allOccasions = '/catalog/occasions';
-  static const String allProducts = '/catalog/products';
-  static const String productDetails = '/catalog/products/{id}';
+  static const String home = '/api/catalog/home/layout';
+  static const String allCategories = '/api/catalog/categories';
+  static const String allOccasions = '/api/catalog/occasions';
+  static const String allProducts = '/api/catalog/products';
+  static const String productDetails = '/api/catalog/products/{Product-id}';
+  static const String searchProducts = '/api/catalog/products/search';
 
   ////Address///
   static const String addAddress = '/users/me/addresses';

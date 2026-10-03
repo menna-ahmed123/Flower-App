@@ -20,6 +20,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env', isOptional: true);
   await ApiEndpoints.loadBaseUrl();
+  // ignore: avoid_print
+  print('🌐 BASE_URL resolved: ${ApiEndpoints.resolvedBaseUrl}');
   await configureDependencies();
   await EasyLocalization.ensureInitialized();
 
