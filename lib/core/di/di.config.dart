@@ -143,6 +143,19 @@ import '../../features/commerce/presentation/prodect_details/view_model/product_
     as _i784;
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart'
     as _i1068;
+import '../../features/sessions/api/session_api_client.dart' as _i311;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source.dart'
+    as _i618;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source_impl.dart'
+    as _i613;
+import '../../features/sessions/data/repo/session_repo_impl.dart' as _i947;
+import '../../features/sessions/domain/repo/session_repo.dart' as _i843;
+import '../../features/sessions/domain/usecases/get_sessions_use_case.dart'
+    as _i827;
+import '../../features/sessions/domain/usecases/revoke_session_use_case.dart'
+    as _i145;
+import '../../features/sessions/presentation/view_model/session_view_model.dart'
+    as _i137;
 import '../../features/profile/data/api/profile_api_client.dart' as _i751;
 import '../../features/profile/data/data_source/remote/profile_remote_data_source.dart'
     as _i299;
@@ -253,6 +266,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i1046.CartApiClient>(
       () => apiModule.provideCartApiClient(gh<_i361.Dio>()),
     );
+    gh.singleton<_i311.SessionApiClient>(
+      () => apiModule.provideSessionApiClient(gh<_i361.Dio>()),
     gh.singleton<_i751.ProfileApiClient>(
       () => apiModule.provideProfileApiClient(gh<_i361.Dio>()),
     );
@@ -314,6 +329,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i682.OccasionUseCase>(
       () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
+    );
+    gh.factory<_i618.SessionRemoteDataSource>(
+      () => _i613.SessionRemoteDataSourceImpl(gh<_i311.SessionApiClient>()),
     );
     gh.factory<_i581.AddressRemoteDataSource>(
       () => _i784.AddressRemoteDataSourceImpl(
@@ -383,6 +401,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i94.RequestLocationPermissionUseCase>(
       () => _i94.RequestLocationPermissionUseCase(gh<_i366.AddressRepo>()),
     );
+    gh.factory<_i843.SessionRepo>(
+      () => _i947.SessionRepoImpl(
+        gh<_i618.SessionRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
+    );
     gh.factory<_i242.CategoryUseCase>(
       () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
     );
@@ -428,6 +452,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
+    );
+    gh.factory<_i827.GetSessionsUseCase>(
+      () => _i827.GetSessionsUseCase(gh<_i843.SessionRepo>()),
+    );
+    gh.factory<_i145.RevokeSessionUseCase>(
+      () => _i145.RevokeSessionUseCase(gh<_i843.SessionRepo>()),
     );
     gh.factory<_i369.HomeViewModel>(
       () => _i369.HomeViewModel(gh<_i1049.HomeUseCase>()),
@@ -490,6 +520,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i497.PreviewCheckoutUseCase>(),
         gh<_i497.PlaceOrderUseCase>(),
         gh<_i497.ProcessPaymentUseCase>(),
+      ),
+    );
+    gh.factory<_i137.SessionsViewModel>(
+      () => _i137.SessionsViewModel(
+        gh<_i827.GetSessionsUseCase>(),
+        gh<_i145.RevokeSessionUseCase>(),
       ),
     );
     gh.factory<_i188.LoginViewModel>(

@@ -4,6 +4,8 @@ class ApiQueryParams {
   static const String occasionId = 'OccasionId';
   static const String categoryId = 'categoryId';
   static const String id = 'id';
+  static const String sessionId = 'sessionId';
+  static const String storeId = 'storeId';
   static const String addressId = 'addressId';
   static const String cartId = 'cartId';
   static const String estimateAddressId = 'AddressId';

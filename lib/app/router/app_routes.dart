@@ -13,6 +13,7 @@ abstract final class AppRoutesName {
   static const String profile = '/profile';
   static const String webView = '/web-view';
   static const String search = '/search';
+  static const String sessions = '/sessions';
   static const String editProfile = '/edit-profile';
 
   static const Set<String> mainTabPaths = {home, category, cart, profile};
