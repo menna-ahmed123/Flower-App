@@ -12,7 +12,7 @@ import 'package:flower_app/features/cart/presentation/view_model/checkout_state.
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-const _paymentCurrency = 'USD';
+const _paymentCurrency = 'egp';
 
 @injectable
 class CheckoutViewModel extends Cubit<CheckoutState> {
@@ -202,10 +202,14 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   }
 
   void _emitEstimateError(AppError error) {
+    final code = _errorCode(error);
+    final current = state.previewState.data;
     emit(
       state.copyWith(
         previewState: BaseState(
-          data: state.previewState.data,
+          data: code == 'AddressNotServiceable' && current != null
+              ? current.copyWith(isServiceable: false)
+              : current,
           errorMessage: _errorMessage(error),
         ),
       ),
@@ -218,10 +222,18 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   ) {
     final base = current ?? const CartEntity.empty();
     if (!estimate.hasData) return base;
+    final subtotal = estimate.subtotal ?? base.subtotal;
+    final deliveryFee = estimate.deliveryFee ?? base.deliveryFee;
+    final hasPrice =
+        estimate.subtotal != null ||
+        estimate.deliveryFee != null ||
+        estimate.total != null;
+    final total = estimate.total ??
+        (hasPrice ? subtotal + deliveryFee - base.discount : base.total);
     return base.copyWith(
-      subtotal: estimate.subtotal,
-      deliveryFee: estimate.deliveryFee,
-      total: estimate.total,
+      subtotal: subtotal,
+      deliveryFee: deliveryFee,
+      total: total,
       isServiceable: estimate.isServiceable,
       estimatedDeliveryAt: estimate.estimatedDeliveryAt,
       updateEstimatedDeliveryAt: estimate.includesDeliveryAt,
@@ -284,17 +296,23 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
         submitState: const BaseState(data: true),
         destination: destination,
         orderId: order.orderId,
+        sessionUrl: order.sessionUrl.isEmpty ? null : order.sessionUrl,
+        stripeSessionId: order.stripeSessionId.isEmpty
+            ? null
+            : order.stripeSessionId,
       ),
     );
   }
 
   CheckoutDestination? _orderDestination(OrderEntity order) {
     if (order.orderId.isEmpty) return null;
-    if (_selectedPayment()?.apiMethod.toLowerCase() == 'card') {
-      return CheckoutDestination.payment;
-    }
+    if (_isCard(_selectedPayment())) return CheckoutDestination.payment;
     if (order.status == 'PLACED') return CheckoutDestination.confirmation;
     return null;
+  }
+
+  bool _isCard(PaymentMethodEntity? method) {
+    return method?.apiMethod.toUpperCase() == 'CARD';
   }
 
   PaymentMethodEntity? _selectedPayment() {
@@ -353,7 +371,12 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   }
 
   String? _errorCode(AppError error) {
-    return error is BadResponseError ? error.code : null;
+    if (error is! BadResponseError) return null;
+    return switch (error.code) {
+      'Cart.Empty' => 'CartEmpty',
+      'Order.NotServiceable' => 'AddressNotServiceable',
+      _ => error.code,
+    };
   }
 
   CheckoutDestination? _destinationFor(String? code) {
@@ -366,7 +389,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
 
   String _errorMessage(AppError error) {
     if (error is! BadResponseError) return error.message;
-    return switch (error.code) {
+    return switch (_errorCode(error)) {
       'AddressNotServiceable' => AppString.deliveryUnavailable,
       'CartEmpty' => AppString.cartIsEmpty,
       'ItemsUnavailable' => _itemsUnavailableMessage(error.data),
@@ -436,6 +459,10 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
 
   Future<void> _processPayment() async {
     if (state.paymentState.isLoading) return;
+    if ((state.sessionUrl ?? '').isNotEmpty) {
+      emit(state.copyWith(paymentState: const BaseState(data: true)));
+      return;
+    }
     final orderId = state.orderId ?? '';
     if (orderId.isEmpty) {
       _emitPaymentError(AppString.paymentFailed);

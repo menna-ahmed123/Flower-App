@@ -197,7 +197,7 @@ Future<void> _placeOrderForwards(CartSourceCase c) async {
     addressId: 'address-1',
     isGift: false,
     giftRecipient: null,
-    paymentMethod: 'cod',
+    paymentMethod: 'COD',
     paymentGateway: null,
   );
   when(c.apiClient.placeOrder('key', request)).thenAnswer((_) async {
@@ -341,7 +341,7 @@ const _codRequest = PlaceOrderRequest(
   addressId: 'address-1',
   isGift: false,
   giftRecipient: null,
-  paymentMethod: 'cod',
+  paymentMethod: 'COD',
   paymentGateway: null,
 );
 

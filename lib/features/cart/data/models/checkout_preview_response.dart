@@ -175,8 +175,8 @@ String _displayMethod(String method) {
 
 String _requestMethod(String method) {
   return switch (method.toUpperCase()) {
-    'COD' => 'cod',
-    'CARD' => 'Card',
+    'COD' => 'COD',
+    'CARD' => 'CARD',
     _ => method,
   };
 }

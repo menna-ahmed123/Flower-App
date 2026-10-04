@@ -92,8 +92,8 @@ void main() {
     expect(cart.isServiceable, isFalse);
     expect(cart.total, 517.90);
     expect(cart.paymentMethods.map((method) => method.apiMethod), [
-      'cod',
-      'Card',
+      'COD',
+      'CARD',
     ]);
     expect(cart.paymentMethods.last.gateway, 'Stripe');
   });
@@ -121,7 +121,7 @@ void main() {
       cartId: 'cart-1',
       addressId: 'address-1',
       isGift: false,
-      paymentMethod: 'cod',
+      paymentMethod: 'COD',
       paymentGateway: null,
     );
     expect(api.idempotencyKey, 'idem-1');
@@ -130,24 +130,25 @@ void main() {
       'addressId': 'address-1',
       'isGift': false,
       'giftRecipient': null,
-      'paymentMethod': 'cod',
+      'paymentMethod': 'COD',
       'paymentGateway': null,
     });
     final order = (result as SuccessResponse<OrderEntity>).data;
     expect(order.status, 'PLACED');
-    expect(order.paymentStatus, 'PENDING');
+    expect(order.total, 58.98);
+    expect(order.currency, 'EGP');
   });
 
   test('card payment checkout is separate from place order', () async {
     final result = await repo.createPaymentCheckout(
       orderId: 'order-1',
-      amountTotal: 600,
-      currency: 'USD',
+      amountTotal: 6,
+      currency: 'egp',
     );
     expect(api.paymentRequest?.toJson(), {
       'orderId': 'order-1',
       'amountTotal': 600,
-      'currency': 'USD',
+      'currency': 'egp',
     });
     final payment = (result as SuccessResponse<PaymentCheckoutEntity>).data;
     expect(payment.checkoutUrl, contains('checkout.stripe.com'));
@@ -192,9 +193,8 @@ class _CartApiDouble implements CartRemoteDataSource {
     'data': {
       'orderId': 'order-1',
       'status': 'PLACED',
-      'paymentStatus': 'PENDING',
-      'paymentMethod': 'COD',
-      'total': 58.98,
+      'amount': 58.98,
+      'currency': 'EGP',
     },
   });
   PaymentCheckoutResponse payment = const PaymentCheckoutResponse(

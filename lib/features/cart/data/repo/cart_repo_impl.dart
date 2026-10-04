@@ -118,7 +118,7 @@ class CartRepoImpl implements CartRepo {
       final response = await cartRemoteDataSource.createPaymentCheckout(
         PaymentCheckoutRequest(
           orderId: orderId,
-          amountTotal: amountTotal,
+          amountTotal: (amountTotal * 100).round(),
           currency: currency,
         ),
       );

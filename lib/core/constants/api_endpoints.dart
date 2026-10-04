@@ -78,10 +78,12 @@ class ApiEndpoints {
   static const String searchProducts = '/api/catalog/products/search';
 
   ////Address///
-  static const String addAddress = '/users/me/addresses';
-  static const String addressById = '/users/me/addresses/{id}';
+  static const String addresses = '/api/address-cart/addresses';
+  static const String addAddress = '/api/address-cart/users/me/addresses';
+  static const String addressById =
+      '/api/address-cart/users/me/addresses/{id}';
   static const String setDefaultAddress =
-      '/users/me/addresses/{addressId}/default';
+      '/api/address-cart/users/me/addresses/{addressId}/default';
           //// Profile ////
   static const String getMyProfile = '/api/identity/users/me';
   static const String updateProfile = '/api/identity/users/profile';

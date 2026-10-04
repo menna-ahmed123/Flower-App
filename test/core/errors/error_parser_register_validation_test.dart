@@ -86,4 +86,36 @@ void main() {
     );
     expect((error as BadResponseError).code, isNull);
   });
+
+  test('reads orders service error codes from errors.field', () {
+    final exception = DioException(
+      requestOptions: RequestOptions(path: '/api/orders/place'),
+      type: DioExceptionType.badResponse,
+      response: Response(
+        requestOptions: RequestOptions(path: '/api/orders/place'),
+        statusCode: 400,
+        data: {
+          'status': false,
+          'code': 400,
+          'message': 'This address is outside our current delivery coverage.',
+          'data': null,
+          'errors': [
+            {
+              'message': 'This address is outside our current delivery coverage.',
+              'field': 'Order.NotServiceable',
+            },
+          ],
+        },
+      ),
+    );
+
+    final error = errorParser(exception);
+
+    expect(error, isA<BadResponseError>());
+    expect(
+      error.message,
+      'This address is outside our current delivery coverage.',
+    );
+    expect((error as BadResponseError).code, 'Order.NotServiceable');
+  });
 }

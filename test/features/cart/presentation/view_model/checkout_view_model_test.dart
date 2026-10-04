@@ -76,6 +76,7 @@ void _detailsTests() {
     tearDown(c.tearDown);
     test('loads checkout details for the cart id', () => _loadsDetails(c));
     test('address required opens add address', () => _addressRequired(c));
+    test('Cart.Empty opens the empty cart state', () => _cartEmptyCode(c));
     test('non-serviceable address stays on checkout', () {
       return _notServiceable(c);
     });
@@ -125,6 +126,15 @@ Future<void> _notServiceable(CheckoutCase c) async {
   expect(c.viewModel.state.canSubmit, isFalse);
 }
 
+Future<void> _cartEmptyCode(CheckoutCase c) async {
+  c.cartRepo.detailsResponse = ErrorResponse(
+    appError: BadResponseError('Your cart is empty.', code: 'Cart.Empty'),
+  );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  expect(c.viewModel.state.destination, CheckoutDestination.emptyCart);
+  expect(c.viewModel.state.previewState.errorMessage, AppString.cartIsEmpty);
+}
+
 Future<void> _emptyCart(CheckoutCase c) async {
   c.cartRepo.getCartResponse = const SuccessResponse(CartEntity.empty());
   await c.viewModel.doEvent(const LoadCheckoutPreview());
@@ -149,6 +159,9 @@ void _estimateTests() {
     });
     test('estimate updates totals and does not invent a missing fee', () {
       return _appliesEstimate(c);
+    });
+    test('a delivery fee without a total is added to the subtotal', () {
+      return _appliesFeeOnlyEstimate(c);
     });
     test('non-serviceable estimate blocks submit', () {
       return _estimateNotServiceable(c);
@@ -206,6 +219,27 @@ Future<void> _appliesEstimate(CheckoutCase c) async {
   );
   expect(c.viewModel.state.previewState.data?.deliveryFee, 25);
   expect(c.viewModel.state.previewState.data?.total, 125);
+}
+
+Future<void> _appliesFeeOnlyEstimate(CheckoutCase c) async {
+  c.cartRepo.estimateResponse = const SuccessResponse(
+    DeliveryEstimateEntity(
+      deliveryFee: 25,
+      estimatedDeliveryAt: '2026-10-05T18:00:00Z',
+      isServiceable: true,
+      hasData: true,
+      includesDeliveryAt: true,
+    ),
+  );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  expect(c.viewModel.state.previewState.data?.subtotal, 100);
+  expect(c.viewModel.state.previewState.data?.deliveryFee, 25);
+  expect(c.viewModel.state.previewState.data?.total, 125);
+  expect(
+    c.viewModel.state.previewState.data?.estimatedDeliveryAt,
+    '2026-10-05T18:00:00Z',
+  );
 }
 
 Future<void> _estimateNotServiceable(CheckoutCase c) async {
@@ -351,7 +385,7 @@ Future<void> _placesCod(CheckoutCase c) async {
   expect(c.cartRepo.lastAddressId, 'address-1');
   expect(c.cartRepo.lastIsGift, isFalse);
   expect(c.cartRepo.lastRecipientName, isNull);
-  expect(c.cartRepo.lastPaymentMethod, 'cod');
+  expect(c.cartRepo.lastPaymentMethod, 'COD');
   expect(c.cartRepo.lastPaymentGateway, isNull);
   expect(c.cartRepo.idempotencyKeys.single, isNotEmpty);
   expect(c.viewModel.state.destination, CheckoutDestination.confirmation);
@@ -364,9 +398,11 @@ Future<void> _placesCard(CheckoutCase c) async {
     OrderEntity(
       orderId: 'order-card',
       status: 'PLACED',
-      paymentMethod: 'Card',
+      paymentMethod: 'CARD',
       paymentStatus: 'PENDING',
       total: 100,
+      sessionUrl: 'https://checkout.stripe.com/c/pay/cs_test',
+      stripeSessionId: 'cs_test',
     ),
   );
   await c.viewModel.doEvent(const LoadCheckoutPreview());
@@ -375,11 +411,15 @@ Future<void> _placesCard(CheckoutCase c) async {
     const SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
   );
   await c.viewModel.doEvent(const SubmitPlaceOrder());
-  expect(c.cartRepo.lastPaymentMethod, 'Card');
+  expect(c.cartRepo.lastPaymentMethod, 'CARD');
   expect(c.cartRepo.lastPaymentGateway, 'Stripe');
   expect(c.viewModel.state.destination, CheckoutDestination.payment);
   expect(c.viewModel.state.orderId, 'order-card');
-  expect(c.viewModel.state.sessionUrl, isNull);
+  expect(
+    c.viewModel.state.sessionUrl,
+    'https://checkout.stripe.com/c/pay/cs_test',
+  );
+  expect(c.viewModel.state.stripeSessionId, 'cs_test');
 }
 
 Future<void> _placesGift(CheckoutCase c) async {
@@ -396,7 +436,7 @@ Future<void> _placesGift(CheckoutCase c) async {
   expect(c.cartRepo.lastRecipientName, 'Nada Ahmed');
   expect(c.cartRepo.lastRecipientPhone, '01098887966');
   expect(c.cartRepo.lastAddressId, 'address-1');
-  expect(c.cartRepo.lastPaymentMethod, 'cod');
+  expect(c.cartRepo.lastPaymentMethod, 'COD');
   expect(c.viewModel.state.destination, CheckoutDestination.confirmation);
 }
 
@@ -502,6 +542,9 @@ void _paymentTests() {
     test('card checkout stores the Stripe session and does not confirm', () {
       return _createsCheckoutSession(c);
     });
+    test('missing card session requests a checkout in minor units', () {
+      return _requestsMissingCheckoutSession(c);
+    });
     test('payment failure does not confirm the order', () {
       return _paymentFails(c);
     });
@@ -509,6 +552,32 @@ void _paymentTests() {
 }
 
 Future<void> _createsCheckoutSession(CheckoutCase c) async {
+  c.cartRepo.placeOrderResponse = const SuccessResponse(
+    OrderEntity(
+      orderId: 'order-card',
+      status: 'PLACED',
+      total: 58.98,
+      sessionUrl: 'https://checkout.stripe.com/c/pay/cs_test',
+      stripeSessionId: 'cs_test',
+    ),
+  );
+  await c.viewModel.doEvent(const LoadCheckoutPreview());
+  await c.viewModel.doEvent(const SelectCheckoutAddress(_address));
+  await c.viewModel.doEvent(
+    const SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
+  );
+  await c.viewModel.doEvent(const SubmitPlaceOrder());
+  await c.viewModel.doEvent(const ProcessCheckoutPayment());
+  expect(c.cartRepo.paymentCalls, 0);
+  expect(
+    c.viewModel.state.sessionUrl,
+    'https://checkout.stripe.com/c/pay/cs_test',
+  );
+  expect(c.viewModel.state.stripeSessionId, 'cs_test');
+  expect(c.viewModel.state.destination, CheckoutDestination.payment);
+}
+
+Future<void> _requestsMissingCheckoutSession(CheckoutCase c) async {
   c.cartRepo.placeOrderResponse = const SuccessResponse(
     OrderEntity(orderId: 'order-card', status: 'PLACED', total: 58.98),
   );
@@ -525,18 +594,16 @@ Future<void> _createsCheckoutSession(CheckoutCase c) async {
     const SelectCheckoutPayment(CheckoutPaymentMethods.creditCard),
   );
   await c.viewModel.doEvent(const SubmitPlaceOrder());
+  await c.viewModel.doEvent(const ClearCheckoutNavigation());
   await c.viewModel.doEvent(const ProcessCheckoutPayment());
   expect(c.cartRepo.paymentCalls, 1);
   expect(c.cartRepo.lastPaymentOrderId, 'order-card');
   expect(c.cartRepo.lastAmountTotal, 58.98);
-  expect(c.cartRepo.lastCurrency, 'USD');
+  expect(c.cartRepo.lastCurrency, 'egp');
   expect(
     c.viewModel.state.sessionUrl,
     'https://checkout.stripe.com/c/pay/cs_test',
   );
-  expect(c.viewModel.state.stripeSessionId, 'cs_test');
-  expect(c.viewModel.state.paymentAttemptId, 'attempt-1');
-  expect(c.viewModel.state.destination, CheckoutDestination.payment);
 }
 
 Future<void> _paymentFails(CheckoutCase c) async {

@@ -164,10 +164,10 @@ void main() {
     expect(details.total, 517.90);
     expect(details.estimatedDeliveryAt, isNull);
     expect(details.paymentMethods, const [
-      PaymentMethodEntity(name: 'Cash on Delivery', apiMethod: 'cod'),
+      PaymentMethodEntity(name: 'Cash on Delivery', apiMethod: 'COD'),
       PaymentMethodEntity(
         name: 'Credit Card',
-        apiMethod: 'Card',
+        apiMethod: 'CARD',
         gateway: 'Stripe',
       ),
     ]);
@@ -197,6 +197,26 @@ void main() {
     );
   });
 
+  test('delivery estimate maps the orders service payload', () {
+    final estimate = EstimateDeliveryResponse.parse({
+      'status': true,
+      'code': 200,
+      'data': {
+        'addressId': 'address-1',
+        'isServiceable': true,
+        'deliveryFee': 25,
+        'estimatedDeliveryAt': '2026-10-05T18:00:00Z',
+      },
+    }).toDomain();
+    expect(estimate.hasData, isTrue);
+    expect(estimate.deliveryFee, 25);
+    expect(estimate.total, isNull);
+    expect(estimate.subtotal, isNull);
+    expect(estimate.isServiceable, isTrue);
+    expect(estimate.estimatedDeliveryAt, '2026-10-05T18:00:00Z');
+    expect(estimate.includesDeliveryAt, isTrue);
+  });
+
   test('delivery estimate maps only fields the response includes', () {
     final estimate = EstimateDeliveryResponse.parse({
       'status': true,
@@ -210,27 +230,47 @@ void main() {
     expect(estimate.includesDeliveryAt, isFalse);
   });
 
-  test('COD place order maps the documented response', () {
+  test('COD place order maps the orders service response', () {
     final order = OrderResponse.fromJson({
       'status': true,
       'code': 200,
       'message': 'Order placed successfully.',
       'data': {
         'orderId': 'c6397e92-123b-4659-8ed5-bde09472f787',
-        'orderNumber': 'ORD-20260915-09CB27',
         'status': 'PLACED',
-        'paymentStatus': 'PENDING',
-        'paymentMethod': 'COD',
-        'subtotal': 33.98,
-        'deliveryFee': 25.0,
-        'total': 58.98,
+        'gateway': null,
+        'sessionId': null,
+        'sessionUrl': null,
+        'amount': 58.98,
+        'currency': 'EGP',
       },
     }).data!.toDomain();
     expect(order.orderId, 'c6397e92-123b-4659-8ed5-bde09472f787');
     expect(order.status, 'PLACED');
-    expect(order.paymentStatus, 'PENDING');
-    expect(order.paymentMethod, 'COD');
     expect(order.total, 58.98);
+    expect(order.currency, 'EGP');
+    expect(order.sessionUrl, isEmpty);
+  });
+
+  test('card place order keeps the Stripe session from the same response', () {
+    final order = OrderResponse.fromJson({
+      'status': true,
+      'code': 200,
+      'data': {
+        'orderId': 'order-card',
+        'status': 'PLACED',
+        'gateway': 'Stripe',
+        'sessionId': 'cs_test',
+        'sessionUrl': 'https://checkout.stripe.com/c/pay/cs_test',
+        'amount': 58.98,
+        'currency': 'EGP',
+      },
+    }).data!.toDomain();
+    expect(order.status, 'PLACED');
+    expect(order.total, 58.98);
+    expect(order.sessionUrl, contains('checkout.stripe.com'));
+    expect(order.stripeSessionId, 'cs_test');
+    expect(order.currency, 'EGP');
   });
 
   test('place order body matches COD and card contracts', () {
@@ -240,7 +280,7 @@ void main() {
         addressId: 'address-1',
         isGift: false,
         giftRecipient: null,
-        paymentMethod: 'cod',
+        paymentMethod: 'COD',
         paymentGateway: null,
       ).toJson(),
       {
@@ -248,7 +288,7 @@ void main() {
         'addressId': 'address-1',
         'isGift': false,
         'giftRecipient': null,
-        'paymentMethod': 'cod',
+        'paymentMethod': 'COD',
         'paymentGateway': null,
       },
     );
@@ -261,7 +301,7 @@ void main() {
           recipientName: 'Nada Ahmed',
           recipientPhone: '01098887966',
         ),
-        paymentMethod: 'Card',
+        paymentMethod: 'CARD',
         paymentGateway: 'Stripe',
       ).toJson(),
       {
@@ -272,7 +312,7 @@ void main() {
           'recipientName': 'Nada Ahmed',
           'recipientPhone': '01098887966',
         },
-        'paymentMethod': 'Card',
+        'paymentMethod': 'CARD',
         'paymentGateway': 'Stripe',
       },
     );
@@ -282,10 +322,10 @@ void main() {
     expect(
       const PaymentCheckoutRequest(
         orderId: 'order-1',
-        amountTotal: 600,
-        currency: 'USD',
+        amountTotal: 5898,
+        currency: 'egp',
       ).toJson(),
-      {'orderId': 'order-1', 'amountTotal': 600, 'currency': 'USD'},
+      {'orderId': 'order-1', 'amountTotal': 5898, 'currency': 'egp'},
     );
     final payment = PaymentCheckoutResponse.fromJson({
       'value': {

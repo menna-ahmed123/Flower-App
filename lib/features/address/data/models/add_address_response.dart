@@ -18,8 +18,11 @@ class AddressResponse {
 
   factory AddressResponse.fromJson(Map<String, dynamic> json) {
     return AddressResponse(
-      success: json['success'] as bool? ?? true,
-      statusCode: (json['statusCode'] as num?)?.toInt() ?? 200,
+      success: json['success'] as bool? ?? json['status'] as bool? ?? true,
+      statusCode:
+          (json['statusCode'] as num?)?.toInt() ??
+          (json['code'] as num?)?.toInt() ??
+          200,
       message: json['message']?.toString() ?? '',
       messageLocalized: json['messageLocalized']?.toString() ?? '',
       data: parseAddressList(json['data']),

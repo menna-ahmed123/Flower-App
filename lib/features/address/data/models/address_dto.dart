@@ -59,6 +59,7 @@ class AddressDto {
 
     final phoneValue = [
       json['phone'],
+      json['recipientPhone'],
       json['phoneNumber'],
       json['mobile'],
     ].firstWhere(
@@ -68,6 +69,8 @@ class AddressDto {
 
     final cityValue = [
       json['city'],
+      json['cityName'],
+      json['governorateName'],
       json['governorate'],
       json['state'],
     ].firstWhere(
@@ -94,7 +97,10 @@ class AddressDto {
       lat: (json['lat'] as num?)?.toDouble() ?? 0,
       lng: (json['lng'] as num?)?.toDouble() ?? 0,
       label: json['label']?.toString() ?? 'Home',
-      servingStoreId: json['servingStoreId']?.toString() ?? '',
+      servingStoreId:
+          json['servingStoreId']?.toString() ??
+          json['storeId']?.toString() ??
+          '',
       isServiceable: json['isServiceable'] as bool? ?? false,
       isDefault: json['isDefault'] as bool? ?? false,
       createdAtUtc: json['createdAtUtc'] == null

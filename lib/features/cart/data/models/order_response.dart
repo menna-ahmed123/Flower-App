@@ -37,6 +37,11 @@ class OrderDataModel {
   final double? subtotal;
   final double? deliveryFee;
   final double? total;
+  final String? gateway;
+  final String? sessionId;
+  final String? sessionUrl;
+  final double? amount;
+  final String? currency;
 
   const OrderDataModel({
     this.orderId,
@@ -47,6 +52,11 @@ class OrderDataModel {
     this.subtotal,
     this.deliveryFee,
     this.total,
+    this.gateway,
+    this.sessionId,
+    this.sessionUrl,
+    this.amount,
+    this.currency,
   });
 
   factory OrderDataModel.fromJson(Map<String, dynamic> json) =>
@@ -59,11 +69,14 @@ class OrderDataModel {
       orderId: orderId ?? '',
       orderNumber: orderNumber ?? '',
       status: status,
-      paymentMethod: paymentMethod ?? '',
+      paymentMethod: paymentMethod ?? gateway ?? '',
       paymentStatus: paymentStatus ?? '',
       subtotal: subtotal ?? 0,
       deliveryFee: deliveryFee ?? 0,
-      total: total ?? 0,
+      total: total ?? amount ?? 0,
+      sessionUrl: sessionUrl ?? '',
+      stripeSessionId: sessionId ?? '',
+      currency: currency ?? '',
     );
   }
 }

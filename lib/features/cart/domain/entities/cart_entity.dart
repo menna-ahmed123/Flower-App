@@ -245,6 +245,9 @@ class OrderEntity extends Equatable {
     this.subtotal = 0,
     this.deliveryFee = 0,
     this.total = 0,
+    this.sessionUrl = '',
+    this.stripeSessionId = '',
+    this.currency = '',
   });
 
   final String orderId;
@@ -255,6 +258,9 @@ class OrderEntity extends Equatable {
   final double subtotal;
   final double deliveryFee;
   final double total;
+  final String sessionUrl;
+  final String stripeSessionId;
+  final String currency;
 
   @override
   List<Object?> get props => [
@@ -266,5 +272,8 @@ class OrderEntity extends Equatable {
     subtotal,
     deliveryFee,
     total,
+    sessionUrl,
+    stripeSessionId,
+    currency,
   ];
 }

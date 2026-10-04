@@ -37,10 +37,10 @@ CartEntity cartWithItems(List<CartItemEntity> items) {
 }
 
 const checkoutPaymentMethods = [
-  PaymentMethodEntity(name: AppString.cashOnDelivery, apiMethod: 'cod'),
+  PaymentMethodEntity(name: AppString.cashOnDelivery, apiMethod: 'COD'),
   PaymentMethodEntity(
     name: AppString.creditCard,
-    apiMethod: 'Card',
+    apiMethod: 'CARD',
     gateway: 'Stripe',
   ),
 ];

@@ -45,7 +45,7 @@ class PlaceOrderRequest {
 @JsonSerializable()
 class PaymentCheckoutRequest {
   final String orderId;
-  final double amountTotal;
+  final int amountTotal;
   final String currency;
 
   const PaymentCheckoutRequest({
