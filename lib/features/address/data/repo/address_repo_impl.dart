@@ -8,6 +8,9 @@ import 'package:flower_app/core/services/location_service.dart';
 import 'package:flower_app/features/address/data/data_sources/address_remote_data_source.dart';
 import 'package:flower_app/features/address/data/models/add_address_request.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
+import 'package:flower_app/features/address/domain/entities/city_entity.dart';
+import 'package:flower_app/features/address/domain/entities/country_entity.dart';
+import 'package:flower_app/features/address/domain/entities/governorate_entity.dart';
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flower_app/features/address/domain/repo/address_repo.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,7 +23,7 @@ class AddressRepoImpl implements AddressRepo {
   final SafeCall safeCall;
   final AddressRemoteDataSource remoteDataSource;
 
-   AddressRepoImpl(
+  AddressRepoImpl(
     this._locationService,
     this._geocodingService,
     this.safeCall,
@@ -31,7 +34,6 @@ class AddressRepoImpl implements AddressRepo {
   Future<BaseResponse<bool>> isLocationServiceEnabled() async {
     try {
       final isEnabled = await _locationService.isLocationServiceEnabled();
-
       return SuccessResponse(isEnabled);
     } catch (e) {
       return ErrorResponse(
@@ -44,7 +46,6 @@ class AddressRepoImpl implements AddressRepo {
   Future<BaseResponse<LocationPermission>> checkLocationPermission() async {
     try {
       final permission = await _locationService.checkPermission();
-
       return SuccessResponse(permission);
     } catch (e) {
       return ErrorResponse(
@@ -57,7 +58,6 @@ class AddressRepoImpl implements AddressRepo {
   Future<BaseResponse<LocationPermission>> requestLocationPermission() async {
     try {
       final permission = await _locationService.requestPermission();
-
       return SuccessResponse(permission);
     } catch (e) {
       return ErrorResponse(
@@ -70,7 +70,6 @@ class AddressRepoImpl implements AddressRepo {
   Future<BaseResponse<bool>> openLocationSettings() async {
     try {
       final result = await _locationService.openLocationSettings();
-
       return SuccessResponse(result);
     } catch (e) {
       return ErrorResponse(
@@ -83,7 +82,6 @@ class AddressRepoImpl implements AddressRepo {
   Future<BaseResponse<bool>> openAppSettings() async {
     try {
       final result = await _locationService.openAppSettings();
-
       return SuccessResponse(result);
     } catch (e) {
       return ErrorResponse(
@@ -91,7 +89,6 @@ class AddressRepoImpl implements AddressRepo {
       );
     }
   }
-
 
   @override
   Future<BaseResponse<LocationEntity>> getCurrentLocation() async {
@@ -116,32 +113,61 @@ class AddressRepoImpl implements AddressRepo {
     required double latitude,
     required double longitude,
   }) async {
+    // 1. Try remote reverse geocoding API first
+    try {
+      final response = await remoteDataSource.reverseGeocode(
+        latitude,
+        longitude,
+      );
+      final entity = response.toDomain();
+      final hasAddress = (entity.address?.isNotEmpty ?? false) ||
+          (entity.addressLine?.isNotEmpty ?? false);
+      final hasCity = entity.city?.isNotEmpty ?? false;
+      final hasArea = entity.area?.isNotEmpty ?? false;
+
+      if (hasAddress || hasCity || hasArea) {
+        return SuccessResponse(
+          entity.copyWith(
+            latitude: latitude,
+            longitude: longitude,
+          ),
+        );
+      }
+    } catch (_) {
+      // If remote reverse geocoding fails, fallback to local geocoding service
+    }
+
+    // 2. Fallback to local GeocodingService
     try {
       final placemark = await _geocodingService.getAddressFromCoordinates(
         latitude: latitude,
         longitude: longitude,
       );
 
-      if (placemark == null) {
-        return ErrorResponse(
-          appError: BadResponseError(AppString.couldNotGetAddress),
+      if (placemark != null) {
+        final street = placemark.street;
+        final locality = placemark.locality;
+        final subLocality =
+            placemark.subLocality ?? placemark.subAdministrativeArea;
+
+        final address = AddressEntity(
+          address: street,
+          addressLine: street,
+          city: locality,
+          area: subLocality,
+          latitude: latitude,
+          longitude: longitude,
         );
+
+        return SuccessResponse(address);
       }
-
-      final address = AddressEntity(
-        address: placemark.street,
-        city: placemark.locality,
-        area: placemark.subLocality ?? placemark.subAdministrativeArea,
-        latitude: latitude,
-        longitude: longitude,
-      );
-
-      return SuccessResponse(address);
-    } catch (e) {
-      return ErrorResponse(
-        appError: BadResponseError(AppString.couldNotGetAddress),
-      );
+    } catch (_) {
+      // Both remote and local failed
     }
+
+    return ErrorResponse(
+      appError: BadResponseError(AppString.couldNotGetAddress),
+    );
   }
 
   @override
@@ -159,9 +185,9 @@ class AddressRepoImpl implements AddressRepo {
     return safeCall.safeApiCall(() async {
       final response = await remoteDataSource.createAddress(request);
 
-      if (response.success == false) {
+      if (response.statusCode >= 400) {
         throw ApiException(
-          message: (response.message).isNotEmpty
+          message: response.message.isNotEmpty
               ? response.message
               : AppString.somethingWrong,
           statusCode: response.statusCode,
@@ -176,10 +202,12 @@ class AddressRepoImpl implements AddressRepo {
 
       return AddressEntity(
         address: request.addressLine,
+        addressLine: request.addressLine,
         cityId: request.cityId,
         governorateId: request.governorateId,
         phoneNumber: request.recipientPhone,
         latitude: request.lat,
+        longitude: request.lng,
         recipientName: request.recipientName,
         area: request.area,
         label: request.label,
@@ -217,6 +245,7 @@ class AddressRepoImpl implements AddressRepo {
       return response.toDomain();
     });
   }
+
   @override
   Future<BaseResponse<AddressEntity>> setDefaultAddress(String addressId) {
     return safeCall.safeApiCall(() async {
@@ -226,6 +255,43 @@ class AddressRepoImpl implements AddressRepo {
         throw ApiException(message: AppString.couldNotGetAddress);
       }
       return addresses.first;
+    });
+  }
+
+  @override
+  Future<BaseResponse<List<CountryEntity>>> getCountries() {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.getCountries();
+      return response.toDomain();
+    });
+  }
+
+  @override
+  Future<BaseResponse<List<GovernorateEntity>>> getGovernorates() {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.getGovernorates();
+      return response.toDomain();
+    });
+  }
+
+  @override
+  Future<BaseResponse<List<CityEntity>>> getCities(
+    int governorateId,
+  ) {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.getCities(governorateId);
+      return response.toDomain();
+    });
+  }
+
+  @override
+  Future<BaseResponse<AddressEntity>> reverseGeocode(
+    double lat,
+    double lng,
+  ) {
+    return safeCall.safeApiCall(() async {
+      final response = await remoteDataSource.reverseGeocode(lat, lng);
+      return response.toDomain();
     });
   }
 }

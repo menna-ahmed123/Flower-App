@@ -82,6 +82,10 @@ class ApiEndpoints {
   static const String getAddress = '/api/address-cart/addresses';
   static const String setDefaultAddress =
       '/api/address-cart/users/me/addresses/{address-id}/default';
+  static const String getCountries = '/api/address-cart/locations/countries';
+  static const String getGovernorates = '/api/address-cart/locations/governorates';
+  static const String getCities = '/api/address-cart/locations/governorates/{governorateId}/cities';
+  static const String reverseGeocode = '/api/address-cart/geocoding/reverse';
 
   //// Cart ////
   static const String cart = '/cart';

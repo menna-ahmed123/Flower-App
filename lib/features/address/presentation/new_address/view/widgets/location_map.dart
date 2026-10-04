@@ -1,9 +1,10 @@
 import 'package:flower_app/core/constants/app_constants.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/features/address/domain/entities/location_entity.dart';
+import 'package:flower_app/features/address/presentation/new_address/view_model/address_event.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_state.dart';
 import 'package:flower_app/features/address/presentation/new_address/view_model/address_view_model.dart';
-import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -44,8 +45,8 @@ class _LocationMapState extends State<LocationMap> {
       _syncSelectedLocation(next);
     });
 
-    if (oldWidget.initialLocation != null) {
-      _mapController.move(selectedLocation!, 13);
+    if (selectedLocation != null) {
+      _mapController.move(selectedLocation!, 15);
     }
   }
 
@@ -62,16 +63,17 @@ class _LocationMapState extends State<LocationMap> {
 
   @override
   Widget build(BuildContext context) {
-    final marker = selectedLocation;
+    final marker = selectedLocation ?? const LatLng(30.0444, 31.2357);
 
-    return Stack(
-      children: [
-        if (marker != null)
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16.r),
+      child: Stack(
+        children: [
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
               initialCenter: marker,
-              initialZoom: 13,
+              initialZoom: 14,
               onTap: (tapPosition, point) {
                 setState(() {
                   selectedLocation = point;
@@ -92,102 +94,103 @@ class _LocationMapState extends State<LocationMap> {
                 userAgentPackageName:
                     AppConstants.mapUserAgentPackageName,
               ),
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: marker,
-                    width: 80,
-                    height: 80,
-                    child: Icon(
-                      Icons.location_pin,
-                      size: 50,
-                      color: context.colors.pink,
+              if (selectedLocation != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: selectedLocation!,
+                      width: 60.w,
+                      height: 60.h,
+                      child: Icon(
+                        Icons.location_pin,
+                        size: 45.sp,
+                        color: context.colors.pink,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
           ),
 
-        BlocBuilder<AddressViewModel, AddressState>(
-          buildWhen: (previous, current) =>
-              previous.locationState.isLoading !=
-                  current.locationState.isLoading ||
-              previous.locationState.errorMessage !=
-                  current.locationState.errorMessage,
-          builder: (context, state) {
-            if (state.locationState.isLoading) {
-            return Positioned.fill(
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.15),
-                child: Center(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20.w,
-                      vertical: 14.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: context.colors.white,
-                      borderRadius: BorderRadius.circular(16.r),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 12,
-                          spreadRadius: 2,
-                          color: Colors.black.withValues(alpha: 0.12),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 22.w,
-                          height: 22.h,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: context.colors.pink,
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Text(
-                          AppString.gettingLocation,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            color: context.colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+          // Re-center on current location button
+          Positioned(
+            right: 12.w,
+            bottom: 12.h,
+            child: FloatingActionButton.small(
+              heroTag: 'my_location_btn',
+              backgroundColor: context.colors.white,
+              onPressed: () {
+                context.read<AddressViewModel>().doEvent(GetCurrentAddress());
+              },
+              child: Icon(
+                Icons.my_location,
+                color: context.colors.pink,
               ),
-            );
-            }
+            ),
+          ),
 
-            final errorMessage = state.locationState.errorMessage;
-            if (marker == null && errorMessage.isNotEmpty) {
-              return Positioned.fill(
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.w),
-                    child: Text(
-                      errorMessage,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: context.colors.black,
+          // Loading Overlay
+          BlocBuilder<AddressViewModel, AddressState>(
+            buildWhen: (previous, current) =>
+                previous.locationState.isLoading !=
+                    current.locationState.isLoading ||
+                previous.locationState.errorMessage !=
+                    current.locationState.errorMessage,
+            builder: (context, state) {
+              if (state.locationState.isLoading) {
+                return Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    child: Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20.w,
+                          vertical: 14.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: context.colors.white,
+                          borderRadius: BorderRadius.circular(16.r),
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                              color: Colors.black.withValues(alpha: 0.12),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 22.w,
+                              height: 22.h,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: context.colors.pink,
+                              ),
+                            ),
+                            SizedBox(width: 12.w),
+                            Text(
+                              AppString.gettingLocation,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
+                                color: context.colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }
+                );
+              }
 
-            return const SizedBox.shrink();
-          },
-        ),
-      ],
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
+      ),
     );
   }
 }

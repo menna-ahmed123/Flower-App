@@ -19,6 +19,8 @@ class AddressDto {
   final bool isDefault;
   final DateTime? createdAtUtc;
   final DateTime? lastUsedAtUtc;
+  final int? governorateId;
+  final int? cityId;
 
   AddressDto({
     this.id = '',
@@ -35,6 +37,8 @@ class AddressDto {
     this.isDefault = false,
     this.createdAtUtc,
     this.lastUsedAtUtc,
+    this.governorateId,
+    this.cityId,
   });
 
   factory AddressDto.fromJson(Map<String, dynamic> json) {
@@ -103,6 +107,8 @@ class AddressDto {
       lastUsedAtUtc: json['lastUsedAtUtc'] == null
           ? null
           : DateTime.tryParse(json['lastUsedAtUtc'].toString()),
+      governorateId: (json['governorateId'] as num?)?.toInt(),
+      cityId: (json['cityId'] as num?)?.toInt(),
     );
   }
 
@@ -129,6 +135,8 @@ class AddressDto {
       latitude: hasCoords ? lat : null,
       longitude: hasCoords ? lng : null,
       isDefault: isDefault,
+      governorateId: governorateId,
+      cityId: cityId,
     );
   }
 }

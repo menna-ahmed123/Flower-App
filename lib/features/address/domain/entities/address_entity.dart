@@ -1,5 +1,5 @@
-
 import 'package:equatable/equatable.dart';
+
 class AddressEntity extends Equatable {
   final String? address;
   final String? phoneNumber;
@@ -7,7 +7,7 @@ class AddressEntity extends Equatable {
 
   final String? city;
   final String? area;
-
+  final String? addressLine;
   final int? governorateId;
   final int? cityId;
 
@@ -20,6 +20,7 @@ class AddressEntity extends Equatable {
   final double? longitude;
 
   const AddressEntity({
+    this.addressLine,
     this.address,
     this.phoneNumber,
     this.recipientName,
@@ -35,6 +36,7 @@ class AddressEntity extends Equatable {
   });
 
   AddressEntity copyWith({
+    String? addressLine,
     String? address,
     String? phoneNumber,
     String? recipientName,
@@ -49,6 +51,7 @@ class AddressEntity extends Equatable {
     bool? isDefault,
   }) {
     return AddressEntity(
+      addressLine: addressLine ?? this.addressLine,
       address: address ?? this.address,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       recipientName: recipientName ?? this.recipientName,
@@ -66,18 +69,18 @@ class AddressEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        address,
-        phoneNumber,
-        recipientName,
-        city,
-        area,
-        governorateId,
-        cityId,
-        id,
-        label,
-        isDefault,
-        latitude,
-        longitude,
-      ];
+    address,
+    phoneNumber,
+    addressLine,
+    recipientName,
+    city,
+    area,
+    governorateId,
+    cityId,
+    id,
+    label,
+    isDefault,
+    latitude,
+    longitude,
+  ];
 }
-
