@@ -20,17 +20,16 @@ class _CommerceApiClient implements CommerceApiClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<HomeLayoutResponse> getHomeLayout({String? storeId}) async {
+  Future<HomeLayoutResponse> getHomeLayout() async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'storeId': storeId};
-    queryParameters.removeWhere((k, v) => v == null);
+    final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<HomeLayoutResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/catalog/home/layout',
+            '/api/catalog/home/layout',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -48,100 +47,6 @@ class _CommerceApiClient implements CommerceApiClient {
   }
 
   @override
-  Future<CatalogItemsResponse> getCategories() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<CatalogItemsResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/catalog/categories',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late CatalogItemsResponse _value;
-    try {
-      _value = CatalogItemsResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<CatalogItemsResponse> getOccasions() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<CatalogItemsResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/catalog/occasions',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late CatalogItemsResponse _value;
-    try {
-      _value = CatalogItemsResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ProductsResponse> getProducts({
-    int? page,
-    int? pageSize,
-    String? occasionId,
-    String? categoryId,
-    int? sortBy,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'page': page,
-      r'pageSize': pageSize,
-      r'occasionId': occasionId,
-      r'categoryId': categoryId,
-      r'sortBy': sortBy,
-    };
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ProductsResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/catalog/products',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProductsResponse _value;
-    try {
-      _value = ProductsResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
   Future<CategoriesResponse> getAllCategories() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -151,7 +56,7 @@ class _CommerceApiClient implements CommerceApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/catalog/categories',
+            '/api/catalog/categories',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -178,7 +83,7 @@ class _CommerceApiClient implements CommerceApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/catalog/occasions',
+            '/api/catalog/occasions',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -196,6 +101,46 @@ class _CommerceApiClient implements CommerceApiClient {
   }
 
   @override
+  Future<ProductsResponse> getProducts({
+    String? page,
+    String? pageSize,
+    String? occasionId,
+    String? categoryId,
+    String? sort,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'Page': page,
+      r'PageSize': pageSize,
+      r'occasionId': occasionId,
+      r'categoryId': categoryId,
+      r'sort': sort,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ProductsResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/catalog/products',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ProductsResponse _value;
+    try {
+      _value = ProductsResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<ProductDetailsResponseModel> getProductDetails(String id) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -205,7 +150,7 @@ class _CommerceApiClient implements CommerceApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/catalog/products/${id}',
+            '/api/catalog/products/${id}',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -215,6 +160,44 @@ class _CommerceApiClient implements CommerceApiClient {
     late ProductDetailsResponseModel _value;
     try {
       _value = ProductDetailsResponseModel.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ProductsResponse> searchProducts({
+    String? query,
+    String? sort,
+    String? page,
+    String? pageSize,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'q': query,
+      r'sort': sort,
+      r'Page': page,
+      r'PageSize': pageSize,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ProductsResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/catalog/products/search',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ProductsResponse _value;
+    try {
+      _value = ProductsResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

@@ -71,6 +71,8 @@ class CartEntity extends Equatable {
     this.pricingUnavailable = false,
     this.deliveryAddress,
     this.paymentMethods = const [],
+    this.isServiceable = true,
+    this.estimatedDeliveryAt,
   });
 
   const CartEntity.empty()
@@ -84,7 +86,9 @@ class CartEntity extends Equatable {
       hasChanges = false,
       pricingUnavailable = false,
       deliveryAddress = null,
-      paymentMethods = const [];
+      paymentMethods = const [],
+      isServiceable = true,
+      estimatedDeliveryAt = null;
 
   final String id;
   final List<CartItemEntity> items;
@@ -97,6 +101,8 @@ class CartEntity extends Equatable {
   final bool pricingUnavailable;
   final AddressEntity? deliveryAddress;
   final List<PaymentMethodEntity> paymentMethods;
+  final bool isServiceable;
+  final String? estimatedDeliveryAt;
 
   static double sumLines(List<CartItemEntity> items) {
     return items.fold(0, (sum, item) => sum + item.lineTotal);
@@ -118,6 +124,9 @@ class CartEntity extends Equatable {
     bool? pricingUnavailable,
     AddressEntity? deliveryAddress,
     List<PaymentMethodEntity>? paymentMethods,
+    bool? isServiceable,
+    String? estimatedDeliveryAt,
+    bool updateEstimatedDeliveryAt = false,
   }) {
     return CartEntity(
       id: id ?? this.id,
@@ -131,6 +140,10 @@ class CartEntity extends Equatable {
       pricingUnavailable: pricingUnavailable ?? this.pricingUnavailable,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
       paymentMethods: paymentMethods ?? this.paymentMethods,
+      isServiceable: isServiceable ?? this.isServiceable,
+      estimatedDeliveryAt: updateEstimatedDeliveryAt
+          ? estimatedDeliveryAt
+          : (estimatedDeliveryAt ?? this.estimatedDeliveryAt),
     );
   }
 
@@ -156,51 +169,70 @@ class CartEntity extends Equatable {
     pricingUnavailable,
     deliveryAddress,
     paymentMethods,
+    isServiceable,
+    estimatedDeliveryAt,
   ];
 }
 
 class PaymentMethodEntity extends Equatable {
-  const PaymentMethodEntity({required this.name, required this.value});
-
-  final String name;
-  final int value;
-
-  @override
-  List<Object?> get props => [name, value];
-}
-
-class CheckoutGiftEntity extends Equatable {
-  const CheckoutGiftEntity({
-    required this.recipientName,
-    required this.phone,
-    required this.addressLine,
-    required this.city,
-    required this.area,
-    this.lat,
-    this.lng,
-    this.message,
+  const PaymentMethodEntity({
+    required this.name,
+    required this.apiMethod,
+    this.gateway,
   });
 
-  final String recipientName;
-  final String phone;
-  final String addressLine;
-  final String city;
-  final String area;
-  final double? lat;
-  final double? lng;
-  final String? message;
+  final String name;
+  final String apiMethod;
+  final String? gateway;
+
+  @override
+  List<Object?> get props => [name, apiMethod, gateway];
+}
+
+class DeliveryEstimateEntity extends Equatable {
+  const DeliveryEstimateEntity({
+    this.subtotal,
+    this.deliveryFee,
+    this.total,
+    this.estimatedDeliveryAt,
+    this.isServiceable,
+    this.hasData = false,
+    this.includesDeliveryAt = false,
+  });
+
+  final double? subtotal;
+  final double? deliveryFee;
+  final double? total;
+  final String? estimatedDeliveryAt;
+  final bool? isServiceable;
+  final bool hasData;
+  final bool includesDeliveryAt;
 
   @override
   List<Object?> get props => [
-    recipientName,
-    phone,
-    addressLine,
-    city,
-    area,
-    lat,
-    lng,
-    message,
+    subtotal,
+    deliveryFee,
+    total,
+    estimatedDeliveryAt,
+    isServiceable,
+    hasData,
+    includesDeliveryAt,
   ];
+}
+
+class PaymentCheckoutEntity extends Equatable {
+  const PaymentCheckoutEntity({
+    this.checkoutUrl = '',
+    this.stripeSessionId = '',
+    this.paymentAttemptId = '',
+  });
+
+  final String checkoutUrl;
+  final String stripeSessionId;
+  final String paymentAttemptId;
+
+  @override
+  List<Object?> get props => [checkoutUrl, stripeSessionId, paymentAttemptId];
 }
 
 class OrderEntity extends Equatable {
@@ -208,31 +240,27 @@ class OrderEntity extends Equatable {
     this.orderId = '',
     this.orderNumber = '',
     this.status,
-    this.paymentMethod = 1,
-    this.paymentStatus = 0,
-    this.paymentRequired,
-    this.sessionUrl,
-    this.successUrl,
-    this.cancelUrl,
+    this.paymentMethod = '',
+    this.paymentStatus = '',
     this.subtotal = 0,
     this.deliveryFee = 0,
-    this.discount = 0,
     this.total = 0,
+    this.sessionUrl = '',
+    this.stripeSessionId = '',
+    this.currency = '',
   });
 
   final String orderId;
   final String orderNumber;
-  final int? status;
-  final int paymentMethod;
-  final int paymentStatus;
-  final bool? paymentRequired;
-  final String? sessionUrl;
-  final String? successUrl;
-  final String? cancelUrl;
+  final String? status;
+  final String paymentMethod;
+  final String paymentStatus;
   final double subtotal;
   final double deliveryFee;
-  final double discount;
   final double total;
+  final String sessionUrl;
+  final String stripeSessionId;
+  final String currency;
 
   @override
   List<Object?> get props => [
@@ -241,13 +269,11 @@ class OrderEntity extends Equatable {
     status,
     paymentMethod,
     paymentStatus,
-    paymentRequired,
-    sessionUrl,
-    successUrl,
-    cancelUrl,
     subtotal,
     deliveryFee,
-    discount,
     total,
+    sessionUrl,
+    stripeSessionId,
+    currency,
   ];
 }

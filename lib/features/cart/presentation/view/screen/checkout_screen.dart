@@ -1,12 +1,12 @@
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/widgets/custom_app_bar.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
-import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
 import 'package:flower_app/features/cart/presentation/view/widgets/checkout_address_section.dart';
 import 'package:flower_app/features/cart/presentation/view/widgets/checkout_gift_section.dart';
 import 'package:flower_app/features/cart/presentation/view/widgets/checkout_payment_section.dart';
@@ -152,11 +152,17 @@ class CheckoutBodyState extends State<CheckoutBody> {
         await _openConfirmation(context);
       case CheckoutDestination.payment:
         _clearNavigation(context);
-        context.push(
-          AppRoutesName.payment,
-          extra: context.read<CheckoutViewModel>(),
-        );
+        await _openPayment(context);
     }
+  }
+
+  Future<void> _openPayment(BuildContext context) async {
+    await context.read<CartViewModel>().doEvent(const ClearCart());
+    if (!context.mounted) return;
+    context.push(
+      AppRoutesName.payment,
+      extra: context.read<CheckoutViewModel>(),
+    );
   }
 
   Future<void> _openConfirmation(BuildContext context) async {

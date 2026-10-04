@@ -21,7 +21,6 @@ void main() {
   provideDummy<BaseResponse<CartEntity>>(
     const SuccessResponse<CartEntity>(CartEntity.empty()),
   );
-  provideDummy<BaseResponse<bool>>(const SuccessResponse<bool>(true));
   _loadCartTests();
   _addCartTests();
   _stockQuantityTests();
@@ -321,7 +320,7 @@ Future<void> _decrementRemoves(CartViewModelCase vm) async {
   );
   when(
     vm.removeCartItemUseCase.removeItem(itemId: 'item-1'),
-  ).thenAnswer((_) async => const SuccessResponse(true));
+  ).thenAnswer((_) async => const SuccessResponse(CartEntity.empty()));
   await vm.viewModel.doEvent(const LoadCart());
   await vm.viewModel.doEvent(
     const ChangeCartItemQuantity(itemId: 'item-1', delta: -1),
@@ -443,7 +442,7 @@ Future<void> _removeSuccess(CartViewModelCase vm) async {
   ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
   when(
     vm.removeCartItemUseCase.removeItem(itemId: 'item-1'),
-  ).thenAnswer((_) async => const SuccessResponse(true));
+  ).thenAnswer((_) async => const SuccessResponse(CartEntity.empty()));
   await vm.viewModel.doEvent(const LoadCart());
   await vm.viewModel.doEvent(const RemoveCartItemEvent(itemId: 'item-1'));
   expect(vm.viewModel.state.cartState.data?.items, isEmpty);
@@ -461,35 +460,54 @@ void _clearCartTests() {
     test('loads remote lines when local cart is empty', () {
       return _clearFetchesRemoteLines(vm);
     });
+    test('does not delete when the refreshed cart is already empty', () {
+      return _clearSkipsEmptyRemote(vm);
+    });
   });
 }
 
 Future<void> _clearDeletesLocalLines(CartViewModelCase vm) async {
-  when(
-    vm.getCartUseCase.getCart(),
-  ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
+  var calls = 0;
+  when(vm.getCartUseCase.getCart()).thenAnswer((_) async {
+    calls++;
+    if (calls < 3) return SuccessResponse(_cartWith([_rose]));
+    return const SuccessResponse(CartEntity.empty());
+  });
   when(
     vm.removeCartItemUseCase.removeItem(itemId: 'item-1'),
-  ).thenAnswer((_) async => const SuccessResponse(true));
+  ).thenAnswer((_) async => const SuccessResponse(CartEntity.empty()));
   await vm.viewModel.doEvent(const LoadCart());
   await vm.viewModel.doEvent(const ClearCart());
   expect(vm.viewModel.state.cartState.data, const CartEntity.empty());
   expect(vm.viewModel.state.itemCount, 0);
   verify(vm.removeCartItemUseCase.removeItem(itemId: 'item-1')).called(1);
-  verify(vm.getCartUseCase.getCart()).called(1);
+  verify(vm.getCartUseCase.getCart()).called(3);
 }
 
 Future<void> _clearFetchesRemoteLines(CartViewModelCase vm) async {
-  when(
-    vm.getCartUseCase.getCart(),
-  ).thenAnswer((_) async => SuccessResponse(_cartWith([_rose])));
+  var calls = 0;
+  when(vm.getCartUseCase.getCart()).thenAnswer((_) async {
+    calls++;
+    if (calls == 1) return SuccessResponse(_cartWith([_rose]));
+    return const SuccessResponse(CartEntity.empty());
+  });
   when(
     vm.removeCartItemUseCase.removeItem(itemId: 'item-1'),
-  ).thenAnswer((_) async => const SuccessResponse(true));
+  ).thenAnswer((_) async => const SuccessResponse(CartEntity.empty()));
   await vm.viewModel.doEvent(const ClearCart());
-  verify(vm.getCartUseCase.getCart()).called(1);
+  verify(vm.getCartUseCase.getCart()).called(2);
   verify(vm.removeCartItemUseCase.removeItem(itemId: 'item-1')).called(1);
   expect(vm.viewModel.state.cartState.data, const CartEntity.empty());
+  expect(vm.viewModel.state.itemCount, 0);
+}
+
+Future<void> _clearSkipsEmptyRemote(CartViewModelCase vm) async {
+  when(
+    vm.getCartUseCase.getCart(),
+  ).thenAnswer((_) async => const SuccessResponse(CartEntity.empty()));
+  await vm.viewModel.doEvent(const ClearCart());
+  verify(vm.getCartUseCase.getCart()).called(1);
+  verifyNever(vm.removeCartItemUseCase.removeItem(itemId: anyNamed('itemId')));
   expect(vm.viewModel.state.itemCount, 0);
 }
 

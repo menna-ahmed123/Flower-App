@@ -8,18 +8,6 @@ import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 abstract final class CheckoutPaymentMethods {
   static const String cashOnDelivery = AppString.cashOnDelivery;
   static const String creditCard = AppString.creditCard;
-
-  static bool requiresCharge(String? method) => method == creditCard;
-
-  static int apiValue(
-    String? method, {
-    List<PaymentMethodEntity> methods = const [],
-  }) {
-    for (final item in methods) {
-      if (item.name == method) return item.value;
-    }
-    return method == creditCard ? 2 : 1;
-  }
 }
 
 enum CheckoutDestination { payment, confirmation, addAddress, emptyCart }
@@ -38,8 +26,8 @@ class CheckoutState extends Equatable {
     this.destination,
     this.orderId,
     this.sessionUrl,
-    this.successUrl,
-    this.cancelUrl,
+    this.stripeSessionId,
+    this.paymentAttemptId,
   });
 
   final AddressEntity? selectedAddress;
@@ -54,19 +42,11 @@ class CheckoutState extends Equatable {
   final CheckoutDestination? destination;
   final String? orderId;
   final String? sessionUrl;
-  final String? successUrl;
-  final String? cancelUrl;
+  final String? stripeSessionId;
+  final String? paymentAttemptId;
 
   List<PaymentMethodEntity> get paymentMethods {
-    final methods = previewState.data?.paymentMethods ?? const [];
-    if (methods.isNotEmpty) return methods;
-    return const [
-      PaymentMethodEntity(
-        name: CheckoutPaymentMethods.cashOnDelivery,
-        value: 1,
-      ),
-      PaymentMethodEntity(name: CheckoutPaymentMethods.creditCard, value: 2),
-    ];
+    return previewState.data?.paymentMethods ?? const [];
   }
 
   bool get hasAddress => (selectedAddress?.id ?? '').isNotEmpty;
@@ -85,7 +65,8 @@ class CheckoutState extends Equatable {
         isGiftRecipientValid &&
         !submitState.isLoading &&
         !previewState.isLoading &&
-        previewState.data != null;
+        previewState.data != null &&
+        previewState.data!.isServiceable;
   }
 
   CheckoutState copyWith({
@@ -102,8 +83,8 @@ class CheckoutState extends Equatable {
     bool clearDestination = false,
     String? orderId,
     String? sessionUrl,
-    String? successUrl,
-    String? cancelUrl,
+    String? stripeSessionId,
+    String? paymentAttemptId,
   }) {
     return CheckoutState(
       selectedAddress: selectedAddress ?? this.selectedAddress,
@@ -118,8 +99,8 @@ class CheckoutState extends Equatable {
       destination: clearDestination ? null : (destination ?? this.destination),
       orderId: orderId ?? this.orderId,
       sessionUrl: sessionUrl ?? this.sessionUrl,
-      successUrl: successUrl ?? this.successUrl,
-      cancelUrl: cancelUrl ?? this.cancelUrl,
+      stripeSessionId: stripeSessionId ?? this.stripeSessionId,
+      paymentAttemptId: paymentAttemptId ?? this.paymentAttemptId,
     );
   }
 
@@ -137,7 +118,7 @@ class CheckoutState extends Equatable {
     destination,
     orderId,
     sessionUrl,
-    successUrl,
-    cancelUrl,
+    stripeSessionId,
+    paymentAttemptId,
   ];
 }

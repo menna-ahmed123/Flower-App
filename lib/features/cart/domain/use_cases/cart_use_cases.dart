@@ -48,7 +48,7 @@ class RemoveCartItemUseCase {
 
   final CartRepo cartRepo;
 
-  Future<BaseResponse<bool>> removeItem({required String itemId}) {
+  Future<BaseResponse<CartEntity>> removeItem({required String itemId}) {
     return cartRepo.removeItem(itemId: itemId);
   }
 }

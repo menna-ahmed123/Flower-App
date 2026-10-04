@@ -1,4 +1,5 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
@@ -35,30 +36,52 @@ CartEntity cartWithItems(List<CartItemEntity> items) {
   );
 }
 
+const checkoutPaymentMethods = [
+  PaymentMethodEntity(name: AppString.cashOnDelivery, apiMethod: 'COD'),
+  PaymentMethodEntity(
+    name: AppString.creditCard,
+    apiMethod: 'CARD',
+    gateway: 'Stripe',
+  ),
+];
+
 class FakeCartRepo implements CartRepo {
   FakeCartRepo({
     this.getCartResponse = const SuccessResponse(CartEntity.empty()),
-    this.previewResponse = const SuccessResponse(CartEntity.empty()),
+    this.detailsResponse = const SuccessResponse(CartEntity.empty()),
     this.placeOrderResponse = const SuccessResponse(
-      OrderEntity(status: 0, paymentRequired: false),
+      OrderEntity(status: 'PLACED', paymentMethod: 'COD'),
     ),
-    this.paymentResponse = const SuccessResponse(true),
+    this.paymentResponse = const SuccessResponse(PaymentCheckoutEntity()),
+    this.estimateResponse,
   });
 
   BaseResponse<CartEntity> getCartResponse;
-  BaseResponse<CartEntity> previewResponse;
+  BaseResponse<CartEntity> detailsResponse;
+  BaseResponse<DeliveryEstimateEntity>? estimateResponse;
   BaseResponse<OrderEntity> placeOrderResponse;
-  BaseResponse<bool> paymentResponse;
+  BaseResponse<PaymentCheckoutEntity> paymentResponse;
   Duration placeOrderDelay = Duration.zero;
   Duration getCartDelay = Duration.zero;
+  Duration detailsDelay = Duration.zero;
   int getCartCalls = 0;
-  int previewCalls = 0;
+  int detailsCalls = 0;
+  int estimateCalls = 0;
   int placeOrderCalls = 0;
   int paymentCalls = 0;
-  double? lastExpectedTotal;
-  int? lastPaymentMethod;
-  String? lastPreviewAddressId;
-  CheckoutGiftEntity? lastPreviewGift;
+  String? lastDetailsCartId;
+  String? lastEstimateAddressId;
+  String? lastEstimateCartId;
+  String? lastCartId;
+  String? lastAddressId;
+  bool? lastIsGift;
+  String? lastRecipientName;
+  String? lastRecipientPhone;
+  String? lastPaymentMethod;
+  String? lastPaymentGateway;
+  String? lastPaymentOrderId;
+  double? lastAmountTotal;
+  String? lastCurrency;
   final List<String> idempotencyKeys = [];
   final List<String> removedItemIds = [];
 
@@ -88,10 +111,10 @@ class FakeCartRepo implements CartRepo {
   }
 
   @override
-  Future<BaseResponse<bool>> removeItem({required String itemId}) async {
+  Future<BaseResponse<CartEntity>> removeItem({required String itemId}) async {
     removedItemIds.add(itemId);
     _dropLine(itemId);
-    return const SuccessResponse(true);
+    return getCartResponse;
   }
 
   void _dropLine(String itemId) {
@@ -107,27 +130,47 @@ class FakeCartRepo implements CartRepo {
   }
 
   @override
-  Future<BaseResponse<CartEntity>> previewCheckout({
-    String? addressId,
-    CheckoutGiftEntity? gift,
+  Future<BaseResponse<CartEntity>> checkoutDetails({
+    required String cartId,
   }) async {
-    previewCalls++;
-    lastPreviewAddressId = addressId;
-    lastPreviewGift = gift;
-    return previewResponse;
+    detailsCalls++;
+    lastDetailsCartId = cartId;
+    if (detailsDelay > Duration.zero) {
+      await Future<void>.delayed(detailsDelay);
+    }
+    return detailsResponse;
+  }
+
+  @override
+  Future<BaseResponse<DeliveryEstimateEntity>> estimateDelivery({
+    required String addressId,
+    required String cartId,
+  }) async {
+    estimateCalls++;
+    lastEstimateAddressId = addressId;
+    lastEstimateCartId = cartId;
+    return estimateResponse ?? const SuccessResponse(DeliveryEstimateEntity());
   }
 
   @override
   Future<BaseResponse<OrderEntity>> placeOrder({
     required String idempotencyKey,
-    required int paymentMethod,
-    required double expectedTotal,
-    String? addressId,
-    CheckoutGiftEntity? gift,
+    required String cartId,
+    required String addressId,
+    required bool isGift,
+    String? recipientName,
+    String? recipientPhone,
+    required String paymentMethod,
+    String? paymentGateway,
   }) async {
     placeOrderCalls++;
-    lastExpectedTotal = expectedTotal;
+    lastCartId = cartId;
+    lastAddressId = addressId;
+    lastIsGift = isGift;
+    lastRecipientName = recipientName;
+    lastRecipientPhone = recipientPhone;
     lastPaymentMethod = paymentMethod;
+    lastPaymentGateway = paymentGateway;
     idempotencyKeys.add(idempotencyKey);
     if (placeOrderDelay > Duration.zero) {
       await Future<void>.delayed(placeOrderDelay);
@@ -136,8 +179,15 @@ class FakeCartRepo implements CartRepo {
   }
 
   @override
-  Future<BaseResponse<bool>> processPayment() async {
+  Future<BaseResponse<PaymentCheckoutEntity>> createPaymentCheckout({
+    required String orderId,
+    required double amountTotal,
+    required String currency,
+  }) async {
     paymentCalls++;
+    lastPaymentOrderId = orderId;
+    lastAmountTotal = amountTotal;
+    lastCurrency = currency;
     return paymentResponse;
   }
 }

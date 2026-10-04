@@ -305,31 +305,45 @@ class EmptyCartRepo implements CartRepo {
   }
 
   @override
-  Future<BaseResponse<bool>> removeItem({required String itemId}) async {
-    return const SuccessResponse(true);
+  Future<BaseResponse<CartEntity>> removeItem({required String itemId}) async {
+    return const SuccessResponse(CartEntity.empty());
   }
 
   @override
-  Future<BaseResponse<CartEntity>> previewCheckout({
-    String? addressId,
-    CheckoutGiftEntity? gift,
+  Future<BaseResponse<CartEntity>> checkoutDetails({
+    required String cartId,
   }) async {
     return const SuccessResponse(CartEntity.empty());
   }
 
   @override
+  Future<BaseResponse<DeliveryEstimateEntity>> estimateDelivery({
+    required String addressId,
+    required String cartId,
+  }) async {
+    return const SuccessResponse(DeliveryEstimateEntity());
+  }
+
+  @override
   Future<BaseResponse<OrderEntity>> placeOrder({
     required String idempotencyKey,
-    required int paymentMethod,
-    required double expectedTotal,
-    String? addressId,
-    CheckoutGiftEntity? gift,
+    required String cartId,
+    required String addressId,
+    required bool isGift,
+    String? recipientName,
+    String? recipientPhone,
+    required String paymentMethod,
+    String? paymentGateway,
   }) async {
     return const SuccessResponse(OrderEntity());
   }
 
   @override
-  Future<BaseResponse<bool>> processPayment() async {
-    return const SuccessResponse(true);
+  Future<BaseResponse<PaymentCheckoutEntity>> createPaymentCheckout({
+    required String orderId,
+    required double amountTotal,
+    required String currency,
+  }) async {
+    return const SuccessResponse(PaymentCheckoutEntity());
   }
 }

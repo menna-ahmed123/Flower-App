@@ -1,26 +1,73 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:flower_app/features/commerce/data/models/category_model.dart';
+
+import 'category_model.dart';
 
 part 'categories_response.g.dart';
 
 @JsonSerializable()
 class CategoriesResponse {
-  final List<CategoryModel> data;
-  final int statusCode;
-  final bool success;
-  final String message;
-  final String messageLocalized;
+  @JsonKey(name: "status")
+  final bool? status;
+  @JsonKey(name: "code")
+  final int? code;
+  @JsonKey(name: "message")
+  final String? message;
+  @JsonKey(name: "data")
+  final List<CategoryModel>? data;
+  @JsonKey(name: "pagination")
+  final Pagination? pagination;
+  @JsonKey(name: "errors")
+  final dynamic errors;
 
-  const CategoriesResponse({
-    required this.data,
-    required this.statusCode,
-    required this.success,
-    required this.message,
-    required this.messageLocalized,
+  CategoriesResponse ({
+    this.status,
+    this.code,
+    this.message,
+    this.data,
+    this.pagination,
+    this.errors,
   });
 
-  factory CategoriesResponse.fromJson(Map<String, dynamic> json) =>
-      _$CategoriesResponseFromJson(json);
+  factory CategoriesResponse.fromJson(Map<String, dynamic> json) {
+    return _$CategoriesResponseFromJson(json);
+  }
 
-  Map<String, dynamic> toJson() => _$CategoriesResponseToJson(this);
+  Map<String, dynamic> toJson() {
+    return _$CategoriesResponseToJson(this);
+  }
 }
+
+@JsonSerializable()
+class Pagination {
+  @JsonKey(name: "page")
+  final int? page;
+  @JsonKey(name: "pageSize")
+  final int? pageSize;
+  @JsonKey(name: "totalCount")
+  final int? totalCount;
+  @JsonKey(name: "totalPages")
+  final int? totalPages;
+  @JsonKey(name: "hasNextPage")
+  final bool? hasNextPage;
+  @JsonKey(name: "hasPreviousPage")
+  final bool? hasPreviousPage;
+
+  Pagination ({
+    this.page,
+    this.pageSize,
+    this.totalCount,
+    this.totalPages,
+    this.hasNextPage,
+    this.hasPreviousPage,
+  });
+
+  factory Pagination.fromJson(Map<String, dynamic> json) {
+    return _$PaginationFromJson(json);
+  }
+
+  Map<String, dynamic> toJson() {
+    return _$PaginationToJson(this);
+  }
+}
+
+

@@ -1,65 +1,61 @@
-import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'checkout_request.g.dart';
 
-@JsonSerializable(includeIfNull: false)
-class CheckoutGiftRequest {
+@JsonSerializable(explicitToJson: true)
+class GiftRecipientRequest {
   final String recipientName;
-  final String phone;
-  final String addressLine;
-  final String city;
-  final String area;
-  final double? lat;
-  final double? lng;
-  final String? message;
+  final String recipientPhone;
 
-  const CheckoutGiftRequest({
+  const GiftRecipientRequest({
     required this.recipientName,
-    required this.phone,
-    required this.addressLine,
-    required this.city,
-    required this.area,
-    this.lat,
-    this.lng,
-    this.message,
+    required this.recipientPhone,
   });
 
-  factory CheckoutGiftRequest.fromJson(Map<String, dynamic> json) =>
-      _$CheckoutGiftRequestFromJson(json);
+  factory GiftRecipientRequest.fromJson(Map<String, dynamic> json) =>
+      _$GiftRecipientRequestFromJson(json);
 
-  factory CheckoutGiftRequest.fromEntity(CheckoutGiftEntity gift) {
-    return CheckoutGiftRequest(
-      recipientName: gift.recipientName,
-      phone: gift.phone,
-      addressLine: gift.addressLine,
-      city: gift.city,
-      area: gift.area,
-      lat: gift.lat,
-      lng: gift.lng,
-      message: gift.message,
-    );
-  }
-
-  Map<String, dynamic> toJson() => _$CheckoutGiftRequestToJson(this);
+  Map<String, dynamic> toJson() => _$GiftRecipientRequestToJson(this);
 }
 
-@JsonSerializable(includeIfNull: false)
-class CheckoutRequest {
-  final String? addressId;
-  final CheckoutGiftRequest? gift;
-  final int? paymentMethod;
-  final double? expectedTotal;
+@JsonSerializable(explicitToJson: true)
+class PlaceOrderRequest {
+  final String cartId;
+  final String addressId;
+  final bool isGift;
+  final GiftRecipientRequest? giftRecipient;
+  final String paymentMethod;
+  final String? paymentGateway;
 
-  const CheckoutRequest({
-    this.addressId,
-    this.gift,
-    this.paymentMethod,
-    this.expectedTotal,
+  const PlaceOrderRequest({
+    required this.cartId,
+    required this.addressId,
+    required this.isGift,
+    required this.giftRecipient,
+    required this.paymentMethod,
+    required this.paymentGateway,
   });
 
-  factory CheckoutRequest.fromJson(Map<String, dynamic> json) =>
-      _$CheckoutRequestFromJson(json);
+  factory PlaceOrderRequest.fromJson(Map<String, dynamic> json) =>
+      _$PlaceOrderRequestFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CheckoutRequestToJson(this);
+  Map<String, dynamic> toJson() => _$PlaceOrderRequestToJson(this);
+}
+
+@JsonSerializable()
+class PaymentCheckoutRequest {
+  final String orderId;
+  final int amountTotal;
+  final String currency;
+
+  const PaymentCheckoutRequest({
+    required this.orderId,
+    required this.amountTotal,
+    required this.currency,
+  });
+
+  factory PaymentCheckoutRequest.fromJson(Map<String, dynamic> json) =>
+      _$PaymentCheckoutRequestFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PaymentCheckoutRequestToJson(this);
 }

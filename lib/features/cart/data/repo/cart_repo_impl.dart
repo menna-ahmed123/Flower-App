@@ -31,11 +31,11 @@ class CartRepoImpl implements CartRepo {
     int quantity = 1,
   }) {
     return safeCall.safeApiCall(() async {
-      final request = AddCartItemRequest(
-        productId: productId,
-        quantity: quantity,
+      final added = await cartRemoteDataSource.addCartItem(
+        AddCartItemRequest(productId: productId, quantity: quantity),
       );
-      return _mapCart(await cartRemoteDataSource.addCartItem(request));
+      _ensureStatus(added.status, added.message, added.code);
+      return _mapCart(await cartRemoteDataSource.getCart());
     });
   }
 
@@ -53,38 +53,54 @@ class CartRepoImpl implements CartRepo {
   }
 
   @override
-  Future<BaseResponse<bool>> removeItem({required String itemId}) {
+  Future<BaseResponse<CartEntity>> removeItem({required String itemId}) {
     return safeCall.safeApiCall(() async {
-      await cartRemoteDataSource.removeCartItem(itemId);
-      return true;
+      return _mapCart(await cartRemoteDataSource.removeCartItem(itemId));
     });
   }
 
   @override
-  Future<BaseResponse<CartEntity>> previewCheckout({
-    String? addressId,
-    CheckoutGiftEntity? gift,
+  Future<BaseResponse<CartEntity>> checkoutDetails({required String cartId}) {
+    return safeCall.safeApiCall(() async {
+      final response = await cartRemoteDataSource.checkoutDetails(cartId);
+      return _mapDetails(response);
+    });
+  }
+
+  @override
+  Future<BaseResponse<DeliveryEstimateEntity>> estimateDelivery({
+    required String addressId,
+    required String cartId,
   }) {
     return safeCall.safeApiCall(() async {
-      final request = _checkoutRequest(addressId: addressId, gift: gift);
-      return _mapPreview(await cartRemoteDataSource.previewCheckout(request));
+      final response = await cartRemoteDataSource.estimateDelivery(
+        addressId: addressId,
+        cartId: cartId,
+      );
+      return _mapEstimate(response);
     });
   }
 
   @override
   Future<BaseResponse<OrderEntity>> placeOrder({
     required String idempotencyKey,
-    required int paymentMethod,
-    required double expectedTotal,
-    String? addressId,
-    CheckoutGiftEntity? gift,
+    required String cartId,
+    required String addressId,
+    required bool isGift,
+    String? recipientName,
+    String? recipientPhone,
+    required String paymentMethod,
+    String? paymentGateway,
   }) {
     return safeCall.safeApiCall(() async {
-      final request = _checkoutRequest(
+      final request = _placeRequest(
+        cartId: cartId,
         addressId: addressId,
-        gift: gift,
+        isGift: isGift,
+        recipientName: recipientName,
+        recipientPhone: recipientPhone,
         paymentMethod: paymentMethod,
-        expectedTotal: expectedTotal,
+        paymentGateway: paymentGateway,
       );
       return _mapOrder(
         await cartRemoteDataSource.placeOrder(idempotencyKey, request),
@@ -93,49 +109,105 @@ class CartRepoImpl implements CartRepo {
   }
 
   @override
-  Future<BaseResponse<bool>> processPayment() {
+  Future<BaseResponse<PaymentCheckoutEntity>> createPaymentCheckout({
+    required String orderId,
+    required double amountTotal,
+    required String currency,
+  }) {
     return safeCall.safeApiCall(() async {
-      await cartRemoteDataSource.processPayment();
-      return true;
+      final response = await cartRemoteDataSource.createPaymentCheckout(
+        PaymentCheckoutRequest(
+          orderId: orderId,
+          amountTotal: (amountTotal * 100).round(),
+          currency: currency,
+        ),
+      );
+      return _mapPayment(response);
     });
   }
 
-  CheckoutRequest _checkoutRequest({
-    String? addressId,
-    CheckoutGiftEntity? gift,
-    int? paymentMethod,
-    double? expectedTotal,
+  PlaceOrderRequest _placeRequest({
+    required String cartId,
+    required String addressId,
+    required bool isGift,
+    String? recipientName,
+    String? recipientPhone,
+    required String paymentMethod,
+    String? paymentGateway,
   }) {
-    return CheckoutRequest(
-      addressId: gift == null ? addressId : null,
-      gift: gift == null ? null : CheckoutGiftRequest.fromEntity(gift),
+    return PlaceOrderRequest(
+      cartId: cartId,
+      addressId: addressId,
+      isGift: isGift,
+      giftRecipient: _giftRecipient(
+        isGift: isGift,
+        recipientName: recipientName,
+        recipientPhone: recipientPhone,
+      ),
       paymentMethod: paymentMethod,
-      expectedTotal: expectedTotal,
+      paymentGateway: paymentGateway,
+    );
+  }
+
+  GiftRecipientRequest? _giftRecipient({
+    required bool isGift,
+    String? recipientName,
+    String? recipientPhone,
+  }) {
+    if (!isGift) return null;
+    return GiftRecipientRequest(
+      recipientName: recipientName ?? '',
+      recipientPhone: recipientPhone ?? '',
     );
   }
 
   CartEntity _mapCart(CartResponse response) {
-    _ensureSuccess(response.success, response.message, response.statusCode);
+    _ensureStatus(response.status, response.message, response.code);
     return response.data?.toDomain() ?? const CartEntity.empty();
   }
 
-  CartEntity _mapPreview(CheckoutPreviewResponse response) {
-    _ensureSuccess(response.success, response.message, response.statusCode);
+  CartEntity _mapDetails(CheckoutDetailsResponse response) {
+    _ensureStatus(response.status, response.message, response.code);
     return response.data?.toDomain() ?? const CartEntity.empty();
+  }
+
+  DeliveryEstimateEntity _mapEstimate(EstimateDeliveryResponse response) {
+    _ensureStatus(response.status, response.message, response.code);
+    return response.toDomain();
   }
 
   OrderEntity _mapOrder(OrderResponse response) {
-    _ensureSuccess(response.success, response.message, response.statusCode);
+    _ensureStatus(response.status, response.message, response.code);
     return response.data?.toDomain() ?? const OrderEntity();
   }
 
-  void _ensureSuccess(bool? success, String? message, int? statusCode) {
-    if (success != false) return;
+  PaymentCheckoutEntity _mapPayment(PaymentCheckoutResponse response) {
+    if (response.isSuccess == true && response.isFailure != true) {
+      return _paymentValue(response.value);
+    }
+    throw ApiException(message: _paymentMessage(response.error?.message));
+  }
+
+  PaymentCheckoutEntity _paymentValue(PaymentCheckoutValue? value) {
+    return PaymentCheckoutEntity(
+      checkoutUrl: value?.checkoutUrl ?? '',
+      stripeSessionId: value?.stripeSessionId ?? '',
+      paymentAttemptId: value?.paymentAttemptId ?? '',
+    );
+  }
+
+  String _paymentMessage(String? message) {
+    if (message != null && message.isNotEmpty) return message;
+    return 'Payment checkout failed';
+  }
+
+  void _ensureStatus(Object? status, String? message, int? code) {
+    if (status != false) return;
     throw ApiException(
       message: (message ?? '').isNotEmpty
           ? message!
-          : statusCodeToMessage(statusCode),
-      statusCode: statusCode,
+          : statusCodeToMessage(code),
+      statusCode: code,
     );
   }
 }

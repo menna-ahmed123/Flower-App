@@ -26,8 +26,11 @@ class AddressResponse {
         (code >= 200 && code < 300);
 
     return AddressResponse(
-      success: isSuccess,
-      statusCode: code,
+      success: json['success'] as bool? ?? json['status'] as bool? ?? true,
+      statusCode:
+          (json['statusCode'] as num?)?.toInt() ??
+          (json['code'] as num?)?.toInt() ??
+          200,
       message: json['message']?.toString() ?? '',
       messageLocalized: json['messageLocalized']?.toString() ?? '',
       data: parseAddressList(json['data'] ?? json),

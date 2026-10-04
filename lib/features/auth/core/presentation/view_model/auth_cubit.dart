@@ -1,3 +1,4 @@
+import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'dart:async';
 
 import 'package:flower_app/core/base/base_state.dart';
@@ -10,7 +11,7 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 @lazySingleton
-class AuthCubit extends Cubit<AuthState> {
+class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
   AuthCubit(this._authRepository) : super(AuthState.initial()) {
     _sessionExpiredSubscription = _authRepository.sessionExpired.listen(
           (_) => _handleSessionExpired(),
@@ -165,6 +166,9 @@ class AuthCubit extends Cubit<AuthState> {
   void clearPendingAction() {
     _pendingAction = null;
   }
+
+  @override
+  Future<void> logout() => doEvent(const AuthLogoutRequested());
 
   @override
   Future<void> close() {

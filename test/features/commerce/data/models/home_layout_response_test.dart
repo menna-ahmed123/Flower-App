@@ -20,12 +20,10 @@ void main() {
 
   test('parses nested sections and skips disabled ones', () {
     final response = HomeLayoutResponse.fromJson({
-      'data': {
-        'sections': [
-          _jsonSection('banner', 'b', 1),
-          _jsonSection('occasion_rail', 'o', 2, enabled: false),
-        ],
-      },
+      'data': [
+        _jsonSection('banner', 'b', 1),
+        _jsonSection('occasion_rail', 'o', 2, enabled: false),
+      ],
     });
     final entity = response.toDomain();
     expect(entity.sections.map((s) => s.type).toList(), ['banner']);
@@ -36,21 +34,21 @@ void main() {
     expect(response.toDomain().sections, isEmpty);
   });
 
-  test('reads success as isSuccess from the real API envelope', () {
+  test('reads status/code as isSuccess from the new API envelope', () {
     final response = HomeLayoutResponse.fromJson({
-      'success': true,
-      'statusCode': 200,
+      'status': true,
+      'code': 200,
       'data': [_jsonSection('banner', 'b', 1)],
     });
     expect(response.isSuccess, isTrue);
     expect(response.toDomain().sections.single.type, 'banner');
   });
 
-  test('uses payload deepLink as view-all when viewAll is missing', () {
+  test('uses payload viewAllAction as viewAllDeepLink', () {
     final dto = sectionDto(
       type: 'category_rail',
       id: 'c',
-      payload: const {'deepLink': '/categories'},
+      payload: const {'viewAllAction': '/categories'},
     );
     expect(dto.toDomain().viewAllDeepLink, '/categories');
   });
@@ -72,7 +70,7 @@ Map<String, dynamic> _jsonSection(
     'id': id,
     'title': type,
     'order': order,
-    'enabled': enabled,
+    'isEnabled': enabled,
     'payload': const <String, dynamic>{},
   };
 }

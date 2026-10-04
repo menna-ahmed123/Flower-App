@@ -13,6 +13,7 @@ import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:geolocator/geolocator.dart' as _i699;
 import 'package:get_it/get_it.dart' as _i174;
+import 'package:image_picker/image_picker.dart' as _i183;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
@@ -142,6 +143,34 @@ import '../../features/commerce/presentation/prodect_details/view_model/product_
     as _i784;
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart'
     as _i1068;
+import '../../features/sessions/api/session_api_client.dart' as _i311;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source.dart'
+    as _i618;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source_impl.dart'
+    as _i613;
+import '../../features/sessions/data/repo/session_repo_impl.dart' as _i947;
+import '../../features/sessions/domain/repo/session_repo.dart' as _i843;
+import '../../features/sessions/domain/usecases/get_sessions_use_case.dart'
+    as _i827;
+import '../../features/sessions/domain/usecases/revoke_session_use_case.dart'
+    as _i145;
+import '../../features/sessions/presentation/view_model/session_view_model.dart'
+    as _i137;
+import '../../features/profile/data/api/profile_api_client.dart' as _i751;
+import '../../features/profile/data/data_source/remote/profile_remote_data_source.dart'
+    as _i299;
+import '../../features/profile/data/data_source/remote/profile_remote_data_source_impl.dart'
+    as _i798;
+import '../../features/profile/data/repo/profile_repo_impl.dart' as _i256;
+import '../../features/profile/domain/repo/profile_repo.dart' as _i364;
+import '../../features/profile/domain/use_case/get_profile_use_case.dart'
+    as _i114;
+import '../../features/profile/domain/use_case/update_profile_use_case.dart'
+    as _i155;
+import '../../features/profile/presentation/view_model/profile_view_model.dart'
+    as _i15;
+import '../../features/profile/presentation/view_model/update_profile_view_model.dart'
+    as _i374;
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
@@ -153,6 +182,7 @@ import '../network/token_refresh_scheduler.dart' as _i95;
 import '../network/token_refresher.dart' as _i1058;
 import '../network/token_storage.dart' as _i964;
 import '../services/geocoding_service.dart' as _i980;
+import '../services/image_picker_service.dart' as _i644;
 import '../services/location_service.dart' as _i669;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -172,11 +202,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
+    gh.lazySingleton<_i183.ImagePicker>(() => registerModule.imagePicker);
     await gh.lazySingletonAsync<_i460.SharedPreferences>(
       () => registerModule.prefs(),
       preResolve: true,
     );
     gh.lazySingleton<_i1058.TokenRefresher>(() => _i1058.ApiTokenRefresher());
+    gh.lazySingleton<_i644.ImagePickerService>(
+      () => _i644.ImagePickerService(gh<_i183.ImagePicker>()),
+    );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
     );
@@ -232,6 +266,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i1046.CartApiClient>(
       () => apiModule.provideCartApiClient(gh<_i361.Dio>()),
     );
+    gh.singleton<_i311.SessionApiClient>(
+      () => apiModule.provideSessionApiClient(gh<_i361.Dio>()),
+    gh.singleton<_i751.ProfileApiClient>(
+      () => apiModule.provideProfileApiClient(gh<_i361.Dio>()),
+    );
     gh.factory<_i24.ForgetPasswordRemoteDataSource>(
       () => _i159.ForgetPasswordRemoteDataSourceImpl(
         forgetPasswordApiClient: gh<_i597.ForgetPasswordApiClient>(),
@@ -249,9 +288,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i258.RegisterRemoteDataSource>(
       () => _i453.RegisterRemoteDataSourceImpl(gh<_i3.RegisterApiClient>()),
     );
+    gh.factory<_i299.ProfileRemoteDataSource>(
+      () => _i798.ProfileRemoteDataSourceImpl(gh<_i751.ProfileApiClient>()),
+    );
     gh.factory<_i772.CommerceRepo>(
       () => _i861.CommerceRepoImpl(
         gh<_i696.CommerceRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
+    );
+    gh.factory<_i364.ProfileRepo>(
+      () => _i256.ProfileRepoImpl(
+        gh<_i299.ProfileRemoteDataSource>(),
         gh<_i185.SafeCall>(),
       ),
     );
@@ -281,6 +329,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i682.OccasionUseCase>(
       () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
+    );
+    gh.factory<_i618.SessionRemoteDataSource>(
+      () => _i613.SessionRemoteDataSourceImpl(gh<_i311.SessionApiClient>()),
     );
     gh.factory<_i581.AddressRemoteDataSource>(
       () => _i784.AddressRemoteDataSourceImpl(
@@ -320,6 +371,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i581.AddressRemoteDataSource>(),
       ),
     );
+    gh.factory<_i114.GetProfileUseCase>(
+      () => _i114.GetProfileUseCase(gh<_i364.ProfileRepo>()),
+    );
+    gh.factory<_i155.UpdateProfileUseCase>(
+      () => _i155.UpdateProfileUseCase(gh<_i364.ProfileRepo>()),
+    );
     gh.factory<_i95.RegisterUseCase>(
       () => _i95.RegisterUseCase(gh<_i926.RegisterRepo>()),
     );
@@ -344,6 +401,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i94.RequestLocationPermissionUseCase>(
       () => _i94.RequestLocationPermissionUseCase(gh<_i366.AddressRepo>()),
     );
+    gh.factory<_i843.SessionRepo>(
+      () => _i947.SessionRepoImpl(
+        gh<_i618.SessionRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
+    );
     gh.factory<_i242.CategoryUseCase>(
       () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
     );
@@ -366,6 +429,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i969.BestSellerViewModel>(
       () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
     );
+    gh.factory<_i374.UpdateProfileViewModel>(
+      () => _i374.UpdateProfileViewModel(
+        gh<_i155.UpdateProfileUseCase>(),
+        gh<_i644.ImagePickerService>(),
+      ),
+    );
     gh.factory<_i458.AddAddressUseCase>(
       () => _i458.AddAddressUseCase(repo: gh<_i366.AddressRepo>()),
     );
@@ -383,6 +452,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
+    );
+    gh.factory<_i827.GetSessionsUseCase>(
+      () => _i827.GetSessionsUseCase(gh<_i843.SessionRepo>()),
+    );
+    gh.factory<_i145.RevokeSessionUseCase>(
+      () => _i145.RevokeSessionUseCase(gh<_i843.SessionRepo>()),
     );
     gh.factory<_i369.HomeViewModel>(
       () => _i369.HomeViewModel(gh<_i1049.HomeUseCase>()),
@@ -429,6 +504,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i497.ProcessPaymentUseCase>(
       () => _i497.ProcessPaymentUseCase(gh<_i379.CartRepo>()),
     );
+    gh.lazySingleton<_i15.ProfileViewModel>(
+      () => _i15.ProfileViewModel(gh<_i114.GetProfileUseCase>()),
+    );
     gh.lazySingleton<_i572.CartViewModel>(
       () => _i572.CartViewModel(
         gh<_i1057.GetCartUseCase>(),
@@ -442,6 +520,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i497.PreviewCheckoutUseCase>(),
         gh<_i497.PlaceOrderUseCase>(),
         gh<_i497.ProcessPaymentUseCase>(),
+      ),
+    );
+    gh.factory<_i137.SessionsViewModel>(
+      () => _i137.SessionsViewModel(
+        gh<_i827.GetSessionsUseCase>(),
+        gh<_i145.RevokeSessionUseCase>(),
       ),
     );
     gh.factory<_i188.LoginViewModel>(

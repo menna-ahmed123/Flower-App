@@ -1,7 +1,8 @@
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
-import 'package:flower_app/features/auth/login/presentation/view/pages/widgets/custom_app_bar.dart';
+import 'package:flower_app/core/widgets/app_web_view_screen.dart';
+import 'package:flower_app/core/widgets/custom_app_bar.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_event.dart';
@@ -27,6 +28,7 @@ class PaymentScreen extends StatelessWidget {
       body: BlocListener<CheckoutViewModel, CheckoutState>(
         listenWhen: (previous, current) =>
             previous.destination != current.destination ||
+            previous.sessionUrl != current.sessionUrl ||
             previous.paymentState.errorMessage !=
                 current.paymentState.errorMessage,
         listener: _onPayment,
@@ -67,6 +69,10 @@ class PaymentBody extends StatelessWidget {
               AppString.creditCard,
               style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
             ),
+            if ((state.sessionUrl ?? '').isNotEmpty) ...[
+              SizedBox(height: 16.h),
+              SelectableText(state.sessionUrl!),
+            ],
             const Spacer(),
             _payButton(context, state),
           ],
@@ -75,17 +81,25 @@ class PaymentBody extends StatelessWidget {
     );
   }
 
+  void _pay(BuildContext context, CheckoutState state) {
+    final url = state.sessionUrl ?? '';
+    if (url.isNotEmpty) {
+      context.push(
+        AppRoutesName.webView,
+        extra: WebViewArgs(url: url, title: AppString.payment),
+      );
+      return;
+    }
+    context.read<CheckoutViewModel>().doEvent(const ProcessCheckoutPayment());
+  }
+
   Widget _payButton(BuildContext context, CheckoutState state) {
     return AppButton(
       text: AppString.payNow,
       isLoading: state.paymentState.isLoading,
       onPressed: state.paymentState.isLoading
           ? null
-          : () {
-              context.read<CheckoutViewModel>().doEvent(
-                const ProcessCheckoutPayment(),
-              );
-            },
+          : () => _pay(context, state),
     );
   }
 }

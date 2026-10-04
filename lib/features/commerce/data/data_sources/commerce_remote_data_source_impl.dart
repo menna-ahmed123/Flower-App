@@ -1,14 +1,11 @@
-import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/features/commerce/api/commerce_api_client.dart';
 import 'package:flower_app/features/commerce/data/data_sources/commerce_remote_data_source.dart';
-import 'package:flower_app/features/commerce/data/models/catalog_items_response.dart';
 import 'package:flower_app/features/commerce/data/models/categories_response.dart';
-import 'package:flower_app/features/commerce/data/models/home_layout_response.dart';
 import 'package:flower_app/features/commerce/data/models/occasions_response.dart';
+import 'package:flower_app/features/commerce/data/models/home_layout_response.dart';
 import 'package:flower_app/features/commerce/data/models/product_details_response_model.dart';
 import 'package:flower_app/features/commerce/data/models/product_response.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_sort_by.dart';
-import 'package:flower_app/features/commerce/domain/constants/home_section_types.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: CommerceRemoteDataSource)
@@ -17,17 +14,21 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
 
   final CommerceApiClient commerceApiClient;
 
+  // ---------------------------------------------------------------------------
+  // Home Layout
+  // New API already embeds items inside each section's payload —
+  // no secondary API calls needed.
+  // ---------------------------------------------------------------------------
   @override
-  Future<HomeLayoutResponse> getHomeLayout({String? storeId}) async {
-    final layout = await commerceApiClient.getHomeLayout(storeId: storeId);
-    return HomeLayoutResponse(
-      isSuccess: layout.isSuccess,
-      statusCode: layout.statusCode,
-      message: layout.message,
-      data: [for (final section in layout.data) await _hydrateSection(section)],
-    );
+  Future<HomeLayoutResponse> getHomeLayout() {
+    // ignore: avoid_print
+    print('📡 getHomeLayout called — baseUrl: ${commerceApiClient.hashCode}');
+    return commerceApiClient.getHomeLayout();
   }
 
+  // ---------------------------------------------------------------------------
+  // Products
+  // ---------------------------------------------------------------------------
   @override
   Future<ProductsResponse> getProducts({
     int? page,
@@ -37,14 +38,32 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
     CategorySortBy? sortBy,
   }) {
     return commerceApiClient.getProducts(
-      page: page,
-      pageSize: pageSize,
+      page: page?.toString(),
+      pageSize: pageSize?.toString(),
       occasionId: occasionId,
       categoryId: categoryId,
-      sortBy: sortBy?.value,
+      sort: sortBy?.apiValue,
     );
   }
 
+  @override
+  Future<ProductsResponse> searchProducts({
+    required String query,
+    int? page,
+    int? pageSize,
+    CategorySortBy? sortBy,
+  }) {
+    return commerceApiClient.searchProducts(
+      query: query,
+      page: page?.toString(),
+      pageSize: pageSize?.toString(),
+      sort: sortBy?.apiValue,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Categories & Occasions
+  // ---------------------------------------------------------------------------
   @override
   Future<CategoriesResponse> getAllCategories() {
     return commerceApiClient.getAllCategories();
@@ -55,128 +74,11 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
     return commerceApiClient.getAllOccasions();
   }
 
+  // ---------------------------------------------------------------------------
+  // Product Details
+  // ---------------------------------------------------------------------------
   @override
   Future<ProductDetailsResponseModel> getProductDetails(String productId) {
     return commerceApiClient.getProductDetails(productId);
   }
-
-  Future<HomeSectionDto> _hydrateSection(HomeSectionDto section) async {
-    if (section.type == HomeSectionTypes.banner) return _bannerSection(section);
-    final items = await _itemsFor(section);
-    if (items.isEmpty) return section;
-    return _copySection(section, {...section.payload, 'items': items});
-  }
-
-  Future<List<Map<String, dynamic>>> _itemsFor(HomeSectionDto section) {
-    final take = _take(section);
-    return switch (section.type) {
-      HomeSectionTypes.categoryRail || HomeSectionTypes.categories => _railItems(
-        () => commerceApiClient.getCategories(),
-        take,
-        _categoryItem,
-      ),
-      HomeSectionTypes.occasionRail || HomeSectionTypes.occasions => _railItems(
-        () => commerceApiClient.getOccasions(),
-        take,
-        _occasionItem,
-      ),
-      HomeSectionTypes.productRail ||
-      HomeSectionTypes.bestSeller ||
-      HomeSectionTypes.productsCarousel => _railItems(
-        () async {
-          final response = await commerceApiClient.getProducts(
-            page: 1,
-            pageSize: take,
-            occasionId: section.type == HomeSectionTypes.productsCarousel
-                ? section.payload['occasionId']?.toString()
-                : null,
-          );
-          return CatalogItemsResponse(
-            items: [for (final item in response.data.items) item.toJson()],
-          );
-        },
-        take,
-        _productItem,
-      ),
-      _ => Future.value(const []),
-    };
-  }
-
-  @override
-  Future<ProductsResponse> searchProducts({
-    required String query,
-    String? storeId,
-  }) {
-    return commerceApiClient.getProducts();
-  }
-}
-
-int _take(HomeSectionDto section) {
-  final raw = section.payload['take'];
-  if (raw is num) return raw.toInt();
-  return 10;
-}
-
-Future<List<Map<String, dynamic>>> _railItems(
-  Future<CatalogItemsResponse> Function() load,
-  int take,
-  Map<String, dynamic> Function(Map<String, dynamic> json) mapItem,
-) async {
-  final items = await load();
-  return [for (final item in items.items.take(take)) mapItem(item)];
-}
-
-Map<String, dynamic> _categoryItem(Map<String, dynamic> json) {
-  return {
-    'id': json['id']?.toString() ?? '',
-    'name': json['name']?.toString() ?? '',
-    'imageUrl': ApiEndpoints.mediaUrl(json['imageUrl']?.toString()),
-    'deepLink': json['deepLink']?.toString() ?? '/categories',
-  };
-}
-
-Map<String, dynamic> _occasionItem(Map<String, dynamic> json) {
-  return {
-    'id': json['id']?.toString() ?? '',
-    'name': json['name']?.toString() ?? '',
-    'imageUrl': ApiEndpoints.mediaUrl(json['imageUrl']?.toString()),
-    'deepLink': '/occasions',
-  };
-}
-
-Map<String, dynamic> _productItem(Map<String, dynamic> json) {
-  final sale = json['discountedPrice'];
-  return {
-    'id': json['id']?.toString() ?? '',
-    'name': json['name']?.toString() ?? '',
-    'imageUrl': ApiEndpoints.mediaUrl(json['imageUrl']?.toString()),
-    'price': (sale ?? json['price'])?.toString(),
-    'oldPrice': sale == null ? null : json['price']?.toString(),
-    'discount': json['discountPercent']?.toString(),
-    'deepLink': '/products/${json['id']}',
-  };
-}
-
-HomeSectionDto _bannerSection(HomeSectionDto section) {
-  final given = section.payload['imageUrl']?.toString() ?? '';
-  if (given.isEmpty) return section;
-
-  return _copySection(section, {
-    ...section.payload,
-    'imageUrl': ApiEndpoints.mediaUrl(given),
-  });
-}
-
-HomeSectionDto _copySection(
-  HomeSectionDto section,
-  Map<String, dynamic> payload,
-) {
-  return HomeSectionDto(
-    type: section.type,
-    id: section.id,
-    title: section.title,
-    order: section.order,
-    enabled: section.enabled,
-    payload: payload,
-  );
 }
