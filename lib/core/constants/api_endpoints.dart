@@ -12,9 +12,7 @@ class ApiEndpoints {
 
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
-    _resolvedBaseUrl = normalizeBaseUrl(
-      dotenv.env['BASE_URL'] ?? 'http://192.168.1.3:5000',
-    );
+    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? '');
   }
 
   static String normalizeBaseUrl(String raw) {
@@ -80,13 +78,19 @@ class ApiEndpoints {
   static const String searchProducts = '/api/catalog/products/search';
 
   ////Address///
-  static const String addresses = '/api/address-cart/addresses';
-  static const String addAddress = '/api/address-cart/users/me/addresses';
+  static const String addAddress = '/address-cart/users/me/addresses';
   static const String addressById =
-      '/api/address-cart/users/me/addresses/{id}';
+      '/api/address-cart/users/me/addresses/{address-id}';
+  static const String getAddress = '/api/address-cart/addresses';
   static const String setDefaultAddress =
-      '/api/address-cart/users/me/addresses/{addressId}/default';
-          //// Profile ////
+      '/api/address-cart/users/me/addresses/{address-id}/default';
+  static const String getCountries = '/api/address-cart/locations/countries';
+  static const String getGovernorates =
+      '/api/address-cart/locations/governorates';
+  static const String getCities =
+      '/api/address-cart/locations/governorates/{governorateId}/cities';
+  static const String reverseGeocode = '/api/address-cart/geocoding/reverse';
+  //// Profile ////
   static const String getMyProfile = '/api/identity/users/me';
   static const String updateProfile = '/api/identity/users/profile';
 

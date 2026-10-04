@@ -1,6 +1,9 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/features/address/data/models/add_address_request.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
+import 'package:flower_app/features/address/domain/entities/city_entity.dart';
+import 'package:flower_app/features/address/domain/entities/country_entity.dart';
+import 'package:flower_app/features/address/domain/entities/governorate_entity.dart';
 import 'package:flower_app/features/address/domain/entities/location_entity.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -36,5 +39,17 @@ abstract interface class AddressRepo {
   Future<BaseResponse<AddressEntity>> addressDetails(String id);
 
   Future<BaseResponse<bool>> deleteAddress(String id);
-   Future<BaseResponse<AddressEntity>> setDefaultAddress(String addressId);
+
+  Future<BaseResponse<AddressEntity>> setDefaultAddress(String addressId);
+
+  Future<BaseResponse<List<CountryEntity>>> getCountries();
+
+  Future<BaseResponse<List<GovernorateEntity>>> getGovernorates();
+
+  Future<BaseResponse<List<CityEntity>>> getCities(int governorateId);
+
+  Future<BaseResponse<AddressEntity>> reverseGeocode(
+    double lat,
+    double lng,
+  );
 }

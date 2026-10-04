@@ -27,10 +27,8 @@ class _AddAddressScreenState extends State<AddAddressScreen>
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addObserver(this);
-
-    _getCurrentAddress();
+    _initData();
   }
 
   @override
@@ -42,21 +40,22 @@ class _AddAddressScreenState extends State<AddAddressScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      if (widget.address != null) {
-        return;
-      }
-
-      _getCurrentAddress();
+      if (widget.address != null) return;
+      _initData();
     }
   }
 
-  void _getCurrentAddress() {
+  void _initData() {
     final address = widget.address;
+    final addressVm = context.read<AddressViewModel>();
 
-    if (address != null) {
-      context.read<AddressViewModel>().doEvent(LoadAddressDetails(address.id!));
+    // Load governorates
+    addressVm.doEvent(LoadGovernorates());
+
+    if (address != null && address.id != null && address.id!.isNotEmpty) {
+      addressVm.doEvent(LoadAddressDetails(address.id!));
     } else {
-      context.read<AddressViewModel>().doEvent(GetCurrentAddress());
+      addressVm.doEvent(GetCurrentAddress());
     }
   }
 
@@ -72,9 +71,7 @@ class _AddAddressScreenState extends State<AddAddressScreen>
           content: Text(message),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               child: const Text(AppString.cancel),
             ),
             TextButton(
@@ -95,7 +92,7 @@ class _AddAddressScreenState extends State<AddAddressScreen>
     return SafeArea(
       child: Scaffold(
         appBar: CustomAppBar(
-          title: AppString.address,
+          title: widget.address != null ? 'Edit Address' : AppString.address,
           onBack: () {
             if (context.canPop()) {
               context.pop();
@@ -134,40 +131,50 @@ class _AddAddressScreenState extends State<AddAddressScreen>
             ),
             BlocListener<SaveAddressViewModel, SaveAddressState>(
               listener: (context, state) {
-                // Success
                 if (state.isSaved) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        widget.address != null
+                            ? 'Address updated successfully'
+                            : 'Address saved successfully',
+                      ),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
                   context.pop(true);
                   return;
                 }
-                final errorMessage = state.saveAddressState.errorMessage;
 
+                final errorMessage = state.saveAddressState.errorMessage;
                 final isLoading = state.saveAddressState.isLoading;
 
                 if (!isLoading && errorMessage.isNotEmpty) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(errorMessage)));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(errorMessage),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
                 }
               },
             ),
           ],
-
           child: BlocBuilder<AddressViewModel, AddressState>(
-             builder: (context, state) {
+            builder: (context, state) {
               final location = state.locationState.data;
 
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                BlocBuilder<AddressViewModel, AddressState>(
-                  buildWhen: (previous, current) =>
-                      previous.locationState.isLoading !=
-                      current.locationState.isLoading,
-                  builder: (context, state) {
-                    if (state.locationState.isLoading) {
-                      return const LinearProgressIndicator();
-                    }
-
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    BlocBuilder<AddressViewModel, AddressState>(
+                      buildWhen: (previous, current) =>
+                          previous.locationState.isLoading !=
+                          current.locationState.isLoading,
+                      builder: (context, state) {
+                        if (state.locationState.isLoading) {
+                          return const LinearProgressIndicator();
+                        }
                         return const SizedBox.shrink();
                       },
                     ),
@@ -193,14 +200,20 @@ class _AddAddressScreenState extends State<AddAddressScreen>
                         return previous.addressState.data !=
                                 current.addressState.data ||
                             previous.addressState.isLoading !=
-                                current.addressState.isLoading;
+                                current.addressState.isLoading ||
+                            previous.governoratesState !=
+                                current.governoratesState ||
+                            previous.citiesState != current.citiesState ||
+                            previous.selectedGovernorate !=
+                                current.selectedGovernorate ||
+                            previous.selectedCity != current.selectedCity;
                       },
                       builder: (context, state) {
                         return LocationForm(
-                          address: state.addressState.data,
+                          address: state.addressState.data ?? widget.address,
                           onSave: (address) {
-                            final saveViewModel = context
-                                .read<SaveAddressViewModel>();
+                            final saveViewModel =
+                                context.read<SaveAddressViewModel>();
 
                             if (widget.address == null) {
                               saveViewModel.doEvent(AddAddress(address));

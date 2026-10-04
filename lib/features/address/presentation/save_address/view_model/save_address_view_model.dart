@@ -31,6 +31,8 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
   }
 
   Future<void> _addAddress(AddressEntity address) async {
+    if (state.saveAddressState.isLoading) return;
+
     emit(
       state.copyWith(
         isSaved: false,
@@ -45,9 +47,10 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
       _toRequest(address),
     );
 
+    if (isClosed) return;
+
     switch (response) {
       case SuccessResponse<AddressEntity>(:final data):
-
         emit(
           state.copyWith(
             isSaved: true,
@@ -58,7 +61,6 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
             ),
           ),
         );
-
         break;
 
       case ErrorResponse<AddressEntity>(:final errorMessage):
@@ -71,14 +73,14 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
             ),
           ),
         );
-
         break;
     }
   }
 
   Future<void> _updateAddress(AddressEntity address) async {
-    final id = address.id;
+    if (state.saveAddressState.isLoading) return;
 
+    final id = address.id;
     if (id == null || id.isEmpty) return;
 
     emit(
@@ -96,6 +98,8 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
       _toRequest(address),
     );
 
+    if (isClosed) return;
+
     switch (response) {
       case SuccessResponse<List<AddressEntity>>():
         emit(
@@ -107,10 +111,9 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
             ),
           ),
         );
-
         break;
 
-      case ErrorResponse<List<AddressEntity>>( :final errorMessage):
+      case ErrorResponse<List<AddressEntity>>(:final errorMessage):
         emit(
           state.copyWith(
             isSaved: false,
@@ -120,7 +123,6 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
             ),
           ),
         );
-
         break;
     }
   }
@@ -128,11 +130,20 @@ class SaveAddressViewModel extends Cubit<SaveAddressState> {
   AddAddressRequest _toRequest(AddressEntity address) {
     return AddAddressRequest(
       recipientName: address.recipientName ?? '',
-      phone: address.phoneNumber ?? '',
-      addressLine: address.address ?? '',
-      city: address.city ?? '',
+      recipientPhone: address.phoneNumber ?? '',
+      addressLine: address.addressLine ?? address.address ?? '',
+      governorateId: address.governorateId != null && address.governorateId! > 0
+          ? address.governorateId!
+          : 1,
+      cityId: address.cityId != null && address.cityId! > 0
+          ? address.cityId!
+          : 1,
       area: address.area ?? '',
-      label: address.label ?? 'Home',
+      lat: address.latitude ?? 30.0444,
+      lng: address.longitude ?? 31.2357,
+      label: (address.label != null && address.label!.isNotEmpty)
+          ? address.label!
+          : 'home',
     );
   }
 }
