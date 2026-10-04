@@ -31,5 +31,9 @@ class ForceLogin extends AppError {
 }
 
 class BadResponseError extends AppError {
-  BadResponseError(String message) : super(null, message);
+  BadResponseError(String message, {this.code, this.data})
+    : super(null, message);
+
+  final String? code;
+  final Map<String, dynamic>? data;
 }

@@ -7,24 +7,24 @@ void main() {
 
   tearDown(dotenv.clean);
 
-  test('normalizeBaseUrl appends /api/v1 when missing', () {
+  test('normalizeBaseUrl keeps the gateway origin and a trailing slash', () {
     expect(
       ApiEndpoints.normalizeBaseUrl('http://192.0.2.1:8080'),
-      'http://192.0.2.1:8080/api/v1',
+      'http://192.0.2.1:8080/',
     );
   });
 
-  test('normalizeBaseUrl keeps an existing /api/v1 suffix', () {
+  test('normalizeBaseUrl keeps an existing trailing slash', () {
     expect(
-      ApiEndpoints.normalizeBaseUrl('http://192.0.2.1:8080/api/v1/'),
-      'http://192.0.2.1:8080/api/v1',
+      ApiEndpoints.normalizeBaseUrl('http://192.0.2.1:8080/'),
+      'http://192.0.2.1:8080/',
     );
   });
 
   test('loadBaseUrl keeps BASE_URL from an already loaded dotenv', () async {
     dotenv.loadFromString(envString: 'BASE_URL=http://192.0.2.1:8080');
     await ApiEndpoints.loadBaseUrl();
-    expect(ApiEndpoints.resolvedBaseUrl, 'http://192.0.2.1:8080/api/v1');
+    expect(ApiEndpoints.resolvedBaseUrl, 'http://192.0.2.1:8080/');
   });
 
   test('keeps LAN BASE_URL on Android emulator', () {

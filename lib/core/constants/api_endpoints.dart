@@ -12,21 +12,22 @@ class ApiEndpoints {
 
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
-    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? '');
+    _resolvedBaseUrl = normalizeBaseUrl(
+      dotenv.env['BASE_URL'] ?? 'http://192.168.1.3:5000',
+    );
   }
 
   static String normalizeBaseUrl(String raw) {
     var url = raw.trim();
-    if (url.endsWith('/')) url = url.substring(0, url.length - 1);
     if (url.isEmpty) return url;
     url = rewriteHostForLocalClient(
       url,
       androidEmulator: _isAndroidEmulator(),
       iosSimulator: _isIosSimulator(),
     );
-    if (url.endsWith('/')) url = url.substring(0, url.length - 1);
-    if (url.endsWith('/api/v1')) return url;
-    return '$url/api/v1';
+    // Ensure trailing slash so Dio can concatenate relative paths correctly
+    if (!url.endsWith('/')) url = '$url/';
+    return url;
   }
 
   static String rewriteHostForLocalClient(
@@ -59,31 +60,47 @@ class ApiEndpoints {
     final origin = Uri.parse(_resolvedBaseUrl).origin;
     return path.startsWith('/') ? '$origin$path' : '$origin/$path';
   }
+
   //// AUTH ////
-  static const String forgotPassword = '/identity/auth/forgot-password';
-  static const String verifyOtp = '/identity/auth/verify-otp';
-  static const String resetPassword = '/identity/auth/reset-password';
-  static const String login = '/identity/auth/login';
-  static const String register = '/identity/users/register';
-  static const String session = '/identity/auth/sessions';
-  static const String sessionById = '/identity/auth/sessions/{sessionId}';
+  static const String forgotPassword = '/api/identity/auth/forget-password';
+  static const String verifyOtp = '/api/identity/auth/otp-verification';
+  static const String resetPassword = '/api/identity/auth/reset-password';
+  static const String login = '/api/identity/auth/login';
+  static const String register = '/api/identity/auth/register';
+  static const String refreshToken = '/api/identity/auth/refresh-token';
+  static const String session = '/api/identity/auth/sessions';
+  static const String sessionById = '/api/identity/auth/sessions/{sessionId}';
 
   //// Commerce ////
-  static const String home = '/catalog/home/layout';
-  static const String allCategories = '/catalog/categories';
-  static const String allOccasions = '/catalog/occasions';
-  static const String allProducts = '/catalog/products';
-  static const String productDetails = '/catalog/products/{id}';
+  static const String home = '/api/catalog/home/layout';
+  static const String allCategories = '/api/catalog/categories';
+  static const String allOccasions = '/api/catalog/occasions';
+  static const String allProducts = '/api/catalog/products';
+  static const String productDetails = '/api/catalog/products/{Product-id}';
+  static const String searchProducts = '/api/catalog/products/search';
 
   ////Address///
-  static const String addAddress = '/users/me/addresses';
-  static const String addressById = '/users/me/addresses/{id}';
-  static const String setDefaultAddress = '/users/me/addresses/{addressId}/default';
+  static const String addresses = '/api/address-cart/addresses';
+  static const String addAddress = '/api/address-cart/users/me/addresses';
+  static const String addressById =
+      '/api/address-cart/users/me/addresses/{id}';
+  static const String setDefaultAddress =
+      '/api/address-cart/users/me/addresses/{addressId}/default';
+          //// Profile ////
+  static const String getMyProfile = '/api/identity/users/me';
+  static const String updateProfile = '/api/identity/users/profile';
 
   //// Cart ////
-  static const String cart = '/cart';
-  static const String cartItems = '/cart/items';
-  static const String cartItem = '/cart/items/{id}';
+  static const String cart = '/api/address-cart/cart';
+  static const String cartItems = '/api/address-cart/cart/items';
+  static const String cartItem = '/api/address-cart/cart/items/{itemId}';
+
+  //// Orders & Payments ////
+  static const String checkoutDetails = '/api/orders/checkout/details';
+  static const String estimateDelivery =
+      '/api/orders/checkout/estimate-delivery';
+  static const String placeOrder = '/api/orders/place';
+  static const String paymentCheckout = '/api/payment/checkout';
 }
 
 Future<void> _ensureDotEnv() async {

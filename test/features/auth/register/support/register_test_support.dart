@@ -7,7 +7,6 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/auth/register/data/models/register_request.dart';
 import 'package:flower_app/features/auth/register/data/models/register_response.dart';
-import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
 import 'package:flower_app/features/auth/register/domain/entity/register_entity.dart';
 import 'package:flower_app/features/auth/register/domain/repo/register_repo.dart';
 import 'package:flower_app/features/auth/register/domain/use_case/register_usecase.dart';
@@ -15,6 +14,10 @@ import 'package:flower_app/features/auth/register/presentation/view/pages/regist
 import 'package:flower_app/features/auth/register/presentation/view_model/register_event.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/register/presentation/widgets/register_gender_selector.dart';
+import 'package:flower_app/features/auth/register/domain/entity/gender.dart'
+    as register_gender;
+import 'package:flower_app/features/profile/domain/entities/gender.dart'
+    as profile_gender;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -34,17 +37,19 @@ const SuccessResponse<RegisterEntity> fakeRegisterSuccess = SuccessResponse(
 );
 
 RegisterRequest validRegisterRequest({
-  String fullName = 'Sara Ali',
+  String firstName = 'Sara',
+  String lastName = 'Ali',
   String email = 'sara@example.com',
-  String phoneNumber = '01012345678',
-  String gender = 'Female',
+  String phone = '01012345678',
+  int gender = 1,
   String password = 'Pass1234',
   String confirmPassword = 'Pass1234',
 }) {
   return RegisterRequest(
-    fullName: fullName,
+    firstName: firstName,
+    lastName: lastName,
     email: email,
-    phoneNumber: phoneNumber,
+    phone: phone,
     gender: gender,
     password: password,
     confirmPassword: confirmPassword,
@@ -58,7 +63,7 @@ RegisterSubmitted validRegisterSubmitted({
   String password = 'Pass1234',
   String confirmPassword = 'Pass1234',
   String phoneNumber = '01012345678',
-  String gender = 'Female',
+  register_gender.Gender gender = register_gender.Gender.female,
 }) {
   return RegisterSubmitted(
     firstName: firstName,
@@ -75,26 +80,37 @@ RegisterResponse successfulRegisterResponse({
   String message = 'Account registered successfully.',
 }) {
   return RegisterResponse(
-    isSuccess: true,
-    statusCode: 201,
+    status: true,
+    code: 201,
     message: message,
     data: RegisterData(
-      userId: 'user-1',
-      email: 'sara@example.com',
-      role: 'Customer',
-      status: 'Active',
+      token: 'register-token',
+      user: RegisterUser(
+        id: 'user-1',
+        email: 'sara@example.com',
+        phone: '01012345678',
+        name: 'Sara Ali',
+        roles: ['CUSTOMER'],
+        createdAt: DateTime.parse('2026-01-01T00:00:00Z'),
+        gender: 'FEMALE',
+        notificationStatus: 'ON',
+      ),
     ),
   );
 }
 
 Map<String, dynamic> expectedFemaleBody() {
   return {
-    'fullName': 'Sara Ali',
+    'FirstName': 'Sara',
+    'LastName': 'Ali',
     'email': 'sara@example.com',
-    'phoneNumber': '01012345678',
-    'gender': 'Female',
+    'phone': '01012345678',
+    'gender': 1,
     'password': 'Pass1234',
     'confirmPassword': 'Pass1234',
+    'deviceId': null,
+    'fcmToken': null,
+    'notificationStatus': 0,
   };
 }
 
@@ -230,7 +246,7 @@ Future<void> tapSignUp(WidgetTester tester) async {
 class RegisterGenderSelectorHarness extends StatefulWidget {
   const RegisterGenderSelectorHarness({super.key, required this.initial});
 
-  final Gender initial;
+  final profile_gender.Gender initial;
 
   @override
   State<RegisterGenderSelectorHarness> createState() =>
@@ -239,7 +255,7 @@ class RegisterGenderSelectorHarness extends StatefulWidget {
 
 class RegisterGenderSelectorHarnessState
     extends State<RegisterGenderSelectorHarness> {
-  late Gender value;
+  late profile_gender.Gender value;
 
   @override
   void initState() {
@@ -247,7 +263,8 @@ class RegisterGenderSelectorHarnessState
     value = widget.initial;
   }
 
-  void onGenderChanged(Gender gender) => setState(() => value = gender);
+  void onGenderChanged(profile_gender.Gender gender) =>
+      setState(() => value = gender);
 
   @override
   Widget build(BuildContext context) {

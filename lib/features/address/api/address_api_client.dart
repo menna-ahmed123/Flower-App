@@ -17,7 +17,7 @@ abstract class AddressApiClient {
   @GET(ApiEndpoints.addressById)
   Future<AddressResponse> addressDetails(@Path(ApiQueryParams.id) String id);
 
-  @GET(ApiEndpoints.addAddress)
+  @GET(ApiEndpoints.addresses)
   Future<AddressResponse> getAddresses();
 
   @DELETE(ApiEndpoints.addressById)

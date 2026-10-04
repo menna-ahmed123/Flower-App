@@ -18,7 +18,13 @@ import 'package:flower_app/features/auth/login/presentation/view_model/login_vie
 import 'package:flower_app/features/auth/register/presentation/view/pages/register_page.dart';
 import 'package:flower_app/features/auth/register/presentation/view_model/register_view_model.dart';
 import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/checkout_screen.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/confirmation_screen.dart';
+import 'package:flower_app/features/cart/presentation/view/screen/payment_screen.dart';
+// TODO: أضف import الخاص بـ TrackOrderScreen (انسخه من نسخة dev)
+// import 'package:flower_app/.../track_order_screen.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
+import 'package:flower_app/features/cart/presentation/view_model/checkout_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/category/view/screen/category_screen.dart';
@@ -32,7 +38,12 @@ import 'package:flower_app/features/commerce/presentation/occasion/view_model/oc
 import 'package:flower_app/features/commerce/presentation/prodect_details/view/screen/product_details_screen.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
+import 'package:flower_app/core/widgets/app_web_view_screen.dart';
+import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
+import 'package:flower_app/features/profile/presentation/view/screen/edit_profile_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
+import 'package:flower_app/features/profile/presentation/view_model/profile_view_model.dart';
+import 'package:flower_app/features/profile/presentation/view_model/update_profile_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -51,11 +62,10 @@ class AppRouter {
   AppRouter._();
 
   static Future<String> resolveInitialLocation() async {
-    final isAuthenticated = await getIt<AuthRepository>().isAuthenticated();
+    final isAuthenticated =
+        await getIt<AuthRepository>().isAuthenticated();
 
-    return isAuthenticated
-        ? AppRoutesName.home
-        : AppRoutesName.login;
+    return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
   }
 
   static GoRouter createRouter({String? initialLocation}) {
@@ -68,16 +78,45 @@ class AppRouter {
         _forgetPasswordShell(),
         _searchRoute(),
         _mainShell(),
-         GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
-        GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
-        GoRoute(path: AppRoutesName.sessions, builder: _sessionsBuilder,
+        GoRoute(
+          path: AppRoutesName.address,
+          builder: _addressBuilder,
+        ),
+        GoRoute(
+          path: AppRoutesName.saveAddress,
+          builder: _saveAddressBuilder,
+        ),
+        GoRoute(path: AppRoutesName.checkout, builder: _checkoutBuilder),
+        GoRoute(path: AppRoutesName.payment, builder: _paymentBuilder),
+        GoRoute(
+          path: AppRoutesName.confirmation,
+          builder: _confirmationBuilder,
+        ),
+        GoRoute(path: AppRoutesName.trackOrder, builder: _trackOrderBuilder),
+        GoRoute(
+          path: AppRoutesName.webView,
+          builder: (context, state) {
+            final args = state.extra as WebViewArgs;
+            return AppWebViewScreen(url: args.url, title: args.title);
+          },
+        ),
+        GoRoute(
+          path: AppRoutesName.sessions,
+          builder: _sessionsBuilder,
         ),
       ],
     );
   }
 
-  static Widget _errorBuilder(BuildContext context, GoRouterState state) {
-    return const Scaffold(body: Center(child: Text(AppString.pageNotFound)));
+  static Widget _errorBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
+    return const Scaffold(
+      body: Center(
+        child: Text(AppString.pageNotFound),
+      ),
+    );
   }
 
   static GoRoute _loginRoute() {
@@ -108,7 +147,10 @@ class AppRouter {
   }
 
   static GoRoute _searchRoute() {
-    return GoRoute(path: AppRoutesName.search, builder: _searchBuilder);
+    return GoRoute(
+      path: AppRoutesName.search,
+      builder: _searchBuilder,
+    );
   }
 
   static ShellRoute _forgetPasswordShell() {
@@ -165,12 +207,17 @@ class AppRouter {
   }
 
   static StatefulShellBranch _homeBranch() {
-    return StatefulShellBranch(routes: _homeRoutes());
+    return StatefulShellBranch(
+      routes: _homeRoutes(),
+    );
   }
 
   static List<RouteBase> _homeRoutes() {
     return [
-      GoRoute(path: AppRoutesName.home, builder: _homeBuilder),
+      GoRoute(
+        path: AppRoutesName.home,
+        builder: _homeBuilder,
+      ),
       GoRoute(
         path: AppRoutesName.bestSeller,
         builder: _bestSellerBuilder,
@@ -186,28 +233,37 @@ class AppRouter {
     ];
   }
 
-  static Widget _searchBuilder(BuildContext context, GoRouterState state) {
+  static Widget _searchBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
     return BlocProvider(
       create: (_) => getIt<SearchViewModel>(),
       child: const SearchScreen(),
     );
   }
 
-  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
+  static Widget _homeBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
+          create: (_) =>
+              getIt<HomeViewModel>()..doEvent(HomeRequested()),
         ),
         BlocProvider(
           create: (_) {
             final viewModel = getIt<DefaultAddressViewModel>();
+
             if (context
                 .read<AuthCubit>()
                 .state
                 .isAuthenticated) {
               viewModel.doEvent(LoadSavedAddresses());
             }
+
             return viewModel;
           },
         ),
@@ -216,7 +272,10 @@ class AppRouter {
     );
   }
 
-   static Widget _bestSellerBuilder(BuildContext context, GoRouterState state) {
+  static Widget _bestSellerBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
     return BlocProvider(
       create: (_) => getIt<BestSellerViewModel>(),
       child: const BestSellerScreen(),
@@ -224,26 +283,32 @@ class AppRouter {
   }
 
   static Widget _productDetailsBuilder(
-  BuildContext context,
-  GoRouterState state,
-) {
-  final productId = state.pathParameters['productId'];
-  if (productId == null || productId.isEmpty) {
-    return const Scaffold(
-      body: Center(child: Text(AppString.pageNotFound)),
+    BuildContext context,
+    GoRouterState state,
+  ) {
+    final productId = state.pathParameters['productId'];
+
+    if (productId == null || productId.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: Text(AppString.pageNotFound),
+        ),
+      );
+    }
+
+    return BlocProvider(
+      create: (_) => getIt<ProductDetailsViewModel>()
+        ..onEvent(
+          GetProductDetailsEvent(productId: productId),
+        ),
+      child: const ProductDetailsScreen(),
     );
   }
 
-  return BlocProvider(
-    create: (_) => getIt<ProductDetailsViewModel>()
-      ..onEvent(
-        GetProductDetailsEvent(productId: productId),
-      ),
-    child: const ProductDetailsScreen(),
-  );
-}
-
-  static Widget _occasionBuilder(BuildContext context, GoRouterState state) {
+  static Widget _occasionBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
     return BlocProvider(
       create: (_) => getIt<OccasionViewModel>(),
       child: const OccasionScreen(),
@@ -253,17 +318,18 @@ class AppRouter {
   static StatefulShellBranch categoryBranch() {
     return StatefulShellBranch(
       routes: [
-        GoRoute(
-          path: AppRoutesName.category,
-          builder: _categoryBuilder,
-        ),
+        GoRoute(path: AppRoutesName.category, builder: _categoryBuilder),
       ],
     );
   }
 
-  static Widget _categoryBuilder(BuildContext context, GoRouterState state) {
+  static Widget _categoryBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
     return BlocProvider(
-      create: (_) => getIt<CategoryViewModel>()..onEvent(LoadCategories()),
+      create: (_) =>
+          getIt<CategoryViewModel>()..onEvent(LoadCategories()),
       child: const CategoryScreen(),
     );
   }
@@ -281,15 +347,42 @@ class AppRouter {
 
   static StatefulShellBranch _profileBranch() {
     return StatefulShellBranch(
-      routes: [GoRoute(path: AppRoutesName.profile, builder: _profileBuilder)],
+      routes: [
+        GoRoute(
+          path: AppRoutesName.profile,
+          builder: _profileBuilder,
+        ),
+        GoRoute(
+          path: AppRoutesName.editProfile,
+          builder: (context, state) {
+            final profile = state.extra as ProfileEntity;
+
+            return BlocProvider(
+              create: (_) => getIt<UpdateProfileViewModel>(),
+              child: EditProfileScreen(
+                profile: profile,
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
-  static Widget _profileBuilder(BuildContext context, GoRouterState state) {
-    return const ProfileScreen();
+  static Widget _profileBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
+    return BlocProvider.value(
+      value: getIt<ProfileViewModel>(),
+      child: const ProfileScreen(),
+    );
   }
 
-  static Widget _addressBuilder(BuildContext context, GoRouterState state) {
+  static Widget _addressBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
     final address = state.extra as AddressEntity?;
 
     return MultiBlocProvider(
@@ -301,25 +394,66 @@ class AppRouter {
           create: (_) => getIt<AddressViewModel>(),
         ),
       ],
-      child: AddAddressScreen(address: address),
+      child: AddAddressScreen(
+        address: address,
+      ),
     );
   }
 
-  static Widget _saveAddressBuilder(BuildContext context, GoRouterState state) {
+  static Widget _saveAddressBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
     return BlocProvider(
       create: (_) =>
-          getIt<DefaultAddressViewModel>()..doEvent(LoadSavedAddresses()),
+          getIt<DefaultAddressViewModel>()
+            ..doEvent(LoadSavedAddresses()),
       child: const SavedAddressesScreen(),
     );
   }
 
   static Widget _sessionsBuilder(
-      BuildContext context,
-      GoRouterState state,
-      ) {
+    BuildContext context,
+    GoRouterState state,
+  ) {
     return BlocProvider(
       create: (_) => getIt<SessionsViewModel>()..onEvent(LoadSessions()),
       child: const SessionsScreen(),
     );
+  }
+
+  static Widget _checkoutBuilder(BuildContext context, GoRouterState state) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<CheckoutViewModel>()),
+        BlocProvider.value(value: getIt<DefaultAddressViewModel>()),
+      ],
+      child: const CheckoutScreen(),
+    );
+  }
+
+  static Widget _paymentBuilder(BuildContext context, GoRouterState state) {
+    final viewModel = state.extra is CheckoutViewModel
+        ? state.extra as CheckoutViewModel
+        : getIt<CheckoutViewModel>();
+    return BlocProvider.value(
+      value: viewModel,
+      child: const PaymentScreen(),
+    );
+  }
+
+  static Widget _confirmationBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
+    return ConfirmationScreen(orderId: _orderIdFromExtra(state.extra));
+  }
+
+  static Widget _trackOrderBuilder(BuildContext context, GoRouterState state) {
+    return TrackOrderScreen(orderId: _orderIdFromExtra(state.extra));
+  }
+
+  static String? _orderIdFromExtra(Object? extra) {
+    return extra is String && extra.isNotEmpty ? extra : null;
   }
 }

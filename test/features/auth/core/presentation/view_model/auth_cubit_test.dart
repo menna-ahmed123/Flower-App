@@ -34,61 +34,51 @@ void main() {
 
   group('AuthCheckRequested', () {
     test('should emit authenticated when user is authenticated', () async {
-      when(
-        authRepository.isAuthenticated(),
-      ).thenAnswer((_) async => true);
+      when(authRepository.isAuthenticated()).thenAnswer((_) async => true);
 
-      await authCubit.doEvent(
-        const AuthCheckRequested(),
-      );
+      await authCubit.doEvent(const AuthCheckRequested());
 
       expect(authCubit.state.isAuthenticated, true);
       verify(authRepository.isAuthenticated()).called(1);
       verify(authRepository.startSessionRefresh()).called(1);
     });
 
-    test('should emit unauthenticated when user is not authenticated',
-            () async {
-          when(
-            authRepository.isAuthenticated(),
-          ).thenAnswer((_) async => false);
+    test(
+      'should emit unauthenticated when user is not authenticated',
+      () async {
+        when(authRepository.isAuthenticated()).thenAnswer((_) async => false);
 
-          await authCubit.doEvent(
-            const AuthCheckRequested(),
-          );
+        await authCubit.doEvent(const AuthCheckRequested());
 
-          expect(authCubit.state.isAuthenticated, false);
-          verify(authRepository.isAuthenticated()).called(1);
-          verifyNever(authRepository.startSessionRefresh());
-        });
+        expect(authCubit.state.isAuthenticated, false);
+        verify(authRepository.isAuthenticated()).called(1);
+        verifyNever(authRepository.startSessionRefresh());
+      },
+    );
   });
 
   group('AuthGuestRequested', () {
     test('should continue as guest', () async {
-      await authCubit.doEvent(
-        const AuthGuestRequested(),
-      );
+      await authCubit.doEvent(const AuthGuestRequested());
 
       expect(authCubit.state.isAuthenticated, false);
     });
   });
 
   group('AuthLogoutRequested', () {
-    test('should logout, stop session refresh, and emit unauthenticated',
-            () async {
-          when(
-            authRepository.logout(),
-          ).thenAnswer((_) async {});
+    test(
+      'should logout, stop session refresh, and emit unauthenticated',
+      () async {
+        when(authRepository.logout()).thenAnswer((_) async {});
 
-          await authCubit.doEvent(
-            const AuthLogoutRequested(),
-          );
+        await authCubit.doEvent(const AuthLogoutRequested());
 
-          verify(authRepository.logout()).called(1);
-          verify(authRepository.stopSessionRefresh()).called(1);
-          expect(authCubit.state.isAuthenticated, false);
-          expect(authCubit.state.requiresAuthentication, false);
-        });
+        verify(authRepository.logout()).called(1);
+        verify(authRepository.stopSessionRefresh()).called(1);
+        expect(authCubit.state.isAuthenticated, false);
+        expect(authCubit.state.requiresAuthentication, false);
+      },
+    );
   });
 
   group('AuthAuthenticationRequired', () {
@@ -100,9 +90,7 @@ void main() {
       }
 
       await authCubit.doEvent(
-        AuthAuthenticationRequired(
-          pendingAction: pendingAction,
-        ),
+        AuthAuthenticationRequired(pendingAction: pendingAction),
       );
 
       expect(authCubit.state.requiresAuthentication, true);
@@ -110,72 +98,59 @@ void main() {
     });
 
     test('should require authentication without pending action', () async {
-      await authCubit.doEvent(
-        const AuthAuthenticationRequired(),
-      );
+      await authCubit.doEvent(const AuthAuthenticationRequired());
 
       expect(authCubit.state.requiresAuthentication, true);
     });
   });
 
   group('AuthLoginSucceeded', () {
-    test('should authenticate and replay pending action after login',
-            () async {
-          when(
-            authRepository.isAuthenticated(),
-          ).thenAnswer((_) async => true);
+    test('should authenticate and replay pending action after login', () async {
+      when(authRepository.isAuthenticated()).thenAnswer((_) async => true);
 
-          var actionExecuted = false;
+      var actionExecuted = false;
 
-          Future<void> pendingAction() async {
-            actionExecuted = true;
-          }
+      Future<void> pendingAction() async {
+        actionExecuted = true;
+      }
 
-          await authCubit.doEvent(
-            AuthAuthenticationRequired(
-              pendingAction: pendingAction,
-            ),
-          );
+      await authCubit.doEvent(
+        AuthAuthenticationRequired(pendingAction: pendingAction),
+      );
 
-          await authCubit.doEvent(
-            const AuthLoginSucceeded(),
-          );
+      await authCubit.doEvent(const AuthLoginSucceeded());
 
-          expect(authCubit.state.isAuthenticated, true);
-          expect(authCubit.state.requiresAuthentication, false);
-          expect(actionExecuted, true);
+      expect(authCubit.state.isAuthenticated, true);
+      expect(authCubit.state.requiresAuthentication, false);
+      expect(actionExecuted, true);
 
-          verify(authRepository.isAuthenticated()).called(1);
-        });
+      verify(authRepository.isAuthenticated()).called(1);
+    });
 
-    test('should not replay pending action when authentication fails',
-            () async {
-          when(
-            authRepository.isAuthenticated(),
-          ).thenAnswer((_) async => false);
+    test(
+      'should not replay pending action when authentication fails',
+      () async {
+        when(authRepository.isAuthenticated()).thenAnswer((_) async => false);
 
-          var actionExecuted = false;
+        var actionExecuted = false;
 
-          Future<void> pendingAction() async {
-            actionExecuted = true;
-          }
+        Future<void> pendingAction() async {
+          actionExecuted = true;
+        }
 
-          await authCubit.doEvent(
-            AuthAuthenticationRequired(
-              pendingAction: pendingAction,
-            ),
-          );
+        await authCubit.doEvent(
+          AuthAuthenticationRequired(pendingAction: pendingAction),
+        );
 
-          await authCubit.doEvent(
-            const AuthLoginSucceeded(),
-          );
+        await authCubit.doEvent(const AuthLoginSucceeded());
 
-          expect(authCubit.state.isAuthenticated, false);
-          expect(authCubit.state.requiresAuthentication, false);
-          expect(actionExecuted, false);
+        expect(authCubit.state.isAuthenticated, false);
+        expect(authCubit.state.requiresAuthentication, false);
+        expect(actionExecuted, false);
 
-          verify(authRepository.isAuthenticated()).called(1);
-        });
+        verify(authRepository.isAuthenticated()).called(1);
+      },
+    );
   });
 
   group('replayPendingAction', () {
@@ -187,9 +162,7 @@ void main() {
       }
 
       await authCubit.doEvent(
-        AuthAuthenticationRequired(
-          pendingAction: pendingAction,
-        ),
+        AuthAuthenticationRequired(pendingAction: pendingAction),
       );
 
       await authCubit.replayPendingAction();
@@ -205,9 +178,7 @@ void main() {
       }
 
       await authCubit.doEvent(
-        AuthAuthenticationRequired(
-          pendingAction: pendingAction,
-        ),
+        AuthAuthenticationRequired(pendingAction: pendingAction),
       );
 
       await authCubit.replayPendingAction();
@@ -232,9 +203,7 @@ void main() {
       }
 
       await authCubit.doEvent(
-        AuthAuthenticationRequired(
-          pendingAction: pendingAction,
-        ),
+        AuthAuthenticationRequired(pendingAction: pendingAction),
       );
 
       authCubit.clearPendingAction();
@@ -244,18 +213,15 @@ void main() {
       expect(actionExecuted, false);
     });
   });
-
   group('session expired', () {
     test(
       'marks unauthenticated, raises sessionExpired flag, and stops refresh',
-          () async {
+      () async {
         final controller = StreamController<void>();
         when(
           authRepository.sessionExpired,
         ).thenAnswer((_) => controller.stream);
-        when(
-          authRepository.isAuthenticated(),
-        ).thenAnswer((_) async => true);
+        when(authRepository.isAuthenticated()).thenAnswer((_) async => true);
 
         final cubit = AuthCubit(authRepository);
         await cubit.doEvent(const AuthCheckRequested());
@@ -275,9 +241,7 @@ void main() {
 
     test('acknowledgeSessionExpired clears the flag', () async {
       final controller = StreamController<void>();
-      when(
-        authRepository.sessionExpired,
-      ).thenAnswer((_) => controller.stream);
+      when(authRepository.sessionExpired).thenAnswer((_) => controller.stream);
 
       final cubit = AuthCubit(authRepository);
       controller.add(null);

@@ -19,19 +19,20 @@ class CommerceRepoImpl implements CommerceRepo {
   final CommerceRemoteDataSource commerceRemoteDataSource;
   final SafeCall safeCall;
 
+  // ---------------------------------------------------------------------------
+  // Home Layout
+  // ---------------------------------------------------------------------------
   @override
   Future<BaseResponse<HomeLayoutEntity>> getHomeLayout({String? storeId}) {
     return safeCall.safeApiCall(() async {
-      final response = await commerceRemoteDataSource.getHomeLayout(
-        storeId: storeId,
-      );
+      final response = await commerceRemoteDataSource.getHomeLayout();
 
       if (!response.isSuccess) {
         throw ApiException(
           message: response.message.isNotEmpty
               ? response.message
-              : statusCodeToMessage(response.statusCode),
-          statusCode: response.statusCode,
+              : statusCodeToMessage(response.code),
+          statusCode: response.code,
         );
       }
 
@@ -39,6 +40,9 @@ class CommerceRepoImpl implements CommerceRepo {
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // Products
+  // ---------------------------------------------------------------------------
   @override
   Future<BaseResponse<List<ProductEntity>>> getProducts({
     int? page,
@@ -55,47 +59,10 @@ class CommerceRepoImpl implements CommerceRepo {
         categoryId: categoryId,
         sortBy: sortBy,
       );
-
-      return response.data.items.map((product) => product.toDomain()).toList();
+      return response.data.map((p) => p.toDomain()).toList();
     });
   }
 
-  @override
-  Future<BaseResponse<List<CategoryEntity>>> getAllCategories() {
-    return safeCall.safeApiCall(() async {
-      final response = await commerceRemoteDataSource.getAllCategories();
-
-      return response.data.map((category) => category.toEntity()).toList();
-    });
-  }
-
-  @override
-  Future<BaseResponse<List<OccasionModel>>> getAllOccasions() {
-    return safeCall.safeApiCall(() async {
-      final response = await commerceRemoteDataSource.getAllOccasions();
-
-      return response.data;
-    });
-  }
-
-  @override
-  Future<BaseResponse<ProductDetailsEntity>> getProductDetails({
-    required String productId,
-  }) {
-    return safeCall.safeApiCall(() async {
-      final response = await commerceRemoteDataSource.getProductDetails(
-        productId,
-      );
-
-      final data = response.data;
-
-      if (data == null) {
-        throw Exception('Product details data is null');
-      }
-
-      return data.toDomain();
-    });
-  }
   @override
   Future<BaseResponse<List<ProductEntity>>> searchProducts({
     required String query,
@@ -104,12 +71,52 @@ class CommerceRepoImpl implements CommerceRepo {
     return safeCall.safeApiCall(() async {
       final response = await commerceRemoteDataSource.searchProducts(
         query: query,
-        storeId: storeId,
       );
+      return response.data.map((p) => p.toDomain()).toList();
+    });
+  }
 
-      return response.data.items
-          .map((product) => product.toDomain())
+  // ---------------------------------------------------------------------------
+  // Categories
+  // ---------------------------------------------------------------------------
+  @override
+  Future<BaseResponse<List<CategoryEntity>>> getAllCategories() {
+    return safeCall.safeApiCall(() async {
+      final response = await commerceRemoteDataSource.getAllCategories();
+      return (response.data ?? [])
+          .map((category) => category.toEntity())
           .toList();
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Occasions
+  // ---------------------------------------------------------------------------
+  @override
+  Future<BaseResponse<List<OccasionModel>>> getAllOccasions() {
+    return safeCall.safeApiCall(() async {
+      final response = await commerceRemoteDataSource.getAllOccasions();
+      return response.data;
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Product Details
+  // ---------------------------------------------------------------------------
+  @override
+  Future<BaseResponse<ProductDetailsEntity>> getProductDetails({
+    required String productId,
+  }) {
+    return safeCall.safeApiCall(() async {
+      final response =
+          await commerceRemoteDataSource.getProductDetails(productId);
+
+      final data = response.data;
+      if (data == null) {
+        throw Exception('Product details data is null');
+      }
+
+      return data.toDomain();
     });
   }
 }

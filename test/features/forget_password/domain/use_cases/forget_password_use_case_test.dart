@@ -37,9 +37,7 @@ void _runTests() {
 
 void _registerDummy() {
   provideDummy<BaseResponse<ForgetPasswordEntity>>(
-    SuccessResponse<ForgetPasswordEntity>(
-      ForgetPasswordEntity(cooldownRemainingSeconds: 30),
-    ),
+    SuccessResponse<ForgetPasswordEntity>(ForgetPasswordEntity(success: true)),
   );
 }
 
@@ -54,7 +52,7 @@ void _registerSuccessTest(
     final params = ForgetPasswordParams(email: 'test@example.com');
 
     final response = SuccessResponse<ForgetPasswordEntity>(
-      ForgetPasswordEntity(cooldownRemainingSeconds: 30),
+      ForgetPasswordEntity(success: true),
     );
 
     when(
@@ -67,7 +65,7 @@ void _registerSuccessTest(
 
     final successResult = result as SuccessResponse<ForgetPasswordEntity>;
 
-    expect(successResult.data.cooldownRemainingSeconds, 30);
+    expect(successResult.data.success, true);
   });
 }
 

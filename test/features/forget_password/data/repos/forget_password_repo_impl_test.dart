@@ -22,17 +22,17 @@ void main() {
 void _runForgetPasswordRepoTests() {
   provideDummy<BaseResponse<ForgetPasswordResponseModel>>(
     SuccessResponse<ForgetPasswordResponseModel>(
-      ForgetPasswordResponseModel(cooldownRemainingSeconds: 30),
+      ForgetPasswordResponseModel(data: true),
     ),
   );
 
   provideDummy<BaseResponse<ResetPasswordResponseModel>>(
     SuccessResponse<ResetPasswordResponseModel>(
       ResetPasswordResponseModel(
-        isSuccess: true,
-        statusCode: 200,
+        status: true,
+        code: 200,
         message: 'Password reset successfully',
-        errors: null,
+        data: true,
       ),
     ),
   );
@@ -43,9 +43,7 @@ void _runForgetPasswordRepoTests() {
   setUp(() {
     mockRemoteDataSource = MockForgetPasswordRemoteDataSource();
 
-    repository = ForgetPasswordRepoImpl(
-      remoteDataSource: mockRemoteDataSource,
-    );
+    repository = ForgetPasswordRepoImpl(remoteDataSource: mockRemoteDataSource);
   });
 
   _forgetPasswordSuccessTest(() => repository, () => mockRemoteDataSource);
@@ -54,13 +52,15 @@ void _runForgetPasswordRepoTests() {
   _resetPasswordErrorTest(() => repository, () => mockRemoteDataSource);
 }
 
-void _forgetPasswordSuccessTest(ForgetPasswordRepoImpl Function() getRepository,
-    MockForgetPasswordRemoteDataSource Function() getDataSource,) {
+void _forgetPasswordSuccessTest(
+  ForgetPasswordRepoImpl Function() getRepository,
+  MockForgetPasswordRemoteDataSource Function() getDataSource,
+) {
   test('Success with valid email', () async {
     final params = ForgetPasswordParams(email: 'test@gmail.com');
 
     final response = SuccessResponse<ForgetPasswordResponseModel>(
-      ForgetPasswordResponseModel(cooldownRemainingSeconds: 30),
+      ForgetPasswordResponseModel(data: true),
     );
 
     when(
@@ -75,7 +75,7 @@ void _forgetPasswordSuccessTest(ForgetPasswordRepoImpl Function() getRepository,
 
     final success = result as SuccessResponse<ForgetPasswordEntity>;
 
-    expect(success.data.cooldownRemainingSeconds, 30);
+    expect(success.data.success, true);
 
     verify(
       getDataSource().forgetPassword(requestModel: anyNamed('requestModel')),
@@ -83,8 +83,10 @@ void _forgetPasswordSuccessTest(ForgetPasswordRepoImpl Function() getRepository,
   });
 }
 
-void _forgetPasswordErrorTest(ForgetPasswordRepoImpl Function() getRepository,
-    MockForgetPasswordRemoteDataSource Function() getDataSource,) {
+void _forgetPasswordErrorTest(
+  ForgetPasswordRepoImpl Function() getRepository,
+  MockForgetPasswordRemoteDataSource Function() getDataSource,
+) {
   test('Error when forget password fails', () async {
     final params = ForgetPasswordParams(email: 'invalid@email.com');
 
@@ -108,21 +110,23 @@ void _forgetPasswordErrorTest(ForgetPasswordRepoImpl Function() getRepository,
   });
 }
 
-void _resetPasswordSuccessTest(ForgetPasswordRepoImpl Function() getRepository,
-    MockForgetPasswordRemoteDataSource Function() getDataSource,) {
+void _resetPasswordSuccessTest(
+  ForgetPasswordRepoImpl Function() getRepository,
+  MockForgetPasswordRemoteDataSource Function() getDataSource,
+) {
   test('Success when reset password succeeds', () async {
     final params = ResetPasswordParams(
-      resetToken: 'mock-reset-token',
-      newPassword: 'Password123',
+      otpToken: 'mock-otp-token',
+      password: 'Password123',
       confirmPassword: 'Password123',
     );
 
     final successResponse = SuccessResponse<ResetPasswordResponseModel>(
       ResetPasswordResponseModel(
-        isSuccess: true,
-        statusCode: 200,
+        status: true,
+        code: 200,
         message: 'Password reset successfully',
-        errors: null,
+        data: true,
       ),
     );
 
@@ -138,10 +142,8 @@ void _resetPasswordSuccessTest(ForgetPasswordRepoImpl Function() getRepository,
 
     final response = result as SuccessResponse<ResetPasswordEntity>;
 
-    expect(response.data.isSuccess, true);
-    expect(response.data.statusCode, 200);
+    expect(response.data.success, true);
     expect(response.data.message, 'Password reset successfully');
-    expect(response.data.errors, isNull);
 
     verify(
       getDataSource().resetPassword(requestModel: anyNamed('requestModel')),
@@ -149,12 +151,14 @@ void _resetPasswordSuccessTest(ForgetPasswordRepoImpl Function() getRepository,
   });
 }
 
-void _resetPasswordErrorTest(ForgetPasswordRepoImpl Function() getRepository,
-    MockForgetPasswordRemoteDataSource Function() getDataSource,) {
+void _resetPasswordErrorTest(
+  ForgetPasswordRepoImpl Function() getRepository,
+  MockForgetPasswordRemoteDataSource Function() getDataSource,
+) {
   test('Error when reset password fails', () async {
     final params = ResetPasswordParams(
-      resetToken: 'mock-reset-token',
-      newPassword: 'Password123',
+      otpToken: 'mock-otp-token',
+      password: 'Password123',
       confirmPassword: 'Password123',
     );
 

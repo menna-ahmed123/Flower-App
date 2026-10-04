@@ -58,3 +58,6 @@ app.*.map.json
 **/GeneratedPluginRegistrant.swift
 **/generated_plugin_registrant.cc
 **/generated_plugins.cmake
+
+# Secrets
+secrets/firebase-service-account.json

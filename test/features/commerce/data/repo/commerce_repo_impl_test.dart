@@ -32,8 +32,8 @@ void main() {
   test('returns ErrorResponse when isSuccess is false', () async {
     when(remote.getHomeLayout()).thenAnswer((_) async {
       return HomeLayoutResponse(
-        isSuccess: false,
-        statusCode: 400,
+        status: false,
+        code: 400,
         message: 'bad layout',
         data: const [],
       );
@@ -55,8 +55,8 @@ void main() {
 
 HomeLayoutResponse _response() {
   return HomeLayoutResponse(
-    isSuccess: true,
-    statusCode: 200,
+    status: true,
+    code: 200,
     message: 'ok',
     data: [
       sectionDto(type: 'category_rail', id: 'c', title: 'Categories', order: 1),

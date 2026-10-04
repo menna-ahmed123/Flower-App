@@ -1,3 +1,5 @@
+import 'package:flower_app/features/auth/register/domain/entity/gender.dart';
+
 sealed class RegisterEvent {}
 
 class RegisterSubmitted extends RegisterEvent {
@@ -7,7 +9,7 @@ class RegisterSubmitted extends RegisterEvent {
   final String password;
   final String confirmPassword;
   final String phoneNumber;
-  final String gender;
+  final Gender gender;
 
   RegisterSubmitted({
     required this.firstName,

@@ -64,7 +64,7 @@ class SavedAddressesBody extends StatelessWidget {
               : ListView.separated(
                   padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
                   itemCount: addresses.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 12.h),
+                  separatorBuilder: (_, _) => SizedBox(height: 12.h),
                   itemBuilder: (context, index) {
                     final address = addresses[index];
                     final id = address.id ?? '';

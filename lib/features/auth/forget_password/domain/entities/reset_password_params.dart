@@ -1,11 +1,11 @@
 class ResetPasswordParams {
-  final String? resetToken;
-  final String? newPassword;
-  final String? confirmPassword;
+  final String otpToken;
+  final String password;
+  final String confirmPassword;
 
   ResetPasswordParams({
-    this.resetToken,
-    this.newPassword,
-    this.confirmPassword,
+    required this.otpToken,
+    required this.password,
+    required this.confirmPassword,
   });
 }

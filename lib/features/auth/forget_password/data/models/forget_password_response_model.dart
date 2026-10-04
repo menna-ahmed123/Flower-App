@@ -5,22 +5,28 @@ part 'forget_password_response_model.g.dart';
 
 @JsonSerializable()
 class ForgetPasswordResponseModel {
-  final int cooldownRemainingSeconds;
+  final Object? status;
+  final int? code;
+  final String? message;
+  final bool data;
+  final dynamic pagination;
+  final dynamic errors;
 
-  ForgetPasswordResponseModel({required this.cooldownRemainingSeconds});
+  ForgetPasswordResponseModel({
+    this.status,
+    this.code,
+    this.message,
+    required this.data,
+    this.pagination,
+    this.errors,
+  });
 
-  factory ForgetPasswordResponseModel.fromJson(Map<String, dynamic> json) {
-    final payload = json['data'] is Map<String, dynamic>
-        ? json['data'] as Map<String, dynamic>
-        : json;
-    return _$ForgetPasswordResponseModelFromJson(payload);
-  }
+  factory ForgetPasswordResponseModel.fromJson(Map<String, dynamic> json) =>
+      _$ForgetPasswordResponseModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ForgetPasswordResponseModelToJson(this);
 
   ForgetPasswordEntity toDomain() {
-    return ForgetPasswordEntity(
-      cooldownRemainingSeconds: cooldownRemainingSeconds,
-    );
+    return ForgetPasswordEntity(success: data);
   }
 }

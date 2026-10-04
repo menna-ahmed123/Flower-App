@@ -5,53 +5,46 @@ part 'login_response.g.dart';
 
 @JsonSerializable()
 class LoginResponse {
-  final bool isSuccess;
-  final int statusCode;
-  final String message;
-  final LoginData data;
+  final Object? status;
+  final int? code;
+  final String? message;
+  final LoginData? data;
+  final dynamic pagination;
+  final dynamic errors;
 
   LoginResponse({
-    required this.isSuccess,
-    required this.statusCode,
-    required this.message,
-    required this.data,
+    this.status,
+    this.code,
+    this.message,
+    this.data,
+    this.pagination,
+    this.errors,
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) =>
-      _$LoginResponseFromJson({
-        ...json,
-        'isSuccess': json['isSuccess'] ?? json['success'] ?? false,
-      });
+      _$LoginResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
 }
 
 @JsonSerializable()
 class LoginData {
-  final String accessToken;
+  final LoginUser user;
+  final String token;
   final String refreshToken;
-  final int expiresIn;
-  final String role;
-  final String? driverApplicationStatus;
-  final bool canAccessDriverHome;
-  final String? driverApplicationRejectionReason;
 
   LoginData({
-    required this.accessToken,
+    required this.user,
+    required this.token,
     required this.refreshToken,
-    required this.expiresIn,
-    required this.role,
-    this.driverApplicationStatus,
-    required this.canAccessDriverHome,
-    this.driverApplicationRejectionReason,
   });
 
   AuthEntity toDomain() {
     return AuthEntity(
-      accessToken: accessToken,
+      accessToken: token,
       refreshToken: refreshToken,
-      role: role,
-      expiresIn: expiresIn,
+      role: user.roles.isEmpty ? '' : user.roles.first,
+      expiresIn: 0,
     );
   }
 
@@ -59,4 +52,34 @@ class LoginData {
       _$LoginDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$LoginDataToJson(this);
+}
+
+@JsonSerializable()
+class LoginUser {
+  final String id;
+  final String email;
+  final String phone;
+  final String name;
+  final List<String> roles;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final String gender;
+  final String notificationStatus;
+
+  LoginUser({
+    required this.id,
+    required this.email,
+    required this.phone,
+    required this.name,
+    required this.roles,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.gender,
+    required this.notificationStatus,
+  });
+
+  factory LoginUser.fromJson(Map<String, dynamic> json) =>
+      _$LoginUserFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LoginUserToJson(this);
 }

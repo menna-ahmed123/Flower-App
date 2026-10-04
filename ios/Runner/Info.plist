@@ -75,6 +75,8 @@
 		</dict>
 		<key>NSLocalNetworkUsageDescription</key>
 		<string>Flowery needs local network access to reach the API running on your computer.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Flowery needs photo library access to update your profile picture.</string>
 		<key>UIStatusBarHidden</key>
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>

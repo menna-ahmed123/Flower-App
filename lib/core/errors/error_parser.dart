@@ -16,6 +16,8 @@ AppError _parseApiException(ApiException exception) {
 }
 
 AppError _parseDioException(DioException exception) {
+  // ignore: avoid_print
+  print('🔴 DioException: type=${exception.type} | message=${exception.message} | error=${exception.error} | uri=${exception.requestOptions.uri}');
   return switch (exception.type) {
     DioExceptionType.connectionTimeout ||
     DioExceptionType.sendTimeout ||
@@ -46,20 +48,72 @@ AppError _connectionError(DioException exception) {
 }
 
 AppError _parseBadResponse(DioException exception) {
-  final data = exception.response?.data;
-  if (data is Map<String, dynamic>) {
-    final fieldErrors = fieldErrorsMessage(data['errors']) ??
-        fieldErrorsMessage(_validationFieldErrors(data['data']));
-    if (fieldErrors != null) return BadResponseError(fieldErrors);
+  final raw = exception.response?.data;
+  final data = raw is Map ? Map<String, dynamic>.from(raw) : null;
+  if (data != null) {
+    final payload = _mapOrNull(data['data']);
+    final code =
+        _errorCode(payload) ??
+        _errorCode(data) ??
+        _envelopeErrorCode(data['errors']);
+    final fieldErrors =
+        fieldErrorsMessage(_asErrorMap(data['errors'])) ??
+        fieldErrorsMessage(_validationFieldErrors(payload));
+    if (fieldErrors != null) {
+      return BadResponseError(fieldErrors, code: code, data: payload);
+    }
     if (data['message'] != null) {
-      return BadResponseError(data['message'].toString());
+      return BadResponseError(
+        data['message'].toString(),
+        code: code,
+        data: payload,
+      );
     }
     if (data['error'] != null) {
-      return BadResponseError(data['error'].toString());
+      return BadResponseError(
+        data['error'].toString(),
+        code: code,
+        data: payload,
+      );
+    }
+    if (code != null) {
+      return BadResponseError(
+        statusCodeToMessage(exception.response?.statusCode),
+        code: code,
+        data: payload,
+      );
     }
   }
   if (exception.response?.statusCode == 401) return UnauthorizedError();
   return BadResponseError(statusCodeToMessage(exception.response?.statusCode));
+}
+
+Map<String, dynamic>? _mapOrNull(dynamic raw) {
+  if (raw is! Map) return null;
+  return Map<String, dynamic>.from(raw);
+}
+
+String? _errorCode(Map<String, dynamic>? raw) {
+  final code = raw?['code'];
+  if (code is! String || code.isEmpty) return null;
+  return code;
+}
+
+/// Orders and cart failures put the business code in `errors[].field`
+/// (for example `Order.NotServiceable`) while `code` stays the HTTP status.
+Map<String, dynamic>? _asErrorMap(dynamic raw) {
+  if (raw is Map<String, dynamic>) return raw;
+  if (raw is Map) return Map<String, dynamic>.from(raw);
+  return null;
+}
+
+String? _envelopeErrorCode(dynamic errors) {
+  if (errors is! List || errors.isEmpty) return null;
+  final first = errors.first;
+  if (first is! Map) return null;
+  final field = first['field'];
+  if (field is! String || !field.contains('.')) return null;
+  return field;
 }
 
 /// Docker identity validation failures put field errors in `data`
@@ -68,7 +122,8 @@ Map<String, dynamic>? _validationFieldErrors(dynamic raw) {
   if (raw is! Map) return null;
   if (raw.containsKey('userId') ||
       raw.containsKey('accessToken') ||
-      raw.containsKey('refreshToken')) {
+      raw.containsKey('refreshToken') ||
+      raw.containsKey('code')) {
     return null;
   }
   final map = Map<String, dynamic>.from(raw);
