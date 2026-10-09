@@ -78,7 +78,7 @@ class ApiEndpoints {
   static const String searchProducts = '/api/catalog/products/search';
 
   ////Address///
-  static const String addAddress = '/address-cart/users/me/addresses';
+  static const String addAddress = '/api/address-cart/users/me/addresses';
   static const String addressById =
       '/api/address-cart/users/me/addresses/{address-id}';
   static const String getAddress = '/api/address-cart/addresses';
@@ -100,6 +100,7 @@ class ApiEndpoints {
   static const String cartItem = '/api/address-cart/cart/items/{itemId}';
 
   //// Orders & Payments ////
+  static const String expireSession = 'https://api.stripe.com/v1/checkout/sessions/{SESSION_ID}/expire';
   static const String checkoutDetails = '/api/orders/checkout/details';
   static const String estimateDelivery =
       '/api/orders/checkout/estimate-delivery';

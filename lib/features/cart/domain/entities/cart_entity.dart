@@ -234,7 +234,6 @@ class PaymentCheckoutEntity extends Equatable {
   @override
   List<Object?> get props => [checkoutUrl, stripeSessionId, paymentAttemptId];
 }
-
 class OrderEntity extends Equatable {
   const OrderEntity({
     this.orderId = '',
@@ -246,6 +245,8 @@ class OrderEntity extends Equatable {
     this.deliveryFee = 0,
     this.total = 0,
     this.sessionUrl = '',
+    this.successUrl = '',
+    this.cancelUrl = '',
     this.stripeSessionId = '',
     this.currency = '',
   });
@@ -259,21 +260,25 @@ class OrderEntity extends Equatable {
   final double deliveryFee;
   final double total;
   final String sessionUrl;
+  final String successUrl;
+  final String cancelUrl;
   final String stripeSessionId;
   final String currency;
 
   @override
   List<Object?> get props => [
-    orderId,
-    orderNumber,
-    status,
-    paymentMethod,
-    paymentStatus,
-    subtotal,
-    deliveryFee,
-    total,
-    sessionUrl,
-    stripeSessionId,
-    currency,
-  ];
+        orderId,
+        orderNumber,
+        status,
+        paymentMethod,
+        paymentStatus,
+        subtotal,
+        deliveryFee,
+        total,
+        sessionUrl,
+        successUrl,
+        cancelUrl,
+        stripeSessionId,
+        currency,
+      ];
 }

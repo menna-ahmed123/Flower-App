@@ -36,8 +36,14 @@ import '../../features/address/domain/use_cases/get_address_from_location_use_ca
     as _i848;
 import '../../features/address/domain/use_cases/get_address_use_case.dart'
     as _i270;
+import '../../features/address/domain/use_cases/get_cities_use_case.dart'
+    as _i573;
+import '../../features/address/domain/use_cases/get_countries_use_case.dart'
+    as _i629;
 import '../../features/address/domain/use_cases/get_current_location_use_case.dart'
     as _i990;
+import '../../features/address/domain/use_cases/get_governorates_use_case.dart'
+    as _i1070;
 import '../../features/address/domain/use_cases/is_location_service_enabled_use_case.dart'
     as _i373;
 import '../../features/address/domain/use_cases/open_app_settings_use_case.dart'
@@ -143,19 +149,8 @@ import '../../features/commerce/presentation/prodect_details/view_model/product_
     as _i784;
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart'
     as _i1068;
-import '../../features/sessions/api/session_api_client.dart' as _i311;
-import '../../features/sessions/data/data_sources/remote/session_remote_data_source.dart'
-    as _i618;
-import '../../features/sessions/data/data_sources/remote/session_remote_data_source_impl.dart'
-    as _i613;
-import '../../features/sessions/data/repo/session_repo_impl.dart' as _i947;
-import '../../features/sessions/domain/repo/session_repo.dart' as _i843;
-import '../../features/sessions/domain/usecases/get_sessions_use_case.dart'
-    as _i827;
-import '../../features/sessions/domain/usecases/revoke_session_use_case.dart'
-    as _i145;
-import '../../features/sessions/presentation/view_model/session_view_model.dart'
-    as _i137;
+import '../../features/payment/presentation/view_model/paymeny_view_model.dart'
+    as _i384;
 import '../../features/profile/data/api/profile_api_client.dart' as _i751;
 import '../../features/profile/data/data_source/remote/profile_remote_data_source.dart'
     as _i299;
@@ -171,6 +166,19 @@ import '../../features/profile/presentation/view_model/profile_view_model.dart'
     as _i15;
 import '../../features/profile/presentation/view_model/update_profile_view_model.dart'
     as _i374;
+import '../../features/sessions/api/session_api_client.dart' as _i311;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source.dart'
+    as _i618;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source_impl.dart'
+    as _i613;
+import '../../features/sessions/data/repo/session_repo_impl.dart' as _i947;
+import '../../features/sessions/domain/repo/session_repo.dart' as _i843;
+import '../../features/sessions/domain/usecases/get_sessions_use_case.dart'
+    as _i827;
+import '../../features/sessions/domain/usecases/revoke_session_use_case.dart'
+    as _i145;
+import '../../features/sessions/presentation/view_model/session_view_model.dart'
+    as _i137;
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
@@ -198,6 +206,7 @@ extension GetItInjectableX on _i174.GetIt {
     final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
     gh.factory<_i980.GeocodingService>(() => _i980.GeocodingService());
+    gh.factory<_i384.PaymentViewModel>(() => _i384.PaymentViewModel());
     gh.lazySingleton<_i699.GeolocatorPlatform>(() => locationModule.geolocator);
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
@@ -268,7 +277,8 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i311.SessionApiClient>(
       () => apiModule.provideSessionApiClient(gh<_i361.Dio>()),
-    gh.singleton<_i751.ProfileApiClient>(
+    );
+    gh.factory<_i751.ProfileApiClient>(
       () => apiModule.provideProfileApiClient(gh<_i361.Dio>()),
     );
     gh.factory<_i24.ForgetPasswordRemoteDataSource>(
@@ -386,8 +396,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i848.GetAddressFromLocationUseCase>(
       () => _i848.GetAddressFromLocationUseCase(gh<_i366.AddressRepo>()),
     );
+    gh.factory<_i573.GetCitiesUseCase>(
+      () => _i573.GetCitiesUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i629.GetCountriesUseCase>(
+      () => _i629.GetCountriesUseCase(gh<_i366.AddressRepo>()),
+    );
     gh.factory<_i990.GetCurrentLocationUseCase>(
       () => _i990.GetCurrentLocationUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i1070.GetGovernoratesUseCase>(
+      () => _i1070.GetGovernoratesUseCase(gh<_i366.AddressRepo>()),
     );
     gh.factory<_i373.IsLocationServiceEnabledUseCase>(
       () => _i373.IsLocationServiceEnabledUseCase(gh<_i366.AddressRepo>()),
@@ -515,17 +534,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1057.RemoveCartItemUseCase>(),
       ),
     );
+    gh.factory<_i137.SessionsViewModel>(
+      () => _i137.SessionsViewModel(
+        gh<_i827.GetSessionsUseCase>(),
+        gh<_i145.RevokeSessionUseCase>(),
+      ),
+    );
     gh.factory<_i179.CheckoutViewModel>(
       () => _i179.CheckoutViewModel(
         gh<_i497.PreviewCheckoutUseCase>(),
         gh<_i497.PlaceOrderUseCase>(),
         gh<_i497.ProcessPaymentUseCase>(),
-      ),
-    );
-    gh.factory<_i137.SessionsViewModel>(
-      () => _i137.SessionsViewModel(
-        gh<_i827.GetSessionsUseCase>(),
-        gh<_i145.RevokeSessionUseCase>(),
       ),
     );
     gh.factory<_i188.LoginViewModel>(
@@ -541,6 +560,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i990.GetCurrentLocationUseCase>(),
         gh<_i848.GetAddressFromLocationUseCase>(),
         gh<_i99.GetAddressDetailsUseCase>(),
+        gh<_i1070.GetGovernoratesUseCase>(),
+        gh<_i573.GetCitiesUseCase>(),
       ),
     );
     gh.factory<_i236.SaveAddressViewModel>(

@@ -192,15 +192,19 @@ abstract class AppString {
   static const String enterTheName = 'Enter the name';
   static const String payNow = 'Pay Now';
   static const String payment = 'Payment';
+  static const String giftCardOnly =
+      'Gift orders can only be paid by credit card.';
   static const String confirmation = 'Confirmation';
   static const String orderPlacedSuccess = 'Order placed successfully!';
   static const String orderFailed = 'Order failed. Please try again.';
   static const String paymentFailed = 'Payment failed. Please try again.';
+  static const String paymentCancelled = 'Payment was cancelled.';
   static const String deliveryUnavailable =
       'Delivery is unavailable for the selected address.';
   static const String itemsUnavailable = 'Some items are unavailable.';
   static const String priceChanged =
       'Prices changed. Please review the summary and confirm again.';
+  static const String unableToLoadPaymentPage = 'Unable to load payment page';
   // ==================== Orders ====================
   static const String myOrders = 'My Orders';
   static const String orderDetails = 'Order Details';
