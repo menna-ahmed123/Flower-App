@@ -1,9 +1,9 @@
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/core/widgets/custom_app_bar.dart';
-import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
+import 'package:flower_app/core/widgets/custom_app_bar.dart';
+import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
@@ -16,6 +16,8 @@ import 'package:flower_app/features/cart/presentation/view_model/cart_view_model
 import 'package:flower_app/features/cart/presentation/view_model/checkout_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_state.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_view_model.dart';
+import 'package:flower_app/features/payment/presentation/view/screens/payment_screen.dart';
+import 'package:flower_app/features/payment/presentation/view/widgets/payment_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,8 +34,14 @@ class CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<CheckoutViewModel>().doEvent(const LoadCheckoutPreview());
-    context.read<DefaultAddressViewModel>().doEvent(LoadSavedAddresses());
+
+    context.read<CheckoutViewModel>().doEvent(
+          const LoadCheckoutPreview(),
+        );
+
+    context.read<DefaultAddressViewModel>().doEvent(
+          LoadSavedAddresses(),
+        );
   }
 
   @override
@@ -42,7 +50,9 @@ class CheckoutScreenState extends State<CheckoutScreen> {
       appBar: CustomAppBar(
         title: AppString.checkout,
         onBack: () {
-          if (context.canPop()) context.pop();
+          if (context.canPop()) {
+            context.pop();
+          }
         },
       ),
       body: const CheckoutBody(),
@@ -66,7 +76,9 @@ class CheckoutBodyState extends State<CheckoutBody> {
       listeners: _listeners(),
       child: const Column(
         children: [
-          Expanded(child: CheckoutForm()),
+          Expanded(
+            child: CheckoutForm(),
+          ),
           CheckoutSubmitBar(),
         ],
       ),
@@ -88,52 +100,68 @@ class CheckoutBodyState extends State<CheckoutBody> {
     ];
   }
 
-  void _onAddresses(BuildContext context, DefaultAddressState state) {
-    if (state.defaultAddressesState.isLoading) return;
+  void _onAddresses(
+    BuildContext context,
+    DefaultAddressState state,
+  ) {
+    if (state.defaultAddressesState.isLoading) {
+      return;
+    }
+
     final addresses = state.defaultAddressesState.data ?? [];
+
     final checkout = context.read<CheckoutViewModel>();
+
     if (addresses.isEmpty) {
       _openAddAddressIfRequested(context);
-    } else if (checkout.state.destination == CheckoutDestination.addAddress) {
-      checkout.doEvent(const ClearCheckoutNavigation());
+    } else if (checkout.state.destination ==
+        CheckoutDestination.addAddress) {
+      checkout.doEvent(
+        const ClearCheckoutNavigation(),
+      );
     }
+
     if (addresses.length > _addressCount && _addressCount > 0) {
-      checkout.doEvent(SelectCheckoutAddress(addresses.last));
+      checkout.doEvent(
+        SelectCheckoutAddress(addresses.last),
+      );
     } else if (!checkout.state.hasAddress && addresses.isNotEmpty) {
-      checkout.doEvent(SelectCheckoutAddress(_preferred(addresses)));
+      checkout.doEvent(
+        SelectCheckoutAddress(
+          _preferred(addresses),
+        ),
+      );
     }
+
     _addressCount = addresses.length;
   }
 
-  void _onCheckout(BuildContext context, CheckoutState state) {
+  void _onCheckout(
+    BuildContext context,
+    CheckoutState state,
+  ) {
     final destination = state.destination;
+
     if (destination != null) {
       _go(context, destination);
       return;
     }
+
     final error = state.submitState.errorMessage;
+
     if (error.isNotEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+        ),
+      );
     }
   }
 
   void _clearNavigation(BuildContext context) {
-    context.read<CheckoutViewModel>().doEvent(const ClearCheckoutNavigation());
-  }
-
-  void _openAddAddressIfRequested(BuildContext context) {
-    final addresses = context
-        .read<DefaultAddressViewModel>()
-        .state
-        .defaultAddressesState;
-    if (addresses.isLoading) return;
-    final checkout = context.read<CheckoutViewModel>();
-    if (checkout.state.destination != CheckoutDestination.addAddress) return;
-    checkout.doEvent(const ClearCheckoutNavigation());
-    if ((addresses.data ?? []).isNotEmpty) return;
-    context.push(AppRoutesName.address);
+    context.read<CheckoutViewModel>().doEvent(
+          const ClearCheckoutNavigation(),
+        );
   }
 
   Future<void> _go(
@@ -143,35 +171,84 @@ class CheckoutBodyState extends State<CheckoutBody> {
     switch (destination) {
       case CheckoutDestination.addAddress:
         _openAddAddressIfRequested(context);
+
       case CheckoutDestination.emptyCart:
         _clearNavigation(context);
-        context.read<CartViewModel>().doEvent(const LoadCart());
-        if (context.canPop()) context.pop();
+
+        context.read<CartViewModel>().doEvent(
+              const LoadCart(),
+            );
+
+        if (context.canPop()) {
+          context.pop();
+        }
+
       case CheckoutDestination.confirmation:
         _clearNavigation(context);
         await _openConfirmation(context);
+
       case CheckoutDestination.payment:
         _clearNavigation(context);
         await _openPayment(context);
     }
   }
 
-  Future<void> _openPayment(BuildContext context) async {
-    await context.read<CartViewModel>().doEvent(const ClearCart());
-    if (!context.mounted) return;
-    context.push(
-      AppRoutesName.payment,
-      extra: context.read<CheckoutViewModel>(),
+Future<void> _openPayment(BuildContext context) async {
+  final checkoutState = context.read<CheckoutViewModel>().state;
+
+  final sessionUrl = checkoutState.sessionUrl;
+  final successUrl = checkoutState.successUrl;
+  final cancelUrl = checkoutState.cancelUrl;
+  if (sessionUrl == null ||
+      sessionUrl.trim().isEmpty ||
+      successUrl == null ||
+      successUrl.trim().isEmpty ||
+      cancelUrl == null ||
+      cancelUrl.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Payment session data is unavailable'),
+      ),
     );
+    return;
   }
 
+  await context.push(
+    AppRoutesName.payment,
+    extra: PaymentArgs(
+      sessionUrl: sessionUrl,
+      successUrl: successUrl,
+      cancelUrl: cancelUrl,
+      orderId: checkoutState.orderId,
+    ),
+  );
+}
+
   Future<void> _openConfirmation(BuildContext context) async {
-    await context.read<CartViewModel>().doEvent(const ClearCart());
-    if (!context.mounted) return;
+    await context.read<CartViewModel>().doEvent(
+          const ClearCart(),
+        );
+
+    if (!context.mounted) {
+      return;
+    }
+
     context.push(
       AppRoutesName.confirmation,
       extra: context.read<CheckoutViewModel>().state.orderId,
     );
+  }
+
+  void _openAddAddressIfRequested(BuildContext context) {
+    final checkout = context.read<CheckoutViewModel>();
+
+    if (checkout.state.destination == CheckoutDestination.addAddress) {
+      _clearNavigation(context);
+
+      context.push(
+        AppRoutesName.address,
+      );
+    }
   }
 }
 
@@ -181,9 +258,16 @@ class CheckoutForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
+
     final horizontal = width >= 600 ? 48.w : 16.w;
+
     return ListView(
-      padding: EdgeInsets.fromLTRB(horizontal, 12.h, horizontal, 24.h),
+      padding: EdgeInsets.fromLTRB(
+        horizontal,
+        12.h,
+        horizontal,
+        24.h,
+      ),
       children: [
         const CheckoutAddressSection(),
         _sectionGap(context),
@@ -198,10 +282,14 @@ class CheckoutForm extends StatelessWidget {
 
   Widget _sectionGap(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
+      padding: EdgeInsets.symmetric(
+        vertical: 8.h,
+      ),
       child: Divider(
         height: 24.h,
-        color: context.colors.grey.shade600.withValues(alpha: 0.35),
+        color: context.colors.grey.shade600.withValues(
+          alpha: 0.35,
+        ),
       ),
     );
   }
@@ -213,7 +301,10 @@ class CheckoutSubmitBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final horizontal = MediaQuery.sizeOf(context).width >= 600 ? 48.w : 16.w;
+
+    final horizontal =
+        MediaQuery.sizeOf(context).width >= 600 ? 48.w : 16.w;
+
     return Material(
       color: colors.white,
       elevation: 0,
@@ -222,7 +313,12 @@ class CheckoutSubmitBar extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(horizontal, 14.h, horizontal, 12.h),
+            padding: EdgeInsets.fromLTRB(
+              horizontal,
+              14.h,
+              horizontal,
+              12.h,
+            ),
             child: _placeOrderButton(),
           ),
         ),
@@ -234,11 +330,17 @@ class CheckoutSubmitBar extends StatelessWidget {
     return BoxDecoration(
       color: colors.white,
       border: Border(
-        top: BorderSide(color: colors.grey.shade600.withValues(alpha: 0.35)),
+        top: BorderSide(
+          color: colors.grey.shade600.withValues(
+            alpha: 0.35,
+          ),
+        ),
       ),
       boxShadow: [
         BoxShadow(
-          color: colors.black.withValues(alpha: 0.06),
+          color: colors.black.withValues(
+            alpha: 0.06,
+          ),
           blurRadius: 8.r,
           offset: Offset(0, -2.h),
         ),
@@ -255,8 +357,8 @@ class CheckoutSubmitBar extends StatelessWidget {
           onPressed: state.canSubmit
               ? () {
                   context.read<CheckoutViewModel>().doEvent(
-                    const SubmitPlaceOrder(),
-                  );
+                        const SubmitPlaceOrder(),
+                      );
                 }
               : null,
         );
@@ -265,7 +367,9 @@ class CheckoutSubmitBar extends StatelessWidget {
   }
 }
 
-AddressEntity _preferred(List<AddressEntity> addresses) {
+AddressEntity _preferred(
+  List<AddressEntity> addresses,
+) {
   return addresses.firstWhere(
     (address) => address.isDefault,
     orElse: () => addresses.first,
