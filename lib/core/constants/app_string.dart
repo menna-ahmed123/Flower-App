@@ -285,5 +285,15 @@ abstract class AppString {
   static const String changePassword = 'Change Password';
     static const String save = 'save';
 
- 
+  // ==================== Order Tracking ====================
+  static const String trackingOrder         = 'Tracking Order';
+  static const String showMap               = 'Show Map';
+  static const String orderDelivered        = 'Order Delivered';
+  static const String confirming            = 'Confirming...';
+  static const String noDriverAvailable     = 'No delivery driver available yet';
+  static const String findingDriver         = "We're finding a driver for your order. You'll see them here as soon as one accepts.";
+  static const String liveLocation          = 'Live';
+  static const String waitingForLocation    = 'Waiting for location…';
+  static const String trackingOrderDetails  = 'Order details';
+  static const String estimatedArrival      = 'Estimated Arrival';
 }
