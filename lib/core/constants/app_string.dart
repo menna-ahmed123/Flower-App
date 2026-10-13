@@ -294,6 +294,7 @@ abstract class AppString {
   static const String findingDriver         = "We're finding a driver for your order. You'll see them here as soon as one accepts.";
   static const String liveLocation          = 'Live';
   static const String waitingForLocation    = 'Waiting for location…';
+  static const String waitingForDriver      = 'Waiting for a driver';
   static const String trackingOrderDetails  = 'Order details';
   static const String estimatedArrival      = 'Estimated Arrival';
 }

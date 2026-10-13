@@ -12,7 +12,7 @@ class ApiEndpoints {
 
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
-    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? '');
+    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? 'http://192.168.1.7:5000/');
   }
 
   static String normalizeBaseUrl(String raw) {
@@ -105,6 +105,8 @@ class ApiEndpoints {
       '/api/orders/checkout/estimate-delivery';
   static const String placeOrder = '/api/orders/place';
   static const String paymentCheckout = '/api/payment/checkout';
+  static const orderTracking   = '/api/orders/{orderId}/tracking';
+  static const confirmDelivery = '/api/orders/{orderId}/confirm-delivery';
 }
 
 Future<void> _ensureDotEnv() async {

@@ -14,7 +14,7 @@ Future<void> pumpApp(
   WidgetTester tester,
   Widget child, {
   ThemeData? theme,
-  Size size = const Size(375, 812),
+  Size size = const Size(414, 896), // Larger screen to avoid overflow
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -22,7 +22,7 @@ Future<void> pumpApp(
 
   await tester.pumpWidget(
     ScreenUtilInit(
-      designSize: const Size(375, 812),
+      designSize: const Size(414, 896),
       builder: (_, __) => MaterialApp(
         theme: theme ?? AppTheme(lightThemeColors).themeData,
         home: child,

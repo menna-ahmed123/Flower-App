@@ -53,6 +53,10 @@ import '../../features/auth/core/presentation/view_model/auth_cubit.dart';
 import '../../features/auth/core/presentation/view_model/auth_state.dart';
 import '../../features/commerce/presentation/search/view/screen/search_screen.dart';
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart';
+import '../../features/order/presentation/order_tracking/view/mock/order_tracking_mock_data.dart';
+import '../../features/order/presentation/order_tracking/view/page/order_success_page.dart';
+import '../../features/order/presentation/order_tracking/view/page/order_tracking_map_page.dart';
+import '../../features/order/presentation/order_tracking/view/page/order_tracking_page.dart';
 import '../../features/sessions/presentation/view/session_screen.dart';
 import '../../features/sessions/presentation/view_model/session_event.dart';
 import '../../features/sessions/presentation/view_model/session_view_model.dart';
@@ -103,6 +107,21 @@ class AppRouter {
         GoRoute(
           path: AppRoutesName.sessions,
           builder: _sessionsBuilder,
+        ),
+        GoRoute(
+          path: AppRoutesName.successTrackOrder,
+          builder: (context, state) {
+            return OrderSuccessPage(onTrackOrder: () { context.push(AppRoutesName.trackOrder); },);
+          },
+        ),
+        GoRoute(
+          path: AppRoutesName.orderTrackingMapPage,
+          builder: (context, state) {
+            return  OrderTrackingMapPage(
+                tracking: OrderTrackingMockData.tracking,
+                routePoints: OrderTrackingMockData.routePoints,
+                onBack: () => context.pop(), onOrderDetails: () {});
+          },
         ),
       ],
     );
@@ -435,85 +454,6 @@ class AppRouter {
   }
 
   static Widget _confirmationBuilder(
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     BuildContext context,
     GoRouterState state,
   ) {
@@ -521,7 +461,11 @@ class AppRouter {
   }
 
   static Widget _trackOrderBuilder(BuildContext context, GoRouterState state) {
-    return TrackOrderScreen(orderId: _orderIdFromExtra(state.extra));
+    return OrderTrackingPage(
+      tracking: OrderTrackingMockData.tracking,
+      onShowMap: () => context.push(AppRoutesName.orderTrackingMapPage),
+      onOrderDelivered: () {}
+    );
   }
 
   static String? _orderIdFromExtra(Object? extra) {

@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/features/order/domain/entities/tracking_entity.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/animation/order_time_line.dart';
-import '../../../domain/entities/order_tracking_entity.dart';
+import 'package:flower_app/features/order/core/animation/order_time_line.dart';
 
 /// Now a dumb widget: no timer, no fetching. The view model owns the polling.
 class OrderTimeLine extends StatelessWidget {
@@ -23,8 +23,8 @@ class OrderTimeLine extends StatelessWidget {
       steps: [
         for (final s in steps)
           (
-          title: s.title,
-          time: s.time == null ? '' : fmt.format(s.time!.toLocal()),
+            title: s.title,
+            time: s.time == null ? '' : fmt.format(s.time!.toLocal()),
           ),
       ],
     );
