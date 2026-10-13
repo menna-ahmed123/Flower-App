@@ -103,7 +103,12 @@ class _TrackingMapState extends State<TrackingMap> {
   void didUpdateWidget(covariant TrackingMap old) {
     super.didUpdateWidget(old);
     final pts = _fitPoints;
-    if (pts.length >= 2 && _fitKey != _lastFitKey) {
+    if (pts.length < 2) {
+      // Forget the last fitted shape so coming back to >=2 points re-fits.
+      _lastFitKey = null;
+      return;
+    }
+    if (_fitKey != _lastFitKey) {
       _lastFitKey = _fitKey;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;

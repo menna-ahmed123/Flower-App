@@ -16,6 +16,14 @@ class AnimatedOrderTimeline extends StatelessWidget {
 
   static const activeColor = Color(0xFFE91E63);
 
+  // Built once instead of re-allocated on every rebuild.
+  static const titleStyle =
+      TextStyle(fontSize: 16, fontWeight: FontWeight.w500);
+  static const currentTitleStyle =
+      TextStyle(fontSize: 16, fontWeight: FontWeight.w700);
+  static const timeStyle =
+      TextStyle(fontSize: 14, color: Color(0xFF757575)); // grey.shade600
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -107,19 +115,14 @@ class _TimelineRow extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight:
-                        isCurrent ? FontWeight.w700 : FontWeight.w500,
-                      ),
+                      style: isCurrent
+                          ? AnimatedOrderTimeline.currentTitleStyle
+                          : AnimatedOrderTimeline.titleStyle,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       time,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
+                      style: AnimatedOrderTimeline.timeStyle,
                     ),
                   ],
                 ),

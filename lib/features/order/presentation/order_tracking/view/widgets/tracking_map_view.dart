@@ -1,9 +1,9 @@
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/core/widgets/app_map_tile_layer.dart';
+import 'package:flower_app/features/order/domain/entities/geo_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-
-import 'package:flower_app/features/order/domain/entities/geo_point.dart';
 
 class TrackingMapView extends StatefulWidget {
   const TrackingMapView({
@@ -12,12 +12,14 @@ class TrackingMapView extends StatefulWidget {
     this.store,
     this.home,
     this.route = const [],
+    this.tileLayer,
   });
 
   final GeoPoint? driver;
   final GeoPoint? store;
   final GeoPoint? home;
   final List<GeoPoint> route;
+  final Widget? tileLayer;
 
   @override
   State<TrackingMapView> createState() => _TrackingMapViewState();
@@ -28,6 +30,7 @@ class _TrackingMapViewState extends State<TrackingMapView>
   static const _cairo = LatLng(30.0444, 31.2357);
 
   final MapController _map = MapController();
+  final ValueNotifier<LatLng?> _shownDriver = ValueNotifier(null);
 
   late final AnimationController _anim = AnimationController(
     vsync: this,
@@ -36,10 +39,10 @@ class _TrackingMapViewState extends State<TrackingMapView>
 
   LatLng? _from;
   LatLng? _to;
-  LatLng? _shownDriver;
 
   bool _mapReady = false;
   bool _fitted = false;
+  bool _fitPending = false;
 
   LatLng? _ll(GeoPoint? point) {
     return point == null ? null : LatLng(point.lat, point.lng);
@@ -48,23 +51,21 @@ class _TrackingMapViewState extends State<TrackingMapView>
   @override
   void initState() {
     super.initState();
-    _shownDriver = _ll(widget.driver);
+    _shownDriver.value = _ll(widget.driver);
   }
 
   void _onTick() {
     final start = _from;
     final end = _to;
 
-    if (start == null || end == null || !mounted) return;
+    if (start == null || end == null) return;
 
     final t = Curves.easeInOut.transform(_anim.value);
 
-    setState(() {
-      _shownDriver = LatLng(
-        start.latitude + (end.latitude - start.latitude) * t,
-        start.longitude + (end.longitude - start.longitude) * t,
-      );
-    });
+    _shownDriver.value = LatLng(
+      start.latitude + (end.latitude - start.latitude) * t,
+      start.longitude + (end.longitude - start.longitude) * t,
+    );
   }
 
   @override
@@ -72,15 +73,21 @@ class _TrackingMapViewState extends State<TrackingMapView>
     super.didUpdateWidget(oldWidget);
 
     final next = _ll(widget.driver);
+    final previous = _ll(oldWidget.driver);
 
-    if (next != _ll(oldWidget.driver)) {
+    if (next != previous) {
       if (next == null) {
         _anim.stop();
-        _shownDriver = null;
-      } else if (_shownDriver == null) {
-        _shownDriver = next;
+        _from = null;
+        _to = null;
+        _shownDriver.value = null;
+      } else if (_shownDriver.value == null) {
+        _anim.stop();
+        _from = null;
+        _to = null;
+        _shownDriver.value = next;
       } else {
-        _from = _shownDriver;
+        _from = _shownDriver.value;
         _to = next;
         _anim.forward(from: 0);
       }
@@ -89,40 +96,48 @@ class _TrackingMapViewState extends State<TrackingMapView>
     if (widget.store != oldWidget.store ||
         widget.home != oldWidget.home ||
         widget.driver != oldWidget.driver) {
-      _fitted = false;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _fitIfNeeded();
-      });
+      _requestFit();
     }
   }
 
+  void _requestFit() {
+    _fitted = false;
+    _fitPending = true;
+
+    if (!_mapReady) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _fitIfNeeded();
+    });
+  }
+
   void _fitIfNeeded() {
-    if (!_mapReady || _fitted) return;
+    if (!_mapReady || !_fitPending || _fitted) return;
 
     final points = [
       _ll(widget.store),
       _ll(widget.home),
-      _shownDriver ?? _ll(widget.driver),
+      _shownDriver.value ?? _ll(widget.driver),
     ].whereType<LatLng>().toList();
 
     if (points.isEmpty) return;
 
-    _fitted = true;
-
     if (points.length == 1) {
       _map.move(points.first, 15);
-      return;
+    } else {
+      final bounds = LatLngBounds.fromPoints(points);
+
+      _map.fitCamera(
+        CameraFit.bounds(
+          bounds: bounds,
+          padding: const EdgeInsets.all(70),
+          maxZoom: 15,
+        ),
+      );
     }
 
-    final bounds = LatLngBounds.fromPoints(points);
-
-    _map.fitCamera(
-      CameraFit.bounds(
-        bounds: bounds,
-        padding: const EdgeInsets.all(70),
-        maxZoom: 15,
-      ),
-    );
+    _fitted = true;
+    _fitPending = false;
   }
 
   List<LatLng> get _linePoints {
@@ -161,9 +176,38 @@ class _TrackingMapViewState extends State<TrackingMapView>
     );
   }
 
+  Widget _buildDriverMarker(BuildContext context) {
+    return ValueListenableBuilder<LatLng?>(
+      valueListenable: _shownDriver,
+      builder: (context, driverPosition, child) {
+        if (driverPosition == null) {
+          return const SizedBox.shrink();
+        }
+
+        return MarkerLayer(
+          markers: [
+            Marker(
+              point: driverPosition,
+              width: 100,
+              height: 60,
+              child: child!,
+            ),
+          ],
+        );
+      },
+      child: _buildMarker(
+        context,
+        icon: Icons.delivery_dining,
+        color: Colors.blue,
+        label: 'Your delivery hero',
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _anim.dispose();
+    _shownDriver.dispose();
     super.dispose();
   }
 
@@ -184,10 +228,7 @@ class _TrackingMapViewState extends State<TrackingMapView>
         },
       ),
       children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.example.flower_app',
-        ),
+        widget.tileLayer ?? const AppMapTileLayer(),
         if (line.length >= 2)
           PolylineLayer(
             polylines: [
@@ -224,21 +265,9 @@ class _TrackingMapViewState extends State<TrackingMapView>
                   label: 'Delivery address',
                 ),
               ),
-            if (_shownDriver != null)
-              Marker(
-                point: _shownDriver!,
-                width: 100,
-                height: 60,
-                child: _buildMarker(
-                  context,
-                  icon: Icons.delivery_dining,
-                  // TODO: replace when a theme driverColor is added
-                  color: Colors.blue,
-                  label: 'Your delivery hero',
-                ),
-              ),
           ],
         ),
+        _buildDriverMarker(context),
       ],
     );
   }

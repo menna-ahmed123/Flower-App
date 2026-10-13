@@ -110,9 +110,7 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutesName.successTrackOrder,
-          builder: (context, state) {
-            return OrderSuccessPage(onTrackOrder: () { context.push(AppRoutesName.trackOrder); },);
-          },
+          builder: _successTrackOrderBuilder,
         ),
         GoRoute(
           path: AppRoutesName.orderTrackingMapPage,
@@ -458,6 +456,13 @@ class AppRouter {
     GoRouterState state,
   ) {
     return ConfirmationScreen(orderId: _orderIdFromExtra(state.extra));
+  }
+
+  static Widget _successTrackOrderBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
+    return const OrderSuccessPage();
   }
 
   static Widget _trackOrderBuilder(BuildContext context, GoRouterState state) {

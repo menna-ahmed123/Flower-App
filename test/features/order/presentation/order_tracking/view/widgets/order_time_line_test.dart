@@ -22,10 +22,10 @@ void main() {
     expect(find.text('Delivered'), findsOneWidget);
   });
 
-  testWidgets('steps without a timestamp do not crash', (tester) async {
+  testWidgets('steps without a timestamp render no date/time text', (tester) async {
     await pumpApp(
       tester,
-      const Scaffold(
+      Scaffold(
         body: SingleChildScrollView(
           child: OrderTimeLine(
             steps: [
@@ -39,6 +39,13 @@ void main() {
         ),
       ),
     );
+
+    // Titles are present...
+    expect(find.text('Received your order'), findsOneWidget);
+    expect(find.text('Delivered'), findsOneWidget);
+    // ...but a null time renders the empty string, never a formatted date,
+    // so nothing on screen should contain a digit (dd/MMMM/yyyy/h:mm).
+    expect(find.textContaining(RegExp(r'\d')), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

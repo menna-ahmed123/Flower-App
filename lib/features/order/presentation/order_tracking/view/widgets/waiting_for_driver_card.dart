@@ -11,11 +11,11 @@ class WaitingForDriverCard extends StatelessWidget {
     return Row(
       children: [
         CircleAvatar(
-          radius: 25,
+          radius: 25.r,
           backgroundColor: context.colors.pink.withValues(alpha: 0.15),
           child: SizedBox(
-            width: 22,
-            height: 22,
+            width: 22.w,
+            height: 22.h,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
               color: context.colors.pink,

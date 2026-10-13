@@ -121,16 +121,15 @@ class _SuccessPainter extends CustomPainter {
     canvas.scale(size.width / 150, size.height / 150);
     const center = Offset(75, 75);
 
-    // Concentric circles, drawn outer -> inner.
+    // Concentric circles, drawn outer -> inner. One Paint reused; only the
+    // colour changes per ring (allocating per frame would churn the GC).
+    final ringPaint = Paint();
     for (var i = 0; i < _ringRadii.length; i++) {
       final (s, e) = _ringIntervals[i];
       final p = _phase(s, e, Curves.easeOutBack);
       if (p <= 0) continue;
-      canvas.drawCircle(
-        center,
-        _ringRadii[i] * p.clamp(0.0, 1.2),
-        Paint()..color = _ringColors[i],
-      );
+      ringPaint.color = _ringColors[i];
+      canvas.drawCircle(center, _ringRadii[i] * p.clamp(0.0, 1.2), ringPaint);
     }
 
     // Checkmark: stroke-drawn along the centre line of the original glyph.

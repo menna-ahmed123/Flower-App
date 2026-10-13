@@ -12,7 +12,16 @@ class ApiEndpoints {
 
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
-    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? 'http://192.168.1.7:5000/');
+
+    final baseUrl = dotenv.env['BASE_URL'];
+
+    if (baseUrl == null || baseUrl.trim().isEmpty) {
+      throw StateError(
+        'BASE_URL is missing. Please configure it in the .env file.',
+      );
+    }
+
+    _resolvedBaseUrl = normalizeBaseUrl(baseUrl);
   }
 
   static String normalizeBaseUrl(String raw) {

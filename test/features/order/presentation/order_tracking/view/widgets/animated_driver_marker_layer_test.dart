@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../../../fixtures/tracking_fixtures.dart';
 import '../../../../../../helpers/pump_app.dart';
 
 /// Host whose position can change WITHOUT rebuilding the whole app, so the
@@ -80,5 +81,47 @@ void main() {
     await pumpApp(tester, _host(position, child: const Icon(Icons.star)));
     expect(find.byIcon(Icons.star), findsOneWidget);
     expect(find.byType(DriverMarkerIcon), findsNothing);
+  });
+
+  // Review: routePoints with fewer than 2 points used to leave a zero-distance
+  // first frame. It must not crash and updates must still glide.
+  testWidgets('sparse route (single point) still glides to a new position',
+      (tester) async {
+    final position = ValueNotifier(const GeoPoint(30.05, 31.23));
+    await pumpApp(
+      tester,
+      Scaffold(
+        body: SizedBox(
+          width: 400,
+          height: 400,
+          child: FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(30.05, 31.24),
+              initialZoom: 12,
+            ),
+            children: [
+              ValueListenableBuilder<GeoPoint>(
+                valueListenable: position,
+                builder: (_, p, _) => AnimatedDriverMarkerLayer(
+                  position: p,
+                  routePoints: const [driverPoint],
+                  headingTarget: homePoint,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+
+    position.value = const GeoPoint(30.06, 31.25);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 450));
+
+    final mid = _markerPoint(tester);
+    expect(mid.latitude, greaterThan(30.05));
+    expect(mid.latitude, lessThan(30.06)); // gliding, not teleporting
   });
 }

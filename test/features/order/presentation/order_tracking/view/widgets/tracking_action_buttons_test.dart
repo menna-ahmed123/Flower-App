@@ -1,7 +1,8 @@
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/tracking_action_buttons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../../../../../helpers/pump_app.dart';
 
 Widget _buttons({
   required bool showDelivered,
@@ -19,39 +20,24 @@ Widget _buttons({
   );
 }
 
-// Custom pumpApp with larger screen for this test file
-Future<void> pumpAppLarge(WidgetTester tester, Widget child) async {
-  tester.view.physicalSize = const Size(414, 896);
-  tester.view.devicePixelRatio = 1;
-  addTearDown(tester.view.reset);
-
-  await tester.pumpWidget(
-    ScreenUtilInit(
-      designSize: const Size(414, 896),
-      builder: (_, _) => MaterialApp(
-        home: child,
-      ),
-    ),
-  );
-  await tester.pump();
-}
-
 void main() {
+  // pumpApp already wraps ScreenUtilInit + MaterialApp at 414x896, so no
+  // bespoke large-screen pump is needed here (was duplicated before).
   testWidgets('only Show Map by default', (tester) async {
-    await pumpAppLarge(tester, _buttons(showDelivered: false));
+    await pumpApp(tester, _buttons(showDelivered: false));
     expect(find.text('Show Map'), findsOneWidget);
     expect(find.text('Order Delivered'), findsNothing);
   });
 
   testWidgets('both buttons when delivery can be confirmed', (tester) async {
-    await pumpAppLarge(tester, _buttons(showDelivered: true));
+    await pumpApp(tester, _buttons(showDelivered: true));
     expect(find.text('Show Map'), findsOneWidget);
     expect(find.text('Order Delivered'), findsOneWidget);
   });
 
   testWidgets('taps call the right callbacks', (tester) async {
     var map = 0, delivered = 0;
-    await pumpAppLarge(
+    await pumpApp(
       tester,
       _buttons(
         showDelivered: true,
@@ -66,7 +52,7 @@ void main() {
 
   testWidgets('while confirming, the label stays same with spinner and tap does nothing', (tester) async {
     var delivered = 0;
-    await pumpAppLarge(
+    await pumpApp(
       tester,
       _buttons(showDelivered: true, isConfirming: true, onDelivered: () => delivered++),
     );

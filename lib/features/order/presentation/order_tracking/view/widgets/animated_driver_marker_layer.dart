@@ -56,10 +56,15 @@ class _AnimatedDriverMarkerLayerState extends State<AnimatedDriverMarkerLayer>
   LatLng _toLatLng(GeoPoint p) => LatLng(p.lat, p.lng);
 
   /// Returns the next waypoint ahead of [snapped] along the route (toward destination).
-  /// Falls back to [snapped] itself when the route has fewer than 2 points.
+  /// With a sparse route (0-1 points) there is no segment to follow, so glide
+  /// toward the heading target instead of freezing on a zero-distance frame.
   LatLng _nextRoutePoint(LatLng snapped) {
     final route = widget.routePoints;
-    if (route.length < 2) return snapped;
+    if (route.length < 2) {
+      final target =
+          widget.headingTarget ?? (route.isNotEmpty ? route.last : null);
+      return target == null ? snapped : _toLatLng(target);
+    }
 
     // Find which segment snapped sits on
     int bestSeg = 0;

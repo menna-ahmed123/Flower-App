@@ -8,12 +8,16 @@ class MapBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CircleAvatar(
-      backgroundColor: context.colors.white,
-      child: IconButton(
-        icon: Icon(Icons.arrow_back, color: context.colors.black),
-        onPressed: onPressed,
+    // One widget for both the circular background and the tap target:
+    // an IconButton wrapped in a CircleAvatar double-pads and shrinks the
+    // splash.
+    return IconButton(
+      onPressed: onPressed,
+      style: IconButton.styleFrom(
+        backgroundColor: context.colors.white,
+        shape: const CircleBorder(),
       ),
+      icon: Icon(Icons.arrow_back, color: context.colors.black),
     );
   }
 }

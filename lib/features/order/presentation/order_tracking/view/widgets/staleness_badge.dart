@@ -6,11 +6,19 @@ import 'package:flutter/material.dart';
 
 /// How fresh the driver's location is. Ticks on its own timer so the text
 /// keeps ageing between polls without the view model emitting anything.
+///
+/// [now] exists so tests can pass a fixed/steppable clock and hit every
+/// staleness branch deterministically instead of racing the wall clock.
 class StalenessBadge extends StatefulWidget {
-  const StalenessBadge({super.key, required this.lastUpdate});
+  const StalenessBadge({
+    super.key,
+    required this.lastUpdate,
+    this.now = DateTime.now,
+  });
 
   /// `recordedAt` of the driver's last known location (UTC).
   final DateTime? lastUpdate;
+  final DateTime Function() now;
 
   static const freshFor = Duration(seconds: 60);
   static const staleAfter = Duration(minutes: 3);
@@ -22,11 +30,17 @@ class StalenessBadge extends StatefulWidget {
 class _StalenessBadgeState extends State<StalenessBadge> {
   Timer? _ticker;
 
+  /// The label rendered in the last build; the timer only rebuilds when the
+  /// label would actually change (it ages in whole minutes/seconds steps).
+  String? _shownLabel;
+
   @override
   void initState() {
     super.initState();
     _ticker = Timer.periodic(const Duration(seconds: 5), (_) {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      final next = _label();
+      if (next != _shownLabel) setState(() {});
     });
   }
 
@@ -42,23 +56,45 @@ class _StalenessBadgeState extends State<StalenessBadge> {
     return '${d.inHours} h ago';
   }
 
+  Duration get _age {
+    var age = widget.now().toUtc().difference(widget.lastUpdate!.toUtc());
+    if (age.isNegative) age = Duration.zero; // device clock slightly behind
+    return age;
+  }
+
+  /// The text the current clock would show; used to skip no-op rebuilds.
+  String _label() {
+    final last = widget.lastUpdate;
+    if (last == null) return AppString.waitingForLocation;
+    final age = _age;
+    if (age < StalenessBadge.freshFor) return AppString.liveLocation;
+    if (age < StalenessBadge.staleAfter) return 'Updated ${_ago(age)}';
+    return 'Location outdated · ${_ago(age)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final last = widget.lastUpdate;
     if (last == null) {
+      _shownLabel = AppString.waitingForLocation;
       return _pill(context, context.colors.grey, AppString.waitingForLocation);
     }
 
-    var age = DateTime.now().toUtc().difference(last.toUtc());
-    if (age.isNegative) age = Duration.zero; // device clock slightly behind
-
+    final age = _age;
+    final String text;
+    final Color color;
     if (age < StalenessBadge.freshFor) {
-      return _pill(context, context.colors.green, AppString.liveLocation);
+      text = AppString.liveLocation;
+      color = context.colors.green;
+    } else if (age < StalenessBadge.staleAfter) {
+      text = 'Updated ${_ago(age)}';
+      color = context.colors.warning;
+    } else {
+      text = 'Location outdated · ${_ago(age)}';
+      color = context.colors.error;
     }
-    if (age < StalenessBadge.staleAfter) {
-      return _pill(context, context.colors.warning, 'Updated ${_ago(age)}');
-    }
-    return _pill(context, context.colors.error, 'Location outdated · ${_ago(age)}');
+    _shownLabel = text;
+    return _pill(context, color, text);
   }
 
   Widget _pill(BuildContext context, Color color, String text) {

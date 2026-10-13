@@ -61,6 +61,34 @@ class _AnimatedCarState extends State<AnimatedCar>
 
   late final AnimationController _c;
 
+  // The four SVG layers are static art; only their pixel size scales with
+  // [AnimatedCar.width]. Cache them so a parent rebuild never re-parses the
+  // SVG strings.
+  double? _cachedScale;
+  Widget? _baseLayer;
+  Widget? _bodyLayer;
+  Widget? _rearWheelLayer;
+  Widget? _frontWheelLayer;
+
+  void _ensureLayers(double s) {
+    if (_cachedScale == s) return;
+    _cachedScale = s;
+    _baseLayer =
+        SvgPicture.string(carBaseSvg, width: _carW * s, height: _carH * s);
+    _bodyLayer =
+        SvgPicture.string(carBodySvg, width: _carW * s, height: _carH * s);
+    _rearWheelLayer = SvgPicture.string(
+      carRearWheelSvg,
+      width: _wheelBox * s,
+      height: _wheelBox * s,
+    );
+    _frontWheelLayer = SvgPicture.string(
+      carFrontWheelSvg,
+      width: _wheelBox * s,
+      height: _wheelBox * s,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -90,10 +118,11 @@ class _AnimatedCarState extends State<AnimatedCar>
     final s = widget.width / _worldW;
 
     // Static SVG layers are built once, outside the animation builder.
-    final base = SvgPicture.string(carBaseSvg, width: _carW * s, height: _carH * s);
-    final body = SvgPicture.string(carBodySvg, width: _carW * s, height: _carH * s);
-    final rearWheel = SvgPicture.string(carRearWheelSvg, width: _wheelBox * s, height: _wheelBox * s);
-    final frontWheel = SvgPicture.string(carFrontWheelSvg, width: _wheelBox * s, height: _wheelBox * s);
+    _ensureLayers(s);
+    final base = _baseLayer!;
+    final body = _bodyLayer!;
+    final rearWheel = _rearWheelLayer!;
+    final frontWheel = _frontWheelLayer!;
 
     Widget wheel(Widget svg, Offset center, double angle) => Positioned(
       left: (center.dx - _wheelBox / 2) * s,
@@ -240,6 +269,10 @@ class _RoadPainter extends CustomPainter {
         (60.0, 22.0, 1, 0.65),
         (38.0, 18.0, 2, 0.85),
       ];
+      // One Paint reused for every line; only the alpha changes.
+      final linePaint = Paint()
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round;
       for (final (y, len, speed, phase) in lines) {
         final p = (t * speed + phase) % 1.0;
         // Lines spawn just behind the car and drift further back, on the
@@ -251,14 +284,9 @@ class _RoadPainter extends CustomPainter {
           x = worldRight + 6 + p * (padLeft - 4); // trail to the right
         }
         final alpha = (1 - p) * (p < 0.1 ? p / 0.1 : 1);
-        canvas.drawLine(
-          Offset(x, y),
-          Offset(x - len, y),
-          Paint()
-            ..color = roadColor.withAlpha((alpha.clamp(0.0, 1.0) * 255).round())
-            ..strokeWidth = 2
-            ..strokeCap = StrokeCap.round,
-        );
+        linePaint.color =
+            roadColor.withAlpha((alpha.clamp(0.0, 1.0) * 255).round());
+        canvas.drawLine(Offset(x, y), Offset(x - len, y), linePaint);
       }
     }
   }
