@@ -1,6 +1,6 @@
 import 'package:flower_app/features/order/domain/entities/order_status.dart';
-import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/no_driver_available_card.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/order_tracking_content.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/waiting_for_driver_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,12 +19,14 @@ void main() {
     expect(find.text('Delivered'), findsOneWidget);
   });
 
-  testWidgets('no driver -> no-driver card, timeline still visible', (tester) async {
+  testWidgets('no driver accepted yet -> the waiting view replaces the content',
+      (tester) async {
     await pumpApp(
       tester,
       Scaffold(body: OrderTrackingContent(tracking: trackingFixture(withDriver: false))),
     );
-    expect(find.byType(NoDriverAvailableCard), findsOneWidget);
-    expect(find.text('Preparing your order'), findsOneWidget);
+    expect(find.byType(WaitingForDriverCard), findsOneWidget);
+    expect(find.text('Estimated Arrival'), findsNothing);
+    expect(find.text('Preparing your order'), findsNothing);
   });
 }

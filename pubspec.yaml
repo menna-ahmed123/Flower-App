@@ -64,6 +64,6 @@ flutter:
 
   assets:
     - assets/images/
-    - FlowerApp-Backend/.env
+    - .env
     - assets/translations/
 

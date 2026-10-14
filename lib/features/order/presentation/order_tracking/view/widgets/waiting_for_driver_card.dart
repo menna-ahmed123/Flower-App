@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,11 +29,11 @@ class WaitingForDriverCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Waiting for a driver',
+                AppString.waitingForDriver,
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),
               Text(
-                "We'll show your delivery hero as soon as one accepts",
+                AppString.waitingForDriverHint,
                 style: TextStyle(
                   color: context.colors.black.shade50,
                   fontSize: 12,

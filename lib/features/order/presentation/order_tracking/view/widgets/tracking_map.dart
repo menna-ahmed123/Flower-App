@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/widgets/app_map_tile_layer.dart';
 import 'package:flower_app/features/order/domain/entities/geo_point.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/animated_driver_marker_layer.dart';
@@ -9,7 +10,7 @@ import 'package:latlong2/latlong.dart';
 
 /// Store -> home route + the moving driver, on flutter_map.
 ///
-/// [tileLayer]: defaults to [AppMapTileLayer] (MapTiler + the app's key).
+/// [tileLayer]: defaults to [AppMapTileLayer].
 /// Tests inject an empty widget so nothing hits the network.
 class TrackingMap extends StatefulWidget {
   const TrackingMap({
@@ -19,19 +20,18 @@ class TrackingMap extends StatefulWidget {
     this.home,
     this.routePoints = const [],
     this.tileLayer,
-    this.storeLabel = 'Flowery',
-    this.homeLabel = 'Apartment',
+    this.storeLabel,
+    this.homeLabel,
   });
 
   final GeoPoint? driver;
   final GeoPoint? store;
   final GeoPoint? home;
 
-  /// Road geometry store -> home. Falls back to a straight line when empty.
   final List<GeoPoint> routePoints;
   final Widget? tileLayer;
-  final String storeLabel;
-  final String homeLabel;
+  final String? storeLabel;
+  final String? homeLabel;
 
   @override
   State<TrackingMap> createState() => _TrackingMapState();
@@ -41,16 +41,13 @@ class _TrackingMapState extends State<TrackingMap> {
   static const _cairo = LatLng(30.0444, 31.2357);
   static const _fitPadding = EdgeInsets.fromLTRB(48, 110, 48, 48);
 
-  /// Below this span (degrees, ~50 m) all points are "the same place", e.g.
-  /// the seeded store sits exactly on the customer's address. Fitting bounds
-  /// of a single spot would zoom to the maximum, so we centre + fixed zoom.
   static const _minSpan = 0.0005;
   static const _singleSpotZoom = 16.0;
 
   final MapController _controller = MapController();
   String? _lastFitKey;
 
-  LatLng _ll(GeoPoint p) => LatLng(p.lat, p.lng);
+  LatLng _toLatLng(GeoPoint p) => LatLng(p.lat, p.lng);
 
   List<GeoPoint> get _line {
     if (widget.routePoints.length >= 2) return widget.routePoints;
@@ -59,12 +56,11 @@ class _TrackingMapState extends State<TrackingMap> {
     return (start != null && end != null) ? [start, end] : const [];
   }
 
-  /// Points the camera must contain.
   List<LatLng> get _fitPoints {
     final base = widget.routePoints.length >= 2
         ? widget.routePoints
         : [widget.store, widget.home, widget.driver].whereType<GeoPoint>().toList();
-    return base.map(_ll).toList();
+    return base.map(_toLatLng).toList();
   }
 
   bool _isSingleSpot(List<LatLng> pts) {
@@ -143,29 +139,29 @@ class _TrackingMapState extends State<TrackingMap> {
         initialCameraFit: _cameraFit(pts),
       ),
       children: [
-        widget.tileLayer ?? const AppMapTileLayer(),
+        widget.tileLayer ?? AppMapTileLayer(),
         TrackingRouteLayer(points: _line),
         MarkerLayer(
           markers: [
             if (store != null)
               Marker(
-                point: _ll(store),
+                point: _toLatLng(store),
                 width: 110,
                 height: 64,
                 alignment: Alignment.topCenter,
                 child: TrackingMapPin(
-                  label: widget.storeLabel,
+                  label: widget.storeLabel ?? AppString.flowery,
                   icon: Icons.storefront,
                 ),
               ),
             if (home != null)
               Marker(
-                point: _ll(home),
+                point: _toLatLng(home),
                 width: 110,
                 height: 64,
                 alignment: Alignment.topCenter,
                 child: TrackingMapPin(
-                  label: widget.homeLabel,
+                  label: widget.homeLabel ?? AppString.apartment,
                   icon: Icons.home_outlined,
                 ),
               ),
@@ -174,7 +170,6 @@ class _TrackingMapState extends State<TrackingMap> {
         if (driver != null) AnimatedDriverMarkerLayer(
           position: driver,
           routePoints: widget.routePoints,
-          // The scooter always looks at the customer's destination.
           headingTarget: home,
         ),
       ],

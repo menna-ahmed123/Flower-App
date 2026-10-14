@@ -1,6 +1,6 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view/extensions/tracking_date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -29,9 +29,7 @@ class EstimatedArrivalSection extends StatelessWidget {
               Text(AppString.estimatedArrival, style: textTheme.bodyMedium),
               SizedBox(height: 8.h),
               Text(
-                eta == null
-                    ? '--'
-                    : DateFormat('d MMMM yyyy, h:mm a').format(eta.toLocal()),
+                eta == null ? AppString.noDataPlaceholder : eta.trackingEtaLabel,
                 style: textTheme.titleMedium,
               ),
             ],

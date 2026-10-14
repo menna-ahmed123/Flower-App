@@ -31,6 +31,11 @@ void main() {
     expect(find.text('Updated 2 min ago'), findsOneWidget);
   });
 
+  testWidgets('over an hour -> outdated, aged in hours', (tester) async {
+    await pumpApp(tester, badge(const Duration(hours: 3)));
+    expect(find.text('Location outdated · 3 h ago'), findsOneWidget);
+  });
+
   testWidgets('over 3 minutes -> outdated warning', (tester) async {
     await pumpApp(tester, badge(const Duration(minutes: 10)));
     expect(find.textContaining('Location outdated'), findsOneWidget);

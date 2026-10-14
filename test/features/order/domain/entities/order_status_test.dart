@@ -32,4 +32,24 @@ void main() {
       expect(OrderStatus.unknown.isActive, isTrue);
     });
   });
+
+  group('timelineStep', () {
+    test('maps the nine statuses onto the four timeline steps', () {
+      expect(OrderStatus.placed.timelineStep, 0);
+      expect(OrderStatus.unknown.timelineStep, 0);
+      expect(OrderStatus.cancelled.timelineStep, 0);
+      expect(OrderStatus.preparing.timelineStep, 1);
+      expect(OrderStatus.pickedUp.timelineStep, 2);
+      expect(OrderStatus.outForDelivery.timelineStep, 2);
+      expect(OrderStatus.arrived.timelineStep, 2);
+      expect(OrderStatus.awaitingDeliveryConfirmation.timelineStep, 2);
+      expect(OrderStatus.delivered.timelineStep, 4);
+    });
+
+    test('resolves for every status, none left out', () {
+      for (final status in OrderStatus.values) {
+        expect(status.timelineStep, inInclusiveRange(0, 4));
+      }
+    });
+  });
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'custom_contract_card.dart';
+import 'custom_contact_card.dart';
 
 class DeliveryInformationCard extends StatelessWidget {
   const DeliveryInformationCard({
@@ -36,7 +37,7 @@ class DeliveryInformationCard extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),
               Text(
-                'Is your delivery hero for today',
+                AppString.deliveryHeroToday,
                 style: TextStyle(
                   color: context.colors.black.shade50,
                   fontWeight: FontWeight.w400,
@@ -46,7 +47,7 @@ class DeliveryInformationCard extends StatelessWidget {
             ],
           ),
         ),
-        CustomContractCard(phoneNumber: deliveryPhoneNumber),
+        CustomContactCard(phoneNumber: deliveryPhoneNumber),
       ],
     );
   }

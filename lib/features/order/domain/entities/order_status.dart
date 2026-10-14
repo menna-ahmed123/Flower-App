@@ -9,8 +9,6 @@ enum OrderStatus {
   cancelled,
   unknown;
 
-  /// The API uses "PLACED"/"OUT_FOR_DELIVERY" in some endpoints and
-  /// "Placed" in others, so normalise before comparing.
   static OrderStatus fromApi(String? raw) {
     final key = (raw ?? '').replaceAll(RegExp(r'[\s_\-]'), '').toLowerCase();
     switch (key) {
@@ -38,7 +36,25 @@ enum OrderStatus {
   }
 
   bool get isFinished => this == delivered || this == cancelled;
-
-  /// "Active" tab = anything not finished (unknown included, so nothing vanishes).
   bool get isActive => !isFinished;
+}
+
+extension OrderStatusTimelineStep on OrderStatus {
+  int get timelineStep {
+    switch (this) {
+      case OrderStatus.placed:
+      case OrderStatus.unknown:
+      case OrderStatus.cancelled:
+        return 0;
+      case OrderStatus.preparing:
+        return 1;
+      case OrderStatus.pickedUp:
+      case OrderStatus.outForDelivery:
+      case OrderStatus.arrived:
+      case OrderStatus.awaitingDeliveryConfirmation:
+        return 2;
+      case OrderStatus.delivered:
+        return 4;
+    }
+  }
 }

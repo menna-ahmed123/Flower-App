@@ -6,9 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-/// Marker layer whose marker GLIDES to every new position instead of jumping.
-/// If [routePoints] is provided, the marker is snapped onto the nearest segment
-/// of the route so it always appears to travel along the road.
 class AnimatedDriverMarkerLayer extends StatefulWidget {
   const AnimatedDriverMarkerLayer({
     super.key,
@@ -20,16 +17,9 @@ class AnimatedDriverMarkerLayer extends StatefulWidget {
   });
 
   final GeoPoint position;
-
-  /// Route polyline points. When non-empty the driver is snapped to the line.
   final List<GeoPoint> routePoints;
-
-  /// Where the scooter should LOOK. Typically the customer's destination.
-  /// Falls back to the last route point, then to the animation target.
   final GeoPoint? headingTarget;
   final Duration duration;
-
-  /// Defaults to [DriverMarkerIcon].
   final Widget? child;
 
   @override
@@ -54,10 +44,6 @@ class _AnimatedDriverMarkerLayerState extends State<AnimatedDriverMarkerLayer>
   }
 
   LatLng _toLatLng(GeoPoint p) => LatLng(p.lat, p.lng);
-
-  /// Returns the next waypoint ahead of [snapped] along the route (toward destination).
-  /// With a sparse route (0-1 points) there is no segment to follow, so glide
-  /// toward the heading target instead of freezing on a zero-distance frame.
   LatLng _nextRoutePoint(LatLng snapped) {
     final route = widget.routePoints;
     if (route.length < 2) {
@@ -79,12 +65,9 @@ class _AnimatedDriverMarkerLayerState extends State<AnimatedDriverMarkerLayer>
         bestSeg = i;
       }
     }
-    // Return the END of that segment — always toward destination (last point)
-    // If already on the last segment, use the final destination point
     return _toLatLng(route[bestSeg + 1]);
   }
 
-  /// Snaps [point] onto the nearest segment of routePoints.
   LatLng _snapToRoute(LatLng point) {
     final route = widget.routePoints;
     if (route.length < 2) return point;
@@ -105,7 +88,6 @@ class _AnimatedDriverMarkerLayerState extends State<AnimatedDriverMarkerLayer>
     return best;
   }
 
-  /// Closest point on segment [a]-[b] to [p].
   LatLng _closestPointOnSegment(LatLng p, LatLng a, LatLng b) {
     final dx = b.latitude - a.latitude;
     final dy = b.longitude - a.longitude;
@@ -131,33 +113,22 @@ class _AnimatedDriverMarkerLayerState extends State<AnimatedDriverMarkerLayer>
       _from.longitude + (_to.longitude - _from.longitude) * t,
     );
   }
-
-  /// Where the scooter should look: the explicit heading target (the
-  /// apartment), else the final route point, else the animation target.
   LatLng get _lookAt {
     final GeoPoint? target =
         widget.headingTarget ??
         (widget.routePoints.isNotEmpty ? widget.routePoints.last : null);
     return target != null ? _toLatLng(target) : _to;
   }
-
-  /// The scooter is a SIDE-view sprite (drawn facing left / west), so it must
-  /// stay upright. Rotating it ~180° would put it on its head, so instead we
-  /// mirror it horizontally to face the apartment's side (east/west).
   bool get _facesEast {
     final dlng = _lookAt.longitude - _current.longitude;
-    // Exactly overhead: keep the art's natural west-facing pose.
     if (dlng == 0) return false;
     return dlng > 0;
   }
-
-  /// A gentle nose-up/nose-down tilt that follows the route's slope, capped so
-  /// the scooter never tips over. Sign accounts for the horizontal mirroring.
   double get _tiltRad {
     final dlng = _lookAt.longitude - _current.longitude;
     final dlat = _lookAt.latitude - _current.latitude;
     if (dlng == 0 && dlat == 0) return 0;
-    final slope = math.atan2(dlat, dlng.abs()); // +ve = target is north
+    final slope = math.atan2(dlat, dlng.abs());
     final east = _facesEast;
     final tilt = east ? -slope : slope;
     return tilt.clamp(-0.45, 0.45);
@@ -192,7 +163,6 @@ class _AnimatedDriverMarkerLayerState extends State<AnimatedDriverMarkerLayer>
             child: Transform.rotate(
               angle: _tiltRad,
               child: Transform.flip(
-                // Art is drawn facing west; mirror it to look east.
                 flipX: _facesEast,
                 child: widget.child ?? const DriverMarkerIcon(),
               ),

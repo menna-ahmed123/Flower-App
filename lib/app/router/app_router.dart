@@ -53,10 +53,10 @@ import '../../features/auth/core/presentation/view_model/auth_cubit.dart';
 import '../../features/auth/core/presentation/view_model/auth_state.dart';
 import '../../features/commerce/presentation/search/view/screen/search_screen.dart';
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart';
-import '../../features/order/presentation/order_tracking/view/mock/order_tracking_mock_data.dart';
-import '../../features/order/presentation/order_tracking/view/page/order_success_page.dart';
 import '../../features/order/presentation/order_tracking/view/page/order_tracking_map_page.dart';
 import '../../features/order/presentation/order_tracking/view/page/order_tracking_page.dart';
+import '../../features/order/presentation/order_tracking/view_model/order_tracking_event.dart';
+import '../../features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart';
 import '../../features/sessions/presentation/view/session_screen.dart';
 import '../../features/sessions/presentation/view_model/session_event.dart';
 import '../../features/sessions/presentation/view_model/session_view_model.dart';
@@ -69,7 +69,7 @@ class AppRouter {
     final isAuthenticated =
         await getIt<AuthRepository>().isAuthenticated();
 
-    return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
+    return isAuthenticated ? AppRoutesName.trackOrder : AppRoutesName.login;
   }
 
   static GoRouter createRouter({String? initialLocation}) {
@@ -109,17 +109,8 @@ class AppRouter {
           builder: _sessionsBuilder,
         ),
         GoRoute(
-          path: AppRoutesName.successTrackOrder,
-          builder: _successTrackOrderBuilder,
-        ),
-        GoRoute(
           path: AppRoutesName.orderTrackingMapPage,
-          builder: (context, state) {
-            return  OrderTrackingMapPage(
-                tracking: OrderTrackingMockData.tracking,
-                routePoints: OrderTrackingMockData.routePoints,
-                onBack: () => context.pop(), onOrderDetails: () {});
-          },
+          builder: _orderTrackingMapBuilder,
         ),
       ],
     );
@@ -458,18 +449,29 @@ class AppRouter {
     return ConfirmationScreen(orderId: _orderIdFromExtra(state.extra));
   }
 
-  static Widget _successTrackOrderBuilder(
+  static Widget _trackOrderBuilder(BuildContext context, GoRouterState state) {
+    final orderId = _orderIdFromExtra(state.extra);
+    return BlocProvider(
+      create: (_) => getIt<OrderTrackingViewModel>()
+        ..onEvent(WatchOrderTracking(orderId)),
+      child: OrderTrackingPage(orderId: orderId),
+    );
+  }
+  static Widget _orderTrackingMapBuilder(
     BuildContext context,
     GoRouterState state,
   ) {
-    return const OrderSuccessPage();
-  }
-
-  static Widget _trackOrderBuilder(BuildContext context, GoRouterState state) {
-    return OrderTrackingPage(
-      tracking: OrderTrackingMockData.tracking,
-      onShowMap: () => context.push(AppRoutesName.orderTrackingMapPage),
-      onOrderDelivered: () {}
+    final passed = state.extra;
+    if (passed is OrderTrackingViewModel) {
+      return BlocProvider.value(
+        value: passed,
+        child: const OrderTrackingMapPage(),
+      );
+    }
+    return BlocProvider(
+      create: (_) => getIt<OrderTrackingViewModel>()
+        ..onEvent(WatchOrderTracking(null)),
+      child: const OrderTrackingMapPage(),
     );
   }
 

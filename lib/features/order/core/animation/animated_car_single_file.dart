@@ -1,15 +1,9 @@
 import 'dart:math' as math;
 
+import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-
-/// A driving car: spinning wheels, suspension bounce, scrolling road and
-/// speed lines. Built from the layers of `Car.svg`.
-///
-/// ```dart
-/// const AnimatedCar(width: 320)
-/// ```
 class AnimatedCar extends StatefulWidget {
   const AnimatedCar({
     super.key,
@@ -19,26 +13,16 @@ class AnimatedCar extends StatefulWidget {
     this.showRoad = true,
     this.showSpeedLines = true,
     this.mirrored = false,
-    this.roadColor = const Color(0xFFCFD8DC),
+    this.roadColor,
   });
 
-  /// Total widget width (includes the space behind the car for speed lines).
   final double width;
-
-  /// Time for ONE full wheel revolution. Shorter = faster car.
   final Duration duration;
-
-  /// Pause / resume the animation.
   final bool playing;
-
   final bool showRoad;
   final bool showSpeedLines;
-
-  /// true = car sprite flipped (faces right). Wheels, road and speed lines
-  /// always move consistently with the driving direction.
-  /// false (default) = car drives to the LEFT, matching the Figma design.
-  final bool mirrored;
-  final Color roadColor;
+ final bool mirrored;
+  final Color? roadColor;
 
   @override
   State<AnimatedCar> createState() => _AnimatedCarState();
@@ -46,15 +30,13 @@ class AnimatedCar extends StatefulWidget {
 
 class _AnimatedCarState extends State<AnimatedCar>
     with SingleTickerProviderStateMixin {
-  // World units = the SVG's coordinate space.
-  static const double _padLeft = 60; // room for speed lines (same on both sides => car stays centered)
+  static const double _padLeft = 60;
   static const double _carW = 213;
   static const double _carH = 83;
   static const double _roadH = 18;
   static const double _worldW = _padLeft + _carW + _padLeft;
   static const double _worldH = _carH + _roadH;
 
-  // Wheel geometry measured from the SVG.
   static const double _wheelBox = 38;
   static const Offset _rearCenter = Offset(36.9, 64.2);
   static const Offset _frontCenter = Offset(175.03, 64.2);
@@ -117,7 +99,6 @@ class _AnimatedCarState extends State<AnimatedCar>
   Widget build(BuildContext context) {
     final s = widget.width / _worldW;
 
-    // Static SVG layers are built once, outside the animation builder.
     _ensureLayers(s);
     final base = _baseLayer!;
     final body = _bodyLayer!;
@@ -137,13 +118,8 @@ class _AnimatedCarState extends State<AnimatedCar>
         child: AnimatedBuilder(
           animation: _c,
           builder: (context, _) {
-            final t = _c.value; // 0..1 == one wheel revolution
-            // Positive = clockwise on screen. A car driving right spins its
-            // wheels clockwise; driving left (the default) is counter-clockwise.
-            // The sprite flip would reverse the spin, so counter that here.
+            final t = _c.value;
             final spin = t * 2 * math.pi * (widget.mirrored ? 1 : -1);
-
-            // Suspension bounce: integer multiples keep the loop seamless.
             final bounceY = (math.sin(t * 2 * math.pi * 4) * 0.6 +
                 math.sin(t * 2 * math.pi * 7) * 0.25) *
                 s;
@@ -160,7 +136,7 @@ class _AnimatedCarState extends State<AnimatedCar>
                       worldW: _worldW,
                       padLeft: _padLeft,
                       groundY: 82.6,
-                      roadColor: widget.roadColor,
+                      roadColor: widget.roadColor ?? context.colors.grey.shade600,
                       showRoad: widget.showRoad,
                       showSpeedLines: widget.showSpeedLines,
                       drivesRight: widget.mirrored,
@@ -223,13 +199,7 @@ class _RoadPainter extends CustomPainter {
   final Color roadColor;
   final bool showRoad;
   final bool showSpeedLines;
-
-  /// Direction of travel: dashes scroll opposite to it, speed lines trail
-  /// behind the car on that side.
   final bool drivesRight;
-
-  // Wheel circumference (r ~ 18.1). One revolution moves the road exactly
-  // this far, so tyres never "slip". It equals 2 dash periods => seamless loop.
   static const double _circumference = 113.7;
   static const double _dashPeriod = _circumference / 2;
 
@@ -261,27 +231,23 @@ class _RoadPainter extends CustomPainter {
     }
 
     if (showSpeedLines) {
-      final worldRight = padLeft + 213; // car's right edge in world units
-      // (y, length, speed multiplier (integer => seamless), phase)
+      final worldRight = padLeft + 213;
       const lines = [
         (28.0, 26.0, 1, 0.00),
         (46.0, 34.0, 2, 0.35),
         (60.0, 22.0, 1, 0.65),
         (38.0, 18.0, 2, 0.85),
       ];
-      // One Paint reused for every line; only the alpha changes.
       final linePaint = Paint()
         ..strokeWidth = 2
         ..strokeCap = StrokeCap.round;
       for (final (y, len, speed, phase) in lines) {
         final p = (t * speed + phase) % 1.0;
-        // Lines spawn just behind the car and drift further back, on the
-        // trailing side of the driving direction.
         final double x;
         if (drivesRight) {
-          x = padLeft - 6 - p * (padLeft - 4); // trail to the left
+          x = padLeft - 6 - p * (padLeft - 4);
         } else {
-          x = worldRight + 6 + p * (padLeft - 4); // trail to the right
+          x = worldRight + 6 + p * (padLeft - 4);
         }
         final alpha = (1 - p) * (p < 0.1 ? p / 0.1 : 1);
         linePaint.color =
@@ -296,7 +262,6 @@ class _RoadPainter extends CustomPainter {
       old.t != t || old.scale != scale || old.roadColor != roadColor;
 }
 
-/// Demo screen: speed slider + play/pause.
 class AnimatedCarDemo extends StatefulWidget {
   const AnimatedCarDemo({super.key});
 
@@ -341,7 +306,6 @@ class _AnimatedCarDemoState extends State<AnimatedCarDemo> {
   }
 }
 
-// ---- Car.svg layers (base -> wheels -> body) ----
 const String carBaseSvg = r'''<svg width="213" height="83" viewBox="0 0 213 83" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M199.047 36.939H11.7349V64.4419H199.047V36.939Z" fill="#D21E6A"/>
 <g opacity="0.5">
 <path d="M199.047 36.939H11.7349V64.4419H199.047V36.939Z" fill="black"/>

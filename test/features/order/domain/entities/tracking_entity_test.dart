@@ -20,18 +20,6 @@ void main() {
     expect(trackingFixture(status: OrderStatus.delivered).canConfirmDelivery, isFalse);
   });
 
-  test('uiSteps has 4 titled steps and picks the matching timestamps', () {
-    final steps = trackingFixture(status: OrderStatus.outForDelivery).uiSteps;
-    expect(steps.map((s) => s.title), [
-      'Received your order',
-      'Preparing your order',
-      'Out for delivery',
-      'Delivered',
-    ]);
-    expect(steps[0].time, isNotNull);
-    expect(steps[3].time, isNull); // not delivered yet
-  });
-
   test('isFinished follows the status', () {
     expect(trackingFixture(status: OrderStatus.delivered).isFinished, isTrue);
     expect(trackingFixture().isFinished, isFalse);

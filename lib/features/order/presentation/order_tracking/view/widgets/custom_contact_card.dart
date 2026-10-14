@@ -6,8 +6,8 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/utils/image_path/images_path.dart';
 import 'package:flower_app/features/order/core/helper/url_launcher_service.dart';
 
-class CustomContractCard extends StatelessWidget {
-  const CustomContractCard({
+class CustomContactCard extends StatelessWidget {
+  const CustomContactCard({
     super.key,
     required this.phoneNumber,
     this.launcher = const PluginUrlLauncherService(),

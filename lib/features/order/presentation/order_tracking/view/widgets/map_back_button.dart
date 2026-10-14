@@ -8,9 +8,6 @@ class MapBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // One widget for both the circular background and the tap target:
-    // an IconButton wrapped in a CircleAvatar double-pads and shrinks the
-    // splash.
     return IconButton(
       onPressed: onPressed,
       style: IconButton.styleFrom(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view/extensions/tracking_date_format.dart';
 import 'package:flutter/material.dart';
 
 /// How fresh the driver's location is. Ticks on its own timer so the text
@@ -50,10 +51,22 @@ class _StalenessBadgeState extends State<StalenessBadge> {
     super.dispose();
   }
 
-  String _ago(Duration d) {
-    if (d.inSeconds < 60) return '${d.inSeconds}s ago';
-    if (d.inMinutes < 60) return '${d.inMinutes} min ago';
-    return '${d.inHours} h ago';
+  /// The badge wording for an age: live, ageing, or lost.
+  String _textFor(Duration age) {
+    if (age < StalenessBadge.freshFor) return AppString.liveLocation;
+    if (age < StalenessBadge.staleAfter) {
+      return trackingPhrase(AppString.trackingUpdatedAgo, age.trackingAgoLabel);
+    }
+    return trackingPhrase(
+      AppString.trackingLocationOutdated,
+      age.trackingAgoLabel,
+    );
+  }
+
+  Color _colorFor(BuildContext context, Duration age) {
+    if (age < StalenessBadge.freshFor) return context.colors.green;
+    if (age < StalenessBadge.staleAfter) return context.colors.warning;
+    return context.colors.error;
   }
 
   Duration get _age {
@@ -66,10 +79,7 @@ class _StalenessBadgeState extends State<StalenessBadge> {
   String _label() {
     final last = widget.lastUpdate;
     if (last == null) return AppString.waitingForLocation;
-    final age = _age;
-    if (age < StalenessBadge.freshFor) return AppString.liveLocation;
-    if (age < StalenessBadge.staleAfter) return 'Updated ${_ago(age)}';
-    return 'Location outdated · ${_ago(age)}';
+    return _textFor(_age);
   }
 
   @override
@@ -81,20 +91,9 @@ class _StalenessBadgeState extends State<StalenessBadge> {
     }
 
     final age = _age;
-    final String text;
-    final Color color;
-    if (age < StalenessBadge.freshFor) {
-      text = AppString.liveLocation;
-      color = context.colors.green;
-    } else if (age < StalenessBadge.staleAfter) {
-      text = 'Updated ${_ago(age)}';
-      color = context.colors.warning;
-    } else {
-      text = 'Location outdated · ${_ago(age)}';
-      color = context.colors.error;
-    }
+    final text = _textFor(age);
     _shownLabel = text;
-    return _pill(context, color, text);
+    return _pill(context, _colorFor(context, age), text);
   }
 
   Widget _pill(BuildContext context, Color color, String text) {

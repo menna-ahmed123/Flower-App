@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Vertical order-tracking timeline with animations:
-/// - the line between steps fills with an animation when a step is done
-/// - the current step has a pulsing dot
-/// - finished steps show a check icon
 class AnimatedOrderTimeline extends StatelessWidget {
-  final int currentStep; // 0..steps.length-1
+  final int currentStep;
   final List<({String title, String time})> steps;
 
   const AnimatedOrderTimeline({
@@ -16,13 +12,12 @@ class AnimatedOrderTimeline extends StatelessWidget {
 
   static const activeColor = Color(0xFFE91E63);
 
-  // Built once instead of re-allocated on every rebuild.
   static const titleStyle =
       TextStyle(fontSize: 16, fontWeight: FontWeight.w500);
   static const currentTitleStyle =
       TextStyle(fontSize: 16, fontWeight: FontWeight.w700);
   static const timeStyle =
-      TextStyle(fontSize: 14, color: Color(0xFF757575)); // grey.shade600
+      TextStyle(fontSize: 14, color: Color(0xFF757575));
 
   @override
   Widget build(BuildContext context) {

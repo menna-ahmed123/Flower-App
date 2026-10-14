@@ -1,10 +1,11 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flower_app/features/order/domain/entities/tracking_entity.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view/extensions/order_status_tracking_label.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view/extensions/tracking_date_format.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view/extensions/tracking_timeline_steps.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flower_app/features/order/core/animation/order_time_line.dart';
 
-/// Now a dumb widget: no timer, no fetching. The view model owns the polling.
+/// The tracking steps, painted by [AnimatedOrderTimeline].
 class OrderTimeLine extends StatelessWidget {
   const OrderTimeLine({
     super.key,
@@ -12,19 +13,18 @@ class OrderTimeLine extends StatelessWidget {
     required this.currentStep,
   });
 
-  final List<TrackingUiStep> steps;
+  final List<TrackingTimelineStep> steps;
   final int currentStep;
 
   @override
   Widget build(BuildContext context) {
-    final fmt = DateFormat('dd MMM yyyy - h:mm a');
     return AnimatedOrderTimeline(
       currentStep: currentStep,
       steps: [
-        for (final s in steps)
+        for (final step in steps)
           (
-            title: s.title,
-            time: s.time == null ? '' : fmt.format(s.time!.toLocal()),
+            title: step.status.trackingLabel,
+            time: step.occurredAt?.trackingTimelineLabel ?? '',
           ),
       ],
     );
