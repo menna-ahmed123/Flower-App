@@ -3,6 +3,7 @@ import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
+import 'package:flower_app/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -15,9 +16,13 @@ import 'features/auth/core/presentation/view_model/auth_cubit.dart';
 import 'features/auth/core/presentation/view_model/auth_event.dart';
 import 'features/auth/core/presentation/view_model/auth_state.dart';
 import 'features/cart/presentation/view_model/cart_view_model.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await dotenv.load(fileName: '.env', isOptional: true);
   await ApiEndpoints.loadBaseUrl();
   // ignore: avoid_print

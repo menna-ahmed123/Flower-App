@@ -85,6 +85,8 @@ import '../../features/auth/login/data/data_source/remote/auth_remote_data_sourc
     as _i4;
 import '../../features/auth/login/data/repo/auth_repo_impl.dart' as _i641;
 import '../../features/auth/login/domain/repo/auth_repo.dart' as _i483;
+import '../../features/auth/login/domain/use_case/get_fcm_token_usecase.dart'
+    as _i761;
 import '../../features/auth/login/domain/use_case/login_usecase.dart' as _i635;
 import '../../features/auth/login/domain/use_case/logout_usecase.dart' as _i609;
 import '../../features/auth/login/presentation/view_model/login_view_model.dart'
@@ -143,19 +145,23 @@ import '../../features/commerce/presentation/prodect_details/view_model/product_
     as _i784;
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart'
     as _i1068;
-import '../../features/sessions/api/session_api_client.dart' as _i311;
-import '../../features/sessions/data/data_sources/remote/session_remote_data_source.dart'
-    as _i618;
-import '../../features/sessions/data/data_sources/remote/session_remote_data_source_impl.dart'
-    as _i613;
-import '../../features/sessions/data/repo/session_repo_impl.dart' as _i947;
-import '../../features/sessions/domain/repo/session_repo.dart' as _i843;
-import '../../features/sessions/domain/usecases/get_sessions_use_case.dart'
-    as _i827;
-import '../../features/sessions/domain/usecases/revoke_session_use_case.dart'
-    as _i145;
-import '../../features/sessions/presentation/view_model/session_view_model.dart'
-    as _i137;
+import '../../features/notification/api/notification_api_client.dart' as _i431;
+import '../../features/notification/data/data_sources/notification_remote_data_source.dart'
+    as _i934;
+import '../../features/notification/data/data_sources/notification_remote_datasource_impl.dart'
+    as _i231;
+import '../../features/notification/data/repo/notification_repo_impl.dart'
+    as _i933;
+import '../../features/notification/domain/repo/notification_repo.dart'
+    as _i588;
+import '../../features/notification/domain/use_cases/get_device_id_use_case.dart'
+    as _i578;
+import '../../features/notification/domain/use_cases/get_fcm_token_usecase.dart'
+    as _i172;
+import '../../features/notification/domain/use_cases/sync_fcm_token_use_case.dart'
+    as _i627;
+import '../../features/notification/domain/use_cases/update_fcm_token_usecase.dart'
+    as _i366;
 import '../../features/profile/data/api/profile_api_client.dart' as _i751;
 import '../../features/profile/data/data_source/remote/profile_remote_data_source.dart'
     as _i299;
@@ -171,6 +177,19 @@ import '../../features/profile/presentation/view_model/profile_view_model.dart'
     as _i15;
 import '../../features/profile/presentation/view_model/update_profile_view_model.dart'
     as _i374;
+import '../../features/sessions/api/session_api_client.dart' as _i311;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source.dart'
+    as _i618;
+import '../../features/sessions/data/data_sources/remote/session_remote_data_source_impl.dart'
+    as _i613;
+import '../../features/sessions/data/repo/session_repo_impl.dart' as _i947;
+import '../../features/sessions/domain/repo/session_repo.dart' as _i843;
+import '../../features/sessions/domain/usecases/get_sessions_use_case.dart'
+    as _i827;
+import '../../features/sessions/domain/usecases/revoke_session_use_case.dart'
+    as _i145;
+import '../../features/sessions/presentation/view_model/session_view_model.dart'
+    as _i137;
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
@@ -181,6 +200,8 @@ import '../network/token_refresh_coordinator.dart' as _i381;
 import '../network/token_refresh_scheduler.dart' as _i95;
 import '../network/token_refresher.dart' as _i1058;
 import '../network/token_storage.dart' as _i964;
+import '../services/device_id_service.dart' as _i148;
+import '../services/fcm_service.dart' as _i928;
 import '../services/geocoding_service.dart' as _i980;
 import '../services/image_picker_service.dart' as _i644;
 import '../services/location_service.dart' as _i669;
@@ -207,15 +228,35 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.prefs(),
       preResolve: true,
     );
+    gh.lazySingleton<_i928.FcmService>(() => _i928.FcmService());
     gh.lazySingleton<_i1058.TokenRefresher>(() => _i1058.ApiTokenRefresher());
+    gh.factory<_i761.GetFcmTokenUseCase>(
+      () => _i761.GetFcmTokenUseCase(gh<_i928.FcmService>()),
+    );
     gh.lazySingleton<_i644.ImagePickerService>(
       () => _i644.ImagePickerService(gh<_i183.ImagePicker>()),
+    );
+    gh.factory<_i934.NotificationRemoteDataSource>(
+      () => _i231.NotificationRemoteDatasourceImpl(
+        gh<_i431.NotificationApiClient>(),
+      ),
+    );
+    gh.lazySingleton<_i148.DeviceIdService>(
+      () => _i148.DeviceIdService(gh<_i558.FlutterSecureStorage>()),
     );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
     );
     gh.factory<_i669.LocationService>(
       () => _i669.LocationService(gh<_i699.GeolocatorPlatform>()),
+    );
+    gh.factory<_i588.NotificationRepo>(
+      () => _i933.NotificationRepoImpl(
+        gh<_i148.DeviceIdService>(),
+        gh<_i928.FcmService>(),
+        gh<_i934.NotificationRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
     );
     gh.lazySingleton<_i381.TokenRefreshCoordinator>(
       () => _i381.TokenRefreshCoordinator(
@@ -242,8 +283,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i381.TokenRefreshCoordinator>(),
       ),
     );
-    gh.lazySingleton<_i571.AuthCubit>(
-      () => _i571.AuthCubit(gh<_i179.AuthRepository>()),
+    gh.factory<_i578.GetDeviceIdUseCase>(
+      () => _i578.GetDeviceIdUseCase(gh<_i588.NotificationRepo>()),
+    );
+    gh.factory<_i172.GetFcmTokenUseCase>(
+      () => _i172.GetFcmTokenUseCase(gh<_i588.NotificationRepo>()),
+    );
+    gh.factory<_i366.UpdateFcmTokenUseCase>(
+      () => _i366.UpdateFcmTokenUseCase(gh<_i588.NotificationRepo>()),
     );
     gh.singleton<_i361.Dio>(
       () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),
@@ -268,7 +315,8 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i311.SessionApiClient>(
       () => apiModule.provideSessionApiClient(gh<_i361.Dio>()),
-    gh.singleton<_i751.ProfileApiClient>(
+    );
+    gh.factory<_i751.ProfileApiClient>(
       () => apiModule.provideProfileApiClient(gh<_i361.Dio>()),
     );
     gh.factory<_i24.ForgetPasswordRemoteDataSource>(
@@ -329,6 +377,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i682.OccasionUseCase>(
       () => _i682.OccasionUseCase(gh<_i772.CommerceRepo>()),
+    );
+    gh.factory<_i627.SyncFcmTokenUseCase>(
+      () => _i627.SyncFcmTokenUseCase(
+        gh<_i578.GetDeviceIdUseCase>(),
+        gh<_i761.GetFcmTokenUseCase>(),
+        gh<_i366.UpdateFcmTokenUseCase>(),
+      ),
     );
     gh.factory<_i618.SessionRemoteDataSource>(
       () => _i613.SessionRemoteDataSourceImpl(gh<_i311.SessionApiClient>()),
@@ -401,6 +456,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i94.RequestLocationPermissionUseCase>(
       () => _i94.RequestLocationPermissionUseCase(gh<_i366.AddressRepo>()),
     );
+    gh.lazySingleton<_i571.AuthCubit>(
+      () => _i571.AuthCubit(
+        gh<_i179.AuthRepository>(),
+        gh<_i627.SyncFcmTokenUseCase>(),
+        gh<InvalidType>(),
+      ),
+    );
     gh.factory<_i843.SessionRepo>(
       () => _i947.SessionRepoImpl(
         gh<_i618.SessionRemoteDataSource>(),
@@ -465,6 +527,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i784.ProductDetailsViewModel>(
       () => _i784.ProductDetailsViewModel(gh<_i172.ProductDetailsUseCase>()),
     );
+    gh.factory<_i188.LoginViewModel>(
+      () => _i188.LoginViewModel(
+        gh<_i635.LoginUseCase>(),
+        gh<_i578.GetDeviceIdUseCase>(),
+        gh<_i761.GetFcmTokenUseCase>(),
+      ),
+    );
     gh.factory<_i609.LogoutUseCase>(
       () => _i609.LogoutUseCase(gh<_i483.AuthRepo>()),
     );
@@ -515,21 +584,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1057.RemoveCartItemUseCase>(),
       ),
     );
-    gh.factory<_i179.CheckoutViewModel>(
-      () => _i179.CheckoutViewModel(
-        gh<_i497.PreviewCheckoutUseCase>(),
-        gh<_i497.PlaceOrderUseCase>(),
-        gh<_i497.ProcessPaymentUseCase>(),
-      ),
-    );
     gh.factory<_i137.SessionsViewModel>(
       () => _i137.SessionsViewModel(
         gh<_i827.GetSessionsUseCase>(),
         gh<_i145.RevokeSessionUseCase>(),
       ),
     );
-    gh.factory<_i188.LoginViewModel>(
-      () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
+    gh.factory<_i179.CheckoutViewModel>(
+      () => _i179.CheckoutViewModel(
+        gh<_i497.PreviewCheckoutUseCase>(),
+        gh<_i497.PlaceOrderUseCase>(),
+        gh<_i497.ProcessPaymentUseCase>(),
+      ),
     );
     gh.factory<_i28.AddressViewModel>(
       () => _i28.AddressViewModel(

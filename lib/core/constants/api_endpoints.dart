@@ -13,7 +13,7 @@ class ApiEndpoints {
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
     _resolvedBaseUrl = normalizeBaseUrl(
-      dotenv.env['BASE_URL'] ?? 'http://192.168.1.3:5000',
+      dotenv.env['BASE_URL'] ?? 'http://192.168.1.7:5000',
     );
   }
 
@@ -70,6 +70,7 @@ class ApiEndpoints {
   static const String refreshToken = '/api/identity/auth/refresh-token';
   static const String session = '/api/identity/auth/sessions';
   static const String sessionById = '/api/identity/auth/sessions/{sessionId}';
+  static const String fcmToken = '/api/identity/devices/fcm-token';
 
   //// Commerce ////
   static const String home = '/api/catalog/home/layout';
