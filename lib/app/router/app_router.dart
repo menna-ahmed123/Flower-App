@@ -38,7 +38,6 @@ import 'package:flower_app/features/commerce/presentation/prodect_details/view_m
 import 'package:flower_app/core/widgets/app_web_view_screen.dart';
 import 'package:flower_app/features/payment/presentation/view/screens/payment_screen.dart';
 import 'package:flower_app/features/payment/presentation/view/screens/payment_webview.dart';
-import 'package:flower_app/features/payment/presentation/view/widgets/payment_body.dart';
 import 'package:flower_app/features/payment/presentation/view_model/payment_event.dart';
 import 'package:flower_app/features/payment/presentation/view_model/paymeny_view_model.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
@@ -110,23 +109,23 @@ class AppRouter {
 GoRoute(
   path: AppRoutesName.paymentWebView,
   builder: (context, state) {
-    final extra = state.extra;
+            final extra = state.extra;
 
-    if (extra is PaymentWebViewArgs) {
-      return PaymentWebView(
-        sessionUrl: extra.sessionUrl,
-        successUrl: extra.successUrl,
-        cancelUrl: extra.cancelUrl,
-      );
-    }
+            if (extra is! PaymentArgs) {
+              return const Scaffold(
+                body: Center(
+                  child: Text(AppString.paymentSessionDataUnavailable),
+                ),
+              );
+            }
 
-    return const Scaffold(
-      body: Center(
-        child: Text('Payment session data is unavailable'),
-      ),
-    );
-  },
-),
+            return PaymentWebView(
+              sessionUrl: extra.sessionUrl,
+              successUrl: extra.successUrl,
+              cancelUrl: extra.cancelUrl,
+            );
+          },
+        ),
       ],
     );
   }

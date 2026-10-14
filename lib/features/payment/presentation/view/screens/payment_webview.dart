@@ -201,3 +201,16 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     );
   }
 }
+class PaymentArgs {
+  const PaymentArgs({
+    required this.sessionUrl,
+    required this.successUrl,
+    required this.cancelUrl,
+    this.orderId,
+  });
+
+  final String sessionUrl;
+  final String successUrl;
+  final String cancelUrl;
+  final String? orderId;
+}

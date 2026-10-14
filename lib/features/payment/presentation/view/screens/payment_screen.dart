@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:flower_app/app/router/app_routes.dart';
@@ -8,7 +7,6 @@ import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/widgets/custom_app_bar.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
-import 'package:flower_app/features/payment/presentation/view/widgets/payment_body.dart';
 import 'package:flower_app/features/payment/presentation/view_model/payment_state.dart';
 import 'package:flower_app/features/payment/presentation/view_model/paymeny_view_model.dart';
 
@@ -75,13 +73,7 @@ class PaymentView extends StatelessWidget {
               );
             }
           },
-          child: Padding(
-            padding: EdgeInsets.all(16.w),
-            child: PaymentBody(
-              successUrl: successUrl,
-              cancelUrl: cancelUrl,
-            ),
-          ),
+      
         ),
       ),
     );

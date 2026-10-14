@@ -22,7 +22,6 @@ class ConfirmationScreen extends StatelessWidget {
         context.go(AppRoutesName.home);
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFFAFAFA),
         appBar: CustomAppBar(
           title: AppString.trackOrder,
           onBack: () => context.go(AppRoutesName.home),
@@ -46,15 +45,12 @@ class ConfirmationBody extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Column(
           children: [
-            // Center the success content vertically
-            const Spacer(flex: 3),
+             const Spacer(flex: 3),
 
-            // Large green success circles
             const SuccessIndicator(),
 
             SizedBox(height: 32.h),
 
-            // Success message
             Text(
               AppString.orderPlacedSuccess,
               textAlign: TextAlign.center,
@@ -68,7 +64,6 @@ class ConfirmationBody extends StatelessWidget {
 
             SizedBox(height: 32.h),
 
-            // Track order button - original navigation preserved
             SizedBox(
               width: double.infinity,
               height: 48.h,
@@ -76,7 +71,7 @@ class ConfirmationBody extends StatelessWidget {
                 text: AppString.trackOrder,
                 onPressed: () {
                   context.go(
-                    AppRoutesName.trackOrder,
+                    AppRoutesName.home,
                     extra: orderId,
                   );
                 },
@@ -102,10 +97,10 @@ class SuccessIndicator extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          _circle(180.w, const Color(0xFFE8FBEA)),
-          _circle(150.w, const Color(0xFFD5F8D9)),
-          _circle(120.w, const Color(0xFFB9F2C0)),
-          _circle(90.w, const Color(0xFF91E99D)),
+            _circle(180.w, context.colors.lightGreen),
+            _circle(150.w, context.colors.mediumGreen),
+          _circle(120.w, context.colors.green),
+          _circle(90.w, context.colors.darkGreen),
 
           Icon(
             Icons.check,

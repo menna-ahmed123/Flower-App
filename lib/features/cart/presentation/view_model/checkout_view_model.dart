@@ -9,7 +9,6 @@ import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:flower_app/features/cart/domain/use_cases/checkout_use_cases.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -289,14 +288,6 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   }
 
   void _applySubmitSuccess(OrderEntity order) {
-   
-  debugPrint('========== ORDER ENTITY DEBUG ==========');
-  debugPrint('orderId: ${order.orderId}');
-  debugPrint('sessionUrl: ${order.sessionUrl}');
-  debugPrint('successUrl: ${order.successUrl}');
-  debugPrint('cancelUrl: ${order.cancelUrl}');
-  debugPrint('========================================');
-
   final destination = _orderDestination(order);
     _orderTotal = order.total;
     _clearAttempt();

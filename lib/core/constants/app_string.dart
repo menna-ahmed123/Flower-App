@@ -204,7 +204,9 @@ abstract class AppString {
   static const String itemsUnavailable = 'Some items are unavailable.';
   static const String priceChanged =
       'Prices changed. Please review the summary and confirm again.';
-  static const String unableToLoadPaymentPage = 'Unable to load payment page';
+    static const String unableToLoadPaymentPage = 'Unable to load payment page';
+  static const String paymentSessionDataUnavailable =
+      'Payment session data is unavailable';
   // ==================== Orders ====================
   static const String myOrders = 'My Orders';
   static const String orderDetails = 'Order Details';

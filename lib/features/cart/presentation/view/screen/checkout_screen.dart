@@ -16,8 +16,7 @@ import 'package:flower_app/features/cart/presentation/view_model/cart_view_model
 import 'package:flower_app/features/cart/presentation/view_model/checkout_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_state.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_view_model.dart';
-import 'package:flower_app/features/payment/presentation/view/screens/payment_screen.dart';
-import 'package:flower_app/features/payment/presentation/view/widgets/payment_body.dart';
+import 'package:flower_app/features/payment/presentation/view/screens/payment_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -193,36 +192,40 @@ class CheckoutBodyState extends State<CheckoutBody> {
     }
   }
 
-Future<void> _openPayment(BuildContext context) async {
-  final checkoutState = context.read<CheckoutViewModel>().state;
+    Future<void> _openPayment(BuildContext context) async {
+      final checkoutState = context.read<CheckoutViewModel>().state;
 
-  final sessionUrl = checkoutState.sessionUrl;
-  final successUrl = checkoutState.successUrl;
-  final cancelUrl = checkoutState.cancelUrl;
-  if (sessionUrl == null ||
-      sessionUrl.trim().isEmpty ||
-      successUrl == null ||
-      successUrl.trim().isEmpty ||
-      cancelUrl == null ||
-      cancelUrl.trim().isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Payment session data is unavailable'),
-      ),
-    );
-    return;
-  }
+      final sessionUrl = checkoutState.sessionUrl;
+      final successUrl = checkoutState.successUrl;
+      final cancelUrl = checkoutState.cancelUrl;
+      if (sessionUrl == null ||
+          sessionUrl.trim().isEmpty ||
+          successUrl == null ||
+          successUrl.trim().isEmpty ||
+          cancelUrl == null ||
+          cancelUrl.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Payment session data is unavailable'),
+          ),
+        );
+        return;
+      }
 
-  await context.push(
-    AppRoutesName.payment,
-    extra: PaymentArgs(
-      sessionUrl: sessionUrl,
-      successUrl: successUrl,
-      cancelUrl: cancelUrl,
-      orderId: checkoutState.orderId,
-    ),
-  );
-}
+      final succeeded = await context.push<bool>(
+        AppRoutesName.paymentWebView,
+        extra: PaymentArgs(
+          sessionUrl: sessionUrl,
+          successUrl: successUrl,
+          cancelUrl: cancelUrl,
+          orderId: checkoutState.orderId,
+        ),
+      );
+
+      if (succeeded == true && context.mounted) {
+        await _openConfirmation(context);
+      }
+    }
 
   Future<void> _openConfirmation(BuildContext context) async {
     await context.read<CartViewModel>().doEvent(
@@ -366,6 +369,7 @@ class CheckoutSubmitBar extends StatelessWidget {
     );
   }
 }
+
 
 AddressEntity _preferred(
   List<AddressEntity> addresses,

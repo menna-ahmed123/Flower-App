@@ -120,12 +120,15 @@ class AddressRepoImpl implements AddressRepo {
         longitude,
       );
       final entity = response.toDomain();
+        final addressLine = entity.addressLine ?? entity.address;
+        final isMockAddress =
+          addressLine?.trimLeft().toUpperCase().startsWith('MOCK') ?? false;
       final hasAddress = (entity.address?.isNotEmpty ?? false) ||
           (entity.addressLine?.isNotEmpty ?? false);
       final hasCity = entity.city?.isNotEmpty ?? false;
       final hasArea = entity.area?.isNotEmpty ?? false;
 
-      if (hasAddress || hasCity || hasArea) {
+        if (!isMockAddress && (hasAddress || hasCity || hasArea)) {
         return SuccessResponse(
           entity.copyWith(
             latitude: latitude,

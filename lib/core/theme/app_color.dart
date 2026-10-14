@@ -12,10 +12,15 @@ abstract class AppColors {
   Color get disabledButton;
   Color get shadow;
   Color get unselectedAnswer;
+  Color get lightGreen;
+
+  Color get mediumGreen;
   Color get green;
+  Color get darkGreen;
 
   Color get otpColor;
   Brightness get brightness;
+
 }
 
 class LightThemeColor implements AppColors {
@@ -80,7 +85,15 @@ class LightThemeColor implements AppColors {
   @override
   Color get white => Color(0xfffefefe);
   @override
-  Color get green => Color(0xFF28A745);
+  Color get green => Color(0xFFB9F2C0);
+
+  @override
+  Color get darkGreen => Color(0xFF91E99D);
+  @override
+  Color get lightGreen => Color(0xFFE8FBEA);
+  @override
+  Color get mediumGreen => Color(0xFFD5F8D9);
+
 }
 
 class DarkThemeColor implements AppColors {
@@ -145,7 +158,14 @@ class DarkThemeColor implements AppColors {
   @override
   Color get white => Color(0xfffefefe);
   @override
-  Color get green => Color(0xFF28A745);
+  Color get green => Color(0xFFB9F2C0);
+
+  @override
+  Color get darkGreen => Color(0xFF91E99D);
+  @override
+  Color get lightGreen => Color(0xFFE8FBEA);
+  @override
+  Color get mediumGreen => Color(0xFFD5F8D9);
 }
 final lightThemeColors = LightThemeColor();
 final darkThemeColors = DarkThemeColor();
