@@ -23,6 +23,8 @@ abstract final class AppRoutesName {
   static const String saveAddress = '/save_address';
   static const String checkout = '/checkout';
   static const String payment = '/payment';
+  static const String paymentWebView = '/payment-web-view';
   static const String confirmation = '/confirmation';
   static const String trackOrder = '/track-order';
+
 }

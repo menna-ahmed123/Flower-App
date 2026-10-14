@@ -261,53 +261,37 @@ class _LocationFormState extends State<LocationForm> {
               },
             ),
             SizedBox(height: 16.h),
-
-            // Area & Label in a Row
-            Row(
-              children: [
-                Expanded(
-                  child: LocationTextfield(
-                    controller: _areaController,
-                    labelText: AppString.area,
-                    hintText: AppString.area,
-                    validator: AppValidators.validateArea,
+            
+            Expanded(
+              child: DropDown<String>(
+                labelText: 'Label',
+                hintText: 'Home / Office',
+                value: _labelController.text.isEmpty
+                    ? null
+                    : _labelController.text,
+                items: const [
+                  DropdownMenuItem<String>(
+                    value: 'home',
+                    child: Text('Home'),
                   ),
-                ),
-                SizedBox(width: 12.w),
-
-                Expanded(
-                  child: DropDown<String>(
-                    labelText: 'Label',
-                    hintText: 'Home / Office',
-                    value: _labelController.text.isEmpty
-                        ? null
-                        : _labelController.text,
-                    items: const [
-                      DropdownMenuItem<String>(
-                        value: 'home',
-                        child: Text('Home'),
-                      ),
-                      DropdownMenuItem<String>(
-                        value: 'office',
-                        child: Text('Office'),
-                      ),
-                    ],
-                    onChanged: (selected) {
-                      _labelController.text = selected ?? '';
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Required';
-                      }
-                      return null;
-                    },
+                  DropdownMenuItem<String>(
+                    value: 'office',
+                    child: Text('Office'),
                   ),
-                ),
-              ],
+                ],
+                onChanged: (selected) {
+                  _labelController.text = selected ?? '';
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Required';
+                  }
+                  return null;
+                },
+              ),
             ),
             SizedBox(height: 32.h),
 
-            // Submit Button
             BlocBuilder<SaveAddressViewModel, SaveAddressState>(
               builder: (context, saveState) {
                 final isSaving = saveState.saveAddressState.isLoading;
