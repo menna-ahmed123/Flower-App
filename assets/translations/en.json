@@ -11,5 +11,20 @@
   "commonError": "Error",
   "commonSuccess": "Success",
   "localeEnglish": "English",
-  "localeArabic": "Arabic"
+  "localeArabic": "Arabic",
+  "trackingStepReceived": "Received your order",
+  "trackingStepPreparing": "Preparing your order",
+  "trackingStepOutForDelivery": "Out for delivery",
+  "trackingUpdatedAgo": "Updated {value}",
+  "trackingLocationOutdated": "Location outdated · {value}",
+  "trackingSecondsAgo": "{value}s ago",
+  "trackingMinutesAgo": "{value} min ago",
+  "trackingHoursAgo": "{value} h ago",
+  "noDataPlaceholder": "--",
+  "statusPickedUp": "Picked up",
+  "statusArrived": "Arrived",
+  "statusAwaitingDeliveryConfirmation": "Awaiting delivery confirmation",
+  "statusDelivered": "Delivered",
+  "statusCancelled": "Cancelled",
+  "unknown": "Unknown"
 }

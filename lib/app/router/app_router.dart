@@ -53,6 +53,10 @@ import '../../features/auth/core/presentation/view_model/auth_cubit.dart';
 import '../../features/auth/core/presentation/view_model/auth_state.dart';
 import '../../features/commerce/presentation/search/view/screen/search_screen.dart';
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart';
+import '../../features/order/presentation/order_tracking/view/page/order_tracking_map_page.dart';
+import '../../features/order/presentation/order_tracking/view/page/order_tracking_page.dart';
+import '../../features/order/presentation/order_tracking/view_model/order_tracking_event.dart';
+import '../../features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart';
 import '../../features/sessions/presentation/view/session_screen.dart';
 import '../../features/sessions/presentation/view_model/session_event.dart';
 import '../../features/sessions/presentation/view_model/session_view_model.dart';
@@ -103,6 +107,10 @@ class AppRouter {
         GoRoute(
           path: AppRoutesName.sessions,
           builder: _sessionsBuilder,
+        ),
+        GoRoute(
+          path: AppRoutesName.orderTrackingMapPage,
+          builder: _orderTrackingMapBuilder,
         ),
       ],
     );
@@ -435,85 +443,6 @@ class AppRouter {
   }
 
   static Widget _confirmationBuilder(
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     BuildContext context,
     GoRouterState state,
   ) {
@@ -521,7 +450,22 @@ class AppRouter {
   }
 
   static Widget _trackOrderBuilder(BuildContext context, GoRouterState state) {
-    return TrackOrderScreen(orderId: _orderIdFromExtra(state.extra));
+    final orderId = _orderIdFromExtra(state.extra);
+    return BlocProvider(
+      create: (_) => getIt<OrderTrackingViewModel>()
+        ..onEvent(WatchOrderTracking(orderId)),
+      child: OrderTrackingPage(orderId: orderId),
+    );
+  }
+
+  static Widget _orderTrackingMapBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
+    return BlocProvider.value(
+      value: state.extra! as OrderTrackingViewModel,
+      child: const OrderTrackingMapPage(),
+    );
   }
 
   static String? _orderIdFromExtra(Object? extra) {

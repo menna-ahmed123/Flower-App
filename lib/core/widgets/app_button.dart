@@ -91,17 +91,20 @@ class AppButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        SizedBox(width: 12.w),
+        SizedBox(width: 8.w),
         SizedBox(
-          width: 18.w,
-          height: 18.w,
+          width: 16.w,
+          height: 16.w,
           child: CircularProgressIndicator(
             strokeWidth: 2,
             color: variant == AppButtonVariant.primary

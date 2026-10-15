@@ -43,6 +43,8 @@ dependencies:
   latlong2: ^0.10.1
   image_picker: ^1.2.3
   webview_flutter: ^4.9.0
+  url_launcher: ^6.3.3
+  timeline_tile: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +58,7 @@ dev_dependencies:
   freezed: ^3.2.5
   mockito: ^5.6.4
   bloc_test: ^10.0.0
+  url_launcher_platform_interface: ^2.3.2
 
 flutter:
   uses-material-design: true

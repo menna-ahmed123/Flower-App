@@ -15,6 +15,7 @@ abstract class AppColors {
   Color get green;
 
   Color get otpColor;
+  Color get warning;
   Brightness get brightness;
 }
 
@@ -26,6 +27,8 @@ class LightThemeColor implements AppColors {
 
   @override
   Color get otpColor => Color(0xFFCFCFCF);
+  @override
+  Color get warning => Color(0xFFF57C00); // orange
   @override
   Color get error => Color(0xFFD32F2F);
   @override
@@ -90,6 +93,8 @@ class DarkThemeColor implements AppColors {
   Color get disabledButton => Color(0xff5d6063);
   @override
   Color get error => Color(0xFFD32F2F);
+  @override
+  Color get warning => Color(0xFFF57C00); // orange
 
   @override
   Color get otpColor => Color(0xFFCFCFCF);
