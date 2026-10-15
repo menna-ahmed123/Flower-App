@@ -69,7 +69,7 @@ class AppRouter {
     final isAuthenticated =
         await getIt<AuthRepository>().isAuthenticated();
 
-    return isAuthenticated ? AppRoutesName.trackOrder : AppRoutesName.login;
+    return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
   }
 
   static GoRouter createRouter({String? initialLocation}) {
@@ -457,20 +457,13 @@ class AppRouter {
       child: OrderTrackingPage(orderId: orderId),
     );
   }
+
   static Widget _orderTrackingMapBuilder(
     BuildContext context,
     GoRouterState state,
   ) {
-    final passed = state.extra;
-    if (passed is OrderTrackingViewModel) {
-      return BlocProvider.value(
-        value: passed,
-        child: const OrderTrackingMapPage(),
-      );
-    }
-    return BlocProvider(
-      create: (_) => getIt<OrderTrackingViewModel>()
-        ..onEvent(WatchOrderTracking(null)),
+    return BlocProvider.value(
+      value: state.extra! as OrderTrackingViewModel,
       child: const OrderTrackingMapPage(),
     );
   }

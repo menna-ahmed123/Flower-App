@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flower_app/core/base/base_state.dart';
+import 'package:flower_app/core/base/ui_event_cubit.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/features/order/domain/entities/order_status.dart';
 import 'package:flower_app/features/order/domain/entities/timeline_step_entity.dart';
@@ -9,23 +10,20 @@ import 'package:flower_app/features/order/presentation/order_tracking/view/mock/
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_event.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_state.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_ui_event.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable()
-class OrderTrackingViewModel extends Cubit<OrderTrackingState> {
+class OrderTrackingViewModel
+    extends UiEventCubit<OrderTrackingState, OrderTrackingUiEvent> {
   OrderTrackingViewModel()
-    : super(const OrderTrackingState(trackingState: BaseState(isLoading: true)));
+    : super(
+        const OrderTrackingState(trackingState: BaseState(isLoading: true)),
+      );
 
   static const _pollEvery = Duration(seconds: 5);
 
-  final StreamController<OrderTrackingUiEvent> _uiEvents =
-      StreamController<OrderTrackingUiEvent>.broadcast();
-
   Timer? _polling;
   String? _orderId;
-
-  Stream<OrderTrackingUiEvent> get uiEvents => _uiEvents.stream;
 
   Future<void> onEvent(OrderTrackingEvent event) async {
     switch (event) {
@@ -113,7 +111,7 @@ class OrderTrackingViewModel extends Cubit<OrderTrackingState> {
       ),
     );
     _polling?.cancel();
-    _uiEvents.add(const ShowTrackingMessage(AppString.statusDelivered));
+    emitUiEvent(const ShowTrackingMessage(AppString.statusDelivered));
   }
 
   Future<TrackingEntity?> fetchTracking(String? orderId) async =>
@@ -122,7 +120,6 @@ class OrderTrackingViewModel extends Cubit<OrderTrackingState> {
   @override
   Future<void> close() {
     _polling?.cancel();
-    _uiEvents.close();
     return super.close();
   }
 }

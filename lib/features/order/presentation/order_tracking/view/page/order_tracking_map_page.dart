@@ -10,7 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// Full-screen map of the order the [OrderTrackingViewModel] above is holding.
-/// [mapTileLayer] is the app's flutter_map TileLayer (with the API key).
 class OrderTrackingMapPage extends StatelessWidget {
   const OrderTrackingMapPage({super.key, this.mapTileLayer});
 
