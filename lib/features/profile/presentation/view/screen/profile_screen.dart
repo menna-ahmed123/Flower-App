@@ -30,8 +30,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
-    // The View always asks to be initialized; the ViewModel decides
-    // whether a network call is actually needed.
     context.read<ProfileViewModel>().doEvent(ProfileInitialized());
   }
 
@@ -73,7 +71,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (mounted && updatedProfile != null) {
       final profileViewModel = context.read<ProfileViewModel>();
-      await profileViewModel.doEvent(ProfileUpdated(updatedProfile));
+
+      await profileViewModel.doEvent(
+        ProfileUpdated(updatedProfile),
+      );
+
       if (mounted) {
         await profileViewModel.doEvent(ProfileRequested());
       }
@@ -100,14 +102,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _showNotificationSettingsDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Notifications are disabled'),
+          content: const Text(
+            'To receive notifications, enable them from your device settings.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.read<ProfileViewModel>().doEvent(
+                  NotificationSettingsPromptDismissed(),
+                );
+
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Not now'),
+            ),
+            TextButton(
+              onPressed: () {
+                context.read<ProfileViewModel>().doEvent(
+                  NotificationSettingsPromptDismissed(),
+                );
+
+                Navigator.of(dialogContext).pop();
+
+                context.read<ProfileViewModel>().doEvent(
+                  OpenNotificationSettingsRequested(),
+                );
+              },
+              child: const Text('Open settings'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showNotificationError(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: BlocBuilder<ProfileViewModel, ProfileState>(
-          buildWhen: (previous, current) =>
-              previous.profileState != current.profileState,
-          builder: (context, state) => _buildBody(context, state),
+        child: BlocListener<ProfileViewModel, ProfileState>(
+          listenWhen: (previous, current) {
+            final shouldShowDialog =
+                !previous.shouldShowNotificationSettingsDialog &&
+                current.shouldShowNotificationSettingsDialog;
+
+            final hasNewError =
+                previous.notificationErrorMessage !=
+                    current.notificationErrorMessage &&
+                current.notificationErrorMessage.isNotEmpty;
+
+            return shouldShowDialog || hasNewError;
+          },
+          listener: (context, state) {
+            if (state.shouldShowNotificationSettingsDialog) {
+              _showNotificationSettingsDialog();
+            }
+
+            if (state.notificationErrorMessage.isNotEmpty) {
+              _showNotificationError(
+                state.notificationErrorMessage,
+              );
+            }
+          },
+          child: BlocBuilder<ProfileViewModel, ProfileState>(
+            buildWhen: (previous, current) =>
+                previous.profileState != current.profileState,
+            builder: (context, state) => _buildBody(context, state),
+          ),
         ),
       ),
     );
@@ -197,4 +274,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-

@@ -9,4 +9,9 @@ abstract interface class NotificationRepo {
     required String deviceId,
     required String fcmToken,
   });
+
+  Future<BaseResponse<void>> updateNotificationStatus({
+    required String deviceId,
+    required bool enabled,
+  });
 }

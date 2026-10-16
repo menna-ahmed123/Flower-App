@@ -1,9 +1,10 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/network/safe_call.dart';
-import 'package:flower_app/core/services/fcm_service.dart';
 import 'package:flower_app/core/services/device_id_service.dart';
+import 'package:flower_app/core/services/fcm_service.dart';
 import 'package:flower_app/features/notification/data/data_sources/notification_remote_data_source.dart';
 import 'package:flower_app/features/notification/data/models/update_fcm_token_request.dart';
+import 'package:flower_app/features/notification/data/models/update_notification_status_request.dart';
 import 'package:flower_app/features/notification/domain/repo/notification_repo.dart';
 import 'package:injectable/injectable.dart';
 
@@ -43,6 +44,18 @@ class NotificationRepoImpl implements NotificationRepo {
 
     return _safeCall.safeApiCall<void>(
       () => _remoteDataSource.updateFcmToken(request),
+    );
+  }
+
+  @override
+  Future<BaseResponse<void>> updateNotificationStatus({
+    required String deviceId,
+    required bool enabled,
+  }) {
+    final request = UpdateNotificationStatusRequest(enabled: enabled);
+
+    return _safeCall.safeApiCall<void>(
+      () => _remoteDataSource.updateNotificationStatus(deviceId, request),
     );
   }
 }
