@@ -51,7 +51,7 @@ class ConfirmationBody extends StatelessWidget {
           AppButton(
             text: AppString.trackOrder,
             onPressed: () {
-              context.go(AppRoutesName.trackOrder, extra: orderId);
+              context.push(AppRoutesName.trackOrder, extra: orderId);
             },
           ),
         ],

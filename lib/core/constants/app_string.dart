@@ -203,6 +203,9 @@ abstract class AppString {
       'Prices changed. Please review the summary and confirm again.';
   // ==================== Orders ====================
   static const String myOrders = 'My Orders';
+  static const String active = 'Active';
+  static const String completed = 'Completed';
+  static String itemsCount(int count) => '$count items';
   static const String orderDetails = 'Order Details';
   static const String orderDate = 'Order Date: ';
   static const String orderStatus = 'Order Status: ';

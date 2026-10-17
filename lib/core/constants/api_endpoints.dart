@@ -87,7 +87,7 @@ class ApiEndpoints {
   static const String searchProducts = '/api/catalog/products/search';
 
   ////Address///
-  static const String addAddress = '/address-cart/users/me/addresses';
+  static const String addAddress = '/api/address-cart/users/me/addresses';
   static const String addressById =
       '/api/address-cart/users/me/addresses/{address-id}';
   static const String getAddress = '/api/address-cart/addresses';
@@ -116,6 +116,7 @@ class ApiEndpoints {
   static const String paymentCheckout = '/api/payment/checkout';
   static const orderTracking   = '/api/orders/{orderId}/tracking';
   static const confirmDelivery = '/api/orders/{orderId}/confirm-delivery';
+  static const getAllOrders = '/api/orders/';
 }
 
 Future<void> _ensureDotEnv() async {
