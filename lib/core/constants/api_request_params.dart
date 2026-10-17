@@ -7,4 +7,6 @@ class ApiRequestParams {
   static const String phoneNumber = 'phoneNumber';
   static const String gender = 'gender';
   static const String profilePicture = 'profilePicture';
+  static const String page = 'Page';
+  static const String pageSize = 'PageSize';
 }

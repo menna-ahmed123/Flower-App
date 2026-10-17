@@ -1,0 +1,83 @@
+import 'package:flower_app/core/base/ui_event_cubit.dart';
+import 'package:flower_app/core/utils/pagination/pagination_controller.dart';
+import 'package:flower_app/core/utils/pagination/pagination_state.dart';
+import 'package:flower_app/features/order/presentation/my_orders/view_model/my_orders_event.dart';
+import 'package:flower_app/features/order/presentation/my_orders/view_model/my_orders_state.dart';
+import 'package:injectable/injectable.dart';
+
+import '../../../../../core/base/base_response.dart';
+import '../../../domain/entities/order_entity.dart';
+import '../../../domain/use_cases/get_all_orders_use_case.dart';
+import '../view/models/my_orders_tab.dart';
+import 'my_orders_ui_event.dart';
+
+@Injectable()
+class MyOrdersViewModel extends UiEventCubit<MyOrdersState, MyOrdersUiEvent> {
+  final GetAllOrdersUseCase getAllOrdersUseCase;
+
+  late final PaginationController<OrderEntity> ordersPaginationController;
+
+  MyOrdersViewModel(this.getAllOrdersUseCase)
+    : super(const MyOrdersState(selectedTab: MyOrdersTab.active)) {
+    ordersPaginationController = PaginationController<OrderEntity>(
+      pageSize: 10,
+      fetchPage: _fetchOrdersPage,
+    );
+  }
+
+  Future<void> onEvent(MyOrdersEvent event) async {
+    switch (event) {
+      case LoadMyOrders():
+        ordersPaginationController.reset();
+        await ordersPaginationController.loadNextPage();
+        await ensureTabHasContent(state.selectedTab);
+      case SwitchTab(:final tab):
+        _switchTab(tab);
+        await ensureTabHasContent(tab);
+      case TrackOrder(:final orderId):
+        emitUiEvent(TrackMyOrder(orderId: orderId));
+    }
+  }
+
+  /// Filtering is client-side while paging is server-side, so a tab can look
+  /// empty even when matching orders exist on later pages (e.g. all recent
+  /// orders are active and the delivered one sits on page 2). Keep pulling
+  /// pages until this tab has something to show or the source runs out, so an
+  /// empty tab is a real empty and not just an un-paged one.
+  Future<void> ensureTabHasContent(MyOrdersTab tab) async {
+    while (ordersPaginationController.state.status ==
+            PaginationStatus.success &&
+        ordersPaginationController.state.hasMore &&
+        ordersForTab(tab).isEmpty) {
+      await ordersPaginationController.loadNextPage();
+    }
+  }
+
+  List<OrderEntity> ordersForTab(MyOrdersTab tab) {
+    final orders = ordersPaginationController.state.items;
+    return tab == MyOrdersTab.active
+        ? getAllOrdersUseCase.activeOrders(orders)
+        : getAllOrdersUseCase.completedOrders(orders);
+  }
+
+  void _switchTab(MyOrdersTab tab) {
+    emit(state.copyWith(selectedTab: tab));
+  }
+
+  Future<List<OrderEntity>> _fetchOrdersPage(int page, int pageSize) async {
+    final response = await getAllOrdersUseCase(page: page, pageSize: pageSize);
+
+    switch (response) {
+      case SuccessResponse<List<OrderEntity>>():
+        return response.data;
+      case ErrorResponse<List<OrderEntity>>():
+        throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> close() {
+    ordersPaginationController.dispose();
+    return super.close();
+  }
+}
