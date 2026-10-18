@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flower_app/app/router/app_router.dart';
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/features/order/presentation/my_orders/view/widgets/my_orders_body.dart';
@@ -12,7 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class MyOrdersListPage extends StatefulWidget {
-  const MyOrdersListPage({super.key});
+  const MyOrdersListPage({super.key, required this.routeObserver});
+
+  final RouteObserver<ModalRoute<void>> routeObserver;
 
   @override
   State<MyOrdersListPage> createState() => _MyOrdersListPageState();
@@ -37,9 +38,9 @@ class _MyOrdersListPageState extends State<MyOrdersListPage>
     super.didChangeDependencies();
     final route = ModalRoute.of(context);
     if (route != null && route != _route) {
-      AppRouter.routeObserver.unsubscribe(this);
+      widget.routeObserver.unsubscribe(this);
       _route = route;
-      AppRouter.routeObserver.subscribe(this, route);
+      widget.routeObserver.subscribe(this, route);
     }
   }
 
@@ -50,7 +51,7 @@ class _MyOrdersListPageState extends State<MyOrdersListPage>
 
   @override
   void dispose() {
-    AppRouter.routeObserver.unsubscribe(this);
+    widget.routeObserver.unsubscribe(this);
     _uiEvents?.cancel();
     super.dispose();
   }

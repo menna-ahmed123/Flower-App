@@ -485,7 +485,7 @@ class AppRouter {
   static Widget _myOrderListBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<MyOrdersViewModel>()..onEvent(LoadMyOrders()),
-      child: const MyOrdersListPage(),
+      child: MyOrdersListPage(routeObserver: routeObserver),
     );
   }
 }

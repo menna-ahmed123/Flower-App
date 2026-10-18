@@ -22,12 +22,14 @@ class MyOrdersBody extends StatefulWidget {
 
 class _MyOrdersBodyState extends State<MyOrdersBody> {
   late final ScrollController _scrollController;
+  late final MyOrdersViewModel _viewModel;
   late final PaginationController<OrderEntity> _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = context.read<MyOrdersViewModel>().ordersPaginationController;
+    _viewModel = context.read<MyOrdersViewModel>();
+    _controller = _viewModel.ordersPaginationController;
     _scrollController = ScrollController()..addListener(_onScroll);
   }
 
@@ -40,6 +42,13 @@ class _MyOrdersBodyState extends State<MyOrdersBody> {
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
+    if (_viewModel.isAutoFilling) return;
+    final pagingState = _controller.state;
+    if (!pagingState.hasMore) return;
+    if (pagingState.status == PaginationStatus.loading ||
+        pagingState.status == PaginationStatus.loadingMore) {
+      return;
+    }
     final position = _scrollController.position;
     if (position.pixels >= position.maxScrollExtent - 200) {
       _controller.loadNextPage();

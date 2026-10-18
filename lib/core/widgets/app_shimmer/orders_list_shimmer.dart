@@ -10,19 +10,27 @@ class OrdersListShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppShimmerEffect(
-      child: ListView.separated(
-        physics: const NeverScrollableScrollPhysics(),
+      child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        itemCount: itemCount,
-        separatorBuilder: (context, index) => SizedBox(height: 12.h),
-        itemBuilder: (context, index) => const _OrderCardShimmer(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(
+            itemCount,
+            (index) => Padding(
+              padding: EdgeInsets.only(
+                bottom: index == itemCount - 1 ? 0 : 12.h,
+              ),
+              child: const OrderCardShimmer(),
+            ),
+          ),
+        ),
       ),
     );
   }
 }
 
-class _OrderCardShimmer extends StatelessWidget {
-  const _OrderCardShimmer();
+class OrderCardShimmer extends StatelessWidget {
+  const OrderCardShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {

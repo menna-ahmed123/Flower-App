@@ -19,7 +19,8 @@ void main() {
     await pumpApp(tester, const Scaffold(body: OrdersListShimmer(itemCount: 2)));
     await tester.pump();
 
-    expect(find.byType(ShimmerBox), findsWidgets);
+    // One skeleton row per requested item (not a shallow "any ShimmerBox").
+    expect(find.byType(OrderCardShimmer), findsNWidgets(2));
     expect(tester.takeException(), isNull);
   });
 }

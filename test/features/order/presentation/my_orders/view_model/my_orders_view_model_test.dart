@@ -93,6 +93,11 @@ void main() {
         PaginationStatus.error,
       );
       expect(viewModel.ordersPaginationController.state.items, isEmpty);
+      // Typed AppFailure message surfaces cleanly (no "Exception:" leak).
+      expect(
+        viewModel.ordersPaginationController.state.errorMessage,
+        'boom',
+      );
     });
 
     test('reset before loading so refresh starts from page 1', () async {
@@ -198,6 +203,25 @@ void main() {
 
       expect(viewModel.ordersForTab(MyOrdersTab.completed), isEmpty);
       expect(useCase.requestedPages, [1, 2]);
+    });
+
+    test('keeps paging through full pages and never requests beyond the last',
+        () async {
+      // page1 and page2 are exactly pageSize (hasMore stays true); the empty
+      // page3 flips hasMore to false, so the loop must stop there.
+      final useCase = FakeGetAllOrdersUseCase(pages: {
+        1: List.generate(10, (i) => _order('a$i', OrderStatus.placed)),
+        2: List.generate(10, (i) => _order('b$i', OrderStatus.placed)),
+      });
+      final viewModel = MyOrdersViewModel(useCase);
+      addTearDown(viewModel.close);
+
+      await viewModel.onEvent(LoadMyOrders());
+      await viewModel.onEvent(SwitchTab(MyOrdersTab.completed));
+
+      expect(useCase.requestedPages, [1, 2, 3]);
+      expect(viewModel.ordersPaginationController.state.hasMore, isFalse);
+      expect(viewModel.ordersForTab(MyOrdersTab.completed), isEmpty);
     });
   });
 }

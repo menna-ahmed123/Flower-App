@@ -1,4 +1,5 @@
 import 'package:flower_app/core/base/ui_event_cubit.dart';
+import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/core/utils/pagination/pagination_controller.dart';
 import 'package:flower_app/core/utils/pagination/pagination_state.dart';
 import 'package:flower_app/features/order/presentation/my_orders/view_model/my_orders_event.dart';
@@ -16,6 +17,9 @@ class MyOrdersViewModel extends UiEventCubit<MyOrdersState, MyOrdersUiEvent> {
   final GetAllOrdersUseCase getAllOrdersUseCase;
 
   late final PaginationController<OrderEntity> ordersPaginationController;
+
+  bool _isAutoFilling = false;
+  bool get isAutoFilling => _isAutoFilling;
 
   MyOrdersViewModel(this.getAllOrdersUseCase)
     : super(const MyOrdersState(selectedTab: MyOrdersTab.active)) {
@@ -39,17 +43,17 @@ class MyOrdersViewModel extends UiEventCubit<MyOrdersState, MyOrdersUiEvent> {
     }
   }
 
-  /// Filtering is client-side while paging is server-side, so a tab can look
-  /// empty even when matching orders exist on later pages (e.g. all recent
-  /// orders are active and the delivered one sits on page 2). Keep pulling
-  /// pages until this tab has something to show or the source runs out, so an
-  /// empty tab is a real empty and not just an un-paged one.
   Future<void> ensureTabHasContent(MyOrdersTab tab) async {
-    while (ordersPaginationController.state.status ==
-            PaginationStatus.success &&
-        ordersPaginationController.state.hasMore &&
-        ordersForTab(tab).isEmpty) {
-      await ordersPaginationController.loadNextPage();
+    _isAutoFilling = true;
+    try {
+      while (ordersPaginationController.state.status ==
+              PaginationStatus.success &&
+          ordersPaginationController.state.hasMore &&
+          ordersForTab(tab).isEmpty) {
+        await ordersPaginationController.loadNextPage();
+      }
+    } finally {
+      _isAutoFilling = false;
     }
   }
 
@@ -70,8 +74,8 @@ class MyOrdersViewModel extends UiEventCubit<MyOrdersState, MyOrdersUiEvent> {
     switch (response) {
       case SuccessResponse<List<OrderEntity>>():
         return response.data;
-      case ErrorResponse<List<OrderEntity>>():
-        throw Exception(response.errorMessage);
+      case ErrorResponse<List<OrderEntity>>() :
+        throw AppFailure(response.appError);
     }
   }
 
