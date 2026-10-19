@@ -2,7 +2,7 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-enum AppButtonVariant { primary, outlined }
+enum AppButtonVariant { primary, outlined}
 
 class AppButton extends StatelessWidget {
   const AppButton({
@@ -11,13 +11,14 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.variant = AppButtonVariant.primary,
     this.isLoading = false,
+    this.isSmall = false,
   });
 
   final String text;
   final VoidCallback? onPressed;
   final AppButtonVariant variant;
   final bool isLoading;
-
+  final bool isSmall;
   bool get _isDisabled => onPressed == null;
 
   @override
@@ -37,7 +38,8 @@ class AppButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(vertical: 13.h),
+        padding: isSmall ? EdgeInsets.symmetric(vertical: 6.h) :
+        EdgeInsets.symmetric(vertical: 13.h),
         backgroundColor: colors.pink,
         foregroundColor: colors.white,
         disabledBackgroundColor: colors.disabledButton,
