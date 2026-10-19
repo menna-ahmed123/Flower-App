@@ -3,7 +3,6 @@ import 'package:flower_app/features/profile/presentation/models/profile_display_
 import 'package:flower_app/features/profile/presentation/view/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 
 /// Avatar, name, email and edit-profile entry point of the signed-in user.
@@ -35,7 +34,7 @@ class ProfileInfoSection extends StatelessWidget {
               ),
             ),
             SizedBox(width: 8.w),
-            _buildEditButton(),
+            _buildEditButton(colors),
           ],
         ),
         Text(
@@ -50,18 +49,14 @@ class ProfileInfoSection extends StatelessWidget {
     );
   }
 
-  Widget _buildEditButton() {
+  Widget _buildEditButton(AppColors colors) {
     return InkWell(
       key: const Key('profileEditButton'),
       onTap: onEditTap,
       customBorder: const CircleBorder(),
       child: Padding(
         padding: EdgeInsets.all(4.w),
-        child: SvgPicture.asset(
-          AppIcons.editProfilePen,
-          width: 16.w,
-          height: 16.w,
-        ),
+        child: Icon(AppIcons.edit, size: 16.w, color: colors.black),
       ),
     );
   }
