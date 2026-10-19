@@ -40,8 +40,14 @@ import '../../features/address/domain/use_cases/get_address_from_location_use_ca
     as _i848;
 import '../../features/address/domain/use_cases/get_address_use_case.dart'
     as _i270;
+import '../../features/address/domain/use_cases/get_cities_use_case.dart'
+    as _i573;
+import '../../features/address/domain/use_cases/get_countries_use_case.dart'
+    as _i629;
 import '../../features/address/domain/use_cases/get_current_location_use_case.dart'
     as _i990;
+import '../../features/address/domain/use_cases/get_governorates_use_case.dart'
+    as _i1070;
 import '../../features/address/domain/use_cases/is_location_service_enabled_use_case.dart'
     as _i373;
 import '../../features/address/domain/use_cases/open_app_settings_use_case.dart'
@@ -240,11 +246,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
     gh.factory<_i980.GeocodingService>(() => _i980.GeocodingService());
     gh.lazySingleton<_i699.GeolocatorPlatform>(() => locationModule.geolocator);
-    gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
-      () => notificationModule.notificationsPlugin,
-    );
     gh.lazySingleton<_i892.FirebaseMessaging>(
       () => notificationModule.messaging,
+    );
+    gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
+      () => notificationModule.notificationsPlugin,
     );
     gh.lazySingleton<_i706.Uuid>(() => registerModule.uuid);
     gh.lazySingleton<_i558.FlutterSecureStorage>(
@@ -497,8 +503,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i848.GetAddressFromLocationUseCase>(
       () => _i848.GetAddressFromLocationUseCase(gh<_i366.AddressRepo>()),
     );
+    gh.factory<_i573.GetCitiesUseCase>(
+      () => _i573.GetCitiesUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i629.GetCountriesUseCase>(
+      () => _i629.GetCountriesUseCase(gh<_i366.AddressRepo>()),
+    );
     gh.factory<_i990.GetCurrentLocationUseCase>(
       () => _i990.GetCurrentLocationUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i1070.GetGovernoratesUseCase>(
+      () => _i1070.GetGovernoratesUseCase(gh<_i366.AddressRepo>()),
     );
     gh.factory<_i373.IsLocationServiceEnabledUseCase>(
       () => _i373.IsLocationServiceEnabledUseCase(gh<_i366.AddressRepo>()),
@@ -683,6 +698,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i990.GetCurrentLocationUseCase>(),
         gh<_i848.GetAddressFromLocationUseCase>(),
         gh<_i99.GetAddressDetailsUseCase>(),
+        gh<_i1070.GetGovernoratesUseCase>(),
+        gh<_i573.GetCitiesUseCase>(),
       ),
     );
     gh.factory<_i236.SaveAddressViewModel>(
