@@ -3,9 +3,11 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class FcmTokenStorage {
+  FcmTokenStorage(this._storage);
+
   static const String _key = 'LAST_SYNCED_FCM_TOKEN';
 
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final FlutterSecureStorage _storage;
 
   Future<String?> getLastSyncedToken() {
     return _storage.read(key: _key);

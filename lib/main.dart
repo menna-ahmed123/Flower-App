@@ -1,40 +1,69 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/di/di.dart';
+import 'package:flower_app/core/services/fcm_service.dart';
+import 'package:flower_app/core/services/notification_manager.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/firebase_options.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 import 'app/router/app_router.dart';
-import 'core/auth/auth_session_controller.dart';
 import 'app/router/app_routes.dart';
+import 'core/auth/auth_session_controller.dart';
 import 'features/auth/core/presentation/view_model/auth_cubit.dart';
 import 'features/auth/core/presentation/view_model/auth_event.dart';
 import 'features/auth/core/presentation/view_model/auth_state.dart';
 import 'features/cart/presentation/view_model/cart_view_model.dart';
-import 'package:firebase_core/firebase_core.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   await dotenv.load(fileName: '.env', isOptional: true);
+
   await ApiEndpoints.loadBaseUrl();
+
   // ignore: avoid_print
   print('🌐 BASE_URL resolved: ${ApiEndpoints.resolvedBaseUrl}');
+
   await configureDependencies();
+
+  // Debug: get the FCM token for testing notifications.
+  try {
+    final fcmService = getIt<FcmService>();
+    final token = await fcmService.getToken();
+
+    debugPrint('========== FCM TOKEN ==========');
+    debugPrint(token ?? 'FCM token is null');
+    debugPrint('===============================');
+  } catch (error, stackTrace) {
+    debugPrint('Failed to get FCM token: $error');
+    debugPrintStack(stackTrace: stackTrace);
+  }
+
+  final notificationManager = getIt<NotificationManager>();
+  await notificationManager.initialize();
+
   await EasyLocalization.ensureInitialized();
 
   final initialLocation = await AppRouter.resolveInitialLocation();
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('en'), Locale('ar')],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ar'),
+      ],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       startLocale: const Locale('en'),
@@ -58,8 +87,8 @@ class _MyAppState extends State<MyApp> {
     initialLocation: widget.initialLocation,
   );
 
-  // Created once and shared as both the concrete AuthCubit (for screens that
-  // need its full state, e.g. Home) and the narrower AuthSessionController
+  // Created once and shared as both the concrete AuthCubit (for screens
+  // that need its full state, e.g. Home) and the narrower AuthSessionController
   // (for features like Profile that only need to trigger a logout without
   // depending on the Auth feature's own presentation layer).
   late final AuthCubit _authCubit = getIt<AuthCubit>()
@@ -69,13 +98,19 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<AuthSessionController>.value(value: _authCubit),
-        BlocProvider<AuthCubit>.value(value: _authCubit),
-        BlocProvider<CartViewModel>.value(value: getIt<CartViewModel>()),
+        RepositoryProvider<AuthSessionController>.value(
+          value: _authCubit,
+        ),
+        BlocProvider<AuthCubit>.value(
+          value: _authCubit,
+        ),
+        BlocProvider<CartViewModel>.value(
+          value: getIt<CartViewModel>(),
+        ),
       ],
       child: BlocListener<AuthCubit, AuthState>(
         listenWhen: (previous, current) =>
-        current.sessionExpired && !previous.sessionExpired,
+            current.sessionExpired && !previous.sessionExpired,
         listener: (context, state) {
           context.read<AuthCubit>().acknowledgeSessionExpired();
           _router.go(AppRoutesName.login);

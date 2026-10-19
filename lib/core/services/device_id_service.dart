@@ -4,12 +4,15 @@ import 'package:uuid/uuid.dart';
 
 @lazySingleton
 class DeviceIdService {
-  DeviceIdService(this._secureStorage);
+  DeviceIdService(
+    this._secureStorage,
+    this._uuid,
+  );
 
   final FlutterSecureStorage _secureStorage;
+  final Uuid _uuid;
 
   static const String _deviceIdKey = 'DEVICE_ID';
-  static const Uuid _uuid = Uuid();
 
   Future<String> getDeviceId() async {
     final savedDeviceId = await _secureStorage.read(key: _deviceIdKey);

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
+import 'package:flower_app/core/enums/notification_permission_status.dart';
 import 'package:flower_app/features/notification/domain/use_cases/is_notification_permission_granted_use_case.dart';
 import 'package:flower_app/features/notification/domain/use_cases/open_notification_settings_use_case.dart';
 import 'package:flower_app/features/notification/domain/use_cases/request_notification_permission_use_case.dart';
@@ -88,16 +89,15 @@ class ProfileViewModel extends Cubit<ProfileState> {
 
     try {
       if (isEnabled) {
-        var isGranted =
+        var permissionStatus =
             await _isNotificationPermissionGrantedUseCase();
 
-        if (!isGranted) {
-          isGranted =
+        if (permissionStatus != NotificationPermissionStatus.granted) {
+          permissionStatus =
               await _requestNotificationPermissionUseCase();
         }
 
-
-        if (!isGranted) {
+        if (permissionStatus != NotificationPermissionStatus.granted) {
           emit(
             state.copyWith(
               isUpdatingNotifications: false,

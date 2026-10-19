@@ -1,25 +1,16 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/features/auth/login/data/models/login_request.dart';
 import 'package:flower_app/features/auth/login/domain/entity/auth_entity.dart';
-import 'package:flower_app/features/auth/login/domain/use_case/get_fcm_token_usecase.dart';
 import 'package:flower_app/features/auth/login/domain/use_case/login_usecase.dart';
 import 'package:flower_app/features/auth/login/presentation/view_model/login_event.dart';
 import 'package:flower_app/features/auth/login/presentation/view_model/login_state.dart';
-import 'package:flower_app/features/notification/domain/use_cases/get_device_id_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class LoginViewModel extends Cubit<LoginState> {
-  LoginViewModel(
-    this._loginUseCase,
-    this._getDeviceIdUseCase,
-    this._getFcmTokenUseCase,
-  ) : super(const LoginState());
+  LoginViewModel(this._loginUseCase) : super(const LoginState());
 
   final LoginUseCase _loginUseCase;
-  final GetDeviceIdUseCase _getDeviceIdUseCase;
-  final GetFcmTokenUseCase _getFcmTokenUseCase;
 
   void doEvent(LoginEvent event) {
     switch (event) {
@@ -40,17 +31,10 @@ class LoginViewModel extends Cubit<LoginState> {
     );
 
     try {
-      final deviceId = await _getDeviceIdUseCase();
-      final fcmToken = await _getFcmTokenUseCase();
-
-      final request = LoginRequest(
+      final response = await _loginUseCase(
         email: email,
         password: password,
-        deviceId: deviceId,
-        fcmToken: fcmToken ?? '',
       );
-
-      final response = await _loginUseCase(request);
 
       switch (response) {
         case SuccessResponse<AuthEntity>():

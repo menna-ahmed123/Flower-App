@@ -3,7 +3,9 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class FcmService {
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  FcmService(this._messaging);
+
+  final FirebaseMessaging _messaging;
 
   Future<String?> getToken() {
     return _messaging.getToken();
@@ -11,5 +13,8 @@ class FcmService {
 
   Stream<String> get onTokenRefresh {
     return _messaging.onTokenRefresh;
+  }
+    Stream<RemoteMessage> get onMessage {
+    return FirebaseMessaging.onMessage;
   }
 }

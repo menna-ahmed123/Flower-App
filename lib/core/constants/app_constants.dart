@@ -9,4 +9,5 @@ abstract class AppConstants {
 
   static const String mapUserAgentPackageName =
       'com.example.flower_app';
+      static const String deviceId = 'deviceId';
 }

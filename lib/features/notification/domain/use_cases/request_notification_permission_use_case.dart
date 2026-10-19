@@ -1,3 +1,4 @@
+import 'package:flower_app/core/enums/notification_permission_status.dart';
 import 'package:injectable/injectable.dart';
 import 'package:flower_app/core/services/notification_permission_service.dart';
 
@@ -7,7 +8,7 @@ class RequestNotificationPermissionUseCase {
 
   final NotificationPermissionService _notificationPermissionService;
 
-  Future<bool> call() {
+  Future<NotificationPermissionStatus> call() {
     return _notificationPermissionService.requestPermission();
   }
 }

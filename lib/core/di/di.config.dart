@@ -10,12 +10,16 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
+import 'package:firebase_messaging/firebase_messaging.dart' as _i892;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as _i163;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:geolocator/geolocator.dart' as _i699;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:image_picker/image_picker.dart' as _i183;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
+import 'package:uuid/uuid.dart' as _i706;
 
 import '../../features/address/api/address_api_client.dart' as _i328;
 import '../../features/address/data/data_sources/address_remote_data_source.dart'
@@ -56,6 +60,7 @@ import '../../features/address/presentation/new_address/view_model/address_view_
     as _i28;
 import '../../features/address/presentation/save_address/view_model/save_address_view_model.dart'
     as _i236;
+import '../../features/auth/core/auth_status.dart' as _i641;
 import '../../features/auth/core/data/repos/auth_repository_impl.dart' as _i436;
 import '../../features/auth/core/domain/repos/auth_repository.dart' as _i179;
 import '../../features/auth/core/presentation/view_model/auth_cubit.dart'
@@ -154,10 +159,10 @@ import '../../features/notification/data/repo/notification_repo_impl.dart'
     as _i933;
 import '../../features/notification/domain/repo/notification_repo.dart'
     as _i588;
-import '../../features/notification/domain/use_cases/get_device_id_use_case.dart'
-    as _i578;
-import '../../features/notification/domain/use_cases/get_fcm_token_usecase.dart'
-    as _i172;
+import '../../features/notification/domain/services/fcm_token_sync_listener.dart'
+    as _i37;
+import '../../features/notification/domain/use_cases/handle_notification_permission_use_case.dart'
+    as _i250;
 import '../../features/notification/domain/use_cases/is_notification_permission_granted_use_case.dart'
     as _i490;
 import '../../features/notification/domain/use_cases/open_notification_settings_use_case.dart'
@@ -201,6 +206,7 @@ import '../../features/sessions/presentation/view_model/session_view_model.dart'
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
+import '../modules/notification_module.dart' as _i509;
 import '../modules/register_module.dart' as _i505;
 import '../network/auth_interceptors.dart' as _i466;
 import '../network/safe_call.dart' as _i185;
@@ -211,11 +217,13 @@ import '../network/token_storage.dart' as _i964;
 import '../services/device_id_service.dart' as _i148;
 import '../services/fcm_service.dart' as _i928;
 import '../services/fcm_token_storage.dart' as _i454;
-import '../services/fcm_token_sync_listener.dart' as _i226;
+import '../services/flutter_local_notifications.dart' as _i575;
 import '../services/geocoding_service.dart' as _i980;
 import '../services/image_picker_service.dart' as _i644;
 import '../services/location_service.dart' as _i669;
+import '../services/notification_manager.dart' as _i105;
 import '../services/notification_permission_service.dart' as _i82;
+import '../services/notification_status_holder.dart' as _i79;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -225,12 +233,20 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final locationModule = _$LocationModule();
+    final notificationModule = _$NotificationModule();
     final registerModule = _$RegisterModule();
     final dioModule = _$DioModule();
     final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
     gh.factory<_i980.GeocodingService>(() => _i980.GeocodingService());
     gh.lazySingleton<_i699.GeolocatorPlatform>(() => locationModule.geolocator);
+    gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
+      () => notificationModule.notificationsPlugin,
+    );
+    gh.lazySingleton<_i892.FirebaseMessaging>(
+      () => notificationModule.messaging,
+    );
+    gh.lazySingleton<_i706.Uuid>(() => registerModule.uuid);
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
@@ -239,23 +255,44 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.prefs(),
       preResolve: true,
     );
-    gh.lazySingleton<_i928.FcmService>(() => _i928.FcmService());
-    gh.lazySingleton<_i454.FcmTokenStorage>(() => _i454.FcmTokenStorage());
+    gh.lazySingleton<_i79.NotificationStatusHolder>(
+      () => _i79.NotificationStatusHolder(),
+    );
+    gh.lazySingleton<_i928.FcmService>(
+      () => _i928.FcmService(gh<_i892.FirebaseMessaging>()),
+    );
     gh.lazySingleton<_i82.NotificationPermissionService>(
-      () => _i82.NotificationPermissionService(),
+      () => _i82.NotificationPermissionService(gh<_i892.FirebaseMessaging>()),
     );
     gh.lazySingleton<_i1058.TokenRefresher>(() => _i1058.ApiTokenRefresher());
     gh.factory<_i761.GetFcmTokenUseCase>(
       () => _i761.GetFcmTokenUseCase(gh<_i928.FcmService>()),
     );
+    gh.lazySingleton<_i454.FcmTokenStorage>(
+      () => _i454.FcmTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
     gh.lazySingleton<_i644.ImagePickerService>(
       () => _i644.ImagePickerService(gh<_i183.ImagePicker>()),
     );
-    gh.lazySingleton<_i148.DeviceIdService>(
-      () => _i148.DeviceIdService(gh<_i558.FlutterSecureStorage>()),
+    gh.lazySingleton<_i575.LocalNotificationService>(
+      () => _i575.LocalNotificationService(
+        gh<_i163.FlutterLocalNotificationsPlugin>(),
+      ),
     );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i105.NotificationManager>(
+      () => _i105.NotificationManager(
+        gh<_i928.FcmService>(),
+        gh<_i575.LocalNotificationService>(),
+      ),
+    );
+    gh.lazySingleton<_i148.DeviceIdService>(
+      () => _i148.DeviceIdService(
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i706.Uuid>(),
+      ),
     );
     gh.factory<_i490.IsNotificationPermissionGrantedUseCase>(
       () => _i490.IsNotificationPermissionGrantedUseCase(
@@ -418,14 +455,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i172.ProductDetailsUseCase>(
       () => _i172.ProductDetailsUseCase(commerceRepo: gh<_i772.CommerceRepo>()),
     );
-    gh.factory<_i588.NotificationRepo>(
-      () => _i933.NotificationRepoImpl(
-        gh<_i148.DeviceIdService>(),
-        gh<_i928.FcmService>(),
-        gh<_i934.NotificationRemoteDataSource>(),
-        gh<_i185.SafeCall>(),
-      ),
-    );
     gh.factory<_i1068.SearchViewModel>(
       () => _i1068.SearchViewModel(gh<_i864.SearchUseCase>()),
     );
@@ -434,6 +463,16 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i164.CartRemoteDataSource>(
       () => _i916.CartRemoteDataSourceImpl(gh<_i1046.CartApiClient>()),
+    );
+    gh.factory<_i588.NotificationRepo>(
+      () => _i933.NotificationRepoImpl(
+        gh<_i148.DeviceIdService>(),
+        gh<_i928.FcmService>(),
+        gh<_i934.NotificationRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+        gh<_i454.FcmTokenStorage>(),
+        gh<_i82.NotificationPermissionService>(),
+      ),
     );
     gh.factory<_i366.AddressRepo>(
       () => _i660.AddressRepoImpl(
@@ -507,6 +546,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i644.ImagePickerService>(),
       ),
     );
+    gh.lazySingleton<_i37.FcmTokenSyncListener>(
+      () => _i37.FcmTokenSyncListener(
+        gh<_i641.AuthStatus>(),
+        gh<_i588.NotificationRepo>(),
+      ),
+    );
     gh.factory<_i458.AddAddressUseCase>(
       () => _i458.AddAddressUseCase(repo: gh<_i366.AddressRepo>()),
     );
@@ -525,14 +570,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
     );
+    gh.factory<_i369.HomeViewModel>(
+      () => _i369.HomeViewModel(
+        gh<_i1049.HomeUseCase>(),
+        gh<_i490.IsNotificationPermissionGrantedUseCase>(),
+        gh<_i5.RequestNotificationPermissionUseCase>(),
+        gh<_i588.OpenNotificationSettingsUseCase>(),
+      ),
+    );
     gh.factory<_i827.GetSessionsUseCase>(
       () => _i827.GetSessionsUseCase(gh<_i843.SessionRepo>()),
     );
     gh.factory<_i145.RevokeSessionUseCase>(
       () => _i145.RevokeSessionUseCase(gh<_i843.SessionRepo>()),
-    );
-    gh.factory<_i369.HomeViewModel>(
-      () => _i369.HomeViewModel(gh<_i1049.HomeUseCase>()),
     );
     gh.factory<_i784.ProductDetailsViewModel>(
       () => _i784.ProductDetailsViewModel(gh<_i172.ProductDetailsUseCase>()),
@@ -555,22 +605,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1017.SetDefaultAddressUseCase>(
       () => _i1017.SetDefaultAddressUseCase(gh<_i366.AddressRepo>()),
     );
-    gh.factory<_i578.GetDeviceIdUseCase>(
-      () => _i578.GetDeviceIdUseCase(gh<_i588.NotificationRepo>()),
+    gh.factory<_i250.HandleNotificationPermissionUseCase>(
+      () => _i250.HandleNotificationPermissionUseCase(
+        gh<_i588.NotificationRepo>(),
+      ),
     );
-    gh.factory<_i172.GetFcmTokenUseCase>(
-      () => _i172.GetFcmTokenUseCase(gh<_i588.NotificationRepo>()),
+    gh.factory<_i627.SyncFcmTokenUseCase>(
+      () => _i627.SyncFcmTokenUseCase(gh<_i588.NotificationRepo>()),
     );
     gh.factory<_i366.UpdateFcmTokenUseCase>(
       () => _i366.UpdateFcmTokenUseCase(gh<_i588.NotificationRepo>()),
     );
-    gh.factory<_i627.SyncFcmTokenUseCase>(
-      () => _i627.SyncFcmTokenUseCase(
-        gh<_i578.GetDeviceIdUseCase>(),
-        gh<_i761.GetFcmTokenUseCase>(),
-        gh<_i366.UpdateFcmTokenUseCase>(),
-        gh<_i454.FcmTokenStorage>(),
-      ),
+    gh.factory<_i136.UpdateNotificationStatusUseCase>(
+      () => _i136.UpdateNotificationStatusUseCase(gh<_i588.NotificationRepo>()),
     );
     gh.factory<_i1057.GetCartUseCase>(
       () => _i1057.GetCartUseCase(gh<_i379.CartRepo>()),
@@ -593,6 +640,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i497.ProcessPaymentUseCase>(
       () => _i497.ProcessPaymentUseCase(gh<_i379.CartRepo>()),
     );
+    gh.lazySingleton<_i15.ProfileViewModel>(
+      () => _i15.ProfileViewModel(
+        gh<_i114.GetProfileUseCase>(),
+        gh<_i5.RequestNotificationPermissionUseCase>(),
+        gh<_i490.IsNotificationPermissionGrantedUseCase>(),
+        gh<_i588.OpenNotificationSettingsUseCase>(),
+        gh<_i136.UpdateNotificationStatusUseCase>(),
+      ),
+    );
     gh.lazySingleton<_i572.CartViewModel>(
       () => _i572.CartViewModel(
         gh<_i1057.GetCartUseCase>(),
@@ -614,6 +670,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i497.ProcessPaymentUseCase>(),
       ),
     );
+    gh.factory<_i188.LoginViewModel>(
+      () => _i188.LoginViewModel(gh<_i635.LoginUseCase>()),
+    );
     gh.factory<_i28.AddressViewModel>(
       () => _i28.AddressViewModel(
         gh<_i373.IsLocationServiceEnabledUseCase>(),
@@ -632,23 +691,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i130.UpdateAddressUseCase>(),
       ),
     );
-    gh.lazySingleton<_i226.FcmTokenSyncListener>(
-      () => _i226.FcmTokenSyncListener(
-        gh<_i928.FcmService>(),
+    gh.lazySingleton<_i571.AuthCubit>(
+      () => _i571.AuthCubit(
+        gh<_i179.AuthRepository>(),
         gh<_i627.SyncFcmTokenUseCase>(),
-      ),
-    );
-    gh.factory<_i136.UpdateNotificationStatusUseCase>(
-      () => _i136.UpdateNotificationStatusUseCase(
-        gh<_i578.GetDeviceIdUseCase>(),
-        gh<_i588.NotificationRepo>(),
-      ),
-    );
-    gh.factory<_i188.LoginViewModel>(
-      () => _i188.LoginViewModel(
-        gh<_i635.LoginUseCase>(),
-        gh<_i578.GetDeviceIdUseCase>(),
-        gh<_i761.GetFcmTokenUseCase>(),
       ),
     );
     gh.singleton<_i349.DefaultAddressViewModel>(
@@ -658,27 +704,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1017.SetDefaultAddressUseCase>(),
       ),
     );
-    gh.lazySingleton<_i15.ProfileViewModel>(
-      () => _i15.ProfileViewModel(
-        gh<_i114.GetProfileUseCase>(),
-        gh<_i5.RequestNotificationPermissionUseCase>(),
-        gh<_i490.IsNotificationPermissionGrantedUseCase>(),
-        gh<_i588.OpenNotificationSettingsUseCase>(),
-        gh<_i136.UpdateNotificationStatusUseCase>(),
-      ),
-    );
-    gh.lazySingleton<_i571.AuthCubit>(
-      () => _i571.AuthCubit(
-        gh<_i179.AuthRepository>(),
-        gh<_i627.SyncFcmTokenUseCase>(),
-        gh<_i226.FcmTokenSyncListener>(),
-      ),
-    );
     return this;
   }
 }
 
 class _$LocationModule extends _i917.LocationModule {}
+
+class _$NotificationModule extends _i509.NotificationModule {}
 
 class _$RegisterModule extends _i505.RegisterModule {}
 

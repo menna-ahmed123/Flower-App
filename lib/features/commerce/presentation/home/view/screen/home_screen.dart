@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final isGranted = await getIt<IsNotificationPermissionGrantedUseCase>()();
 
-    if (!mounted || isGranted) return;
+    if (!mounted || isGranted == true) return;
 
     await getIt<RequestNotificationPermissionUseCase>()();
   }

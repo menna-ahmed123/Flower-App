@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
+import 'package:flower_app/core/constants/app_constants.dart';
 import 'package:flower_app/features/notification/data/models/update_fcm_token_request.dart';
 import 'package:flower_app/features/notification/data/models/update_notification_status_request.dart';
 import 'package:injectable/injectable.dart';
@@ -18,7 +19,7 @@ abstract class NotificationApiClient {
 
   @PUT(ApiEndpoints.notificationStatus)
   Future<void> updateNotificationStatus(
-    @Path('deviceId') String deviceId,
+    @Path(AppConstants.deviceId) String deviceId,
     @Body() UpdateNotificationStatusRequest request,
   );
 }

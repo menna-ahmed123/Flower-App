@@ -1,17 +1,21 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/enums/notification_permission_status.dart';
 
 abstract interface class NotificationRepo {
-  Future<String> getDeviceId();
+  Stream<String> get fcmTokenRefreshStream;
 
-  Future<String?> getFcmToken();
+  Future<NotificationPermissionStatus> handlePermission();
 
   Future<BaseResponse<void>> updateFcmToken({
     required String deviceId,
     required String fcmToken,
   });
 
+  Future<BaseResponse<void>> syncFcmToken({
+    String? token,
+  });
+
   Future<BaseResponse<void>> updateNotificationStatus({
-    required String deviceId,
     required bool enabled,
   });
 }
