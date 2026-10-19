@@ -77,6 +77,9 @@ class ApiEndpoints {
   static const String refreshToken = '/api/identity/auth/refresh-token';
   static const String session = '/api/identity/auth/sessions';
   static const String sessionById = '/api/identity/auth/sessions/{sessionId}';
+  static const String fcmToken = '/api/identity/devices/fcm-token';
+  static const String notificationStatus =
+      '/api/identity/devices/{deviceId}/notifications';
 
   //// Commerce ////
   static const String home = '/api/catalog/home/layout';

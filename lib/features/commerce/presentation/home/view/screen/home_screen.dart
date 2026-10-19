@@ -1,5 +1,6 @@
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/widgets/app_shimmer/home_shimmer.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
@@ -9,6 +10,8 @@ import 'package:flower_app/features/commerce/presentation/home/view/widgets/home
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_event.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_state.dart';
 import 'package:flower_app/features/commerce/presentation/home/view_model/home_view_model.dart';
+import 'package:flower_app/features/notification/domain/use_cases/is_notification_permission_granted_use_case.dart';
+import 'package:flower_app/features/notification/domain/use_cases/request_notification_permission_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,6 +26,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   AddressEntity? _selectedAddress;
+
+  static bool _permissionRequested = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _requestNotificationPermission();
+  }
+
+  Future<void> _requestNotificationPermission() async {
+    if (_permissionRequested) return;
+
+    _permissionRequested = true;
+
+    final isGranted = await getIt<IsNotificationPermissionGrantedUseCase>()();
+
+    if (!mounted || isGranted == true) return;
+
+    await getIt<RequestNotificationPermissionUseCase>()();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +81,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final addresses = addressState.defaultAddressesState.data ?? [];
     AddressEntity? displayedAddress = _selectedAddress;
+
     if (displayedAddress == null && addresses.isNotEmpty) {
       displayedAddress = addresses.firstWhere(
         (address) => address.isDefault,
         orElse: () => addresses.first,
       );
     }
+
     return HomeSectionList(
       sections: state.homeState.data?.sections ?? const [],
       addresses: addresses,

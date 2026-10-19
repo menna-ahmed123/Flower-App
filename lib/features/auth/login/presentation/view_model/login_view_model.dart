@@ -1,5 +1,4 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/features/auth/login/data/models/login_request.dart';
 import 'package:flower_app/features/auth/login/domain/entity/auth_entity.dart';
 import 'package:flower_app/features/auth/login/domain/use_case/login_usecase.dart';
 import 'package:flower_app/features/auth/login/presentation/view_model/login_event.dart';
@@ -31,35 +30,45 @@ class LoginViewModel extends Cubit<LoginState> {
       ),
     );
 
-    final request = LoginRequest(
-      email: email,
-      password: password,
-    );
+    try {
+      final response = await _loginUseCase(
+        email: email,
+        password: password,
+      );
 
-    final response = await _loginUseCase(request);
-
-    switch (response) {
-      case SuccessResponse<AuthEntity>():
-        emit(
-          state.copyWith(
-            loginState: state.loginState.copyWith(
-              isLoading: false,
-              data: response.data,
-              errorMessage: '',
+      switch (response) {
+        case SuccessResponse<AuthEntity>():
+          emit(
+            state.copyWith(
+              loginState: state.loginState.copyWith(
+                isLoading: false,
+                data: response.data,
+                errorMessage: '',
+              ),
             ),
-          ),
-        );
-        break;
+          );
+          break;
 
-      case ErrorResponse<AuthEntity>():
-        emit(
-          state.copyWith(
-            loginState: state.loginState.copyWith(
-              isLoading: false,
-              errorMessage: response.errorMessage,
+        case ErrorResponse<AuthEntity>():
+          emit(
+            state.copyWith(
+              loginState: state.loginState.copyWith(
+                isLoading: false,
+                errorMessage: response.errorMessage,
+              ),
             ),
+          );
+          break;
+      }
+    } catch (error) {
+      emit(
+        state.copyWith(
+          loginState: state.loginState.copyWith(
+            isLoading: false,
+            errorMessage: error.toString(),
           ),
-        );
+        ),
+      );
     }
   }
 }

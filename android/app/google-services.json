@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "427848180103",
+    "project_id": "flowrist",
+    "storage_bucket": "flowrist.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427848180103:android:ac1a44ac0d58978178f322",
+        "android_client_info": {
+          "package_name": "com.elevate.t5.flowrist.flowrist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1tq03b0PXwZvN3T_c0vm7ExMjhE3_zVQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427848180103:android:94f1b94801bc8f5c78f322",
+        "android_client_info": {
+          "package_name": "com.example.flower_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1tq03b0PXwZvN3T_c0vm7ExMjhE3_zVQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

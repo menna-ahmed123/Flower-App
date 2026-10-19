@@ -10,12 +10,16 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
+import 'package:firebase_messaging/firebase_messaging.dart' as _i892;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as _i163;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:geolocator/geolocator.dart' as _i699;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:image_picker/image_picker.dart' as _i183;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
+import 'package:uuid/uuid.dart' as _i706;
 
 import '../../features/address/api/address_api_client.dart' as _i328;
 import '../../features/address/data/data_sources/address_remote_data_source.dart'
@@ -62,6 +66,7 @@ import '../../features/address/presentation/new_address/view_model/address_view_
     as _i28;
 import '../../features/address/presentation/save_address/view_model/save_address_view_model.dart'
     as _i236;
+import '../../features/auth/core/auth_status.dart' as _i641;
 import '../../features/auth/core/data/repos/auth_repository_impl.dart' as _i436;
 import '../../features/auth/core/domain/repos/auth_repository.dart' as _i179;
 import '../../features/auth/core/presentation/view_model/auth_cubit.dart'
@@ -91,6 +96,8 @@ import '../../features/auth/login/data/data_source/remote/auth_remote_data_sourc
     as _i4;
 import '../../features/auth/login/data/repo/auth_repo_impl.dart' as _i641;
 import '../../features/auth/login/domain/repo/auth_repo.dart' as _i483;
+import '../../features/auth/login/domain/use_case/get_fcm_token_usecase.dart'
+    as _i761;
 import '../../features/auth/login/domain/use_case/login_usecase.dart' as _i635;
 import '../../features/auth/login/domain/use_case/logout_usecase.dart' as _i609;
 import '../../features/auth/login/presentation/view_model/login_view_model.dart'
@@ -149,6 +156,42 @@ import '../../features/commerce/presentation/prodect_details/view_model/product_
     as _i784;
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart'
     as _i1068;
+import '../../features/notification/api/notification_api_client.dart' as _i431;
+import '../../features/notification/data/data_sources/notification_remote_data_source.dart'
+    as _i934;
+import '../../features/notification/data/data_sources/notification_remote_datasource_impl.dart'
+    as _i231;
+import '../../features/notification/data/repo/notification_repo_impl.dart'
+    as _i933;
+import '../../features/notification/domain/repo/notification_repo.dart'
+    as _i588;
+import '../../features/notification/domain/services/fcm_token_sync_listener.dart'
+    as _i37;
+import '../../features/notification/domain/use_cases/handle_notification_permission_use_case.dart'
+    as _i250;
+import '../../features/notification/domain/use_cases/is_notification_permission_granted_use_case.dart'
+    as _i490;
+import '../../features/notification/domain/use_cases/open_notification_settings_use_case.dart'
+    as _i588;
+import '../../features/notification/domain/use_cases/request_notification_permission_use_case.dart'
+    as _i5;
+import '../../features/notification/domain/use_cases/sync_fcm_token_use_case.dart'
+    as _i627;
+import '../../features/notification/domain/use_cases/update_fcm_token_usecase.dart'
+    as _i366;
+import '../../features/notification/domain/use_cases/update_notification_status_use_case.dart'
+    as _i136;
+import '../../features/order/data/api/order_api_client.dart' as _i1026;
+import '../../features/order/data/data_sources/order_remote_data_source.dart'
+    as _i701;
+import '../../features/order/data/data_sources/order_remote_data_source_impl.dart'
+    as _i352;
+import '../../features/order/data/repos/order_repo_impl.dart' as _i906;
+import '../../features/order/domain/repos/order_repo.dart' as _i527;
+import '../../features/order/domain/use_cases/get_all_orders_use_case.dart'
+    as _i1045;
+import '../../features/order/presentation/my_orders/view_model/my_orders_view_model.dart'
+    as _i23;
 import '../../features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart'
     as _i881;
 import '../../features/profile/data/api/profile_api_client.dart' as _i751;
@@ -182,6 +225,7 @@ import '../../features/sessions/presentation/view_model/session_view_model.dart'
 import '../modules/api_module.dart' as _i98;
 import '../modules/dio_module.dart' as _i948;
 import '../modules/location_module.dart' as _i917;
+import '../modules/notification_module.dart' as _i509;
 import '../modules/register_module.dart' as _i505;
 import '../network/auth_interceptors.dart' as _i466;
 import '../network/safe_call.dart' as _i185;
@@ -189,9 +233,16 @@ import '../network/token_refresh_coordinator.dart' as _i381;
 import '../network/token_refresh_scheduler.dart' as _i95;
 import '../network/token_refresher.dart' as _i1058;
 import '../network/token_storage.dart' as _i964;
+import '../services/device_id_service.dart' as _i148;
+import '../services/fcm_service.dart' as _i928;
+import '../services/fcm_token_storage.dart' as _i454;
+import '../services/flutter_local_notifications.dart' as _i575;
 import '../services/geocoding_service.dart' as _i980;
 import '../services/image_picker_service.dart' as _i644;
 import '../services/location_service.dart' as _i669;
+import '../services/notification_manager.dart' as _i105;
+import '../services/notification_permission_service.dart' as _i82;
+import '../services/notification_status_holder.dart' as _i79;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -201,6 +252,7 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final locationModule = _$LocationModule();
+    final notificationModule = _$NotificationModule();
     final registerModule = _$RegisterModule();
     final dioModule = _$DioModule();
     final apiModule = _$ApiModule();
@@ -210,6 +262,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i881.OrderTrackingViewModel(),
     );
     gh.lazySingleton<_i699.GeolocatorPlatform>(() => locationModule.geolocator);
+    gh.lazySingleton<_i892.FirebaseMessaging>(
+      () => notificationModule.messaging,
+    );
+    gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
+      () => notificationModule.notificationsPlugin,
+    );
+    gh.lazySingleton<_i706.Uuid>(() => registerModule.uuid);
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
@@ -218,12 +277,59 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.prefs(),
       preResolve: true,
     );
+    gh.lazySingleton<_i79.NotificationStatusHolder>(
+      () => _i79.NotificationStatusHolder(),
+    );
+    gh.lazySingleton<_i928.FcmService>(
+      () => _i928.FcmService(gh<_i892.FirebaseMessaging>()),
+    );
+    gh.lazySingleton<_i82.NotificationPermissionService>(
+      () => _i82.NotificationPermissionService(gh<_i892.FirebaseMessaging>()),
+    );
     gh.lazySingleton<_i1058.TokenRefresher>(() => _i1058.ApiTokenRefresher());
+    gh.factory<_i761.GetFcmTokenUseCase>(
+      () => _i761.GetFcmTokenUseCase(gh<_i928.FcmService>()),
+    );
+    gh.lazySingleton<_i454.FcmTokenStorage>(
+      () => _i454.FcmTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
     gh.lazySingleton<_i644.ImagePickerService>(
       () => _i644.ImagePickerService(gh<_i183.ImagePicker>()),
     );
+    gh.lazySingleton<_i575.LocalNotificationService>(
+      () => _i575.LocalNotificationService(
+        gh<_i163.FlutterLocalNotificationsPlugin>(),
+      ),
+    );
     gh.lazySingleton<_i964.TokenStorage>(
       () => _i964.SecureTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i105.NotificationManager>(
+      () => _i105.NotificationManager(
+        gh<_i928.FcmService>(),
+        gh<_i575.LocalNotificationService>(),
+      ),
+    );
+    gh.lazySingleton<_i148.DeviceIdService>(
+      () => _i148.DeviceIdService(
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i706.Uuid>(),
+      ),
+    );
+    gh.factory<_i490.IsNotificationPermissionGrantedUseCase>(
+      () => _i490.IsNotificationPermissionGrantedUseCase(
+        gh<_i82.NotificationPermissionService>(),
+      ),
+    );
+    gh.factory<_i588.OpenNotificationSettingsUseCase>(
+      () => _i588.OpenNotificationSettingsUseCase(
+        gh<_i82.NotificationPermissionService>(),
+      ),
+    );
+    gh.factory<_i5.RequestNotificationPermissionUseCase>(
+      () => _i5.RequestNotificationPermissionUseCase(
+        gh<_i82.NotificationPermissionService>(),
+      ),
     );
     gh.factory<_i669.LocationService>(
       () => _i669.LocationService(gh<_i699.GeolocatorPlatform>()),
@@ -253,9 +359,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i381.TokenRefreshCoordinator>(),
       ),
     );
-    gh.lazySingleton<_i571.AuthCubit>(
-      () => _i571.AuthCubit(gh<_i179.AuthRepository>()),
-    );
     gh.singleton<_i361.Dio>(
       () => dioModule.provideDio(gh<_i466.AuthInterceptors>()),
     );
@@ -280,8 +383,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i311.SessionApiClient>(
       () => apiModule.provideSessionApiClient(gh<_i361.Dio>()),
     );
+    gh.singleton<_i431.NotificationApiClient>(
+      () => apiModule.provideNotificationApiClient(gh<_i361.Dio>()),
+    );
+    gh.singleton<_i1026.OrderApiClient>(
+      () => apiModule.provideOrderApiClient(gh<_i361.Dio>()),
+    );
     gh.factory<_i751.ProfileApiClient>(
       () => apiModule.provideProfileApiClient(gh<_i361.Dio>()),
+    );
+    gh.factory<_i934.NotificationRemoteDataSource>(
+      () => _i231.NotificationRemoteDatasourceImpl(
+        gh<_i431.NotificationApiClient>(),
+      ),
     );
     gh.factory<_i24.ForgetPasswordRemoteDataSource>(
       () => _i159.ForgetPasswordRemoteDataSourceImpl(
@@ -330,6 +444,9 @@ extension GetItInjectableX on _i174.GetIt {
         forgetPasswordRepo: gh<_i488.ForgetPasswordRepo>(),
       ),
     );
+    gh.factory<_i701.OrderRemoteDataSource>(
+      () => _i352.OrderRemoteDataSourceImpl(gh<_i1026.OrderApiClient>()),
+    );
     gh.factory<_i926.RegisterRepo>(
       () => _i934.RegisterRepositoryImpl(
         gh<_i258.RegisterRemoteDataSource>(),
@@ -374,6 +491,16 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i164.CartRemoteDataSource>(
       () => _i916.CartRemoteDataSourceImpl(gh<_i1046.CartApiClient>()),
+    );
+    gh.factory<_i588.NotificationRepo>(
+      () => _i933.NotificationRepoImpl(
+        gh<_i148.DeviceIdService>(),
+        gh<_i928.FcmService>(),
+        gh<_i934.NotificationRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+        gh<_i454.FcmTokenStorage>(),
+        gh<_i82.NotificationPermissionService>(),
+      ),
     );
     gh.factory<_i366.AddressRepo>(
       () => _i660.AddressRepoImpl(
@@ -447,6 +574,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i635.LoginUseCase>(
       () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
     );
+    gh.factory<_i527.OrderRepo>(
+      () => _i906.OrderRepoImpl(
+        gh<_i701.OrderRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
+    );
     gh.factory<_i969.BestSellerViewModel>(
       () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
     );
@@ -454,6 +587,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i374.UpdateProfileViewModel(
         gh<_i155.UpdateProfileUseCase>(),
         gh<_i644.ImagePickerService>(),
+      ),
+    );
+    gh.lazySingleton<_i37.FcmTokenSyncListener>(
+      () => _i37.FcmTokenSyncListener(
+        gh<_i641.AuthStatus>(),
+        gh<_i588.NotificationRepo>(),
       ),
     );
     gh.factory<_i458.AddAddressUseCase>(
@@ -474,14 +613,22 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i656.RegisterViewModel>(
       () => _i656.RegisterViewModel(gh<_i95.RegisterUseCase>()),
     );
+    gh.factory<_i369.HomeViewModel>(
+      () => _i369.HomeViewModel(
+        gh<_i1049.HomeUseCase>(),
+        gh<_i490.IsNotificationPermissionGrantedUseCase>(),
+        gh<_i5.RequestNotificationPermissionUseCase>(),
+        gh<_i588.OpenNotificationSettingsUseCase>(),
+      ),
+    );
+    gh.factory<_i1045.GetAllOrdersUseCase>(
+      () => _i1045.GetAllOrdersUseCase(gh<_i527.OrderRepo>()),
+    );
     gh.factory<_i827.GetSessionsUseCase>(
       () => _i827.GetSessionsUseCase(gh<_i843.SessionRepo>()),
     );
     gh.factory<_i145.RevokeSessionUseCase>(
       () => _i145.RevokeSessionUseCase(gh<_i843.SessionRepo>()),
-    );
-    gh.factory<_i369.HomeViewModel>(
-      () => _i369.HomeViewModel(gh<_i1049.HomeUseCase>()),
     );
     gh.factory<_i784.ProductDetailsViewModel>(
       () => _i784.ProductDetailsViewModel(gh<_i172.ProductDetailsUseCase>()),
@@ -503,6 +650,20 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i1017.SetDefaultAddressUseCase>(
       () => _i1017.SetDefaultAddressUseCase(gh<_i366.AddressRepo>()),
+    );
+    gh.factory<_i250.HandleNotificationPermissionUseCase>(
+      () => _i250.HandleNotificationPermissionUseCase(
+        gh<_i588.NotificationRepo>(),
+      ),
+    );
+    gh.factory<_i627.SyncFcmTokenUseCase>(
+      () => _i627.SyncFcmTokenUseCase(gh<_i588.NotificationRepo>()),
+    );
+    gh.factory<_i366.UpdateFcmTokenUseCase>(
+      () => _i366.UpdateFcmTokenUseCase(gh<_i588.NotificationRepo>()),
+    );
+    gh.factory<_i136.UpdateNotificationStatusUseCase>(
+      () => _i136.UpdateNotificationStatusUseCase(gh<_i588.NotificationRepo>()),
     );
     gh.factory<_i1057.GetCartUseCase>(
       () => _i1057.GetCartUseCase(gh<_i379.CartRepo>()),
@@ -526,7 +687,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i497.ProcessPaymentUseCase(gh<_i379.CartRepo>()),
     );
     gh.lazySingleton<_i15.ProfileViewModel>(
-      () => _i15.ProfileViewModel(gh<_i114.GetProfileUseCase>()),
+      () => _i15.ProfileViewModel(
+        gh<_i114.GetProfileUseCase>(),
+        gh<_i5.RequestNotificationPermissionUseCase>(),
+        gh<_i490.IsNotificationPermissionGrantedUseCase>(),
+        gh<_i588.OpenNotificationSettingsUseCase>(),
+        gh<_i136.UpdateNotificationStatusUseCase>(),
+      ),
     );
     gh.lazySingleton<_i572.CartViewModel>(
       () => _i572.CartViewModel(
@@ -541,6 +708,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i827.GetSessionsUseCase>(),
         gh<_i145.RevokeSessionUseCase>(),
       ),
+    );
+    gh.factory<_i23.MyOrdersViewModel>(
+      () => _i23.MyOrdersViewModel(gh<_i1045.GetAllOrdersUseCase>()),
     );
     gh.factory<_i179.CheckoutViewModel>(
       () => _i179.CheckoutViewModel(
@@ -572,6 +742,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i130.UpdateAddressUseCase>(),
       ),
     );
+    gh.lazySingleton<_i571.AuthCubit>(
+      () => _i571.AuthCubit(
+        gh<_i179.AuthRepository>(),
+        gh<_i627.SyncFcmTokenUseCase>(),
+      ),
+    );
     gh.singleton<_i349.DefaultAddressViewModel>(
       () => _i349.DefaultAddressViewModel(
         gh<_i270.GetAddressesUseCase>(),
@@ -584,6 +760,8 @@ extension GetItInjectableX on _i174.GetIt {
 }
 
 class _$LocationModule extends _i917.LocationModule {}
+
+class _$NotificationModule extends _i509.NotificationModule {}
 
 class _$RegisterModule extends _i505.RegisterModule {}
 
