@@ -61,7 +61,7 @@ class _ScriptedHttpAdapter implements HttpClientAdapter {
 }
 
 DioException _refreshDioError(int statusCode) {
-  final options = RequestOptions(path: '/identity/auth/refresh');
+  final options = RequestOptions(path: '/api/identity/auth/refresh-token');
   return DioException(
     requestOptions: options,
     response: Response(requestOptions: options, statusCode: statusCode),

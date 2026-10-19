@@ -17,7 +17,7 @@ Future<void> showLoginBottomSheet(BuildContext context) {
     isDismissible: true,
     enableDrag: true,
     showDragHandle: true,
-    builder: (context) {
+    builder: (sheetContext) {
       return Padding(
         padding: EdgeInsets.all(24.w),
         child: Column(
@@ -26,7 +26,7 @@ Future<void> showLoginBottomSheet(BuildContext context) {
           children: [
             Text(
               AppString.login,
-              style: Theme.of(context).textTheme.headlineSmall,
+              style: Theme.of(sheetContext).textTheme.headlineSmall,
             ),
             SizedBox(height: 8.h),
             const Text(AppString.loginToContinue),
@@ -34,7 +34,7 @@ Future<void> showLoginBottomSheet(BuildContext context) {
             AppButton(
               text: AppString.login,
               onPressed: () async {
-                Navigator.of(context).pop();
+                Navigator.of(sheetContext).pop();
 
                 await context.push(AppRoutesName.login);
 
@@ -54,7 +54,7 @@ Future<void> showLoginBottomSheet(BuildContext context) {
               variant: AppButtonVariant.outlined,
               text: AppString.signUp,
               onPressed: () async {
-                Navigator.of(context).pop();
+                Navigator.of(sheetContext).pop();
 
                 await context.push(AppRoutesName.register);
 
@@ -72,7 +72,7 @@ Future<void> showLoginBottomSheet(BuildContext context) {
             SizedBox(height: 8.h),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(sheetContext).pop();
                 context.read<AuthCubit>().doEvent(
                   const AuthGuestRequested(),
                 );

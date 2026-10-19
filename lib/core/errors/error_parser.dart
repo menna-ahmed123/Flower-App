@@ -133,17 +133,30 @@ Map<String, dynamic>? _validationFieldErrors(dynamic raw) {
   );
   return looksLikeFieldErrors ? map : null;
 }
-
-String? fieldErrorsMessage(Map<String, dynamic>? errors) {
+String? fieldErrorsMessage(dynamic errors) {
   if (errors == null) return null;
   final messages = <String>[];
-  for (final value in errors.values) {
-    if (value is List) {
-      messages.addAll(value.map((e) => e.toString()));
-    } else if (value != null) {
-      messages.add(value.toString());
+
+  if (errors is List) {
+    for (final item in errors) {
+      if (item is Map) {
+        final msg = item['message'] ?? item['error'] ?? item['msg'];
+        if (msg != null) messages.add(msg.toString());
+      } else if (item != null) {
+        messages.add(item.toString());
+      }
+    }
+  } 
+  else if (errors is Map) {
+    for (final value in errors.values) {
+      if (value is List) {
+        messages.addAll(value.map((e) => e.toString()));
+      } else if (value != null) {
+        messages.add(value.toString());
+      }
     }
   }
+
   if (messages.isEmpty) return null;
   return messages.join('\n');
 }

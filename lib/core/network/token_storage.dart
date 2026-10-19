@@ -1,6 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
-
 /// Persists authentication tokens using the project's secure storage.
 ///
 /// Access token key [SecureTokenStorage.accessTokenKey] matches the existing
@@ -11,9 +10,8 @@ abstract interface class TokenStorage {
 
   Future<String?> getRefreshToken();
 
-  /// The access token's expiry, computed and stored at save time.
-  /// Returns `null` if unknown (e.g. saved before expiry tracking existed,
-  /// or the backend didn't return `expiresIn`).
+  /// The access token's expiry, derived from `expiresIn` or its JWT `exp`
+  /// claim and stored at save time. Returns `null` if neither is available.
   Future<DateTime?> getAccessTokenExpiry();
 
   /// [expiresIn] is the access token lifetime in seconds, as returned by
@@ -67,7 +65,7 @@ class SecureTokenStorage implements TokenStorage {
     await Future.wait([
       _secureStorage.write(key: accessTokenKey, value: accessToken),
       _secureStorage.write(key: refreshTokenKey, value: refreshToken),
-      _writeExpiry(expiresIn),
+      _writeExpiry(accessToken, expiresIn),
     ]);
   }
 
@@ -75,13 +73,19 @@ class SecureTokenStorage implements TokenStorage {
   Future<void> saveAccessToken(String accessToken, {int? expiresIn}) async {
     await Future.wait([
       _secureStorage.write(key: accessTokenKey, value: accessToken),
-      _writeExpiry(expiresIn),
+      _writeExpiry(accessToken, expiresIn),
     ]);
   }
 
-  Future<void> _writeExpiry(int? expiresIn) async {
-    if (expiresIn == null) return;
-    final expiry = DateTime.now().toUtc().add(Duration(seconds: expiresIn));
+  Future<void> _writeExpiry(String accessToken, int? expiresIn) async {
+    DateTime? expiry;
+    if (expiresIn != null) {
+      expiry = DateTime.now().add(Duration(seconds: expiresIn));
+    }
+    if (expiry == null) {
+      await _secureStorage.delete(key: accessTokenExpiryKey);
+      return;
+    }
     await _secureStorage.write(
       key: accessTokenExpiryKey,
       value: expiry.toIso8601String(),
