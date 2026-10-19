@@ -152,6 +152,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
   }
 
+  void _onMyOrdersTap() {
+    context.push(AppRoutesName.myOrders);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -255,6 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onAboutUsTap: _onAboutUsTap,
                 onTermsConditionsTap: _onTermsConditionsTap,
                 onLogoutTap: _onLogoutTap,
+                onMyOrdersTap: _onMyOrdersTap,
                 // My orders still has no destination in the app yet.
               ),
             ),

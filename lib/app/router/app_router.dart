@@ -53,6 +53,13 @@ import '../../features/auth/core/presentation/view_model/auth_cubit.dart';
 import '../../features/auth/core/presentation/view_model/auth_state.dart';
 import '../../features/commerce/presentation/search/view/screen/search_screen.dart';
 import '../../features/commerce/presentation/search/view_model/search_view_model.dart';
+import '../../features/order/presentation/my_orders/view/page/my_orders_list_page.dart';
+import '../../features/order/presentation/my_orders/view_model/my_orders_event.dart';
+import '../../features/order/presentation/my_orders/view_model/my_orders_view_model.dart';
+import '../../features/order/presentation/order_tracking/view/page/order_tracking_map_page.dart';
+import '../../features/order/presentation/order_tracking/view/page/order_tracking_page.dart';
+import '../../features/order/presentation/order_tracking/view_model/order_tracking_event.dart';
+import '../../features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart';
 import '../../features/sessions/presentation/view/session_screen.dart';
 import '../../features/sessions/presentation/view_model/session_event.dart';
 import '../../features/sessions/presentation/view_model/session_view_model.dart';
@@ -60,6 +67,8 @@ import 'app_routes.dart';
 
 class AppRouter {
   AppRouter._();
+
+  static final routeObserver = RouteObserver<ModalRoute<void>>();
 
   static Future<String> resolveInitialLocation() async {
     final isAuthenticated =
@@ -72,6 +81,7 @@ class AppRouter {
     return GoRouter(
       initialLocation: initialLocation ?? AppRoutesName.login,
       errorBuilder: _errorBuilder,
+      observers: [routeObserver],
       routes: [
         _loginRoute(),
         _registerRoute(),
@@ -103,6 +113,14 @@ class AppRouter {
         GoRoute(
           path: AppRoutesName.sessions,
           builder: _sessionsBuilder,
+        ),
+        GoRoute(
+          path: AppRoutesName.orderTrackingMapPage,
+          builder: _orderTrackingMapBuilder,
+        ),
+        GoRoute(
+          path: AppRoutesName.myOrders,
+          builder: _myOrderListBuilder,
         ),
       ],
     );
@@ -435,85 +453,6 @@ class AppRouter {
   }
 
   static Widget _confirmationBuilder(
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     BuildContext context,
     GoRouterState state,
   ) {
@@ -521,10 +460,32 @@ class AppRouter {
   }
 
   static Widget _trackOrderBuilder(BuildContext context, GoRouterState state) {
-    return TrackOrderScreen(orderId: _orderIdFromExtra(state.extra));
+    final orderId = _orderIdFromExtra(state.extra);
+    return BlocProvider(
+      create: (_) => getIt<OrderTrackingViewModel>()
+        ..onEvent(WatchOrderTracking(orderId)),
+      child: OrderTrackingPage(orderId: orderId),
+    );
+  }
+
+  static Widget _orderTrackingMapBuilder(
+    BuildContext context,
+    GoRouterState state,
+  ) {
+    return BlocProvider.value(
+      value: state.extra! as OrderTrackingViewModel,
+      child: const OrderTrackingMapPage(),
+    );
   }
 
   static String? _orderIdFromExtra(Object? extra) {
     return extra is String && extra.isNotEmpty ? extra : null;
+  }
+
+  static Widget _myOrderListBuilder(BuildContext context, GoRouterState state) {
+    return BlocProvider(
+      create: (_) => getIt<MyOrdersViewModel>()..onEvent(LoadMyOrders()),
+      child: MyOrdersListPage(routeObserver: routeObserver),
+    );
   }
 }

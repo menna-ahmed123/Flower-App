@@ -203,10 +203,14 @@ abstract class AppString {
       'Prices changed. Please review the summary and confirm again.';
   // ==================== Orders ====================
   static const String myOrders = 'My Orders';
+  static const String active = 'Active';
+  static const String completed = 'Completed';
+  static String itemsCount(int count) => '$count items';
   static const String orderDetails = 'Order Details';
   static const String orderDate = 'Order Date: ';
   static const String orderStatus = 'Order Status: ';
   static const String trackOrder = 'Track Order';
+  static const String loadMore = 'Load More';
   static const String statusPending = 'Pending';
   static const String statusDelivered = 'Delivered';
   static const String statusCancelled = 'Cancelled';
@@ -285,5 +289,38 @@ abstract class AppString {
   static const String changePassword = 'Change Password';
     static const String save = 'save';
 
- 
+  // ==================== Order Tracking ====================
+  static const String trackingOrder         = 'Tracking Order';
+  static const String showMap               = 'Show Map';
+  static const String orderDelivered        = 'Order Delivered';
+  static const String confirming            = 'Confirming...';
+  static const String noDriverAvailable     = 'No delivery driver available yet';
+  static const String findingDriver         = "We're finding a driver for your order. You'll see them here as soon as one accepts.";
+  static const String liveLocation          = 'Live';
+  static const String waitingForLocation    = 'Waiting for location…';
+  static const String waitingForDriver      = 'Waiting for a driver';
+  static const String waitingForDriverHint  = "We'll show your delivery hero as soon as one accepts";
+  static const String deliveryHeroToday     = 'Is your delivery hero for today';
+  static const String trackingOrderDetails  = 'Order details';
+  static const String estimatedArrival      = 'Estimated Arrival';
+  static const String apartment             = 'Apartment';
+
+  // Age of the driver's last position. `{value}` is filled in by the widget.
+  static const String trackingUpdatedAgo    = 'Updated {value}';
+  static const String trackingLocationOutdated = 'Location outdated · {value}';
+  static const String trackingSecondsAgo    = '{value}s ago';
+  static const String trackingMinutesAgo    = '{value} min ago';
+  static const String trackingHoursAgo      = '{value} h ago';
+
+  /// Stands where a value is not known yet (no estimated arrival).
+  static const String noDataPlaceholder     = '--';
+
+  // Timeline step titles / status labels (presentation wording).
+  static const String trackingStepReceived  = 'Received your order';
+  static const String trackingStepPreparing = 'Preparing your order';
+  static const String trackingStepOutForDelivery = 'Out for delivery';
+  static const String statusPickedUp        = 'Picked up';
+  static const String statusArrived         = 'Arrived';
+  static const String statusAwaitingDeliveryConfirmation =
+      'Awaiting delivery confirmation';
 }

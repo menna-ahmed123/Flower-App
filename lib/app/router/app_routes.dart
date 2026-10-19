@@ -25,4 +25,6 @@ abstract final class AppRoutesName {
   static const String payment = '/payment';
   static const String confirmation = '/confirmation';
   static const String trackOrder = '/track-order';
+  static const String orderTrackingMapPage = '/order-tracking-map-page';
+  static const String myOrders = '/my-orders';
 }

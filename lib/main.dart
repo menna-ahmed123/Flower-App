@@ -1,18 +1,18 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/di/di.dart';
-import 'package:flower_app/core/services/fcm_service.dart';
+import 'package:flower_app/core/services/firebase_messaging_background_handler.dart';
 import 'package:flower_app/core/services/notification_manager.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/firebase_options.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
@@ -29,6 +29,10 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  FirebaseMessaging.onBackgroundMessage(
+    firebaseMessagingBackgroundHandler,
+  );
+
   await dotenv.load(fileName: '.env', isOptional: true);
 
   await ApiEndpoints.loadBaseUrl();
@@ -37,19 +41,6 @@ Future<void> main() async {
   print('🌐 BASE_URL resolved: ${ApiEndpoints.resolvedBaseUrl}');
 
   await configureDependencies();
-
-  // Debug: get the FCM token for testing notifications.
-  try {
-    final fcmService = getIt<FcmService>();
-    final token = await fcmService.getToken();
-
-    debugPrint('========== FCM TOKEN ==========');
-    debugPrint(token ?? 'FCM token is null');
-    debugPrint('===============================');
-  } catch (error, stackTrace) {
-    debugPrint('Failed to get FCM token: $error');
-    debugPrintStack(stackTrace: stackTrace);
-  }
 
   final notificationManager = getIt<NotificationManager>();
   await notificationManager.initialize();

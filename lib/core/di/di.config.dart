@@ -181,6 +181,19 @@ import '../../features/notification/domain/use_cases/update_fcm_token_usecase.da
     as _i366;
 import '../../features/notification/domain/use_cases/update_notification_status_use_case.dart'
     as _i136;
+import '../../features/order/data/api/order_api_client.dart' as _i1026;
+import '../../features/order/data/data_sources/order_remote_data_source.dart'
+    as _i701;
+import '../../features/order/data/data_sources/order_remote_data_source_impl.dart'
+    as _i352;
+import '../../features/order/data/repos/order_repo_impl.dart' as _i906;
+import '../../features/order/domain/repos/order_repo.dart' as _i527;
+import '../../features/order/domain/use_cases/get_all_orders_use_case.dart'
+    as _i1045;
+import '../../features/order/presentation/my_orders/view_model/my_orders_view_model.dart'
+    as _i23;
+import '../../features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart'
+    as _i881;
 import '../../features/profile/data/api/profile_api_client.dart' as _i751;
 import '../../features/profile/data/data_source/remote/profile_remote_data_source.dart'
     as _i299;
@@ -245,6 +258,9 @@ extension GetItInjectableX on _i174.GetIt {
     final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
     gh.factory<_i980.GeocodingService>(() => _i980.GeocodingService());
+    gh.factory<_i881.OrderTrackingViewModel>(
+      () => _i881.OrderTrackingViewModel(),
+    );
     gh.lazySingleton<_i699.GeolocatorPlatform>(() => locationModule.geolocator);
     gh.lazySingleton<_i892.FirebaseMessaging>(
       () => notificationModule.messaging,
@@ -370,6 +386,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i431.NotificationApiClient>(
       () => apiModule.provideNotificationApiClient(gh<_i361.Dio>()),
     );
+    gh.singleton<_i1026.OrderApiClient>(
+      () => apiModule.provideOrderApiClient(gh<_i361.Dio>()),
+    );
     gh.factory<_i751.ProfileApiClient>(
       () => apiModule.provideProfileApiClient(gh<_i361.Dio>()),
     );
@@ -424,6 +443,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i722.VerifyOtpUseCase(
         forgetPasswordRepo: gh<_i488.ForgetPasswordRepo>(),
       ),
+    );
+    gh.factory<_i701.OrderRemoteDataSource>(
+      () => _i352.OrderRemoteDataSourceImpl(gh<_i1026.OrderApiClient>()),
     );
     gh.factory<_i926.RegisterRepo>(
       () => _i934.RegisterRepositoryImpl(
@@ -552,6 +574,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i635.LoginUseCase>(
       () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
     );
+    gh.factory<_i527.OrderRepo>(
+      () => _i906.OrderRepoImpl(
+        gh<_i701.OrderRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+      ),
+    );
     gh.factory<_i969.BestSellerViewModel>(
       () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
     );
@@ -592,6 +620,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i5.RequestNotificationPermissionUseCase>(),
         gh<_i588.OpenNotificationSettingsUseCase>(),
       ),
+    );
+    gh.factory<_i1045.GetAllOrdersUseCase>(
+      () => _i1045.GetAllOrdersUseCase(gh<_i527.OrderRepo>()),
     );
     gh.factory<_i827.GetSessionsUseCase>(
       () => _i827.GetSessionsUseCase(gh<_i843.SessionRepo>()),
@@ -677,6 +708,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i827.GetSessionsUseCase>(),
         gh<_i145.RevokeSessionUseCase>(),
       ),
+    );
+    gh.factory<_i23.MyOrdersViewModel>(
+      () => _i23.MyOrdersViewModel(gh<_i1045.GetAllOrdersUseCase>()),
     );
     gh.factory<_i179.CheckoutViewModel>(
       () => _i179.CheckoutViewModel(

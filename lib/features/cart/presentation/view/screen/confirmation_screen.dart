@@ -51,7 +51,7 @@ class ConfirmationBody extends StatelessWidget {
           AppButton(
             text: AppString.trackOrder,
             onPressed: () {
-              context.go(AppRoutesName.trackOrder, extra: orderId);
+              context.push(AppRoutesName.trackOrder, extra: orderId);
             },
           ),
         ],
@@ -67,33 +67,6 @@ class ConfirmationBody extends StatelessWidget {
         fontSize: 18.sp,
         fontWeight: FontWeight.w600,
         color: context.colors.black,
-      ),
-    );
-  }
-}
-
-class TrackOrderScreen extends StatelessWidget {
-  const TrackOrderScreen({super.key, this.orderId});
-
-  final String? orderId;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: AppString.trackOrder,
-        onBack: () => context.go(AppRoutesName.home),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(24.w),
-        child: Text(
-          '${AppString.orderDetails}\n${orderId ?? ''}',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-            color: context.colors.black,
-          ),
-        ),
       ),
     );
   }

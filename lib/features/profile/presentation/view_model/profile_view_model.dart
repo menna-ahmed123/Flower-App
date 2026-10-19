@@ -16,6 +16,8 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class ProfileViewModel extends Cubit<ProfileState> {
+  static const _notificationRequestTimeout = Duration(seconds: 10);
+
   ProfileViewModel(
     this._getProfileUseCase,
     this._requestNotificationPermissionUseCase,
@@ -26,13 +28,11 @@ class ProfileViewModel extends Cubit<ProfileState> {
 
   final GetProfileUseCase _getProfileUseCase;
   final RequestNotificationPermissionUseCase
-      _requestNotificationPermissionUseCase;
+  _requestNotificationPermissionUseCase;
   final IsNotificationPermissionGrantedUseCase
-      _isNotificationPermissionGrantedUseCase;
-  final OpenNotificationSettingsUseCase
-      _openNotificationSettingsUseCase;
-  final UpdateNotificationStatusUseCase
-      _updateNotificationStatusUseCase;
+  _isNotificationPermissionGrantedUseCase;
+  final OpenNotificationSettingsUseCase _openNotificationSettingsUseCase;
+  final UpdateNotificationStatusUseCase _updateNotificationStatusUseCase;
 
   Future<void> doEvent(ProfileEvent event) async {
     switch (event) {
@@ -67,11 +67,7 @@ class ProfileViewModel extends Cubit<ProfileState> {
         break;
 
       case NotificationSettingsPromptDismissed():
-        emit(
-          state.copyWith(
-            shouldShowNotificationSettingsDialog: false,
-          ),
-        );
+        emit(state.copyWith(shouldShowNotificationSettingsDialog: false));
         break;
     }
   }
@@ -79,8 +75,11 @@ class ProfileViewModel extends Cubit<ProfileState> {
   Future<void> _handleNotificationToggle(bool isEnabled) async {
     if (state.isUpdatingNotifications) return;
 
+    final previousValue = state.isNotificationsEnabled;
+
     emit(
       state.copyWith(
+        isNotificationsEnabled: isEnabled,
         isUpdatingNotifications: true,
         notificationErrorMessage: '',
         shouldShowNotificationSettingsDialog: false,
@@ -89,17 +88,18 @@ class ProfileViewModel extends Cubit<ProfileState> {
 
     try {
       if (isEnabled) {
-        var permissionStatus =
-            await _isNotificationPermissionGrantedUseCase();
+        var permissionStatus = await _isNotificationPermissionGrantedUseCase()
+            .timeout(_notificationRequestTimeout);
 
         if (permissionStatus != NotificationPermissionStatus.granted) {
-          permissionStatus =
-              await _requestNotificationPermissionUseCase();
+          permissionStatus = await _requestNotificationPermissionUseCase()
+              .timeout(_notificationRequestTimeout);
         }
 
         if (permissionStatus != NotificationPermissionStatus.granted) {
           emit(
             state.copyWith(
+              isNotificationsEnabled: previousValue,
               isUpdatingNotifications: false,
               shouldShowNotificationSettingsDialog: true,
             ),
@@ -110,7 +110,7 @@ class ProfileViewModel extends Cubit<ProfileState> {
 
       final response = await _updateNotificationStatusUseCase(
         enabled: isEnabled,
-      );
+      ).timeout(_notificationRequestTimeout);
 
       switch (response) {
         case SuccessResponse<void>():
@@ -126,6 +126,7 @@ class ProfileViewModel extends Cubit<ProfileState> {
         case ErrorResponse<void>():
           emit(
             state.copyWith(
+              isNotificationsEnabled: previousValue,
               isUpdatingNotifications: false,
               notificationErrorMessage: response.errorMessage,
             ),
@@ -135,9 +136,9 @@ class ProfileViewModel extends Cubit<ProfileState> {
     } catch (_) {
       emit(
         state.copyWith(
+          isNotificationsEnabled: previousValue,
           isUpdatingNotifications: false,
-          notificationErrorMessage:
-              'Something went wrong. Please try again.',
+          notificationErrorMessage: 'Something went wrong. Please try again.',
         ),
       );
     }
