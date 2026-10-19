@@ -65,10 +65,9 @@ class ProfileOptionsSection extends StatelessWidget {
                     value: isEnabled,
                     activeThumbColor: colors.white,
                     activeTrackColor: colors.pink,
-                    onChanged: isUpdating
-                        ? null
-                        : onNotificationsChanged,
+                    onChanged: onNotificationsChanged,
                   ),
+                  showChevron: false,
                   onTap: isUpdating ? null : onNotificationRowTap,
                 );
               },

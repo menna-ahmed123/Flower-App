@@ -186,7 +186,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
           child: BlocBuilder<ProfileViewModel, ProfileState>(
             buildWhen: (previous, current) =>
-                previous.profileState != current.profileState,
+                previous.profileState != current.profileState ||
+                previous.isNotificationsEnabled !=
+                    current.isNotificationsEnabled ||
+                previous.isUpdatingNotifications !=
+                    current.isUpdatingNotifications,
             builder: (context, state) => _buildBody(context, state),
           ),
         ),

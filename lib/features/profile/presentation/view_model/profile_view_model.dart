@@ -73,7 +73,9 @@ class ProfileViewModel extends Cubit<ProfileState> {
   }
 
   Future<void> _handleNotificationToggle(bool isEnabled) async {
-    if (state.isUpdatingNotifications) return;
+    if (state.isUpdatingNotifications) {
+      return;
+    }
 
     final previousValue = state.isNotificationsEnabled;
 
