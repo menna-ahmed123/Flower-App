@@ -210,6 +210,7 @@ abstract class AppString {
   static const String orderDate = 'Order Date: ';
   static const String orderStatus = 'Order Status: ';
   static const String trackOrder = 'Track Order';
+  static const String loadMore = 'Load More';
   static const String statusPending = 'Pending';
   static const String statusDelivered = 'Delivered';
   static const String statusCancelled = 'Cancelled';

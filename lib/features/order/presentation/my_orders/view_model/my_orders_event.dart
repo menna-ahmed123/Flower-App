@@ -9,6 +9,12 @@ class LoadMyOrders extends MyOrdersEvent {
   @override
   List<Object?> get props => [];
 }
+
+class LoadMoreOrders extends MyOrdersEvent {
+  @override
+  List<Object?> get props => [];
+}
+
 class SwitchTab extends MyOrdersEvent {
   final MyOrdersTab tab;
   SwitchTab(this.tab);

@@ -13,7 +13,7 @@ class OrderModel {
   @JsonKey(name: "itemCount")
   final int? itemCount;
   @JsonKey(name: "firstItemThumbnailUrl")
-  final dynamic firstItemThumbnailUrl;
+  final String? firstItemThumbnailUrl;
   @JsonKey(name: "status")
   final String? status;
   @JsonKey(name: "total")
@@ -21,7 +21,7 @@ class OrderModel {
   @JsonKey(name: "paymentStatus")
   final String? paymentStatus;
 
-  OrderModel ({
+  OrderModel({
     this.id,
     this.orderNumber,
     this.createdAt,

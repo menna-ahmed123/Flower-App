@@ -14,74 +14,81 @@ import 'my_orders_ui_event.dart';
 
 @Injectable()
 class MyOrdersViewModel extends UiEventCubit<MyOrdersState, MyOrdersUiEvent> {
-  final GetAllOrdersUseCase getAllOrdersUseCase;
+  final GetAllOrdersUseCase _getAllOrdersUseCase;
 
-  late final PaginationController<OrderEntity> ordersPaginationController;
+  late final PaginationController<OrderEntity> _controller;
 
-  bool _isAutoFilling = false;
-  bool get isAutoFilling => _isAutoFilling;
-
-  MyOrdersViewModel(this.getAllOrdersUseCase)
-    : super(const MyOrdersState(selectedTab: MyOrdersTab.active)) {
-    ordersPaginationController = PaginationController<OrderEntity>(
+  MyOrdersViewModel(this._getAllOrdersUseCase) : super(const MyOrdersState()) {
+    _controller = PaginationController<OrderEntity>(
       pageSize: 10,
       fetchPage: _fetchOrdersPage,
-    );
+    )..addListener(_onPaginationChanged);
   }
 
   Future<void> onEvent(MyOrdersEvent event) async {
     switch (event) {
       case LoadMyOrders():
-        ordersPaginationController.reset();
-        await ordersPaginationController.loadNextPage();
-        await ensureTabHasContent(state.selectedTab);
+        _controller.reset();
+        await _controller.loadNextPage();
+        _emitForTab(state.selectedTab);
       case SwitchTab(:final tab):
-        _switchTab(tab);
-        await ensureTabHasContent(tab);
+        _emitForTab(tab);
+      case LoadMoreOrders():
+        await _loadMore();
       case TrackOrder(:final orderId):
         emitUiEvent(TrackMyOrder(orderId: orderId));
     }
   }
 
-  Future<void> ensureTabHasContent(MyOrdersTab tab) async {
-    _isAutoFilling = true;
-    try {
-      while (ordersPaginationController.state.status ==
-              PaginationStatus.success &&
-          ordersPaginationController.state.hasMore &&
-          ordersForTab(tab).isEmpty) {
-        await ordersPaginationController.loadNextPage();
-      }
-    } finally {
-      _isAutoFilling = false;
+  Future<void> _loadMore() async {
+    if (!_controller.state.hasMore) return;
+    final status = _controller.state.status;
+    if (status == PaginationStatus.loading ||
+        status == PaginationStatus.loadingMore) {
+      return;
     }
+    await _controller.loadNextPage();
+    _emitForTab(state.selectedTab);
   }
 
-  List<OrderEntity> ordersForTab(MyOrdersTab tab) {
-    final orders = ordersPaginationController.state.items;
+  void _onPaginationChanged() {
+    if (isClosed) return;
+    _emitForTab(state.selectedTab);
+  }
+
+  void _emitForTab(MyOrdersTab tab) {
+    emit(
+      state.copyWith(
+        selectedTab: tab,
+        pagination: _controller.state,
+        orders: _visibleOrders(tab),
+      ),
+    );
+  }
+
+  List<OrderEntity> _visibleOrders(MyOrdersTab tab) {
+    final items = _controller.state.items;
     return tab == MyOrdersTab.active
-        ? getAllOrdersUseCase.activeOrders(orders)
-        : getAllOrdersUseCase.completedOrders(orders);
-  }
-
-  void _switchTab(MyOrdersTab tab) {
-    emit(state.copyWith(selectedTab: tab));
+        ? _getAllOrdersUseCase.activeOrders(items)
+        : _getAllOrdersUseCase.completedOrders(items);
   }
 
   Future<List<OrderEntity>> _fetchOrdersPage(int page, int pageSize) async {
-    final response = await getAllOrdersUseCase(page: page, pageSize: pageSize);
+    final response = await _getAllOrdersUseCase(page: page, pageSize: pageSize);
 
     switch (response) {
       case SuccessResponse<List<OrderEntity>>():
         return response.data;
-      case ErrorResponse<List<OrderEntity>>() :
+      case ErrorResponse<List<OrderEntity>>():
         throw AppFailure(response.appError);
     }
   }
 
   @override
   Future<void> close() {
-    ordersPaginationController.dispose();
+    _controller
+      ..removeListener(_onPaginationChanged)
+      ..dispose();
     return super.close();
   }
 }

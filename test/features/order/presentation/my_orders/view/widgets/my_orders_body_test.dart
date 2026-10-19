@@ -4,6 +4,7 @@ import 'package:flower_app/features/order/domain/entities/order_entity.dart';
 import 'package:flower_app/features/order/domain/entities/order_status.dart';
 import 'package:flower_app/features/order/domain/repos/order_repo.dart';
 import 'package:flower_app/features/order/domain/use_cases/get_all_orders_use_case.dart';
+import 'package:flower_app/features/order/presentation/my_orders/view/models/my_orders_tab.dart';
 import 'package:flower_app/features/order/presentation/my_orders/view/widgets/my_orders_body.dart';
 import 'package:flower_app/features/order/presentation/my_orders/view_model/my_orders_event.dart';
 import 'package:flower_app/features/order/presentation/my_orders/view_model/my_orders_view_model.dart';
@@ -82,5 +83,26 @@ void main() {
     await _loaded(tester, {});
 
     expect(find.text(AppString.noData), findsOneWidget);
+  });
+
+  testWidgets('shows Load More when a tab is empty but pages remain',
+      (tester) async {
+    final viewModel = MyOrdersViewModel(_FakeUseCase({
+      1: List.generate(10, (i) => _order('A$i', OrderStatus.placed)),
+    }));
+    addTearDown(viewModel.close);
+    await viewModel.onEvent(LoadMyOrders());
+    await viewModel.onEvent(SwitchTab(MyOrdersTab.completed));
+
+    await pumpApp(
+      tester,
+      BlocProvider.value(
+        value: viewModel,
+        child: const Scaffold(body: MyOrdersBody()),
+      ),
+    );
+
+    expect(find.text(AppString.noData), findsOneWidget);
+    expect(find.text(AppString.loadMore), findsOneWidget);
   });
 }

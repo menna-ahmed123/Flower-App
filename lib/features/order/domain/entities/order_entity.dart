@@ -6,7 +6,7 @@ class OrderEntity extends Equatable{
   final String? orderNumber;
   final String? createdAt;
   final int? itemCount;
-  final dynamic firstItemThumbnailUrl;
+  final String? firstItemThumbnailUrl;
   final OrderStatus? status;
   final double? total;
   final String? paymentStatus;

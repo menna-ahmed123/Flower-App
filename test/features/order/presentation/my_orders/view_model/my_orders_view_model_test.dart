@@ -65,39 +65,33 @@ List<OrderEntity> _mixedPage() => [
 
 void main() {
   group('LoadMyOrders', () {
-    test('loads the first page into the pagination controller', () async {
-      final useCase = FakeGetAllOrdersUseCase(pages: {1: _mixedPage()});
-      final viewModel = MyOrdersViewModel(useCase);
+    test('loads the first page into the state', () async {
+      final viewModel = MyOrdersViewModel(
+        FakeGetAllOrdersUseCase(pages: {1: _mixedPage()}),
+      );
       addTearDown(viewModel.close);
 
       await viewModel.onEvent(LoadMyOrders());
 
-      expect(useCase.requestedPages, [1]);
-      expect(viewModel.ordersPaginationController.state.items.length, 5);
-      expect(
-        viewModel.ordersPaginationController.state.status,
-        PaginationStatus.success,
-      );
+      expect(viewModel.state.pagination.items.length, 5);
+      expect(viewModel.state.status, PaginationStatus.success);
+      // Default tab is active -> only the non-finished, non-null orders.
+      expect(viewModel.state.orders.map((o) => o.id), ['a', 'c']);
     });
 
     test('surfaces an error status when the source fails', () async {
-      final viewModel = MyOrdersViewModel(FakeGetAllOrdersUseCase(
-        shouldFail: true,
-      ));
+      final viewModel = MyOrdersViewModel(
+        FakeGetAllOrdersUseCase(shouldFail: true),
+      );
       addTearDown(viewModel.close);
 
       await viewModel.onEvent(LoadMyOrders());
 
-      expect(
-        viewModel.ordersPaginationController.state.status,
-        PaginationStatus.error,
-      );
-      expect(viewModel.ordersPaginationController.state.items, isEmpty);
+      expect(viewModel.state.isInitialError, isTrue);
+      expect(viewModel.state.status, PaginationStatus.error);
+      expect(viewModel.state.orders, isEmpty);
       // Typed AppFailure message surfaces cleanly (no "Exception:" leak).
-      expect(
-        viewModel.ordersPaginationController.state.errorMessage,
-        'boom',
-      );
+      expect(viewModel.state.errorMessage, 'boom');
     });
 
     test('reset before loading so refresh starts from page 1', () async {
@@ -109,25 +103,23 @@ void main() {
       await viewModel.onEvent(LoadMyOrders());
 
       expect(useCase.requestedPages, [1, 1]);
-      expect(viewModel.ordersPaginationController.state.items.length, 5);
+      expect(viewModel.state.pagination.items.length, 5);
     });
   });
 
-  group('ordersForTab', () {
-    test('splits the loaded page by status, dropping nulls', () async {
+  group('tab filtering', () {
+    test('exposes the visible orders for the selected tab', () async {
       final viewModel = MyOrdersViewModel(
         FakeGetAllOrdersUseCase(pages: {1: _mixedPage()}),
       );
       addTearDown(viewModel.close);
       await viewModel.onEvent(LoadMyOrders());
 
-      final active = viewModel.ordersForTab(MyOrdersTab.active);
-      final completed = viewModel.ordersForTab(MyOrdersTab.completed);
+      expect(viewModel.state.orders.map((o) => o.id), ['a', 'c']);
 
-      expect(active.map((o) => o.id), ['a', 'c']);
-      expect(completed.map((o) => o.id), ['b', 'd']);
-      expect(active.every((o) => o.status!.isActive), isTrue);
-      expect(completed.every((o) => o.status!.isFinished), isTrue);
+      await viewModel.onEvent(SwitchTab(MyOrdersTab.completed));
+
+      expect(viewModel.state.orders.map((o) => o.id), ['b', 'd']);
     });
 
     test('is empty for a tab with no matching orders', () async {
@@ -138,20 +130,24 @@ void main() {
       );
       addTearDown(viewModel.close);
       await viewModel.onEvent(LoadMyOrders());
+      await viewModel.onEvent(SwitchTab(MyOrdersTab.completed));
 
-      expect(viewModel.ordersForTab(MyOrdersTab.completed), isEmpty);
+      expect(viewModel.state.orders, isEmpty);
     });
   });
 
   group('SwitchTab', () {
-    test('updates the selected tab in state', () async {
-      final viewModel = MyOrdersViewModel(FakeGetAllOrdersUseCase());
+    test('updates the selected tab without requesting a page', () async {
+      final useCase = FakeGetAllOrdersUseCase(pages: {1: _mixedPage()});
+      final viewModel = MyOrdersViewModel(useCase);
       addTearDown(viewModel.close);
+      await viewModel.onEvent(LoadMyOrders());
       expect(viewModel.state.selectedTab, MyOrdersTab.active);
 
       await viewModel.onEvent(SwitchTab(MyOrdersTab.completed));
 
       expect(viewModel.state.selectedTab, MyOrdersTab.completed);
+      expect(useCase.requestedPages, [1]); // no extra network on tab switch
     });
   });
 
@@ -169,9 +165,8 @@ void main() {
     });
   });
 
-  group('ensureTabHasContent (client filter + server paging)', () {
-    test('switching to completed pulls later pages until a finished order shows',
-        () async {
+  group('LoadMoreOrders', () {
+    test('pulls the next page for the current tab on demand', () async {
       final useCase = FakeGetAllOrdersUseCase(pages: {
         1: List.generate(10, (i) => _order('a$i', OrderStatus.placed)),
         2: [_order('d1', OrderStatus.delivered)],
@@ -180,20 +175,21 @@ void main() {
       addTearDown(viewModel.close);
 
       await viewModel.onEvent(LoadMyOrders());
-      expect(viewModel.ordersForTab(MyOrdersTab.completed), isEmpty);
-
       await viewModel.onEvent(SwitchTab(MyOrdersTab.completed));
 
+      // page1 is all active, so completed is empty but Load More is offered.
+      expect(viewModel.state.orders, isEmpty);
+      expect(viewModel.state.showLoadMore, isTrue);
+
+      await viewModel.onEvent(LoadMoreOrders());
+
       expect(useCase.requestedPages, [1, 2]);
-      expect(
-        viewModel.ordersForTab(MyOrdersTab.completed).map((o) => o.id),
-        ['d1'],
-      );
+      expect(viewModel.state.orders.map((o) => o.id), ['d1']);
     });
 
-    test('auto-fill stops when no page holds a matching order', () async {
+    test('does nothing once the last page is reached', () async {
       final useCase = FakeGetAllOrdersUseCase(pages: {
-        1: List.generate(10, (i) => _order('a$i', OrderStatus.placed)),
+        1: [_order('a', OrderStatus.placed)], // one short page -> hasMore false
       });
       final viewModel = MyOrdersViewModel(useCase);
       addTearDown(viewModel.close);
@@ -201,27 +197,12 @@ void main() {
       await viewModel.onEvent(LoadMyOrders());
       await viewModel.onEvent(SwitchTab(MyOrdersTab.completed));
 
-      expect(viewModel.ordersForTab(MyOrdersTab.completed), isEmpty);
-      expect(useCase.requestedPages, [1, 2]);
-    });
+      expect(viewModel.state.hasMore, isFalse);
+      expect(viewModel.state.showLoadMore, isFalse);
 
-    test('keeps paging through full pages and never requests beyond the last',
-        () async {
-      // page1 and page2 are exactly pageSize (hasMore stays true); the empty
-      // page3 flips hasMore to false, so the loop must stop there.
-      final useCase = FakeGetAllOrdersUseCase(pages: {
-        1: List.generate(10, (i) => _order('a$i', OrderStatus.placed)),
-        2: List.generate(10, (i) => _order('b$i', OrderStatus.placed)),
-      });
-      final viewModel = MyOrdersViewModel(useCase);
-      addTearDown(viewModel.close);
+      await viewModel.onEvent(LoadMoreOrders());
 
-      await viewModel.onEvent(LoadMyOrders());
-      await viewModel.onEvent(SwitchTab(MyOrdersTab.completed));
-
-      expect(useCase.requestedPages, [1, 2, 3]);
-      expect(viewModel.ordersPaginationController.state.hasMore, isFalse);
-      expect(viewModel.ordersForTab(MyOrdersTab.completed), isEmpty);
+      expect(useCase.requestedPages, [1]); // guarded: no page 2 request
     });
   });
 }
