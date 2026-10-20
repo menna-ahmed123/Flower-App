@@ -1,0 +1,48 @@
+import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+/// Shown in place of the driver card until a driver accepts the order.
+class WaitingForDriverCard extends StatelessWidget {
+  const WaitingForDriverCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 25.r,
+          backgroundColor: context.colors.pink.withValues(alpha: 0.15),
+          child: SizedBox(
+            width: 22.w,
+            height: 22.h,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: context.colors.pink,
+            ),
+          ),
+        ),
+        SizedBox(width: 16.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                AppString.waitingForDriver,
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+              Text(
+                AppString.waitingForDriverHint,
+                style: TextStyle(
+                  color: context.colors.black.shade50,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

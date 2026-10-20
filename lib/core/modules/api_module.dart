@@ -5,9 +5,11 @@ import 'package:flower_app/features/auth/login/data/api/auth_api_client.dart';
 import 'package:flower_app/features/auth/register/data/api/register_api_client.dart';
 import 'package:flower_app/features/cart/api/cart_api_client.dart';
 import 'package:flower_app/features/commerce/api/commerce_api_client.dart';
+import 'package:flower_app/features/notification/api/notification_api_client.dart';
 import 'package:flower_app/features/profile/data/api/profile_api_client.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../features/order/data/api/order_api_client.dart';
 import '../../features/sessions/api/session_api_client.dart';
 
 @module
@@ -32,6 +34,13 @@ abstract class ApiModule {
 
   @singleton
   SessionApiClient provideSessionApiClient(Dio dio) => SessionApiClient(dio);
+
+  @singleton
+  NotificationApiClient provideNotificationApiClient(Dio dio) =>
+      NotificationApiClient(dio);
   
   ProfileApiClient provideProfileApiClient(Dio dio) => ProfileApiClient(dio);
+
+  @singleton
+  OrderApiClient provideOrderApiClient(Dio dio) => OrderApiClient(dio);
 }

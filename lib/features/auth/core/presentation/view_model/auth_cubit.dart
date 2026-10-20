@@ -1,7 +1,9 @@
-import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'dart:async';
 
+import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'package:flower_app/core/base/base_state.dart';
+import 'package:flower_app/features/auth/core/auth_status.dart';
+import 'package:flower_app/features/notification/domain/use_cases/sync_fcm_token_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -11,22 +13,34 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 @lazySingleton
-class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
-  AuthCubit(this._authRepository) : super(AuthState.initial()) {
+class AuthCubit extends Cubit<AuthState>
+    implements AuthSessionController, AuthStatus {
+  AuthCubit(
+    this._authRepository,
+    this._syncFcmTokenUseCase,
+  ) : super(AuthState.initial()) {
     _sessionExpiredSubscription = _authRepository.sessionExpired.listen(
-          (_) => _handleSessionExpired(),
+      (_) => _handleSessionExpired(),
     );
   }
 
   final AuthRepository _authRepository;
+  final SyncFcmTokenUseCase _syncFcmTokenUseCase;
 
   PendingAction? _pendingAction;
   late final StreamSubscription<void> _sessionExpiredSubscription;
 
+  @override
+  Stream<bool> get authStatusStream async* {
+    yield state.isAuthenticated;
+
+    yield* stream.map((authState) => authState.isAuthenticated).distinct();
+  }
+
   Future<void> doEvent(AuthEvent event) async {
     switch (event) {
       case AuthCheckRequested():
-        await _checkAuth();
+        await _restoreSession();
         break;
 
       case AuthLogoutRequested():
@@ -54,11 +68,7 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
   void _cancelAuthentication() {
     _pendingAction = null;
 
-    emit(
-      state.copyWith(
-        requiresAuthentication: false,
-      ),
-    );
+    emit(state.copyWith(requiresAuthentication: false));
   }
 
   void _continueAsGuest() {
@@ -67,6 +77,28 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
     emit(
       state.copyWith(
         authState: const BaseState(data: false),
+        requiresAuthentication: false,
+      ),
+    );
+  }
+
+  // Restores an existing session and syncs its FCM token.
+  Future<void> _restoreSession() async {
+    final isAuthenticated = await _authRepository.isAuthenticated();
+
+    if (isAuthenticated) {
+      try {
+        await _authRepository.startSessionRefresh();
+      } catch (_) {
+        // Keep the existing authentication flow.
+      }
+
+      await _syncFcmTokenUseCase();
+    }
+
+    emit(
+      state.copyWith(
+        authState: BaseState(data: isAuthenticated),
         requiresAuthentication: false,
       ),
     );
@@ -91,6 +123,7 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
     await _authRepository.logout();
 
     _authRepository.stopSessionRefresh();
+
     _pendingAction = null;
 
     emit(
@@ -104,19 +137,12 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
   void _requireAuthentication(PendingAction? pendingAction) {
     _pendingAction = pendingAction;
 
-    emit(
-      state.copyWith(
-        requiresAuthentication: false,
-      ),
-    );
+    emit(state.copyWith(requiresAuthentication: false));
 
-    emit(
-      state.copyWith(
-        requiresAuthentication: true,
-      ),
-    );
+    emit(state.copyWith(requiresAuthentication: true));
   }
 
+  // Handles successful login.
   Future<void> _handleAuthenticationSuccess() async {
     await _checkAuth();
 
@@ -124,17 +150,17 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
       return;
     }
 
-    emit(
-      state.copyWith(
-        requiresAuthentication: false,
-      ),
-    );
+    // Login already sends the current device ID and FCM token.
+    // The listener handles future token changes through AuthStatus.
+
+    emit(state.copyWith(requiresAuthentication: false));
 
     await replayPendingAction();
   }
 
   void _handleSessionExpired() {
     _authRepository.stopSessionRefresh();
+
     _pendingAction = null;
 
     emit(
@@ -148,6 +174,7 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
 
   void acknowledgeSessionExpired() {
     if (!state.sessionExpired) return;
+
     emit(state.copyWith(sessionExpired: false));
   }
 
@@ -171,9 +198,11 @@ class AuthCubit extends Cubit<AuthState> implements AuthSessionController {
   Future<void> logout() => doEvent(const AuthLogoutRequested());
 
   @override
-  Future<void> close() {
-    _sessionExpiredSubscription.cancel();
+  Future<void> close() async {
+    await _sessionExpiredSubscription.cancel();
+
     _pendingAction = null;
+
     return super.close();
   }
 }

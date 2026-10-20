@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// The Profile screen's menu: navigation rows, the notification toggle and
-/// the settings/logout group, laid out to match the Figma sectioning.
 class ProfileOptionsSection extends StatelessWidget {
   const ProfileOptionsSection({
     super.key,
@@ -55,21 +53,24 @@ class ProfileOptionsSection extends StatelessWidget {
           onTap: onSavedAddressTap,
         ),
         _sectionDivider(colors),
-        // Scoped to just this row: only the notification switch rebuilds
-        // when ProfileState.isNotificationsEnabled changes, not the rest
-        // of this section or the screen.
         BlocSelector<ProfileViewModel, ProfileState, bool>(
           selector: (state) => state.isNotificationsEnabled,
           builder: (context, isEnabled) {
-            return ProfileOptionRow(
-              label: AppString.notification,
-              leading: Switch(
-                value: isEnabled,
-                activeThumbColor: colors.white,
-                activeTrackColor: colors.pink,
-                onChanged: onNotificationsChanged,
-              ),
-              onTap: onNotificationRowTap,
+            return BlocSelector<ProfileViewModel, ProfileState, bool>(
+              selector: (state) => state.isUpdatingNotifications,
+              builder: (context, isUpdating) {
+                return ProfileOptionRow(
+                  label: AppString.notification,
+                  leading: Switch(
+                    value: isEnabled,
+                    activeThumbColor: colors.white,
+                    activeTrackColor: colors.pink,
+                    onChanged: onNotificationsChanged,
+                  ),
+                  showChevron: false,
+                  onTap: isUpdating ? null : onNotificationRowTap,
+                );
+              },
             );
           },
         ),
@@ -80,7 +81,10 @@ class ProfileOptionsSection extends StatelessWidget {
           showChevron: false,
           trailing: Text(
             selectedLanguageLabel,
-            style: TextStyle(color: colors.pink, fontSize: 11.sp),
+            style: TextStyle(
+              color: colors.pink,
+              fontSize: 11.sp,
+            ),
           ),
           onTap: onLanguageTap,
         ),
@@ -97,7 +101,11 @@ class ProfileOptionsSection extends StatelessWidget {
           label: AppString.logout,
           icon: AppIcons.logout,
           showChevron: false,
-          trailing: Icon(AppIcons.exit, size: 24.w, color: colors.black),
+          trailing: Icon(
+            AppIcons.exit,
+            size: 24.w,
+            color: colors.black,
+          ),
           onTap: onLogoutTap,
         ),
       ],
@@ -107,7 +115,10 @@ class ProfileOptionsSection extends StatelessWidget {
   Widget _sectionDivider(AppColors colors) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Divider(height: 1.h, color: colors.grey.shade600.withValues(alpha: 0.3)),
+      child: Divider(
+        height: 1.h,
+        color: colors.grey.shade600.withValues(alpha: 0.3),
+      ),
     );
   }
 }

@@ -37,3 +37,16 @@ class BadResponseError extends AppError {
   final String? code;
   final Map<String, dynamic>? data;
 }
+
+/// Throwable wrapper that carries a typed [AppError] through APIs that only
+/// surface a string (e.g. PaginationController's `e.toString()`), so the UI
+/// shows the clean message and callers can still inspect the concrete error.
+class AppFailure implements Exception {
+  final AppError error;
+  const AppFailure(this.error);
+
+  String get message => error.message;
+
+  @override
+  String toString() => message;
+}

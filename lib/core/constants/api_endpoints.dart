@@ -12,7 +12,16 @@ class ApiEndpoints {
 
   static Future<void> loadBaseUrl() async {
     await _ensureDotEnv();
-    _resolvedBaseUrl = normalizeBaseUrl(dotenv.env['BASE_URL'] ?? '');
+
+    final baseUrl = dotenv.env['BASE_URL'];
+
+    if (baseUrl == null || baseUrl.trim().isEmpty) {
+      throw StateError(
+        'BASE_URL is missing. Please configure it in the .env file.',
+      );
+    }
+
+    _resolvedBaseUrl = normalizeBaseUrl(baseUrl);
   }
 
   static String normalizeBaseUrl(String raw) {
@@ -68,6 +77,9 @@ class ApiEndpoints {
   static const String refreshToken = '/api/identity/auth/refresh-token';
   static const String session = '/api/identity/auth/sessions';
   static const String sessionById = '/api/identity/auth/sessions/{sessionId}';
+  static const String fcmToken = '/api/identity/devices/fcm-token';
+  static const String notificationStatus =
+      '/api/identity/devices/{deviceId}/notifications';
 
   //// Commerce ////
   static const String home = '/api/catalog/home/layout';
@@ -106,6 +118,9 @@ class ApiEndpoints {
       '/api/orders/checkout/estimate-delivery';
   static const String placeOrder = '/api/orders/place';
   static const String paymentCheckout = '/api/payment/checkout';
+  static const orderTracking   = '/api/orders/{orderId}/tracking';
+  static const confirmDelivery = '/api/orders/{orderId}/confirm-delivery';
+  static const getAllOrders = '/api/orders/';
 }
 
 Future<void> _ensureDotEnv() async {
