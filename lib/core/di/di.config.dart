@@ -194,6 +194,8 @@ import '../../features/order/presentation/my_orders/view_model/my_orders_view_mo
     as _i23;
 import '../../features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart'
     as _i881;
+import '../../features/payment/presentation/view_model/paymeny_view_model.dart'
+    as _i384;
 import '../../features/profile/data/api/profile_api_client.dart' as _i751;
 import '../../features/profile/data/data_source/remote/profile_remote_data_source.dart'
     as _i299;
@@ -261,6 +263,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i881.OrderTrackingViewModel>(
       () => _i881.OrderTrackingViewModel(),
     );
+    gh.factory<_i384.PaymentViewModel>(() => _i384.PaymentViewModel());
     gh.lazySingleton<_i699.GeolocatorPlatform>(() => locationModule.geolocator);
     gh.lazySingleton<_i892.FirebaseMessaging>(
       () => notificationModule.messaging,

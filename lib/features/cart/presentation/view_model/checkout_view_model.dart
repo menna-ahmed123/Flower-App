@@ -55,7 +55,13 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   void _applyFormEvent(CheckoutEvent event) {
     switch (event) {
       case ToggleCheckoutGift():
-        emit(state.copyWith(isGift: event.enabled));
+        final newIsGift = event.enabled;
+        String? newMethod = state.paymentMethod;
+        if (newIsGift) {
+          final card = _cardMethod();
+          if (card != null) newMethod = card.name;
+        }
+        emit(state.copyWith(isGift: newIsGift, paymentMethod: newMethod));
       case UpdateGiftRecipient():
         emit(
           state.copyWith(
@@ -64,6 +70,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
           ),
         );
       case SelectCheckoutPayment():
+        if (state.isGift && !_isCardName(event.method)) return;
         emit(state.copyWith(paymentMethod: event.method));
       default:
         break;
@@ -242,6 +249,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
 
   Future<void> _placeOrder() async {
     if (state.submitState.isLoading) return;
+    if (!_ensureGiftUsesCard()) return;
     final method = _selectedPayment();
     if (!state.canSubmit || method == null || _addressId() == null) {
       emit(state.copyWith(showValidation: true));
@@ -280,7 +288,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   }
 
   void _applySubmitSuccess(OrderEntity order) {
-    final destination = _orderDestination(order);
+  final destination = _orderDestination(order);
     _orderTotal = order.total;
     _clearAttempt();
     if (destination == null) {
@@ -297,6 +305,8 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
         destination: destination,
         orderId: order.orderId,
         sessionUrl: order.sessionUrl.isEmpty ? null : order.sessionUrl,
+        successUrl: order.successUrl.isEmpty ? null : order.successUrl,
+        cancelUrl: order.cancelUrl.isEmpty ? null : order.cancelUrl,
         stripeSessionId: order.stripeSessionId.isEmpty
             ? null
             : order.stripeSessionId,
@@ -315,11 +325,43 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
     return method?.apiMethod.toUpperCase() == 'CARD';
   }
 
+  bool _ensureGiftUsesCard() {
+    if (!state.isGift) return true;
+    final card = _cardMethod();
+    if (card == null) {
+      emit(
+        state.copyWith(
+          showValidation: true,
+          submitState: const BaseState(errorMessage: AppString.giftCardOnly),
+        ),
+      );
+      return false;
+    }
+    if (state.paymentMethod != card.name) {
+      emit(state.copyWith(paymentMethod: card.name));
+    }
+    return true;
+  }
+
   PaymentMethodEntity? _selectedPayment() {
     for (final method in state.paymentMethods) {
       if (method.name == state.paymentMethod) return method;
     }
     return null;
+  }
+
+  PaymentMethodEntity? _cardMethod() {
+    for (final method in state.paymentMethods) {
+      if (method.apiMethod.toUpperCase() == 'CARD') return method;
+    }
+    return null;
+  }
+
+  bool _isCardName(String name) {
+    for (final method in state.paymentMethods) {
+      if (method.name == name) return method.apiMethod.toUpperCase() == 'CARD';
+    }
+    return false;
   }
 
   Future<void> _applySubmitError(AppError error) async {

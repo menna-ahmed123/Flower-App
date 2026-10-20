@@ -49,7 +49,6 @@ class _AddAddressScreenState extends State<AddAddressScreen>
     final address = widget.address;
     final addressVm = context.read<AddressViewModel>();
 
-    // Load governorates
     addressVm.doEvent(LoadGovernorates());
 
     if (address != null && address.id != null && address.id!.isNotEmpty) {

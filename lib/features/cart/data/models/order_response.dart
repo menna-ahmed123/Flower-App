@@ -42,6 +42,8 @@ class OrderDataModel {
   final String? sessionUrl;
   final double? amount;
   final String? currency;
+  final String? successUrl;
+final String? cancelUrl;
 
   const OrderDataModel({
     this.orderId,
@@ -57,6 +59,8 @@ class OrderDataModel {
     this.sessionUrl,
     this.amount,
     this.currency,
+    this.successUrl,
+    this.cancelUrl,
   });
 
   factory OrderDataModel.fromJson(Map<String, dynamic> json) =>
@@ -77,6 +81,8 @@ class OrderDataModel {
       sessionUrl: sessionUrl ?? '',
       stripeSessionId: sessionId ?? '',
       currency: currency ?? '',
+      successUrl: successUrl ?? '',
+      cancelUrl: cancelUrl ?? '',
     );
   }
 }

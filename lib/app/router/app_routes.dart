@@ -15,14 +15,13 @@ abstract final class AppRoutesName {
   static const String search = '/search';
   static const String sessions = '/sessions';
   static const String editProfile = '/edit-profile';
-
   static const Set<String> mainTabPaths = {home, category, cart, profile};
-
   static bool isMainTab(String path) => mainTabPaths.contains(path);
   static const String address = '/address';
   static const String saveAddress = '/save_address';
   static const String checkout = '/checkout';
   static const String payment = '/payment';
+  static const String paymentWebView = '/payment-web-view';
   static const String confirmation = '/confirmation';
   static const String trackOrder = '/track-order';
   static const String orderTrackingMapPage = '/order-tracking-map-page';

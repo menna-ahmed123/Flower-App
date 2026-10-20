@@ -112,6 +112,7 @@ class ApiEndpoints {
   static const String cartItem = '/api/address-cart/cart/items/{itemId}';
 
   //// Orders & Payments ////
+  static const String expireSession = 'https://api.stripe.com/v1/checkout/sessions/{SESSION_ID}/expire';
   static const String checkoutDetails = '/api/orders/checkout/details';
   static const String estimateDelivery =
       '/api/orders/checkout/estimate-delivery';

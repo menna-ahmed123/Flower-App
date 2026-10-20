@@ -26,8 +26,10 @@ class CheckoutState extends Equatable {
     this.destination,
     this.orderId,
     this.sessionUrl,
-    this.stripeSessionId,
-    this.paymentAttemptId,
+  this.successUrl,
+  this.cancelUrl,
+  this.stripeSessionId,
+  this.paymentAttemptId,
   });
 
   final AddressEntity? selectedAddress;
@@ -44,6 +46,8 @@ class CheckoutState extends Equatable {
   final String? sessionUrl;
   final String? stripeSessionId;
   final String? paymentAttemptId;
+ final String? successUrl;
+final String? cancelUrl;
 
   List<PaymentMethodEntity> get paymentMethods {
     return previewState.data?.paymentMethods ?? const [];
@@ -59,10 +63,20 @@ class CheckoutState extends Equatable {
         AppValidators.phoneValidator(recipientPhone) == null;
   }
 
+  bool get isCardSelected {
+    for (final method in paymentMethods) {
+      if (method.name == paymentMethod) {
+        return method.apiMethod.toUpperCase() == 'CARD';
+      }
+    }
+    return false;
+  }
+
   bool get canSubmit {
     return hasAddress &&
         hasPaymentMethod &&
         isGiftRecipientValid &&
+        (!isGift || isCardSelected) &&
         !submitState.isLoading &&
         !previewState.isLoading &&
         previewState.data != null &&
@@ -85,6 +99,8 @@ class CheckoutState extends Equatable {
     String? sessionUrl,
     String? stripeSessionId,
     String? paymentAttemptId,
+    String? successUrl,
+String? cancelUrl,
   }) {
     return CheckoutState(
       selectedAddress: selectedAddress ?? this.selectedAddress,
@@ -101,6 +117,8 @@ class CheckoutState extends Equatable {
       sessionUrl: sessionUrl ?? this.sessionUrl,
       stripeSessionId: stripeSessionId ?? this.stripeSessionId,
       paymentAttemptId: paymentAttemptId ?? this.paymentAttemptId,
+      successUrl: successUrl ?? this.successUrl,
+      cancelUrl: cancelUrl ?? this.cancelUrl,
     );
   }
 
@@ -120,5 +138,7 @@ class CheckoutState extends Equatable {
     sessionUrl,
     stripeSessionId,
     paymentAttemptId,
+    successUrl,
+    cancelUrl,
   ];
 }

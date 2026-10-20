@@ -20,9 +20,6 @@ import 'package:flower_app/features/auth/register/presentation/view_model/regist
 import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/cart/presentation/view/screen/checkout_screen.dart';
 import 'package:flower_app/features/cart/presentation/view/screen/confirmation_screen.dart';
-import 'package:flower_app/features/cart/presentation/view/screen/payment_screen.dart';
-// TODO: أضف import الخاص بـ TrackOrderScreen (انسخه من نسخة dev)
-// import 'package:flower_app/.../track_order_screen.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/screen/best_seller_screen.dart';
@@ -39,6 +36,10 @@ import 'package:flower_app/features/commerce/presentation/prodect_details/view/s
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/prodect_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/core/widgets/app_web_view_screen.dart';
+import 'package:flower_app/features/payment/presentation/view/screens/payment_screen.dart';
+import 'package:flower_app/features/payment/presentation/view/screens/payment_webview.dart';
+import 'package:flower_app/features/payment/presentation/view_model/payment_event.dart';
+import 'package:flower_app/features/payment/presentation/view_model/paymeny_view_model.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/edit_profile_screen.dart';
 import 'package:flower_app/features/profile/presentation/view/screen/profile_screen.dart';
@@ -121,6 +122,27 @@ class AppRouter {
         GoRoute(
           path: AppRoutesName.myOrders,
           builder: _myOrderListBuilder,
+        ),
+       
+GoRoute(
+  path: AppRoutesName.paymentWebView,
+  builder: (context, state) {
+            final extra = state.extra;
+
+            if (extra is! PaymentArgs) {
+              return const Scaffold(
+                body: Center(
+                  child: Text(AppString.paymentSessionDataUnavailable),
+                ),
+              );
+            }
+
+            return PaymentWebView(
+              sessionUrl: extra.sessionUrl,
+              successUrl: extra.successUrl,
+              cancelUrl: extra.cancelUrl,
+            );
+          },
         ),
       ],
     );
@@ -445,14 +467,37 @@ class AppRouter {
     );
   }
 
-  static Widget _paymentBuilder(BuildContext context, GoRouterState state) {
-    final viewModel = state.extra is CheckoutViewModel
-        ? state.extra as CheckoutViewModel
-        : getIt<CheckoutViewModel>();
-    return BlocProvider.value(value: viewModel, child: const PaymentScreen());
+static Widget _paymentBuilder(
+  BuildContext context,
+  GoRouterState state,
+) {
+  final extra = state.extra;
+
+  if (extra is! PaymentArgs) {
+    return const Scaffold(
+      body: Center(
+        child: Text('Payment session data is unavailable'),
+      ),
+    );
   }
 
-  static Widget _confirmationBuilder(
+  return BlocProvider(
+    create: (context) => getIt<PaymentViewModel>()
+      ..doEvent(
+        StartPayment(
+          sessionUrl: extra.sessionUrl,
+          successUrl: extra.successUrl,
+          cancelUrl: extra.cancelUrl,
+        ),
+      ),
+    child: PaymentView(
+      successUrl: extra.successUrl,
+      cancelUrl: extra.cancelUrl,
+      orderId: extra.orderId,
+    ),
+  );
+}
+  static Widget _confirmationBuilder(    
     BuildContext context,
     GoRouterState state,
   ) {
@@ -476,6 +521,7 @@ class AppRouter {
       value: state.extra! as OrderTrackingViewModel,
       child: const OrderTrackingMapPage(),
     );
+    return ConfirmationScreen(orderId: _orderIdFromExtra(state.extra));
   }
 
   static String? _orderIdFromExtra(Object? extra) {
