@@ -13,6 +13,7 @@ abstract interface class NotificationRepo {
 
   Future<BaseResponse<void>> syncFcmToken({
     String? token,
+    bool force = false,
   });
 
   Future<BaseResponse<void>> updateNotificationStatus({

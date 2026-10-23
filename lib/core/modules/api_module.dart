@@ -10,6 +10,7 @@ import 'package:flower_app/features/profile/data/api/profile_api_client.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../features/order/data/api/order_api_client.dart';
+import '../../features/order/data/api/osrm_api_client.dart';
 import '../../features/sessions/api/session_api_client.dart';
 
 @module
@@ -43,4 +44,8 @@ abstract class ApiModule {
 
   @singleton
   OrderApiClient provideOrderApiClient(Dio dio) => OrderApiClient(dio);
+
+  @singleton
+  OsrmApiClient provideOsrmApiClient(@Named('osrmDio') Dio dio) =>
+      OsrmApiClient(dio);
 }

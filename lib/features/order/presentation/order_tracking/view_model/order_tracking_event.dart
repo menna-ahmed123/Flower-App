@@ -15,3 +15,5 @@ class WatchOrderTracking extends OrderTrackingEvent {
 class StopWatchingOrderTracking extends OrderTrackingEvent {}
 
 class ConfirmOrderDelivered extends OrderTrackingEvent {}
+
+class OrderDetailsRequested extends OrderTrackingEvent {}

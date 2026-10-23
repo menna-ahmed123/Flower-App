@@ -8,7 +8,7 @@ class SyncFcmTokenUseCase {
 
   final NotificationRepo _notificationRepo;
 
-  Future<BaseResponse<void>> call({String? token}) {
-    return _notificationRepo.syncFcmToken(token: token);
+  Future<BaseResponse<void>> call({String? token, bool force = false}) {
+    return _notificationRepo.syncFcmToken(token: token, force: force);
   }
 }

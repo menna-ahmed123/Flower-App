@@ -521,7 +521,6 @@ static Widget _paymentBuilder(
       value: state.extra! as OrderTrackingViewModel,
       child: const OrderTrackingMapPage(),
     );
-    return ConfirmationScreen(orderId: _orderIdFromExtra(state.extra));
   }
 
   static String? _orderIdFromExtra(Object? extra) {

@@ -121,6 +121,9 @@ class ApiEndpoints {
   static const orderTracking   = '/api/orders/{orderId}/tracking';
   static const confirmDelivery = '/api/orders/{orderId}/confirm-delivery';
   static const getAllOrders = '/api/orders/';
+
+  //// Routing (external OSRM service) ////
+  static const String osrmRoute = '/route/v1/driving/{coordinates}';
 }
 
 Future<void> _ensureDotEnv() async {
