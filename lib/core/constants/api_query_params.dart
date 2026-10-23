@@ -12,4 +12,5 @@ class ApiQueryParams {
   static const String estimateCartId = 'CartId';
   static const String idempotencyKey = 'Idempotency-Key';
   static const String itemId = 'itemId';
+  static const String orderId = 'orderId';
 }

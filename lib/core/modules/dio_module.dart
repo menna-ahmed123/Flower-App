@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
+import 'package:flower_app/core/constants/env_config.dart';
 import 'package:flower_app/core/network/auth_interceptors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
@@ -17,6 +18,17 @@ abstract class DioModule {
 
     return dio;
   }
+
+  @singleton
+  @Named('osrmDio')
+  Dio provideOsrmDio() => Dio(
+    BaseOptions(
+      baseUrl: EnvConfig.osrmBaseUrl,
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+      headers: const {'Content-Type': 'application/json'},
+    ),
+  );
 
   BaseOptions _createBaseOptions() {
     final baseUrl = ApiEndpoints.resolvedBaseUrl;

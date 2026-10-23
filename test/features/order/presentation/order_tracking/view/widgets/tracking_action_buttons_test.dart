@@ -6,6 +6,7 @@ import '../../../../../../helpers/pump_app.dart';
 
 Widget _buttons({
   required bool showDelivered,
+  bool showMap = true,
   bool isConfirming = false,
   VoidCallback? onMap,
   VoidCallback? onDelivered,
@@ -15,6 +16,7 @@ Widget _buttons({
       onShowMap: onMap ?? () {},
       onOrderDelivered: onDelivered ?? () {},
       showOrderDelivered: showDelivered,
+      showMap: showMap,
       isConfirming: isConfirming,
     ),
   );
@@ -33,6 +35,18 @@ void main() {
     await pumpApp(tester, _buttons(showDelivered: true));
     expect(find.text('Show Map'), findsOneWidget);
     expect(find.text('Order Delivered'), findsOneWidget);
+  });
+
+  testWidgets('Show Map is hidden when there is no driver', (tester) async {
+    await pumpApp(tester, _buttons(showDelivered: false, showMap: false));
+    expect(find.text('Show Map'), findsNothing);
+  });
+
+  testWidgets('nothing renders when neither action applies', (tester) async {
+    await pumpApp(tester, _buttons(showDelivered: false, showMap: false));
+    expect(find.byType(TrackingActionButtons), findsOneWidget);
+    expect(find.text('Show Map'), findsNothing);
+    expect(find.text('Order Delivered'), findsNothing);
   });
 
   testWidgets('taps call the right callbacks', (tester) async {

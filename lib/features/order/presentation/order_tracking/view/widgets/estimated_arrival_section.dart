@@ -7,10 +7,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class EstimatedArrivalSection extends StatelessWidget {
   const EstimatedArrivalSection({
     super.key,
-    required this.estimatedArrivalDateTime,
+    this.estimatedArrivalDateTime,
   });
 
-  /// null until the backend provides an ETA.
   final DateTime? estimatedArrivalDateTime;
 
   @override

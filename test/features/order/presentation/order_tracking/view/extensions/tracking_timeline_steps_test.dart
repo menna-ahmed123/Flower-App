@@ -30,12 +30,25 @@ void main() {
     expect(steps[3].occurredAt, isNull); // not delivered yet
   });
 
-  test('a step reads the first timestamp among the statuses it covers', () {
-    // pickedUp happens inside "Out for delivery", so its time is that step's.
-    final steps = trackingFixture(status: OrderStatus.pickedUp).trackingTimeline;
+  test('pickedUp keeps the order on preparing, not out for delivery', () {
+    // Picking up is not a delivery trip yet: the out-for-delivery step stays
+    // undated and unlit until the driver is actually on the way.
+    final t = trackingFixture(status: OrderStatus.pickedUp);
+    final steps = t.trackingTimeline;
 
+    expect(t.uiStepIndex, 1); // preparing is the current step
     expect(steps[2].status, OrderStatus.outForDelivery);
-    expect(steps[2].occurredAt, DateTime.utc(2024, 9, 3, 12));
+    expect(steps[2].occurredAt, isNull);
+    expect(steps[1].occurredAt, DateTime.utc(2024, 9, 3, 11));
+  });
+
+  test('awaiting confirmation reaches the final (delivered) step', () {
+    final t = trackingFixture(status: OrderStatus.awaitingDeliveryConfirmation);
+    final steps = t.trackingTimeline;
+
+    expect(t.uiStepIndex, 3); // the last step is now lit
+    expect(t.canConfirmDelivery, isTrue); // and the customer can confirm
+    expect(steps[3].occurredAt, DateTime.utc(2024, 9, 3, 15));
   });
 
   test('a delivered order closes every step', () {

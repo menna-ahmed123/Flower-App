@@ -10,4 +10,8 @@ class EnvConfig {
   static String get mapTilerApiKey {
     return dotenv.env['MAPTILER_API_KEY'] ?? '';
   }
+
+  static String get osrmBaseUrl {
+    return dotenv.env['OSRM_BASE_URL'] ?? 'https://router.project-osrm.org';
+  }
 }

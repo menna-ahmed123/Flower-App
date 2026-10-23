@@ -1,23 +1,52 @@
-import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/map_back_button.dart';
+import 'dart:async';
+
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/no_driver_map_banner.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/staleness_badge.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/tracking_bottom_panel.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/tracking_map.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_event.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_state.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_ui_event.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// Full-screen map of the order the [OrderTrackingViewModel] above is holding.
-class OrderTrackingMapPage extends StatelessWidget {
+class OrderTrackingMapPage extends StatefulWidget {
   const OrderTrackingMapPage({super.key, this.mapTileLayer});
 
   final Widget? mapTileLayer;
 
-  /// Order details has no route in the app yet, so there is nothing to open.
-  void _onOrderDetails() {
-    // TODO(order-details-route): open the order details for this order id.
+  @override
+  State<OrderTrackingMapPage> createState() => _OrderTrackingMapPageState();
+}
+
+class _OrderTrackingMapPageState extends State<OrderTrackingMapPage> {
+  StreamSubscription<OrderTrackingUiEvent>? _uiEvents;
+
+  @override
+  void initState() {
+    super.initState();
+    _uiEvents =
+        context.read<OrderTrackingViewModel>().uiEvents.listen(_onUiEvent);
+  }
+
+  @override
+  void dispose() {
+    _uiEvents?.cancel();
+    super.dispose();
+  }
+
+  void _onUiEvent(OrderTrackingUiEvent event) {
+    switch (event) {
+      case ShowTrackingMessage():
+        break;
+      case TrackingNavigateBack():
+        final router = GoRouter.maybeOf(context);
+        if (router != null && router.canPop()) {
+          router.pop();
+        }
+    }
   }
 
   @override
@@ -39,17 +68,12 @@ class OrderTrackingMapPage extends StatelessWidget {
                   children: [
                     Positioned.fill(
                       child: TrackingMap(
-                        driver: t.driverLocation?.point,
+                        driver: t.mapDriverLocation,
                         store: t.storeLocation,
                         home: t.destination,
                         routePoints: state.routePoints,
-                        tileLayer: mapTileLayer,
+                        tileLayer: widget.mapTileLayer,
                       ),
-                    ),
-                    Positioned(
-                      top: topPad + 8,
-                      left: 16,
-                      child: MapBackButton(onPressed: () => context.pop()),
                     ),
                     Positioned(
                       top: topPad + 12,
@@ -63,7 +87,11 @@ class OrderTrackingMapPage extends StatelessWidget {
                   ],
                 ),
               ),
-              TrackingBottomPanel(tracking: t, onOrderDetails: _onOrderDetails),
+              TrackingBottomPanel(
+                tracking: t,
+                onOrderDetails: () => context.read<OrderTrackingViewModel>()
+                    .onEvent(OrderDetailsRequested()),
+              ),
             ],
           );
         },

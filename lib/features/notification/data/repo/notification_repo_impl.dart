@@ -53,6 +53,7 @@ class NotificationRepoImpl implements NotificationRepo {
   @override
   Future<BaseResponse<void>> syncFcmToken({
     String? token,
+    bool force = false,
   }) async {
     final fcmToken = token ?? await _fcmService.getToken();
 
@@ -65,7 +66,9 @@ class NotificationRepoImpl implements NotificationRepo {
     final lastSyncedToken =
         await _fcmTokenStorage.getLastSyncedToken();
 
-    if (fcmToken == lastSyncedToken) {
+    // The dedupe is device-wide, so a freshly signed-in account must force
+    // past it or the backend never learns the token belongs to it.
+    if (!force && fcmToken == lastSyncedToken) {
       return SuccessResponse<void>(null);
     }
 

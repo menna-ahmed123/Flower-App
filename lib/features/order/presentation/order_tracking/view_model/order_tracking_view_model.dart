@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/core/base/ui_event_cubit.dart';
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/features/order/domain/entities/order_status.dart';
+import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/order/domain/entities/timeline_step_entity.dart';
 import 'package:flower_app/features/order/domain/entities/tracking_entity.dart';
-import 'package:flower_app/features/order/presentation/order_tracking/view/mock/order_tracking_mock_data.dart';
+import 'package:flower_app/features/order/domain/use_cases/confirm_delivery_use_case.dart';
+import 'package:flower_app/features/order/domain/use_cases/get_order_route_use_case.dart';
+import 'package:flower_app/features/order/domain/use_cases/watch_order_tracking_use_case.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_event.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_state.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_ui_event.dart';
@@ -15,35 +18,44 @@ import 'package:injectable/injectable.dart';
 @Injectable()
 class OrderTrackingViewModel
     extends UiEventCubit<OrderTrackingState, OrderTrackingUiEvent> {
-  OrderTrackingViewModel()
-    : super(
+  OrderTrackingViewModel(
+    this._watchOrderTracking,
+    this._confirmDeliveryUseCase,
+    this._getOrderRoute,
+  ) : super(
         const OrderTrackingState(trackingState: BaseState(isLoading: true)),
       );
 
-  static const _pollEvery = Duration(seconds: 5);
+  final WatchOrderTrackingUseCase _watchOrderTracking;
+  final ConfirmDeliveryUseCase _confirmDeliveryUseCase;
+  final GetOrderRouteUseCase _getOrderRoute;
 
-  Timer? _polling;
-  String? _orderId;
+  StreamSubscription<TrackingEntity>? _subscription;
+  bool _routeLoaded = false;
 
   Future<void> onEvent(OrderTrackingEvent event) async {
     switch (event) {
       case LoadOrderTracking(:final orderId):
-        await _load(orderId);
-
       case WatchOrderTracking(:final orderId):
-        _orderId = orderId;
-        await _load(orderId);
-        _watchWhileOpen();
+        await _watch(orderId);
 
       case StopWatchingOrderTracking():
-        _polling?.cancel();
+        await _cancelWatch();
 
       case ConfirmOrderDelivered():
         await _confirmDelivery();
+
+      case OrderDetailsRequested():
+        emitUiEvent(const TrackingNavigateBack());
     }
   }
 
-  Future<void> _load(String? orderId) async {
+  Future<void> _watch(String? orderId) async {
+    if (orderId == null || orderId.isEmpty) {
+      _emitFailure();
+      return;
+    }
+
     if (state.tracking == null) {
       emit(
         state.copyWith(
@@ -55,34 +67,66 @@ class OrderTrackingViewModel
       );
     }
 
-    final TrackingEntity? tracking = await fetchTracking(orderId);
+    await _cancelWatch();
+    _routeLoaded = false;
+    _subscription = _watchOrderTracking(orderId: orderId).listen(
+      _onTracking,
+      onError: _onFailure,
+    );
+  }
 
-    if (tracking == null) {
-      emit(
-        state.copyWith(
-          trackingState: BaseState<TrackingEntity>(
-            errorMessage: state.errorMessage.isEmpty
-                ? AppString.unknown
-                : state.errorMessage,
-            data: state.tracking,
-          ),
-        ),
-      );
-      return;
-    }
-
+  void _onTracking(TrackingEntity tracking) {
     emit(
       state.copyWith(
         trackingState: BaseState<TrackingEntity>(data: tracking),
-        routePoints: OrderTrackingMockData.routePoints,
+      ),
+    );
+    unawaited(_loadRoute(tracking));
+    if (tracking.isFinished) {
+      unawaited(_cancelWatch());
+    }
+  }
+
+  Future<void> _loadRoute(TrackingEntity tracking) async {
+    if (_routeLoaded) return;
+    final from = tracking.storeLocation;
+    final to = tracking.destination;
+    if (from == null || to == null) return;
+
+    _routeLoaded = true;
+    final result = await _getOrderRoute(from: from, to: to);
+    if (isClosed) return;
+    if (result case SuccessResponse(:final data) when data.isNotEmpty) {
+      emit(state.copyWith(routePoints: data));
+    }
+  }
+
+  void _onFailure(Object error, StackTrace stackTrace) {
+    _emitFailure(message: _resolveMessage(error));
+  }
+
+  void _emitFailure({String? message}) {
+    emit(
+      state.copyWith(
+        trackingState: BaseState<TrackingEntity>(
+          errorMessage:
+              message ??
+              (state.errorMessage.isEmpty ? AppString.unknown : state.errorMessage),
+          data: state.tracking,
+        ),
       ),
     );
   }
 
-  void _watchWhileOpen() {
-    _polling?.cancel();
-    if (state.tracking?.isFinished ?? false) return;
-    _polling = Timer.periodic(_pollEvery, (_) => _load(_orderId));
+  String _resolveMessage(Object error) {
+    if (error is AppError) return error.message;
+    if (error is AppFailure) return error.message;
+    return AppString.unknown;
+  }
+
+  Future<void> _cancelWatch() async {
+    await _subscription?.cancel();
+    _subscription = null;
   }
 
   Future<void> _confirmDelivery() async {
@@ -91,35 +135,39 @@ class OrderTrackingViewModel
 
     emit(state.copyWith(isConfirmingDelivery: true));
 
-    final confirmed = current.copyWith(
-      status: OrderStatus.delivered,
-      timeline: [
-        ...current.timeline,
-        TimelineStepEntity(
-          status: OrderStatus.delivered,
-          isCompleted: true,
-          isCurrent: false,
-          occurredAt: DateTime.now().toUtc(),
+    final result = await _confirmDeliveryUseCase(orderId: current.orderId);
+
+    if (result case SuccessResponse(:final data)) {
+      final confirmed = current.copyWith(
+        status: data.status,
+        timeline: [
+          ...current.timeline,
+          TimelineStepEntity(
+            status: data.status,
+            isCompleted: true,
+            isCurrent: false,
+            occurredAt: data.confirmedAt ?? DateTime.now().toUtc(),
+          ),
+        ],
+      );
+
+      await _cancelWatch();
+      emit(
+        state.copyWith(
+          isConfirmingDelivery: false,
+          trackingState: BaseState<TrackingEntity>(data: confirmed),
         ),
-      ],
-    );
-
-    emit(
-      state.copyWith(
-        isConfirmingDelivery: false,
-        trackingState: BaseState<TrackingEntity>(data: confirmed),
-      ),
-    );
-    _polling?.cancel();
-    emitUiEvent(const ShowTrackingMessage(AppString.statusDelivered));
+      );
+      emitUiEvent(const ShowTrackingMessage(AppString.statusDelivered));
+    } else if (result case ErrorResponse(:final appError)) {
+      emit(state.copyWith(isConfirmingDelivery: false));
+      emitUiEvent(ShowTrackingMessage(appError.message));
+    }
   }
-
-  Future<TrackingEntity?> fetchTracking(String? orderId) async =>
-      OrderTrackingMockData.tracking;
 
   @override
   Future<void> close() {
-    _polling?.cancel();
+    unawaited(_cancelWatch());
     return super.close();
   }
 }

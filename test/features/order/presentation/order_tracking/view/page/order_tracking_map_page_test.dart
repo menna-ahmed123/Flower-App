@@ -1,9 +1,17 @@
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
+import 'package:flower_app/features/order/domain/entities/delivery_confirmation_entity.dart';
+import 'package:flower_app/features/order/domain/entities/order_entity.dart';
 import 'package:flower_app/features/order/domain/entities/order_status.dart';
+import 'package:flower_app/features/order/domain/entities/geo_point.dart';
 import 'package:flower_app/features/order/domain/entities/tracking_entity.dart';
+import 'package:flower_app/features/order/domain/repos/order_repo.dart';
+import 'package:flower_app/features/order/domain/use_cases/confirm_delivery_use_case.dart';
+import 'package:flower_app/features/order/domain/use_cases/get_order_route_use_case.dart';
+import 'package:flower_app/features/order/domain/use_cases/watch_order_tracking_use_case.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/page/order_tracking_map_page.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/no_driver_map_banner.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/staleness_badge.dart';
@@ -19,8 +27,49 @@ import 'package:go_router/go_router.dart';
 import '../../../../../../fixtures/tracking_fixtures.dart';
 import '../../../../../../helpers/pump_app.dart';
 
-/// The page reads whatever the view model above it holds.
+/// The page reads whatever the view model above it holds; the watch source
+/// stays silent because these tests drive the state directly.
+class _SilentOrderRepo implements OrderRepo {
+  @override
+  Stream<TrackingEntity> watchTracking({required String orderId}) =>
+      const Stream.empty();
+
+  @override
+  Future<BaseResponse<List<OrderEntity>>> getAllOrders({
+    int? page,
+    int? pageSize,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<BaseResponse<TrackingEntity>> orderTracking({
+    required String orderId,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<BaseResponse<DeliveryConfirmationEntity>> confirmDelivery({
+    required String orderId,
+  }) async => SuccessResponse(
+        DeliveryConfirmationEntity(
+          orderId: orderId,
+          status: OrderStatus.delivered,
+          confirmedAt: DateTime.utc(2024, 9, 3, 12),
+        ),
+      );
+
+  @override
+  Future<BaseResponse<List<GeoPoint>>> fetchRoute({
+    required GeoPoint from,
+    required GeoPoint to,
+  }) async => const SuccessResponse([]);
+}
+
 class _TestViewModel extends OrderTrackingViewModel {
+  _TestViewModel() : super(
+        WatchOrderTrackingUseCase(_SilentOrderRepo()),
+        ConfirmDeliveryUseCase(_SilentOrderRepo()),
+        GetOrderRouteUseCase(_SilentOrderRepo()),
+      );
+
   void emitState(OrderTrackingState state) => emit(state);
 }
 
@@ -79,17 +128,31 @@ void main() {
     expect(find.byType(StalenessBadge), findsNothing);
   });
 
+  testWidgets('assigned driver without a live location starts at the store', (tester) async {
+    await _pumpMap(
+      tester,
+      tracking: trackingFixture(
+        status: OrderStatus.outForDelivery,
+        withDriverLocation: false,
+      ),
+    );
+    final map = tester.widget<TrackingMap>(find.byType(TrackingMap));
+    expect(map.driver, storePoint);
+    expect(find.byType(StalenessBadge), findsOneWidget);
+  });
+
   testWidgets('Order details is offered and tappable', (tester) async {
-    // There is no order-details route yet, so the screen handles it in private:
-    // tapping must not throw anything.
+    // Pumped without a router: the screen guards its pop, so tapping here must
+    // stay a safe no-op instead of throwing.
     await _pumpMap(tester, tracking: trackingFixture());
     expect(find.text('Order details'), findsOneWidget);
     await tester.tap(find.text('Order details'));
     expect(tester.takeException(), isNull);
   });
 
-  // The back button is not a callback: the screen pops its own route.
-  testWidgets('back button pops the route it was pushed on', (tester) async {
+  // With a real router under it, "Order details" returns to the page the map
+  // was pushed from (the order details live directly below in the stack).
+  testWidgets('Order details pops back to the details page', (tester) async {
     tester.view.physicalSize = const Size(414, 896);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -108,7 +171,7 @@ void main() {
       routes: [
         GoRoute(
           path: AppRoutesName.home,
-          builder: (_, _) => const Text('home-page'),
+          builder: (_, _) => const Text('details-page'),
         ),
         GoRoute(
           path: AppRoutesName.orderTrackingMapPage,
@@ -132,10 +195,16 @@ void main() {
     await _pumpTransition(tester);
     expect(find.byType(OrderTrackingMapPage), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.tap(find.text('Order details'));
     await _pumpTransition(tester);
     expect(find.byType(OrderTrackingMapPage), findsNothing);
-    expect(find.text('home-page'), findsOneWidget);
+    expect(find.text('details-page'), findsOneWidget);
+  });
+
+  // The only way back is the bottom button; there is no top back arrow.
+  testWidgets('no top back button on the map', (tester) async {
+    await _pumpMap(tester, tracking: trackingFixture());
+    expect(find.byIcon(Icons.arrow_back), findsNothing);
   });
 }
 
