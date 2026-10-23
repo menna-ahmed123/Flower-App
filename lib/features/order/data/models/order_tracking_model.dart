@@ -23,7 +23,7 @@ class OrderTrackingModel {
   @JsonKey(name: "storeLocation")
   final StoreLocation? storeLocation;
 
-  OrderTrackingModel ({
+  OrderTrackingModel({
     required this.orderId,
     this.orderNumber,
     this.status,
@@ -55,7 +55,7 @@ class Timeline {
   @JsonKey(name: "occurredAt")
   final String? occurredAt;
 
-  Timeline ({
+  Timeline({
     this.status,
     this.isCompleted,
     this.isCurrent,
@@ -84,7 +84,7 @@ class Driver {
   @JsonKey(name: "assignedAt")
   final String? assignedAt;
 
-  Driver ({
+  Driver({
     this.driverId,
     this.name,
     this.phone,
@@ -114,7 +114,7 @@ class LastKnownLocation {
   @JsonKey(name: "isStale")
   final bool? isStale;
 
-  LastKnownLocation ({
+  LastKnownLocation({
     this.lat,
     this.lng,
     this.recordedAt,
@@ -146,7 +146,7 @@ class Destination {
   @JsonKey(name: "area")
   final String? area;
 
-  Destination ({
+  Destination({
     this.lat,
     this.lng,
     this.recipientName,
@@ -171,7 +171,7 @@ class StoreLocation {
   @JsonKey(name: "lng")
   final double? lng;
 
-  StoreLocation ({
+  StoreLocation({
     this.lat,
     this.lng,
   });

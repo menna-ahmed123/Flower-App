@@ -12,7 +12,7 @@ class OrderTrackingFcmDataSourceImpl implements OrderTrackingFcmDataSource {
   @override
   Stream<void> watchChangeSignals({required String orderId}) {
     return _fcmService.onMessage
-        .where((message) => message.data[_orderIdKey] == orderId)
+        .where((message) => message.data[_orderIdKey]?.toString() == orderId)
         .map((_) {});
   }
 }

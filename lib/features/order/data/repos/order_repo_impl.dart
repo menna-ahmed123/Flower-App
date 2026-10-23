@@ -134,6 +134,7 @@ class OrderRepoImpl implements OrderRepo {
         changeSignalSubscription = null;
         pollTimer?.cancel();
         pollTimer = null;
+        unawaited(controller.close());
       },
     );
 
