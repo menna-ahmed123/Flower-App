@@ -1,14 +1,23 @@
 import 'package:flower_app/app/router/app_routes.dart';
+import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/base/base_state.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
+import 'package:flower_app/features/order/domain/entities/delivery_confirmation_entity.dart';
+import 'package:flower_app/features/order/domain/entities/order_entity.dart';
 import 'package:flower_app/features/order/domain/entities/order_status.dart';
+import 'package:flower_app/features/order/domain/entities/geo_point.dart';
 import 'package:flower_app/features/order/domain/entities/tracking_entity.dart';
+import 'package:flower_app/features/order/domain/repos/order_repo.dart';
+import 'package:flower_app/features/order/domain/use_cases/confirm_delivery_use_case.dart';
+import 'package:flower_app/features/order/domain/use_cases/get_order_route_use_case.dart';
+import 'package:flower_app/features/order/domain/use_cases/watch_order_tracking_use_case.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/page/order_tracking_page.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/waiting_for_driver_card.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_event.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_state.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_ui_event.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,8 +28,54 @@ import 'package:go_router/go_router.dart';
 import '../../../../../../fixtures/tracking_fixtures.dart';
 import '../../../../../../helpers/pump_app.dart';
 
+/// Answers every watch with the same fresh order, the way the repository
+/// would once polling and pushes are wired up.
+class _StubOrderRepo implements OrderRepo {
+  @override
+  Stream<BaseResponse<TrackingEntity>> watchTracking({
+    required String orderId,
+  }) =>
+      Stream.value(
+        SuccessResponse(trackingFixture(status: OrderStatus.outForDelivery)),
+      );
+
+  @override
+  Future<BaseResponse<List<OrderEntity>>> getAllOrders({
+    int? page,
+    int? pageSize,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<BaseResponse<TrackingEntity>> orderTracking({
+    required String orderId,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<BaseResponse<DeliveryConfirmationEntity>> confirmDelivery({
+    required String orderId,
+  }) async => SuccessResponse(
+        DeliveryConfirmationEntity(
+          orderId: orderId,
+          status: OrderStatus.delivered,
+          confirmedAt: DateTime.utc(2024, 9, 3, 12),
+        ),
+      );
+
+  @override
+  Future<BaseResponse<List<GeoPoint>>> fetchRoute({
+    required GeoPoint from,
+    required GeoPoint to,
+  }) async => const SuccessResponse([]);
+}
+
 /// Lets a test put the screen on any state, the way the cart tests do.
 class _TestViewModel extends OrderTrackingViewModel {
+  _TestViewModel() : super(
+        WatchOrderTrackingUseCase(_StubOrderRepo()),
+        ConfirmDeliveryUseCase(_StubOrderRepo()),
+        GetOrderRouteUseCase(_StubOrderRepo()),
+      );
+
   void emitState(OrderTrackingState state) => emit(state);
 }
 
@@ -72,12 +127,12 @@ void main() {
     await tester.pump();
     // Retry goes through the view model, which answers with the order.
     expect(find.text('Network down'), findsNothing);
-    expect(find.text('Ahmed Mohamed'), findsOneWidget);
+    expect(find.text('Muhamed'), findsOneWidget);
   });
 
   testWidgets('the view model feeds the screen', (tester) async {
     await _pumpPage(tester, load: true);
-    expect(find.text('Ahmed Mohamed'), findsOneWidget);
+    expect(find.text('Muhamed'), findsOneWidget);
     expect(find.text(AppString.trackingStepOutForDelivery), findsOneWidget);
   });
 
@@ -118,6 +173,8 @@ void main() {
     await _pumpPage(tester, tracking: trackingFixture(withDriver: false));
     expect(find.byType(WaitingForDriverCard), findsOneWidget);
     expect(find.text('Muhamed'), findsNothing);
+    // No driver means nothing to map, so the Show Map action disappears.
+    expect(find.text(AppString.showMap), findsNothing);
   });
 
   // Show Map is navigation, so the screen pushes it and hands over its own
@@ -170,5 +227,59 @@ void main() {
     }
 
     expect(find.text('full-map-page'), findsOneWidget);
+  });
+
+  // The shared view model also feeds the map page above; a navigate-back
+  // announcement belongs to the map only and must never unwind these details.
+  testWidgets('a navigate-back ui event does not close the tracking page',
+      (tester) async {
+    tester.view.physicalSize = const Size(414, 896);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final viewModel = _TestViewModel();
+    addTearDown(viewModel.close);
+    await viewModel.onEvent(LoadOrderTracking('o1'));
+
+    final router = GoRouter(
+      initialLocation: AppRoutesName.home,
+      routes: [
+        GoRoute(
+          path: AppRoutesName.home,
+          builder: (_, _) => const Text('home-page'),
+        ),
+        GoRoute(
+          path: AppRoutesName.trackOrder,
+          builder: (_, _) => BlocProvider<OrderTrackingViewModel>.value(
+            value: viewModel,
+            child: const OrderTrackingPage(orderId: 'o1'),
+          ),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(414, 896),
+        builder: (_, _) => MaterialApp.router(
+          theme: AppTheme(lightThemeColors).themeData,
+          routerConfig: router,
+        ),
+      ),
+    );
+
+    router.push(AppRoutesName.trackOrder);
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byType(OrderTrackingPage), findsOneWidget);
+
+    viewModel.emitUiEvent(const TrackingNavigateBack());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.byType(OrderTrackingPage), findsOneWidget);
+    expect(find.text('home-page'), findsNothing);
   });
 }

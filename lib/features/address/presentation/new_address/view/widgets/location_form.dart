@@ -262,9 +262,8 @@ class _LocationFormState extends State<LocationForm> {
             ),
             SizedBox(height: 16.h),
             
-            Expanded(
-              child: DropDown<String>(
-                labelText: 'Label',
+            DropDown<String>(
+              labelText: 'Label',
                 hintText: 'Home / Office',
                 value: _labelController.text.isEmpty
                     ? null
@@ -287,8 +286,7 @@ class _LocationFormState extends State<LocationForm> {
                     return 'Required';
                   }
                   return null;
-                },
-              ),
+              },
             ),
             SizedBox(height: 32.h),
 

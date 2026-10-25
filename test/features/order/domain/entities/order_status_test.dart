@@ -39,10 +39,12 @@ void main() {
       expect(OrderStatus.unknown.timelineStep, 0);
       expect(OrderStatus.cancelled.timelineStep, 0);
       expect(OrderStatus.preparing.timelineStep, 1);
-      expect(OrderStatus.pickedUp.timelineStep, 2);
+      // Picking up is not "out for delivery" yet: it stays on preparing.
+      expect(OrderStatus.pickedUp.timelineStep, 1);
       expect(OrderStatus.outForDelivery.timelineStep, 2);
       expect(OrderStatus.arrived.timelineStep, 2);
-      expect(OrderStatus.awaitingDeliveryConfirmation.timelineStep, 2);
+      // Awaiting confirmation reaches the final (delivered) step.
+      expect(OrderStatus.awaitingDeliveryConfirmation.timelineStep, 3);
       expect(OrderStatus.delivered.timelineStep, 4);
     });
 

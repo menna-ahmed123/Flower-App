@@ -31,9 +31,7 @@ class OrderTrackingContent extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
-          EstimatedArrivalSection(
-            estimatedArrivalDateTime: tracking.estimatedArrival,
-          ),
+          const EstimatedArrivalSection(),
           SizedBox(height: 40.h),
           TrackingDriverSection(driver: tracking.driver),
           SizedBox(height: 30.h),

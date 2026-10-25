@@ -2,6 +2,7 @@ import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
+import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/features/cart/presentation/view/screen/confirmation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,7 +13,8 @@ void main() {
   testWidgets('Track Order passes the order id', (tester) async {
     await _pumpConfirmation(tester, orderId: 'order-1');
 
-    await tester.tap(find.text(AppString.trackOrder));
+    // The screen title carries the same text, so target the button itself.
+    await tester.tap(find.widgetWithText(AppButton, AppString.trackOrder));
     await tester.pumpAndSettle();
 
     expect(find.text('track:order-1'), findsOneWidget);

@@ -2,20 +2,15 @@ import 'dart:async';
 
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_string.dart';
-import 'package:flower_app/features/order/domain/entities/tracking_entity.dart';
-import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/order_tracking_content.dart';
-import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/tracking_action_buttons.dart';
-import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/tracking_error_view.dart';
+import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/order_tracking_body.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_event.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_state.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_ui_event.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-/// Needs only [orderId]: the view model loads the order and keeps it fresh.
 class OrderTrackingPage extends StatefulWidget {
   const OrderTrackingPage({super.key, this.orderId});
 
@@ -46,6 +41,10 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(message)));
+      // Owned by the map page stacked above this one; popping here too would
+      // unwind two routes for a single tap.
+      case TrackingNavigateBack():
+        break;
     }
   }
 
@@ -55,8 +54,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       appBar: AppBar(title: const Text(AppString.trackingOrder)),
       body: SafeArea(
         child: BlocBuilder<OrderTrackingViewModel, OrderTrackingState>(
-          builder: (_, state) => _OrderTrackingBody(
+          builder: (_, state) => OrderTrackingBody(
             tracking: state.tracking,
+            isLoading: state.isLoading,
             errorMessage: state.errorMessage,
             isConfirmingDelivery: state.isConfirmingDelivery,
             onShowMap: () => context.push(
@@ -72,50 +72,6 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _OrderTrackingBody extends StatelessWidget {
-  const _OrderTrackingBody({
-    required this.tracking,
-    required this.errorMessage,
-    required this.isConfirmingDelivery,
-    required this.onShowMap,
-    required this.onOrderDelivered,
-    required this.onRetry,
-  });
-
-  final TrackingEntity? tracking;
-  final String errorMessage;
-  final bool isConfirmingDelivery;
-  final VoidCallback onShowMap;
-  final VoidCallback onOrderDelivered;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tracking;
-    if (t == null) {
-      if (errorMessage.isNotEmpty) {
-        return TrackingErrorView(message: errorMessage, onRetry: onRetry);
-      }
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return Column(
-      children: [
-        Expanded(child: OrderTrackingContent(tracking: t)),
-        Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
-          child: TrackingActionButtons(
-            onShowMap: onShowMap,
-            onOrderDelivered: onOrderDelivered,
-            showOrderDelivered: t.canConfirmDelivery,
-            isConfirming: isConfirmingDelivery,
-          ),
-        ),
-      ],
     );
   }
 }

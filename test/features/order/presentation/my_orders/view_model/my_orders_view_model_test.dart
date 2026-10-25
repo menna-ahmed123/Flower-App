@@ -1,8 +1,11 @@
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/core/utils/pagination/pagination_state.dart';
+import 'package:flower_app/features/order/domain/entities/delivery_confirmation_entity.dart';
 import 'package:flower_app/features/order/domain/entities/order_entity.dart';
 import 'package:flower_app/features/order/domain/entities/order_status.dart';
+import 'package:flower_app/features/order/domain/entities/geo_point.dart';
+import 'package:flower_app/features/order/domain/entities/tracking_entity.dart';
 import 'package:flower_app/features/order/domain/repos/order_repo.dart';
 import 'package:flower_app/features/order/domain/use_cases/get_all_orders_use_case.dart';
 import 'package:flower_app/features/order/presentation/my_orders/view/models/my_orders_tab.dart';
@@ -18,6 +21,31 @@ class _StubOrderRepo implements OrderRepo {
   Future<BaseResponse<List<OrderEntity>>> getAllOrders({
     int? page,
     int? pageSize,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<BaseResponse<TrackingEntity>> orderTracking({
+    required String orderId,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Stream<BaseResponse<TrackingEntity>> watchTracking({
+    required String orderId,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<BaseResponse<DeliveryConfirmationEntity>> confirmDelivery({
+    required String orderId,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<BaseResponse<List<GeoPoint>>> fetchRoute({
+    required GeoPoint from,
+    required GeoPoint to,
   }) =>
       throw UnimplementedError();
 }

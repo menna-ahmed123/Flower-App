@@ -93,7 +93,9 @@ class AuthCubit extends Cubit<AuthState>
         // Keep the existing authentication flow.
       }
 
-      await _syncFcmTokenUseCase();
+      // A restored session may belong to a different account than the one
+      // that last synced on this device, so force the rebind as on login.
+      await _syncFcmTokenUseCase(force: true);
     }
 
     emit(
@@ -150,8 +152,9 @@ class AuthCubit extends Cubit<AuthState>
       return;
     }
 
-    // Login already sends the current device ID and FCM token.
-    // The listener handles future token changes through AuthStatus.
+    // Login itself never registers the token; force past the device-wide
+    // dedupe so the backend binds it to this account, not the previous one.
+    await _syncFcmTokenUseCase(force: true);
 
     emit(state.copyWith(requiresAuthentication: false));
 

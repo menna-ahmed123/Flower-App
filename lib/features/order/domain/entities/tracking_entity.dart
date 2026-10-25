@@ -17,7 +17,6 @@ class TrackingEntity extends Equatable {
     this.driverLocation,
     this.destination,
     this.storeLocation,
-    this.estimatedArrival,
   });
 
   final String orderId;
@@ -29,18 +28,19 @@ class TrackingEntity extends Equatable {
   final DriverLocationEntity? driverLocation;
   final GeoPoint? destination;
   final GeoPoint? storeLocation;
-  final DateTime? estimatedArrival;
 
   bool get isFinished => status.isFinished;
   bool get canConfirmDelivery =>
       status == OrderStatus.awaitingDeliveryConfirmation;
   int get uiStepIndex => status.timelineStep;
 
+  GeoPoint? get mapDriverLocation =>
+      driverLocation?.point ?? (driver != null ? storeLocation : null);
+
   TrackingEntity copyWith({
     OrderStatus? status,
     bool? isTrackingActive,
     List<TimelineStepEntity>? timeline,
-    DateTime? estimatedArrival,
   }) {
     return TrackingEntity(
       orderId: orderId,
@@ -52,7 +52,6 @@ class TrackingEntity extends Equatable {
       driverLocation: driverLocation,
       destination: destination,
       storeLocation: storeLocation,
-      estimatedArrival: estimatedArrival ?? this.estimatedArrival,
     );
   }
 
@@ -67,6 +66,5 @@ class TrackingEntity extends Equatable {
         driverLocation,
         destination,
         storeLocation,
-        estimatedArrival,
       ];
 }

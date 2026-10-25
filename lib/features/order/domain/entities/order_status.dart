@@ -47,12 +47,13 @@ extension OrderStatusTimelineStep on OrderStatus {
       case OrderStatus.cancelled:
         return 0;
       case OrderStatus.preparing:
-        return 1;
       case OrderStatus.pickedUp:
+        return 1;
       case OrderStatus.outForDelivery:
       case OrderStatus.arrived:
-      case OrderStatus.awaitingDeliveryConfirmation:
         return 2;
+      case OrderStatus.awaitingDeliveryConfirmation:
+        return 3;
       case OrderStatus.delivered:
         return 4;
     }
