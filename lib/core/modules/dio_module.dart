@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
 import 'package:flower_app/core/constants/env_config.dart';
+import 'package:flower_app/core/constants/injection_keys.dart';
 import 'package:flower_app/core/network/auth_interceptors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
@@ -20,7 +21,7 @@ abstract class DioModule {
   }
 
   @singleton
-  @Named('osrmDio')
+  @Named(InjectionKeys.osrmDio)
   Dio provideOsrmDio() => Dio(
     BaseOptions(
       baseUrl: EnvConfig.osrmBaseUrl,

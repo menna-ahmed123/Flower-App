@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flower_app/core/constants/injection_keys.dart';
 import 'package:flower_app/features/address/api/address_api_client.dart';
 import 'package:flower_app/features/auth/forget_password/api/client/forget_password_api_client.dart';
 import 'package:flower_app/features/auth/login/data/api/auth_api_client.dart';
@@ -46,6 +47,6 @@ abstract class ApiModule {
   OrderApiClient provideOrderApiClient(Dio dio) => OrderApiClient(dio);
 
   @singleton
-  OsrmApiClient provideOsrmApiClient(@Named('osrmDio') Dio dio) =>
+  OsrmApiClient provideOsrmApiClient(@Named(InjectionKeys.osrmDio) Dio dio) =>
       OsrmApiClient(dio);
 }

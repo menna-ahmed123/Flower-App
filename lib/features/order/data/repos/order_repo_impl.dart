@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/api_request_params.dart';
+import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/order/data/data_sources/order_remote_data_source.dart';
 import 'package:flower_app/features/order/data/data_sources/order_osrm_remote_data_source.dart';
 import 'package:flower_app/features/order/data/data_sources/order_tracking_fcm_data_source.dart';
@@ -88,40 +89,62 @@ class OrderRepoImpl implements OrderRepo {
   }
 
   @override
-  Stream<TrackingEntity> watchTracking({required String orderId}) {
-    late final StreamController<TrackingEntity> controller;
+  Stream<BaseResponse<TrackingEntity>> watchTracking({
+    required String orderId,
+  }) {
+    late final StreamController<BaseResponse<TrackingEntity>> controller;
     StreamSubscription<void>? changeSignalSubscription;
     Timer? pollTimer;
-    TrackingEntity? lastEmitted;
+    TrackingEntity? lastEntity;
+    String? lastErrorMessage;
     bool pollInFlight = false;
+    bool pollQueued = false;
 
     void publish(TrackingEntity entity) {
-      if (entity == lastEmitted) return;
-      lastEmitted = entity;
-      controller.add(entity);
+      if (entity == lastEntity) return;
+      lastEntity = entity;
+      lastErrorMessage = null;
+      controller.add(SuccessResponse(entity));
       if (entity.isFinished) {
         pollTimer?.cancel();
         pollTimer = null;
       }
     }
 
+    // Failures travel as data events, so no raw exception ever reaches the
+    // cubit; the identical message is reported once until the next change.
+    void publishFailure(AppError error) {
+      if (error.message == lastErrorMessage) return;
+      lastErrorMessage = error.message;
+      controller.add(ErrorResponse(appError: error));
+    }
+
     Future<void> poll() async {
-      if (pollInFlight) return;
+      if (pollInFlight) {
+        // A signal during a request must not be lost: remember it and run
+        // exactly one more fetch once the in-flight request settles.
+        pollQueued = true;
+        return;
+      }
       pollInFlight = true;
       try {
-        final result = await orderTracking(orderId: orderId);
-        if (controller.isClosed) return;
-        if (result case SuccessResponse(:final data)) {
-          publish(data);
-        } else if (result case ErrorResponse(:final appError)) {
-          controller.addError(appError);
-        }
+        do {
+          pollQueued = false;
+          final result = await orderTracking(orderId: orderId);
+          if (controller.isClosed) return;
+          switch (result) {
+            case SuccessResponse(:final data):
+              publish(data);
+            case ErrorResponse(:final appError):
+              publishFailure(appError);
+          }
+        } while (pollQueued);
       } finally {
         pollInFlight = false;
       }
     }
 
-    controller = StreamController<TrackingEntity>.broadcast(
+    controller = StreamController<BaseResponse<TrackingEntity>>.broadcast(
       onListen: () {
         changeSignalSubscription = orderTrackingFcmDataSource
             .watchChangeSignals(orderId: orderId)

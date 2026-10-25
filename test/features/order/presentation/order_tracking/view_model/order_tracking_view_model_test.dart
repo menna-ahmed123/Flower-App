@@ -4,6 +4,7 @@ import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/order/domain/entities/delivery_confirmation_entity.dart';
+import 'package:flower_app/features/order/domain/entities/driver_location_entity.dart';
 import 'package:flower_app/features/order/domain/entities/order_entity.dart';
 import 'package:flower_app/features/order/domain/entities/order_status.dart';
 import 'package:flower_app/features/order/domain/entities/geo_point.dart';
@@ -22,7 +23,8 @@ import '../../../../../fixtures/tracking_fixtures.dart';
 /// Hands the view model a stream the test pushes values and errors into,
 /// the way the repository would through the watch use case.
 class _FakeOrderRepo implements OrderRepo {
-  final controller = StreamController<TrackingEntity>.broadcast();
+  final controller =
+      StreamController<BaseResponse<TrackingEntity>>.broadcast();
 
   /// What the repo answers confirmDelivery with; tests can swap in a failure.
   BaseResponse<DeliveryConfirmationEntity> confirmDeliveryResult =
@@ -34,8 +36,16 @@ class _FakeOrderRepo implements OrderRepo {
         ),
       );
 
+  /// What the fake OSRM answers route asks with; empty keeps the map blank.
+  List<GeoPoint> routeResponse = const [];
+
+  /// Where the view model asked for a route from, in call order.
+  final routeRequests = <GeoPoint>[];
+
   @override
-  Stream<TrackingEntity> watchTracking({required String orderId}) =>
+  Stream<BaseResponse<TrackingEntity>> watchTracking({
+    required String orderId,
+  }) =>
       controller.stream;
 
   @override
@@ -60,7 +70,10 @@ class _FakeOrderRepo implements OrderRepo {
   Future<BaseResponse<List<GeoPoint>>> fetchRoute({
     required GeoPoint from,
     required GeoPoint to,
-  }) async => const SuccessResponse([]);
+  }) async {
+    routeRequests.add(from);
+    return SuccessResponse(routeResponse);
+  }
 }
 
 class _Harness {
@@ -79,12 +92,12 @@ class _Harness {
   late final OrderTrackingViewModel viewModel;
 
   Future<void> emit(TrackingEntity tracking) async {
-    repo.controller.add(tracking);
+    repo.controller.add(SuccessResponse(tracking));
     await pumpEventQueue();
   }
 
-  Future<void> fail(Object error) async {
-    repo.controller.addError(error);
+  Future<void> fail(String message) async {
+    repo.controller.add(ErrorResponse(appError: BadResponseError(message)));
     await pumpEventQueue();
   }
 }
@@ -125,14 +138,24 @@ void main() {
       );
     });
 
-    test('a stream error leaves a message to retry from', () async {
+    test('a failed fetch leaves a message to retry from', () async {
       final harness = _Harness();
 
       await harness.viewModel.onEvent(WatchOrderTracking('o1'));
-      await harness.fail(BadResponseError('Network down'));
+      await harness.fail('Network down');
 
       expect(harness.viewModel.state.tracking, isNull);
       expect(harness.viewModel.state.errorMessage, 'Network down');
+    });
+
+    test('an unexpected raw stream error still shows a message', () async {
+      final harness = _Harness();
+
+      await harness.viewModel.onEvent(WatchOrderTracking('o1'));
+      harness.repo.controller.addError(BadResponseError('Boom'));
+      await pumpEventQueue();
+
+      expect(harness.viewModel.state.errorMessage, 'Boom');
     });
 
     test('a failure after data keeps what the customer sees', () async {
@@ -142,7 +165,7 @@ void main() {
       await harness.emit(trackingFixture(status: OrderStatus.outForDelivery));
       final stale = harness.viewModel.state.tracking;
 
-      await harness.fail(BadResponseError('Network down'));
+      await harness.fail('Network down');
 
       expect(harness.viewModel.state.tracking, stale);
       expect(harness.viewModel.state.errorMessage, 'Network down');
@@ -295,6 +318,77 @@ void main() {
       await pumpEventQueue();
 
       expect(effects, [const TrackingNavigateBack()]);
+    });
+  });
+
+  group('off-route redetection', () {
+    // driverPoint sits exactly midway on the store->home line; this fix is
+    // roughly 170 m to the side of it.
+    const offRoute = GeoPoint(30.0550, 31.2500);
+
+    TrackingEntity trackedAt(
+      GeoPoint point, {
+      bool isStale = false,
+    }) =>
+        TrackingEntity(
+          orderId: 'o1',
+          orderNumber: 'ORD-1',
+          status: OrderStatus.outForDelivery,
+          isTrackingActive: true,
+          timeline: timelineFor(OrderStatus.outForDelivery),
+          driver: driver,
+          driverLocation: DriverLocationEntity(point: point, isStale: isStale),
+          destination: homePoint,
+          storeLocation: storePoint,
+        );
+
+    Future<_Harness> watchWithRoute() async {
+      final harness = _Harness();
+      harness.repo.routeResponse = const [storePoint, homePoint];
+      await harness.viewModel.onEvent(WatchOrderTracking('o1'));
+      await harness.emit(trackedAt(driverPoint));
+      // The initial store->home fetch is the only one so far.
+      expect(harness.repo.routeRequests, [storePoint]);
+      return harness;
+    }
+
+    test('a driver staying on the line never refetches', () async {
+      final harness = await watchWithRoute();
+
+      await harness.emit(trackedAt(const GeoPoint(30.0501, 31.2302)));
+
+      expect(harness.repo.routeRequests, [storePoint]);
+    });
+
+    test('two updates in a row off the line refetch from the driver', () async {
+      final harness = await watchWithRoute();
+
+      await harness.emit(trackedAt(offRoute));
+      // One strike alone does not move the route.
+      expect(harness.repo.routeRequests, [storePoint]);
+
+      await harness.emit(trackedAt(offRoute));
+
+      expect(harness.repo.routeRequests, [storePoint, offRoute]);
+    });
+
+    test('getting back on the line resets the count', () async {
+      final harness = await watchWithRoute();
+
+      await harness.emit(trackedAt(offRoute));
+      await harness.emit(trackedAt(driverPoint));
+      await harness.emit(trackedAt(offRoute));
+
+      expect(harness.repo.routeRequests, [storePoint]);
+    });
+
+    test('stale fixes never count as going off-route', () async {
+      final harness = await watchWithRoute();
+
+      await harness.emit(trackedAt(offRoute, isStale: true));
+      await harness.emit(trackedAt(offRoute, isStale: true));
+
+      expect(harness.repo.routeRequests, [storePoint]);
     });
   });
 }

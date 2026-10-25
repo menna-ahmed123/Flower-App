@@ -31,7 +31,9 @@ class _StubOrderRepo implements OrderRepo {
       throw UnimplementedError();
 
   @override
-  Stream<TrackingEntity> watchTracking({required String orderId}) =>
+  Stream<BaseResponse<TrackingEntity>> watchTracking({
+    required String orderId,
+  }) =>
       throw UnimplementedError();
 
   @override

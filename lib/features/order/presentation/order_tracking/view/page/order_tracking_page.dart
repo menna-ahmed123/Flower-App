@@ -56,6 +56,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
         child: BlocBuilder<OrderTrackingViewModel, OrderTrackingState>(
           builder: (_, state) => OrderTrackingBody(
             tracking: state.tracking,
+            isLoading: state.isLoading,
             errorMessage: state.errorMessage,
             isConfirmingDelivery: state.isConfirmingDelivery,
             onShowMap: () => context.push(

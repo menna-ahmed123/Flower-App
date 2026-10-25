@@ -31,8 +31,10 @@ import '../../../../../../helpers/pump_app.dart';
 /// stays silent because these tests drive the state directly.
 class _SilentOrderRepo implements OrderRepo {
   @override
-  Stream<TrackingEntity> watchTracking({required String orderId}) =>
-      const Stream.empty();
+  Stream<BaseResponse<TrackingEntity>> watchTracking({
+    required String orderId,
+  }) =>
+      const Stream<BaseResponse<TrackingEntity>>.empty();
 
   @override
   Future<BaseResponse<List<OrderEntity>>> getAllOrders({

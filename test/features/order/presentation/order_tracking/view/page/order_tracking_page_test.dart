@@ -32,8 +32,12 @@ import '../../../../../../helpers/pump_app.dart';
 /// would once polling and pushes are wired up.
 class _StubOrderRepo implements OrderRepo {
   @override
-  Stream<TrackingEntity> watchTracking({required String orderId}) =>
-      Stream.value(trackingFixture(status: OrderStatus.outForDelivery));
+  Stream<BaseResponse<TrackingEntity>> watchTracking({
+    required String orderId,
+  }) =>
+      Stream.value(
+        SuccessResponse(trackingFixture(status: OrderStatus.outForDelivery)),
+      );
 
   @override
   Future<BaseResponse<List<OrderEntity>>> getAllOrders({

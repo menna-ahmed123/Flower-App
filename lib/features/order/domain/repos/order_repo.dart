@@ -23,5 +23,5 @@ abstract interface class OrderRepo {
     required GeoPoint to,
   });
 
-  Stream<TrackingEntity> watchTracking({required String orderId});
+  Stream<BaseResponse<TrackingEntity>> watchTracking({required String orderId});
 }

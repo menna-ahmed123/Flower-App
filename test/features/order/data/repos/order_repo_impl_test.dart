@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flower_app/core/base/api_response.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/api_request_params.dart';
-import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/features/order/data/data_sources/order_osrm_remote_data_source.dart';
 import 'package:flower_app/features/order/data/data_sources/order_remote_data_source.dart';
@@ -99,13 +98,14 @@ void main() {
 
   group('watchTracking', () {
     test('pulls the snapshot as soon as the page listens', () async {
-      final emissions = <TrackingEntity>[];
+      final emissions = <BaseResponse<TrackingEntity>>[];
       final sub = repo.watchTracking(orderId: 'o1').listen(emissions.add);
       await pumpEventQueue();
 
       expect(remote.callCount, 1);
       expect(emissions, hasLength(1));
-      expect(emissions.single.status, OrderStatus.outForDelivery);
+      expect((emissions.single as SuccessResponse).data.status,
+          OrderStatus.outForDelivery);
       await sub.cancel();
     });
 
@@ -114,9 +114,11 @@ void main() {
           ? _ok('OUT_FOR_DELIVERY')
           : _ok('ARRIVED');
       final emissions = <OrderStatus>[];
-      final sub = repo
-          .watchTracking(orderId: 'o1')
-          .listen((entity) => emissions.add(entity.status));
+      final sub = repo.watchTracking(orderId: 'o1').listen((response) {
+        if (response case SuccessResponse(:final data)) {
+          emissions.add(data.status);
+        }
+      });
       await pumpEventQueue();
 
       fcm.signal();
@@ -127,7 +129,8 @@ void main() {
       await sub.cancel();
     });
 
-    test('collapses signals that arrive while a fetch is in flight', () async {
+    test('collapses signals into one catch-up fetch after an in-flight poll',
+        () async {
       final gate = Completer<ApiResponse<OrderTrackingModel>>();
       remote.gate = gate;
       final sub = repo.watchTracking(orderId: 'o1').listen((_) {});
@@ -139,13 +142,19 @@ void main() {
       fcm.signal();
       await pumpEventQueue();
 
+      // Signals during a request never start a second one on top of it...
       expect(remote.callCount, 1);
+
       gate.complete(_ok('ARRIVED'));
+      await pumpEventQueue();
+
+      // ...but exactly one follow-up fetch runs once the request settles.
+      expect(remote.callCount, 2);
       await sub.cancel();
     });
 
     test('does not re-emit an unchanged snapshot', () async {
-      final emissions = <TrackingEntity>[];
+      final emissions = <BaseResponse<TrackingEntity>>[];
       final sub = repo.watchTracking(orderId: 'o1').listen(emissions.add);
       await pumpEventQueue();
 
@@ -157,21 +166,45 @@ void main() {
       await sub.cancel();
     });
 
-    test('reports a failed tracking fetch as a stream error', () async {
+    test('reports a failed tracking fetch as an ErrorResponse event', () async {
       remote.respond = (_) => ApiResponse(
             status: false,
             code: 500,
             message: 'Tracking unavailable',
             data: null,
           );
-      final errors = <Object>[];
-      final sub = repo
-          .watchTracking(orderId: 'o1')
-          .listen((_) {}, onError: errors.add);
+      final emissions = <BaseResponse<TrackingEntity>>[];
+      final sub = repo.watchTracking(orderId: 'o1').listen(emissions.add);
       await pumpEventQueue();
 
-      expect(errors, hasLength(1));
-      expect((errors.single as AppError).message, 'Tracking unavailable');
+      expect(emissions, hasLength(1));
+      expect(emissions.single, isA<ErrorResponse>());
+      expect((emissions.single as ErrorResponse).appError.message,
+          'Tracking unavailable');
+
+      // The same message must not spam the listener while the failure lasts.
+      fcm.signal();
+      await pumpEventQueue();
+      expect(remote.callCount, 2);
+      expect(emissions, hasLength(1));
+      await sub.cancel();
+    });
+
+    test('recovers with a fresh snapshot after a failure', () async {
+      remote.respond = (index) => index == 0
+          ? ApiResponse(
+              status: false, code: 500, message: 'Down', data: null)
+          : _ok('ARRIVED');
+      final emissions = <BaseResponse<TrackingEntity>>[];
+      final sub = repo.watchTracking(orderId: 'o1').listen(emissions.add);
+      await pumpEventQueue();
+
+      fcm.signal();
+      await pumpEventQueue();
+
+      expect(emissions.first, isA<ErrorResponse>());
+      expect((emissions.last as SuccessResponse).data.status,
+          OrderStatus.arrived);
       await sub.cancel();
     });
 

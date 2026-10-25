@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/features/order/domain/entities/tracking_entity.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/order_tracking_content.dart';
 import 'package:flower_app/features/order/presentation/order_tracking/view/widgets/tracking_action_buttons.dart';
@@ -9,6 +10,7 @@ class OrderTrackingBody extends StatelessWidget {
   const OrderTrackingBody({
     super.key,
     required this.tracking,
+    required this.isLoading,
     required this.errorMessage,
     required this.isConfirmingDelivery,
     required this.onShowMap,
@@ -17,6 +19,7 @@ class OrderTrackingBody extends StatelessWidget {
   });
 
   final TrackingEntity? tracking;
+  final bool isLoading;
   final String errorMessage;
   final bool isConfirmingDelivery;
   final VoidCallback onShowMap;
@@ -27,10 +30,14 @@ class OrderTrackingBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tracking;
     if (t == null) {
-      if (errorMessage.isNotEmpty) {
-        return TrackingErrorView(message: errorMessage, onRetry: onRetry);
+      if (isLoading) {
+        return const Center(child: CircularProgressIndicator());
       }
-      return const Center(child: CircularProgressIndicator());
+      // Not loading and still nothing to show: say so instead of spinning.
+      return TrackingErrorView(
+        message: errorMessage.isNotEmpty ? errorMessage : AppString.unknown,
+        onRetry: onRetry,
+      );
     }
 
     return Column(
