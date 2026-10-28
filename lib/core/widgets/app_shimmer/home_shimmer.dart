@@ -3,31 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Shimmer skeleton for the Home screen.
+/// Matches the real layout: header → banner → categories → best sellers → occasions.
 class HomeShimmer extends StatelessWidget {
   const HomeShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AppShimmerEffect(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 8.h),
             _buildHeader(),
-            SizedBox(height: 20.h),
+            _buildBanner(),
             _buildSectionHeader(),
-            SizedBox(height: 12.h),
             _buildCategoryRail(),
-            SizedBox(height: 20.h),
             _buildSectionHeader(),
-            SizedBox(height: 12.h),
             _buildProductRail(),
-            SizedBox(height: 20.h),
             _buildSectionHeader(),
-            SizedBox(height: 12.h),
             _buildOccasionRail(),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -35,65 +31,66 @@ class HomeShimmer extends StatelessWidget {
   }
 
   Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            ShimmerBox(
-              width: 24.w,
-              height: 24.w,
-              borderRadius: 4.r,
-            ),
-            SizedBox(width: 8.w),
-            ShimmerBox(
-              width: 90.w,
-              height: 22.h,
-              borderRadius: 4.r,
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        ShimmerBox(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Logo row: icon + "Flowery" text
+          Row(
+            children: [
+              ShimmerBox(width: 22.w, height: 22.w, borderRadius: 4.r),
+              SizedBox(width: 6.w),
+              ShimmerBox(width: 90.w, height: 22.h, borderRadius: 4.r),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          // Search bar
+          ShimmerBox(
+            width: double.infinity,
+            height: 44.h,
+            borderRadius: 12.r,
+          ),
+          SizedBox(height: 12.h),
+          // Delivery address row
+          Row(
+            children: [
+              ShimmerBox(width: 18.w, height: 18.w, borderRadius: 4.r),
+              SizedBox(width: 15.w),
+              ShimmerBox(width: 180.w, height: 20.h, borderRadius: 4.r),
+              const Spacer(),
+              ShimmerBox(width: 20.w, height: 20.w, borderRadius: 4.r),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBanner() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
+      child: AspectRatio(
+        aspectRatio: 343 / 150,
+        child: ShimmerBox(
           width: double.infinity,
-          height: 44.h,
+          height: double.infinity,
           borderRadius: 12.r,
         ),
-        SizedBox(height: 12.h),
-        Row(
-          children: [
-            ShimmerBox(
-              width: 18.w,
-              height: 18.w,
-              borderRadius: 4.r,
-            ),
-            SizedBox(width: 6.w),
-            ShimmerBox(
-              width: 180.w,
-              height: 14.h,
-              borderRadius: 4.r,
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildSectionHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        ShimmerBox(
-          width: 120.w,
-          height: 18.h,
-          borderRadius: 4.r,
-        ),
-        ShimmerBox(
-          width: 55.w,
-          height: 14.h,
-          borderRadius: 4.r,
-        ),
-      ],
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
+      child: Row(
+        children: [
+          ShimmerBox(width: 120.w, height: 18.h, borderRadius: 4.r),
+          const Spacer(),
+          ShimmerBox(width: 55.w, height: 14.h, borderRadius: 4.r),
+        ],
+      ),
     );
   }
 
@@ -103,23 +100,16 @@ class HomeShimmer extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: 5,
-        separatorBuilder: (context, index) => SizedBox(width: 12.w),
-        itemBuilder: (context, index) => SizedBox(
+        separatorBuilder: (_, __) => SizedBox(width: 12.w),
+        itemBuilder: (_, __) => SizedBox(
           width: 72.w,
           child: Column(
             children: [
-              ShimmerBox(
-                width: 68.w,
-                height: 68.w,
-                borderRadius: 12.r,
-              ),
+              ShimmerBox(width: 68.w, height: 68.w, borderRadius: 12.r),
               SizedBox(height: 6.h),
-              ShimmerBox(
-                width: 50.w,
-                height: 12.h,
-                borderRadius: 4.r,
-              ),
+              ShimmerBox(width: 50.w, height: 12.h, borderRadius: 4.r),
             ],
           ),
         ),
@@ -133,30 +123,29 @@ class HomeShimmer extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: 3,
-        separatorBuilder: (context, index) => SizedBox(width: 12.w),
-        itemBuilder: (context, index) => SizedBox(
+        separatorBuilder: (_, __) => SizedBox(width: 12.w),
+        itemBuilder: (_, __) => Container(
           width: 163.w,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(color: Colors.grey.shade300, width: 1),
+          ),
+          padding: EdgeInsets.all(8.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Square image placeholder (AspectRatio ~1 within 147w content)
               ShimmerBox(
-                width: 163.w,
-                height: 150.h,
-                borderRadius: 10.r,
+                width: double.infinity,
+                height: 147.h,
+                borderRadius: 4.r,
               ),
               SizedBox(height: 8.h),
-              ShimmerBox(
-                width: 120.w,
-                height: 14.h,
-                borderRadius: 4.r,
-              ),
-              SizedBox(height: 6.h),
-              ShimmerBox(
-                width: 80.w,
-                height: 16.h,
-                borderRadius: 4.r,
-              ),
+              ShimmerBox(width: 120.w, height: 14.h, borderRadius: 4.r),
+              SizedBox(height: 4.h),
+              ShimmerBox(width: 80.w, height: 16.h, borderRadius: 4.r),
               SizedBox(height: 8.h),
               ShimmerBox(
                 width: double.infinity,
@@ -176,24 +165,17 @@ class HomeShimmer extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: 3,
-        separatorBuilder: (context, index) => SizedBox(width: 12.w),
-        itemBuilder: (context, index) => SizedBox(
+        separatorBuilder: (_, __) => SizedBox(width: 12.w),
+        itemBuilder: (_, __) => SizedBox(
           width: 140.w,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ShimmerBox(
-                width: 140.w,
-                height: 160.h,
-                borderRadius: 8.r,
-              ),
+              ShimmerBox(width: 140.w, height: 160.h, borderRadius: 8.r),
               SizedBox(height: 8.h),
-              ShimmerBox(
-                width: 90.w,
-                height: 14.h,
-                borderRadius: 4.r,
-              ),
+              ShimmerBox(width: 90.w, height: 14.h, borderRadius: 4.r),
             ],
           ),
         ),

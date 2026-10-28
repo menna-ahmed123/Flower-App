@@ -182,14 +182,29 @@ import '../../features/notification/domain/use_cases/update_fcm_token_usecase.da
 import '../../features/notification/domain/use_cases/update_notification_status_use_case.dart'
     as _i136;
 import '../../features/order/data/api/order_api_client.dart' as _i1026;
+import '../../features/order/data/api/osrm_api_client.dart' as _i532;
+import '../../features/order/data/data_sources/order_osrm_remote_data_source.dart'
+    as _i1062;
+import '../../features/order/data/data_sources/order_osrm_remote_data_source_impl.dart'
+    as _i220;
 import '../../features/order/data/data_sources/order_remote_data_source.dart'
     as _i701;
 import '../../features/order/data/data_sources/order_remote_data_source_impl.dart'
     as _i352;
+import '../../features/order/data/data_sources/order_tracking_fcm_data_source.dart'
+    as _i633;
+import '../../features/order/data/data_sources/order_tracking_fcm_data_source_impl.dart'
+    as _i116;
 import '../../features/order/data/repos/order_repo_impl.dart' as _i906;
 import '../../features/order/domain/repos/order_repo.dart' as _i527;
+import '../../features/order/domain/use_cases/confirm_delivery_use_case.dart'
+    as _i825;
 import '../../features/order/domain/use_cases/get_all_orders_use_case.dart'
     as _i1045;
+import '../../features/order/domain/use_cases/get_order_route_use_case.dart'
+    as _i522;
+import '../../features/order/domain/use_cases/watch_order_tracking_use_case.dart'
+    as _i132;
 import '../../features/order/presentation/my_orders/view_model/my_orders_view_model.dart'
     as _i23;
 import '../../features/order/presentation/order_tracking/view_model/order_tracking_view_model.dart'
@@ -260,9 +275,6 @@ extension GetItInjectableX on _i174.GetIt {
     final apiModule = _$ApiModule();
     gh.factory<_i185.SafeCall>(() => _i185.SafeCall());
     gh.factory<_i980.GeocodingService>(() => _i980.GeocodingService());
-    gh.factory<_i881.OrderTrackingViewModel>(
-      () => _i881.OrderTrackingViewModel(),
-    );
     gh.factory<_i384.PaymentViewModel>(() => _i384.PaymentViewModel());
     gh.lazySingleton<_i699.GeolocatorPlatform>(() => locationModule.geolocator);
     gh.lazySingleton<_i892.FirebaseMessaging>(
@@ -296,8 +308,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i454.FcmTokenStorage>(
       () => _i454.FcmTokenStorage(gh<_i558.FlutterSecureStorage>()),
     );
+    gh.singleton<_i361.Dio>(
+      () => dioModule.provideOsrmDio(),
+      instanceName: 'osrmDio',
+    );
     gh.lazySingleton<_i644.ImagePickerService>(
       () => _i644.ImagePickerService(gh<_i183.ImagePicker>()),
+    );
+    gh.factory<_i633.OrderTrackingFcmDataSource>(
+      () => _i116.OrderTrackingFcmDataSourceImpl(gh<_i928.FcmService>()),
     );
     gh.lazySingleton<_i575.LocalNotificationService>(
       () => _i575.LocalNotificationService(
@@ -337,6 +356,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i669.LocationService>(
       () => _i669.LocationService(gh<_i699.GeolocatorPlatform>()),
     );
+    gh.singleton<_i532.OsrmApiClient>(
+      () => apiModule.provideOsrmApiClient(
+        gh<_i361.Dio>(instanceName: 'osrmDio'),
+      ),
+    );
     gh.lazySingleton<_i381.TokenRefreshCoordinator>(
       () => _i381.TokenRefreshCoordinator(
         gh<_i964.TokenStorage>(),
@@ -354,6 +378,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i964.TokenStorage>(),
         gh<_i381.TokenRefreshCoordinator>(),
       ),
+    );
+    gh.factory<_i1062.OrderOsrmRemoteDataSource>(
+      () => _i220.OrderOsrmRemoteDataSourceImpl(gh<_i532.OsrmApiClient>()),
     );
     gh.lazySingleton<_i179.AuthRepository>(
       () => _i436.AuthRepositoryImpl(
@@ -561,6 +588,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i242.CategoryUseCase>(
       () => _i242.CategoryUseCase(gh<_i772.CommerceRepo>()),
     );
+    gh.factory<_i527.OrderRepo>(
+      () => _i906.OrderRepoImpl(
+        gh<_i701.OrderRemoteDataSource>(),
+        gh<_i185.SafeCall>(),
+        gh<_i633.OrderTrackingFcmDataSource>(),
+        gh<_i1062.OrderOsrmRemoteDataSource>(),
+      ),
+    );
     gh.factory<_i795.ForgetPasswordCubit>(
       () => _i795.ForgetPasswordCubit(
         gh<_i913.ForgetPasswordUseCase>(),
@@ -576,12 +611,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i635.LoginUseCase>(
       () => _i635.LoginUseCase(gh<_i483.AuthRepo>()),
-    );
-    gh.factory<_i527.OrderRepo>(
-      () => _i906.OrderRepoImpl(
-        gh<_i701.OrderRemoteDataSource>(),
-        gh<_i185.SafeCall>(),
-      ),
     );
     gh.factory<_i969.BestSellerViewModel>(
       () => _i969.BestSellerViewModel(gh<_i613.ProductUseCase>()),
@@ -624,8 +653,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i588.OpenNotificationSettingsUseCase>(),
       ),
     );
+    gh.factory<_i825.ConfirmDeliveryUseCase>(
+      () => _i825.ConfirmDeliveryUseCase(gh<_i527.OrderRepo>()),
+    );
     gh.factory<_i1045.GetAllOrdersUseCase>(
       () => _i1045.GetAllOrdersUseCase(gh<_i527.OrderRepo>()),
+    );
+    gh.factory<_i522.GetOrderRouteUseCase>(
+      () => _i522.GetOrderRouteUseCase(gh<_i527.OrderRepo>()),
+    );
+    gh.factory<_i132.WatchOrderTrackingUseCase>(
+      () => _i132.WatchOrderTrackingUseCase(gh<_i527.OrderRepo>()),
     );
     gh.factory<_i827.GetSessionsUseCase>(
       () => _i827.GetSessionsUseCase(gh<_i843.SessionRepo>()),
@@ -635,6 +673,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i784.ProductDetailsViewModel>(
       () => _i784.ProductDetailsViewModel(gh<_i172.ProductDetailsUseCase>()),
+    );
+    gh.factory<_i881.OrderTrackingViewModel>(
+      () => _i881.OrderTrackingViewModel(
+        gh<_i132.WatchOrderTrackingUseCase>(),
+        gh<_i825.ConfirmDeliveryUseCase>(),
+        gh<_i522.GetOrderRouteUseCase>(),
+      ),
     );
     gh.factory<_i609.LogoutUseCase>(
       () => _i609.LogoutUseCase(gh<_i483.AuthRepo>()),

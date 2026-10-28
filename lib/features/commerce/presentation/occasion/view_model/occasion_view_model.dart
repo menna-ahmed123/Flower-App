@@ -1,4 +1,5 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/utils/pagination/pagination_controller.dart';
 import 'package:flower_app/features/commerce/data/models/occasion_model.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/occasion_use_case.dart';
@@ -11,10 +12,17 @@ import 'package:injectable/injectable.dart';
 @injectable
 class OccasionViewModel extends Cubit<OccasionState> {
   OccasionViewModel(this.occasionUseCase, this.productUseCase)
-    : super(const OccasionState());
+    : super(const OccasionState()) {
+    productsPaginationController = PaginationController<ProductEntity>(
+      pageSize: 20,
+      fetchPage: _fetchProductsPage,
+    );
+  }
 
   final OccasionUseCase occasionUseCase;
   final ProductUseCase productUseCase;
+
+  late final PaginationController<ProductEntity> productsPaginationController;
 
   void onEvent(OccasionEvent event) {
     switch (event) {
@@ -53,7 +61,7 @@ class OccasionViewModel extends Cubit<OccasionState> {
         );
 
         if (firstOccasion != null) {
-          await _loadProductsByOccasion(firstOccasion.id, firstOccasion.name);
+          _loadProductsByOccasion(firstOccasion.id, firstOccasion.name);
         }
 
       case ErrorResponse<List<OccasionModel>>():
@@ -68,40 +76,34 @@ class OccasionViewModel extends Cubit<OccasionState> {
     }
   }
 
-  Future<void> _loadProductsByOccasion(String occasionId, String tab) async {
-    emit(
-      state.copyWith(
-        selectedTab: tab,
-        productsState: state.productsState.copyWith(
-          isLoading: true,
-          errorMessage: '',
-        ),
-      ),
-    );
+  void _loadProductsByOccasion(String occasionId, String tab) {
+    // Reset pagination for the new occasion tab.
+    productsPaginationController.reset();
 
-    final response = await productUseCase(occasionId: occasionId);
+    emit(state.copyWith(
+      selectedTab: tab,
+      selectedOccasionId: occasionId,
+    ));
+  }
+
+  Future<List<ProductEntity>> _fetchProductsPage(int page, int pageSize) async {
+    final response = await productUseCase(
+      occasionId: state.selectedOccasionId,
+      page: page,
+      pageSize: pageSize,
+    );
 
     switch (response) {
       case SuccessResponse<List<ProductEntity>>():
-        emit(
-          state.copyWith(
-            productsState: state.productsState.copyWith(
-              isLoading: false,
-              data: response.data,
-              errorMessage: '',
-            ),
-          ),
-        );
-
+        return response.data;
       case ErrorResponse<List<ProductEntity>>():
-        emit(
-          state.copyWith(
-            productsState: state.productsState.copyWith(
-              isLoading: false,
-              errorMessage: response.errorMessage,
-            ),
-          ),
-        );
+        throw Exception(response.errorMessage);
     }
+  }
+
+  @override
+  Future<void> close() {
+    productsPaginationController.dispose();
+    return super.close();
   }
 }
