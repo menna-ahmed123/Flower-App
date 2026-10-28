@@ -35,7 +35,7 @@ class AppOtpField extends StatelessWidget {
       length: length,
       enabled: enabled,
       autofocus: autoFocus,
-      keyboardType: TextInputType.number,
+      keyboardType: TextInputType.text,
       onChanged: onChanged,
       onCompleted: onCompleted,
       validator: validator,

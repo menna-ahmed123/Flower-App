@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/auth/auth_session_controller.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/constants/app_urls.dart';
+import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/widgets/app_web_view_screen.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
@@ -13,10 +16,12 @@ import 'package:flower_app/features/profile/presentation/view/widgets/profile_op
 import 'package:flower_app/features/profile/presentation/view_model/profile_event.dart';
 import 'package:flower_app/features/profile/presentation/view_model/profile_state.dart';
 import 'package:flower_app/features/profile/presentation/view_model/profile_view_model.dart';
+import 'package:flower_app/features/profile/presentation/view_model/update_profile_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -156,6 +161,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.push(AppRoutesName.myOrders);
   }
 
+  String? _savedProfileImagePath() {
+    if (!getIt.isRegistered<SharedPreferences>()) {
+      return null;
+    }
+
+    return getIt<SharedPreferences>().getString(
+      UpdateProfileViewModel.profileImagePathKey,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -231,6 +246,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final displayData = state.displayData;
 
+    final savedImagePath = _savedProfileImagePath();
+    final savedImage =
+        savedImagePath != null && File(savedImagePath).existsSync()
+        ? File(savedImagePath)
+        : null;
+
     return RefreshIndicator(
       onRefresh: () => context
           .read<ProfileViewModel>()
@@ -249,6 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? const SizedBox.shrink()
                     : ProfileInfoSection(
                         data: displayData,
+                        imageFile: savedImage,
                         onEditTap: () =>
                             _onEditProfileTap(profileState.data!),
                       ),

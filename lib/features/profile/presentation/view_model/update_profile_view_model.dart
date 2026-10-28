@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/services/image_picker_service.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
 import 'package:flower_app/features/profile/domain/entities/gender.dart';
@@ -11,9 +12,12 @@ import 'package:flower_app/features/profile/presentation/view_model/edit_profile
 import 'package:flower_app/features/profile/presentation/view_model/edit_profile_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 @Injectable()
 class UpdateProfileViewModel extends Cubit<EditProfileState> {
+  static const profileImagePathKey = 'profile_image_path';
+
   final UpdateProfileUseCase _updateProfileUseCase;
   final ImagePickerService _imagePickerService;
 
@@ -160,6 +164,15 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
 
     switch (response) {
       case SuccessResponse<ProfileEntity>():
+        final selectedImage = state.selectedImage;
+
+        if (selectedImage != null && getIt.isRegistered<SharedPreferences>()) {
+          await getIt<SharedPreferences>().setString(
+            profileImagePathKey,
+            selectedImage.path,
+          );
+        }
+
         emit(
           state.copyWith(
             updateProfileState: state.updateProfileState.copyWith(
