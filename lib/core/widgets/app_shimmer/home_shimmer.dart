@@ -46,21 +46,20 @@ class HomeShimmer extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           // Search bar
-          ShimmerBox(
-            width: double.infinity,
-            height: 44.h,
-            borderRadius: 12.r,
-          ),
+          ShimmerBox(width: double.infinity, height: 52.h, borderRadius: 8.r),
           SizedBox(height: 12.h),
           // Delivery address row
-          Row(
-            children: [
-              ShimmerBox(width: 18.w, height: 18.w, borderRadius: 4.r),
-              SizedBox(width: 15.w),
-              ShimmerBox(width: 180.w, height: 20.h, borderRadius: 4.r),
-              const Spacer(),
-              ShimmerBox(width: 20.w, height: 20.w, borderRadius: 4.r),
-            ],
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 4.h),
+            child: Row(
+              children: [
+                ShimmerBox(width: 18.w, height: 18.w, borderRadius: 4.r),
+                SizedBox(width: 15.w),
+                ShimmerBox(width: 180.w, height: 24.h, borderRadius: 4.r),
+                const Spacer(),
+                ShimmerBox(width: 20.w, height: 20.w, borderRadius: 4.r),
+              ],
+            ),
           ),
         ],
       ),
@@ -86,9 +85,9 @@ class HomeShimmer extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
       child: Row(
         children: [
-          ShimmerBox(width: 120.w, height: 18.h, borderRadius: 4.r),
+          ShimmerBox(width: 100.w, height: 18.h, borderRadius: 4.r),
           const Spacer(),
-          ShimmerBox(width: 55.w, height: 14.h, borderRadius: 4.r),
+          ShimmerBox(width: 48.w, height: 14.h, borderRadius: 4.r),
         ],
       ),
     );
@@ -143,13 +142,21 @@ class HomeShimmer extends StatelessWidget {
                 borderRadius: 4.r,
               ),
               SizedBox(height: 8.h),
-              ShimmerBox(width: 120.w, height: 14.h, borderRadius: 4.r),
+              ShimmerBox(width: 110.w, height: 14.h, borderRadius: 4.r),
               SizedBox(height: 4.h),
-              ShimmerBox(width: 80.w, height: 16.h, borderRadius: 4.r),
+              Row(
+                children: [
+                  ShimmerBox(width: 48.w, height: 16.h, borderRadius: 4.r),
+                  SizedBox(width: 8.w),
+                  ShimmerBox(width: 28.w, height: 13.h, borderRadius: 4.r),
+                  const Spacer(),
+                  ShimmerBox(width: 24.w, height: 13.h, borderRadius: 4.r),
+                ],
+              ),
               SizedBox(height: 8.h),
               ShimmerBox(
                 width: double.infinity,
-                height: 36.h,
+                height: 34.h,
                 borderRadius: 20.r,
               ),
             ],

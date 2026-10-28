@@ -49,14 +49,17 @@ class OrderCardShimmer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 6.h),
                 ShimmerBox(width: 90.w, height: 12.h, borderRadius: 4.r),
-                SizedBox(height: 10.h),
+                SizedBox(height: 4.h),
                 ShimmerBox(width: 60.w, height: 14.h, borderRadius: 4.r),
-                SizedBox(height: 10.h),
+                SizedBox(height: 4.h),
                 ShimmerBox(width: 110.w, height: 12.h, borderRadius: 4.r),
-                SizedBox(height: 26.h),
-                ShimmerBox(width: double.infinity, height: 34.h, borderRadius: 20.r),
+                SizedBox(height: 8.h),
+                ShimmerBox(
+                  width: double.infinity,
+                  height: 36.h,
+                  borderRadius: 20.r,
+                ),
               ],
             ),
           ),

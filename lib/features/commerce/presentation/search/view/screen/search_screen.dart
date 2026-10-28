@@ -1,6 +1,9 @@
 import 'package:flower_app/core/navigation/product_navigation.dart';
+import 'package:flower_app/core/utils/pagination/pagination_grid_view.dart';
+import 'package:flower_app/core/utils/pagination/pagination_state.dart';
 import 'package:flower_app/core/widgets/app_search_field.dart';
-import 'package:flower_app/features/commerce/core/widgets/product_grid.dart';
+import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
+import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/search/view_model/search_event.dart';
 import 'package:flower_app/features/commerce/presentation/search/view_model/search_state.dart';
 import 'package:flower_app/features/commerce/presentation/search/view_model/search_view_model.dart';
@@ -60,51 +63,84 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
           Expanded(
-              child: BlocListener<SearchViewModel, SearchState>(
-                listenWhen: (previous, current) =>
-                    previous.selectedProduct != current.selectedProduct &&
-                    current.selectedProduct != null,
-                listener: (context, state) {
-                  navigateToProductDetails(context, state.selectedProduct!.id);
-                },
-                child: BlocBuilder<SearchViewModel, SearchState>(
-                  builder: (context, state) {
-                    final productsState = state.productsState;
+            child: BlocListener<SearchViewModel, SearchState>(
+              listenWhen: (previous, current) =>
+                  previous.selectedProduct != current.selectedProduct &&
+                  current.selectedProduct != null,
+              listener: (context, state) {
+                navigateToProductDetails(context, state.selectedProduct!.id);
+              },
+              child: BlocBuilder<SearchViewModel, SearchState>(
+                builder: (context, state) {
+                  final viewModel = context.read<SearchViewModel>();
 
-                    if (productsState.isLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+                  return ListenableBuilder(
+                    listenable: viewModel.productsPaginationController,
+                    builder: (context, _) {
+                      final paginationState =
+                          viewModel.productsPaginationController.state;
 
-                    if (productsState.errorMessage.isNotEmpty) {
-                      return SearchStatusWidget(
-                        text: productsState.errorMessage,
-                      );
-                    }
-
-                    if (productsState.data == null) {
-                      return const SearchStatusWidget(
-                        text: AppString.searchProducts,
-                      );
-                    }
-
-                    if (productsState.data!.isEmpty) {
-                      return const SearchStatusWidget(
-                        text: AppString.noResultsFound,
-                      );
-                    }
-
-                    return ProductGrid(
-                      products: productsState.data!,
-                      onTap: (product) {
-                        context.read<SearchViewModel>().onEvent(
-                          ProductSelected(product),
+                      if (paginationState.status == PaginationStatus.initial) {
+                        return const SearchStatusWidget(
+                          text: AppString.searchProducts,
                         );
-                      },
-                    );
-                  },
-                ),
+                      }
+
+                      if (paginationState.status == PaginationStatus.loading &&
+                          paginationState.items.isEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (paginationState.status == PaginationStatus.error &&
+                          paginationState.items.isEmpty) {
+                        return SearchStatusWidget(
+                          text:
+                              paginationState.errorMessage ??
+                              AppString.somethingWrong,
+                        );
+                      }
+
+                      if (paginationState.items.isEmpty &&
+                          paginationState.status == PaginationStatus.success) {
+                        return const SearchStatusWidget(
+                          text: AppString.noResultsFound,
+                        );
+                      }
+
+                      return PaginationGridView<ProductEntity>(
+                        controller: viewModel.productsPaginationController,
+                        padding: EdgeInsets.all(16.w),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12.w,
+                          mainAxisSpacing: 12.h,
+                          childAspectRatio: 0.6,
+                        ),
+                        itemBuilder: (context, product, index) {
+                          return ProductCard(
+                            productId: product.id,
+                            imageUrl: product.imageUrl,
+                            name: product.name,
+                            price: product.discountedPrice.toStringAsFixed(2),
+                            oldPrice: product.price != product.discountedPrice
+                                ? product.price?.toStringAsFixed(2)
+                                : null,
+                            discount: product.discountPercent != null
+                                ? '${product.discountPercent!.toStringAsFixed(0)}%'
+                                : null,
+                            onAddToCart: () async {},
+                            onTap: () {
+                              viewModel.onEvent(ProductSelected(product));
+                            },
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
               ),
             ),
+          ),
         ],
       ),
     );

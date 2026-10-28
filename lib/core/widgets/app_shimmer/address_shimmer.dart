@@ -9,65 +9,49 @@ class AddressShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppShimmerEffect(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-        child: Column(
-          children: [
-            ...List.generate(
-              4,
-                  (_) =>
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 16.h),
-                    child: _addressCardSkeleton(),
-              ),
-            ),
-            SizedBox(height: 16.h),
-            ShimmerBox(
-              width: double.infinity,
-              height: 48.h,
-              borderRadius: 24.r,
-            ),
-          ],
-        ),
+      child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
+        itemCount: 4,
+        separatorBuilder: (_, _) => SizedBox(height: 12.h),
+        itemBuilder: (_, _) => _addressCardSkeleton(),
       ),
     );
   }
 
   Widget _addressCardSkeleton() {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.grey.shade200,
-          width: 1.w,
-        ),
+        border: Border.all(color: Colors.grey.shade300),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10.r,
+            spreadRadius: 1.r,
+            offset: Offset(0, 4.h),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              ShimmerBox.circle(size: 20.w),
-              SizedBox(width: 8.w),
-              ShimmerBox(
-                width: 80.w,
-                height: 16.h,
-                borderRadius: 4.r,
-              ),
-              const Spacer(),
-              ShimmerBox.circle(size: 20.w),
-              SizedBox(width: 12.w),
-              ShimmerBox.circle(size: 20.w),
-            ],
+          ShimmerBox(width: 24.w, height: 24.w, borderRadius: 4.r),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerBox(width: 100.w, height: 16.h, borderRadius: 4.r),
+                SizedBox(height: 4.h),
+                ShimmerBox(width: 180.w, height: 13.h, borderRadius: 4.r),
+              ],
+            ),
           ),
-          SizedBox(height: 16.h),
-          ShimmerBox(
-            width: 200.w,
-            height: 14.h,
-            borderRadius: 4.r,
-          ),
+          SizedBox(width: 8.w),
+          ShimmerBox(width: 22.w, height: 22.w, borderRadius: 4.r),
+          SizedBox(width: 12.w),
+          ShimmerBox(width: 22.w, height: 22.w, borderRadius: 4.r),
         ],
       ),
     );

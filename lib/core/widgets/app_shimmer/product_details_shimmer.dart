@@ -9,55 +9,77 @@ class ProductDetailsShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppShimmerEffect(
-      child: SingleChildScrollView(
+      child: CustomScrollView(
         physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ShimmerBox(
+        slivers: [
+          SliverToBoxAdapter(
+            child: ShimmerBox(
               width: double.infinity,
-              height: 300.h,
-              borderRadius: 12.r,
+              height: 380.h,
+              borderRadius: 0,
             ),
-            SizedBox(height: 16.h),
-            ShimmerBox(width: 200.w, height: 22.h, borderRadius: 4.r),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                ShimmerBox(width: 100.w, height: 20.h, borderRadius: 4.r),
-                SizedBox(width: 12.w),
-                ShimmerBox(width: 70.w, height: 16.h, borderRadius: 4.r),
-              ],
-            ),
-            SizedBox(height: 16.h),
-            ShimmerBox(width: double.infinity, height: 1.h, borderRadius: 0),
-            SizedBox(height: 16.h),
-            ShimmerBox(width: 120.w, height: 18.h, borderRadius: 4.r),
-            SizedBox(height: 12.h),
-            ShimmerBox(width: double.infinity, height: 14.h, borderRadius: 4.r),
-            SizedBox(height: 8.h),
-            ShimmerBox(width: double.infinity, height: 14.h, borderRadius: 4.r),
-            SizedBox(height: 8.h),
-            ShimmerBox(width: 250.w, height: 14.h, borderRadius: 4.r),
-            SizedBox(height: 24.h),
-            ShimmerBox(width: 80.w, height: 16.h, borderRadius: 4.r),
-            SizedBox(height: 10.h),
-            Row(
-              children: List.generate(
-                3,
-                (_) => Padding(
-                  padding: EdgeInsets.only(right: 10.w),
-                  child: ShimmerBox(
-                    width: 48.w,
-                    height: 48.w,
-                    borderRadius: 24.r,
+          ),
+          SliverPadding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          ShimmerBox(
+                            width: 96.w,
+                            height: 22.h,
+                            borderRadius: 4.r,
+                          ),
+                          SizedBox(width: 8.w),
+                          ShimmerBox(
+                            width: 60.w,
+                            height: 16.h,
+                            borderRadius: 4.r,
+                          ),
+                        ],
+                      ),
+                      ShimmerBox(width: 90.w, height: 14.h, borderRadius: 4.r),
+                    ],
                   ),
-                ),
+                  SizedBox(height: 4.h),
+                  ShimmerBox(width: 110.w, height: 12.h, borderRadius: 4.r),
+                  SizedBox(height: 12.h),
+                  ShimmerBox(width: 180.w, height: 20.h, borderRadius: 4.r),
+                  SizedBox(height: 20.h),
+                  ShimmerBox(width: 100.w, height: 15.h, borderRadius: 4.r),
+                  SizedBox(height: 6.h),
+                  ShimmerBox(
+                    width: double.infinity,
+                    height: 13.h,
+                    borderRadius: 4.r,
+                  ),
+                  SizedBox(height: 8.h),
+                  ShimmerBox(
+                    width: double.infinity,
+                    height: 13.h,
+                    borderRadius: 4.r,
+                  ),
+                  SizedBox(height: 8.h),
+                  ShimmerBox(width: 230.w, height: 13.h, borderRadius: 4.r),
+                  SizedBox(height: 20.h),
+                  ShimmerBox(width: 130.w, height: 15.h, borderRadius: 4.r),
+                  SizedBox(height: 6.h),
+                  ShimmerBox(width: 170.w, height: 13.h, borderRadius: 4.r),
+                  SizedBox(height: 4.h),
+                  ShimmerBox(width: 150.w, height: 13.h, borderRadius: 4.r),
+                  SizedBox(height: 4.h),
+                  ShimmerBox(width: 120.w, height: 13.h, borderRadius: 4.r),
+                  SizedBox(height: 80.h),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -11,10 +11,18 @@ class SearchUseCase {
 
   Future<BaseResponse<List<ProductEntity>>> call({
     required String query,
+    int? page,
+    int? pageSize,
   }) async {
     final normalizedQuery = query.trim().toLowerCase();
 
-    final response = await productRepo.searchProducts(query: normalizedQuery);
+    final response = page == null && pageSize == null
+        ? await productRepo.searchProducts(query: normalizedQuery)
+        : await productRepo.searchProducts(
+            query: normalizedQuery,
+            page: page,
+            pageSize: pageSize,
+          );
 
     switch (response) {
       case SuccessResponse<List<ProductEntity>>():
