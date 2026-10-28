@@ -10,28 +10,11 @@ class CategoryShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppShimmerEffect(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTabBarSkeleton(),
-          SizedBox(height: 16.h),
-          const Expanded(child: ProductGridShimmer(padding: EdgeInsets.zero)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabBarSkeleton() {
-    return SizedBox(
-      height: 40.h,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: 4,
-        separatorBuilder: (context, index) => SizedBox(width: 12.w),
-        itemBuilder: (context, index) =>
-            ShimmerBox(width: 80.w, height: 36.h, borderRadius: 20.r),
+      child: ProductGridShimmer(
+        padding: EdgeInsets.all(16.w),
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.6,
       ),
     );
   }

@@ -66,11 +66,15 @@ class CommerceRepoImpl implements CommerceRepo {
   @override
   Future<BaseResponse<List<ProductEntity>>> searchProducts({
     required String query,
+    int? page,
+    int? pageSize,
     String? storeId,
   }) {
     return safeCall.safeApiCall(() async {
       final response = await commerceRemoteDataSource.searchProducts(
         query: query,
+        page: page,
+        pageSize: pageSize,
       );
       return response.data.map((p) => p.toDomain()).toList();
     });
@@ -108,8 +112,9 @@ class CommerceRepoImpl implements CommerceRepo {
     required String productId,
   }) {
     return safeCall.safeApiCall(() async {
-      final response =
-          await commerceRemoteDataSource.getProductDetails(productId);
+      final response = await commerceRemoteDataSource.getProductDetails(
+        productId,
+      );
 
       final data = response.data;
       if (data == null) {

@@ -2,20 +2,22 @@ import 'package:flower_app/features/auth/core/auth_extension.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
+import 'package:flower_app/core/utils/pagination/pagination_grid_view.dart';
+import 'package:flower_app/core/utils/pagination/pagination_state.dart';
+import 'package:flower_app/core/widgets/app_shimmer/occasion_shimmer.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
 import 'package:flower_app/features/commerce/core/widgets/custom_tab_bar.dart';
-import 'package:flower_app/features/commerce/core/widgets/product_grid.dart';
+import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/data/models/occasion_model.dart';
+import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_event.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_state.dart';
 import 'package:flower_app/features/commerce/presentation/occasion/view_model/occasion_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../../../../../core/widgets/app_shimmer/occasion_shimmer.dart';
 
 class OccasionScreen extends StatefulWidget {
   const OccasionScreen({super.key});
@@ -52,7 +54,7 @@ class _OccasionScreenState extends State<OccasionScreen> {
                     height: 70.h,
                     child: CommerceAppBar(
                       title: AppString.occasions,
-                      des: "Bloom with our exquisite best sellers",
+                      des: 'Bloom with our exquisite best sellers',
                     ),
                   ),
                   SizedBox(height: 12.h),
@@ -86,20 +88,71 @@ class _OccasionScreenState extends State<OccasionScreen> {
                     child: state.occasionsState.isLoading
                         ? const OccasionShimmer()
                         : state.occasionsState.errorMessage.isNotEmpty
-                        ? Center(child: Text(state.occasionsState.errorMessage))
-                        : state.productsState.isLoading
-                        ? const OccasionShimmer()
-                        : state.productsState.errorMessage.isNotEmpty
-                        ? Center(child: Text(state.productsState.errorMessage))
-                        : (state.productsState.data ?? const []).isEmpty
-                        ? const Center(child: Text('No products found'))
-                        : ProductGrid(
-                            products: state.productsState.data ?? const [],
-                            onTap: (product) {
-                              navigateToProductDetails(context, product.id);
-                            },
-                            onAddToCart: (productId) {
-                              _addToCart(context, productId);
+                        ? Center(
+                            child: Text(state.occasionsState.errorMessage),
+                          )
+                        : ListenableBuilder(
+                            listenable:
+                                _viewModel.productsPaginationController,
+                            builder: (context, _) {
+                              final pState = _viewModel
+                                  .productsPaginationController.state;
+
+                              if (pState.status == PaginationStatus.loading &&
+                                  pState.items.isEmpty) {
+                                return const OccasionShimmer();
+                              }
+
+                              if (pState.status == PaginationStatus.error &&
+                                  pState.items.isEmpty) {
+                                return Center(
+                                  child: Text(
+                                    pState.errorMessage ?? AppString.somethingWrong,
+                                  ),
+                                );
+                              }
+
+                              if (pState.items.isEmpty &&
+                                  pState.status == PaginationStatus.success) {
+                                return const Center(
+                                  child: Text('No products found'),
+                                );
+                              }
+
+                              return PaginationGridView<ProductEntity>(
+                                key: ValueKey(state.selectedOccasionId),
+                                controller: _viewModel.productsPaginationController,
+                                padding: EdgeInsets.all(16.w),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 12.w,
+                                      mainAxisSpacing: 12.h,
+                                      childAspectRatio: 0.55,
+                                    ),
+                                itemBuilder: (context, product, index) {
+                                  return ProductCard(
+                                    productId: product.id,
+                                    imageUrl: product.imageUrl,
+                                    name: product.name,
+                                    price: product.discountedPrice > 0
+                                        ? product.discountedPrice
+                                            .toStringAsFixed(2)
+                                        : 'N/A',
+                                    oldPrice:
+                                        product.price != product.discountedPrice
+                                            ? product.price?.toStringAsFixed(2)
+                                            : null,
+                                    discount: product.discountPercent != null
+                                        ? '${product.discountPercent!.toStringAsFixed(0)}%'
+                                        : null,
+                                    onAddToCart: () =>
+                                        _addToCart(context, product.id),
+                                    onTap: () => navigateToProductDetails(
+                                        context, product.id),
+                                  );
+                                },
+                              );
                             },
                           ),
                   ),

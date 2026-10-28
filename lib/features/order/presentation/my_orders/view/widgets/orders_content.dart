@@ -58,36 +58,53 @@ class OrdersContent extends StatelessWidget {
       );
     }
 
-    final showFooter = state.hasMore || state.status == PaginationStatus.loadingMore;
+    final showFooter =
+        state.status == PaginationStatus.loadingMore ||
+        state.status == PaginationStatus.errorLoadingMore;
 
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        itemCount: orders.length + (showFooter ? 1 : 0),
-        separatorBuilder: (context, index) => SizedBox(height: 12.h),
-        itemBuilder: (context, index) {
-          if (index >= orders.length) {
-            if (state.status == PaginationStatus.loadingMore) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification.metrics.pixels >=
+            notification.metrics.maxScrollExtent - 300) {
+          onLoadMore();
+        }
+        return false;
+      },
+      child: RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView.separated(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          itemCount: orders.length + (showFooter ? 1 : 0),
+          separatorBuilder: (context, index) => SizedBox(height: 12.h),
+          itemBuilder: (context, index) {
+            if (index >= orders.length) {
+              if (state.status == PaginationStatus.errorLoadingMore) {
+                return Center(
+                  child: IconButton(
+                    onPressed: onLoadMore,
+                    icon: const Icon(Icons.refresh),
+                  ),
+                );
+              }
               return Padding(
                 padding: EdgeInsets.all(12.r),
                 child: const Center(
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
                 ),
               );
             }
-            return Padding(
-              padding: EdgeInsets.symmetric(vertical: 12.h),
-              child: LoadMoreButton(onPressed: onLoadMore),
+            final order = orders[index];
+            return MyOrderCard(
+              order: order,
+              onTrackOrder: () => onTrackOrder(order.id ?? ''),
             );
-          }
-          final order = orders[index];
-          return MyOrderCard(
-            order: order,
-            onTrackOrder: () => onTrackOrder(order.id ?? ''),
-          );
-        },
+          },
+        ),
       ),
     );
   }
