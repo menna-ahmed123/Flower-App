@@ -1,4 +1,5 @@
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/core/network/safe_call.dart';
 import 'package:flower_app/core/services/device_id_service.dart';
@@ -59,12 +60,11 @@ class NotificationRepoImpl implements NotificationRepo {
 
     if (fcmToken == null || fcmToken.isEmpty) {
       return ErrorResponse<void>(
-        appError: BadResponseError('FCM token is unavailable.'),
+        appError: BadResponseError(AppString.fcmTokenUnavailable),
       );
     }
 
-    final lastSyncedToken =
-        await _fcmTokenStorage.getLastSyncedToken();
+    final lastSyncedToken = await _fcmTokenStorage.getLastSyncedToken();
 
     // The dedupe is device-wide, so a freshly signed-in account must force
     // past it or the backend never learns the token belongs to it.
@@ -76,10 +76,7 @@ class NotificationRepoImpl implements NotificationRepo {
 
     final result = await _safeCall.safeApiCall<void>(
       () => _remoteDataSource.updateFcmToken(
-        UpdateFcmTokenRequest(
-          deviceId: deviceId,
-          fcmToken: fcmToken,
-        ),
+        UpdateFcmTokenRequest(deviceId: deviceId, fcmToken: fcmToken),
       ),
     );
 
@@ -96,15 +93,10 @@ class NotificationRepoImpl implements NotificationRepo {
   }) async {
     final deviceId = await _deviceIdService.getDeviceId();
 
-    final request = UpdateNotificationStatusRequest(
-      enabled: enabled,
-    );
+    final request = UpdateNotificationStatusRequest(enabled: enabled);
 
     return _safeCall.safeApiCall<void>(
-      () => _remoteDataSource.updateNotificationStatus(
-        deviceId,
-        request,
-      ),
+      () => _remoteDataSource.updateNotificationStatus(deviceId, request),
     );
   }
 
@@ -118,4 +110,3 @@ class NotificationRepoImpl implements NotificationRepo {
     return status;
   }
 }
-

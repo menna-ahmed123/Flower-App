@@ -1,5 +1,6 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
+import 'package:flower_app/core/localization/localized_label.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/domain/entities/city_entity.dart';
@@ -86,7 +87,18 @@ class _LocationFormState extends State<LocationForm> {
       _areaController.text = address.area ?? '';
     }
     if (address.label != null && address.label!.isNotEmpty) {
-      _labelController.text = address.label!;
+      _labelController.text = _storedAddressLabel(address.label!);
+    }
+  }
+
+  String _storedAddressLabel(String raw) {
+    switch (raw.trim().toLowerCase()) {
+      case 'home':
+        return 'home';
+      case 'office':
+        return 'office';
+      default:
+        return raw;
     }
   }
 
@@ -108,15 +120,14 @@ class _LocationFormState extends State<LocationForm> {
 
     if (selectedGov == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a governorate')),
+        SnackBar(content: Text(AppString.pleaseSelectGovernorate)),
       );
       return;
     }
 
     if (selectedCity == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a city')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(AppString.pleaseSelectCity)));
       return;
     }
 
@@ -194,15 +205,20 @@ class _LocationFormState extends State<LocationForm> {
                   children: [
                     Expanded(
                       child: DropDown<GovernorateEntity>(
-                        labelText: 'Governorate',
-                        hintText: 'Governorate',
+                        labelText: AppString.governorate,
+                        hintText: AppString.governorate,
                         value: state.selectedGovernorate,
                         isLoading: isGovLoading,
                         items: governorates.map((gov) {
                           return DropdownMenuItem<GovernorateEntity>(
                             value: gov,
                             child: Text(
-                              gov.nameEn ?? gov.nameAr ?? 'Governorate',
+                              localizedPlaceName(
+                                context,
+                                nameAr: gov.nameAr,
+                                nameEn: gov.nameEn,
+                                fallback: AppString.governorate,
+                              ),
                               style: TextStyle(
                                 fontSize: 13.sp,
                                 color: context.colors.black,
@@ -217,7 +233,7 @@ class _LocationFormState extends State<LocationForm> {
                         },
                         validator: (value) {
                           if (value == null) {
-                            return 'Required';
+                            return AppString.required;
                           }
                           return null;
                         },
@@ -235,7 +251,12 @@ class _LocationFormState extends State<LocationForm> {
                           return DropdownMenuItem<CityEntity>(
                             value: city,
                             child: Text(
-                              city.nameEn ?? city.nameAr ?? 'City',
+                              localizedPlaceName(
+                                context,
+                                nameAr: city.nameAr,
+                                nameEn: city.nameEn,
+                                fallback: AppString.city,
+                              ),
                               style: TextStyle(
                                 fontSize: 13.sp,
                                 color: context.colors.black,
@@ -250,7 +271,7 @@ class _LocationFormState extends State<LocationForm> {
                         },
                         validator: (value) {
                           if (value == null) {
-                            return 'Required';
+                            return AppString.required;
                           }
                           return null;
                         },
@@ -261,31 +282,31 @@ class _LocationFormState extends State<LocationForm> {
               },
             ),
             SizedBox(height: 16.h),
-            
+
             DropDown<String>(
-              labelText: 'Label',
-                hintText: 'Home / Office',
-                value: _labelController.text.isEmpty
-                    ? null
-                    : _labelController.text,
-                items: const [
-                  DropdownMenuItem<String>(
-                    value: 'home',
-                    child: Text('Home'),
-                  ),
-                  DropdownMenuItem<String>(
-                    value: 'office',
-                    child: Text('Office'),
-                  ),
-                ],
-                onChanged: (selected) {
-                  _labelController.text = selected ?? '';
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Required';
-                  }
-                  return null;
+              labelText: AppString.addressLabel,
+              hintText: AppString.addressLabelHint,
+              value: _labelController.text.isEmpty
+                  ? null
+                  : _labelController.text,
+              items: [
+                DropdownMenuItem<String>(
+                  value: 'home',
+                  child: Text(AppString.homeLabel),
+                ),
+                DropdownMenuItem<String>(
+                  value: 'office',
+                  child: Text(AppString.office),
+                ),
+              ],
+              onChanged: (selected) {
+                _labelController.text = selected ?? '';
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return AppString.required;
+                }
+                return null;
               },
             ),
             SizedBox(height: 32.h),

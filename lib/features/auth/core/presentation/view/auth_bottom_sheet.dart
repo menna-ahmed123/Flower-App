@@ -29,7 +29,7 @@ Future<void> showLoginBottomSheet(BuildContext context) {
               style: Theme.of(sheetContext).textTheme.headlineSmall,
             ),
             SizedBox(height: 8.h),
-            const Text(AppString.loginToContinue),
+            Text(AppString.loginToContinue),
             SizedBox(height: 24.h),
             AppButton(
               text: AppString.login,
@@ -77,7 +77,7 @@ Future<void> showLoginBottomSheet(BuildContext context) {
                   const AuthGuestRequested(),
                 );
               },
-              child: const Text(AppString.continueAsGuest),
+              child: Text(AppString.continueAsGuest),
             ),
           ],
         ),

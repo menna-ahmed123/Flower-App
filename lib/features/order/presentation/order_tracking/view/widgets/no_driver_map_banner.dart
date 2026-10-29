@@ -25,7 +25,7 @@ class NoDriverMapBanner extends StatelessWidget {
         children: [
           Icon(Icons.hourglass_top, size: 14, color: context.colors.warning),
           SizedBox(width: 6.w),
-          Text(AppString.waitingForDriver, style: const TextStyle(fontSize: 12)),
+          Text(AppString.waitingForDriver, style: TextStyle(fontSize: 12)),
         ],
       ),
     );

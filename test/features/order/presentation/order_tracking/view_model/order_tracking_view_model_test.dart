@@ -264,7 +264,7 @@ void main() {
       await harness.viewModel.onEvent(ConfirmOrderDelivered());
       await pumpEventQueue();
 
-      expect(effects, [const ShowTrackingMessage(AppString.statusDelivered)]);
+      expect(effects, [ShowTrackingMessage(AppString.statusDelivered)]);
     });
 
     test('a status that is not waiting for the customer ignores it', () async {

@@ -99,7 +99,7 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                               onPressed: () {
                                 _viewModel.productsPaginationController.retry();
                               },
-                              child: const Text(AppString.retry),
+                              child: Text(AppString.retry),
                             ),
                           ],
                         ),

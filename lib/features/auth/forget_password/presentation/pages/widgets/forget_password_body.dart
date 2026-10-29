@@ -98,7 +98,7 @@ class ForgetPasswordBodyState extends State<ForgetPasswordBody> {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      decoration: const InputDecoration(hintText: AppString.enterYourEmail),
+      decoration: InputDecoration(hintText: AppString.enterYourEmail),
       validator: AppValidators.emailValidator,
     );
   }

@@ -51,7 +51,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppString.trackingOrder)),
+      appBar: AppBar(title: Text(AppString.trackingOrder)),
       body: SafeArea(
         child: BlocBuilder<OrderTrackingViewModel, OrderTrackingState>(
           builder: (_, state) => OrderTrackingBody(

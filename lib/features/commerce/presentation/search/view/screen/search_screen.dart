@@ -82,7 +82,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           viewModel.productsPaginationController.state;
 
                       if (paginationState.status == PaginationStatus.initial) {
-                        return const SearchStatusWidget(
+                        return SearchStatusWidget(
                           text: AppString.searchProducts,
                         );
                       }
@@ -103,7 +103,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
                       if (paginationState.items.isEmpty &&
                           paginationState.status == PaginationStatus.success) {
-                        return const SearchStatusWidget(
+                        return SearchStatusWidget(
                           text: AppString.noResultsFound,
                         );
                       }

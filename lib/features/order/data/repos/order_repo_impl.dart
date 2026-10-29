@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/api_request_params.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/features/order/data/data_sources/order_remote_data_source.dart';
 import 'package:flower_app/features/order/data/data_sources/order_osrm_remote_data_source.dart';
@@ -20,6 +21,7 @@ import '../mapper/delivery_confirmation_mapper.dart';
 import '../mapper/order_model_mapper.dart';
 import '../mapper/order_tracking_mapper.dart';
 import '../mapper/osrm_route_mapper.dart';
+
 @Injectable(as: OrderRepo)
 class OrderRepoImpl implements OrderRepo {
   final OrderRemoteDataSource orderRemoteDataSource;
@@ -34,7 +36,6 @@ class OrderRepoImpl implements OrderRepo {
   );
 
   static const Duration _pollInterval = Duration(seconds: 20);
-  static const String _routeUnavailableMessage = 'Route is unavailable.';
 
   @override
   Future<BaseResponse<List<OrderEntity>>> getAllOrders({
@@ -51,9 +52,13 @@ class OrderRepoImpl implements OrderRepo {
   }
 
   @override
-  Future<BaseResponse<TrackingEntity>> orderTracking({required String orderId}) {
+  Future<BaseResponse<TrackingEntity>> orderTracking({
+    required String orderId,
+  }) {
     return safeCall.safeApiCall(() async {
-      final response = await orderRemoteDataSource.orderTracking(orderId: orderId);
+      final response = await orderRemoteDataSource.orderTracking(
+        orderId: orderId,
+      );
       return response.dataOrThrow().toDomain();
     });
   }
@@ -82,7 +87,7 @@ class OrderRepoImpl implements OrderRepo {
       );
       final route = model.toDomain();
       if (model.code != ApiRequestParams.osrmOkCode || route.isEmpty) {
-        throw ApiException(message: _routeUnavailableMessage);
+        throw ApiException(message: AppString.routeUnavailable);
       }
       return route;
     });

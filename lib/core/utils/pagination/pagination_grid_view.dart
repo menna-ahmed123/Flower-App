@@ -88,7 +88,7 @@ class _PaginationGridViewState<T> extends State<PaginationGridView<T>> {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: widget.controller.retry,
-              child: const Text(AppString.retry),
+              child: Text(AppString.retry),
             ),
           ],
         ),
@@ -96,7 +96,7 @@ class _PaginationGridViewState<T> extends State<PaginationGridView<T>> {
     }
 
     if (state.items.isEmpty && state.status == PaginationStatus.success) {
-      return const Center(child: Text(AppString.noData));
+      return Center(child: Text(AppString.noData));
     }
 
     final shouldShowBottomWidget =

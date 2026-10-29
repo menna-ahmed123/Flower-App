@@ -54,7 +54,7 @@ class _OccasionScreenState extends State<OccasionScreen> {
                     height: 70.h,
                     child: CommerceAppBar(
                       title: AppString.occasions,
-                      des: 'Bloom with our exquisite best sellers',
+                      des: AppString.desSell,
                     ),
                   ),
                   SizedBox(height: 12.h),
@@ -88,15 +88,12 @@ class _OccasionScreenState extends State<OccasionScreen> {
                     child: state.occasionsState.isLoading
                         ? const OccasionShimmer()
                         : state.occasionsState.errorMessage.isNotEmpty
-                        ? Center(
-                            child: Text(state.occasionsState.errorMessage),
-                          )
+                        ? Center(child: Text(state.occasionsState.errorMessage))
                         : ListenableBuilder(
-                            listenable:
-                                _viewModel.productsPaginationController,
+                            listenable: _viewModel.productsPaginationController,
                             builder: (context, _) {
-                              final pState = _viewModel
-                                  .productsPaginationController.state;
+                              final pState =
+                                  _viewModel.productsPaginationController.state;
 
                               if (pState.status == PaginationStatus.loading &&
                                   pState.items.isEmpty) {
@@ -107,21 +104,21 @@ class _OccasionScreenState extends State<OccasionScreen> {
                                   pState.items.isEmpty) {
                                 return Center(
                                   child: Text(
-                                    pState.errorMessage ?? AppString.somethingWrong,
+                                    pState.errorMessage ??
+                                        AppString.somethingWrong,
                                   ),
                                 );
                               }
 
                               if (pState.items.isEmpty &&
                                   pState.status == PaginationStatus.success) {
-                                return const Center(
-                                  child: Text('No products found'),
-                                );
+                                return Center(child: Text(AppString.notFound));
                               }
 
                               return PaginationGridView<ProductEntity>(
                                 key: ValueKey(state.selectedOccasionId),
-                                controller: _viewModel.productsPaginationController,
+                                controller:
+                                    _viewModel.productsPaginationController,
                                 padding: EdgeInsets.all(16.w),
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
@@ -137,19 +134,21 @@ class _OccasionScreenState extends State<OccasionScreen> {
                                     name: product.name,
                                     price: product.discountedPrice > 0
                                         ? product.discountedPrice
-                                            .toStringAsFixed(2)
+                                              .toStringAsFixed(2)
                                         : 'N/A',
                                     oldPrice:
                                         product.price != product.discountedPrice
-                                            ? product.price?.toStringAsFixed(2)
-                                            : null,
+                                        ? product.price?.toStringAsFixed(2)
+                                        : null,
                                     discount: product.discountPercent != null
                                         ? '${product.discountPercent!.toStringAsFixed(0)}%'
                                         : null,
                                     onAddToCart: () =>
                                         _addToCart(context, product.id),
                                     onTap: () => navigateToProductDetails(
-                                        context, product.id),
+                                      context,
+                                      product.id,
+                                    ),
                                   );
                                 },
                               );

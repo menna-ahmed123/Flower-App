@@ -96,7 +96,7 @@ class _PaginationListViewState<T>
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: widget.controller.retry,
-              child: const Text(AppString.retry),
+              child: Text(AppString.retry),
             ),
           ],
         ),
@@ -105,7 +105,7 @@ class _PaginationListViewState<T>
 
     if (state.items.isEmpty &&
         state.status == PaginationStatus.success) {
-      return const Center(
+      return Center(
         child: Text(AppString.noData),
       );
     }

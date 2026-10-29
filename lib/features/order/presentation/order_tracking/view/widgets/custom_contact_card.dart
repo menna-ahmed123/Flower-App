@@ -48,7 +48,7 @@ class CustomContactCard extends StatelessWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: const Text(AppString.somethingWrong),
+          content: Text(AppString.somethingWrong),
           backgroundColor: context.colors.error,
         ),
       );

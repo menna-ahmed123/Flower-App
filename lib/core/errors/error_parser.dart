@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/api_exception.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 
@@ -17,14 +18,16 @@ AppError _parseApiException(ApiException exception) {
 
 AppError _parseDioException(DioException exception) {
   // ignore: avoid_print
-  print('🔴 DioException: type=${exception.type} | message=${exception.message} | error=${exception.error} | uri=${exception.requestOptions.uri}');
+  print(
+    '🔴 DioException: type=${exception.type} | message=${exception.message} | error=${exception.error} | uri=${exception.requestOptions.uri}',
+  );
   return switch (exception.type) {
     DioExceptionType.connectionTimeout ||
     DioExceptionType.sendTimeout ||
     DioExceptionType.receiveTimeout => TimeOutError(exception),
     DioExceptionType.badCertificate => BadCertificateError(
       exception,
-      'Invalid certificate, please try again later.',
+      AppString.invalidCertificate,
     ),
     DioExceptionType.badResponse => _parseBadResponse(exception),
     DioExceptionType.connectionError => _connectionError(exception),
@@ -40,9 +43,7 @@ AppError _connectionError(DioException exception) {
       detail.contains('Failed host lookup') ||
       detail.contains('Network is unreachable') ||
       detail.contains('Connection reset')) {
-    return BadResponseError(
-      'Cannot reach the server. Start the backend with ./setup.sh and retry.',
-    );
+    return BadResponseError(AppString.cannotReachServer);
   }
   return NoInternetError(exception);
 }
@@ -133,6 +134,7 @@ Map<String, dynamic>? _validationFieldErrors(dynamic raw) {
   );
   return looksLikeFieldErrors ? map : null;
 }
+
 String? fieldErrorsMessage(dynamic errors) {
   if (errors == null) return null;
   final messages = <String>[];
@@ -146,8 +148,7 @@ String? fieldErrorsMessage(dynamic errors) {
         messages.add(item.toString());
       }
     }
-  } 
-  else if (errors is Map) {
+  } else if (errors is Map) {
     for (final value in errors.values) {
       if (value is List) {
         messages.addAll(value.map((e) => e.toString()));
@@ -161,21 +162,19 @@ String? fieldErrorsMessage(dynamic errors) {
   return messages.join('\n');
 }
 
-const Map<int, String> statusMessages = {
-  400: 'Something went wrong, please try again.',
-  401: 'Unauthorized, please login again.',
-  403: 'You are not allowed to perform this action.',
-  404: 'Resource not found.',
-  409: 'Conflict occurred.',
-  422: 'Validation failed.',
-  429: 'Too many requests, please try again later.',
-  500: 'Internal server error, please try again later.',
-  502: 'Bad gateway.',
-  503: 'Service unavailable.',
-  504: 'Gateway timeout.',
-};
-
 String statusCodeToMessage(int? statusCode) {
-  return statusMessages[statusCode] ??
-      'Something went wrong, please try again.';
+  return switch (statusCode) {
+    400 => AppString.httpBadRequest,
+    401 => AppString.httpUnauthorized,
+    403 => AppString.httpForbidden,
+    404 => AppString.httpNotFound,
+    409 => AppString.httpConflict,
+    422 => AppString.httpValidationFailed,
+    429 => AppString.httpTooManyRequests,
+    500 => AppString.httpInternalServerError,
+    502 => AppString.httpBadGateway,
+    503 => AppString.httpServiceUnavailable,
+    504 => AppString.httpGatewayTimeout,
+    _ => AppString.httpBadRequest,
+  };
 }

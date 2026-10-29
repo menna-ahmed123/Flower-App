@@ -60,7 +60,7 @@ class ResendCodeButtonState extends State<ResendCodeButton> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(content: Text(AppString.pleaseWaitBeforeResend)),
+        SnackBar(content: Text(AppString.pleaseWaitBeforeResend)),
       );
   }
 

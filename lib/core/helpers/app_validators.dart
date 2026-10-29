@@ -23,17 +23,18 @@ class AppValidators {
     return null;
   }
 
-  static String? usernameValidator(String? value, {String field = 'Name'}) {
+  static String? usernameValidator(String? value, {String? field}) {
+    final label = field ?? AppString.name;
     if (value == null || value.trim().isEmpty) {
-      return AppString.fieldIsRequired(field);
+      return AppString.fieldIsRequired(label);
     }
 
     if (value.length < 4) {
-      return AppString.fieldMinLength(field, 4);
+      return AppString.fieldMinLength(label, 4);
     }
 
     if (value.contains(' ')) {
-      return AppString.fieldNoSpaces(field);
+      return AppString.fieldNoSpaces(label);
     }
 
     if (!_usernamePattern.hasMatch(value)) {
@@ -145,11 +146,11 @@ class AppValidators {
 
   static String? validateAddress(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Please enter the address';
+      return AppString.pleaseEnterAddress;
     }
 
     if (value.trim().length < 5) {
-      return 'Address must be at least 5 characters';
+      return AppString.addressMinLength;
     }
 
     return null;
@@ -157,11 +158,11 @@ class AppValidators {
 
   static String? validateRecipientName(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Please enter the recipient name';
+      return AppString.pleaseEnterRecipientName;
     }
 
     if (value.trim().length < 2) {
-      return 'Name must be at least 2 characters';
+      return AppString.nameMinLength;
     }
 
     return null;
@@ -169,7 +170,7 @@ class AppValidators {
 
   static String? validateCity(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please select a city';
+      return AppString.pleaseSelectCity;
     }
 
     return null;
@@ -177,7 +178,7 @@ class AppValidators {
 
   static String? validateArea(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please select an area';
+      return AppString.pleaseSelectArea;
     }
 
     return null;

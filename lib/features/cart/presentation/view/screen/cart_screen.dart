@@ -47,7 +47,7 @@ class _CartScreenState extends State<CartScreen> {
         appBar: AppBar(
           title: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: const Text(AppString.myCart),
+            child: Text(AppString.myCart),
           ),
         ),
         body: const CartBody(),

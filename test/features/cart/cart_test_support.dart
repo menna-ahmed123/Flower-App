@@ -1,5 +1,4 @@
 import 'package:flower_app/core/base/base_response.dart';
-import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
@@ -9,6 +8,7 @@ import 'package:flower_app/features/cart/domain/use_cases/checkout_use_cases.dar
 import 'package:flower_app/features/cart/presentation/view/screen/cart_screen.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_state.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
+import 'package:flower_app/features/cart/presentation/view_model/checkout_state.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,9 +37,12 @@ CartEntity cartWithItems(List<CartItemEntity> items) {
 }
 
 const checkoutPaymentMethods = [
-  PaymentMethodEntity(name: AppString.cashOnDelivery, apiMethod: 'COD'),
   PaymentMethodEntity(
-    name: AppString.creditCard,
+    name: CheckoutPaymentMethods.cashOnDelivery,
+    apiMethod: 'COD',
+  ),
+  PaymentMethodEntity(
+    name: CheckoutPaymentMethods.creditCard,
     apiMethod: 'CARD',
     gateway: 'Stripe',
   ),

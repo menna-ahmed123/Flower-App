@@ -48,7 +48,7 @@ class OrdersContent extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(AppString.noData),
+            Text(AppString.noData),
             if (state.showLoadMore) ...[
               SizedBox(height: 12.h),
               LoadMoreButton(onPressed: onLoadMore),

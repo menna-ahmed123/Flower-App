@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/constants/app_constants.dart';
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
@@ -15,11 +16,7 @@ class LocationMap extends StatefulWidget {
   final LocationEntity? initialLocation;
   final ValueChanged<LocationEntity>? onLocationSelected;
 
-  const LocationMap({
-    super.key,
-    this.initialLocation,
-    this.onLocationSelected,
-  });
+  const LocationMap({super.key, this.initialLocation, this.onLocationSelected});
 
   @override
   State<LocationMap> createState() => _LocationMapState();
@@ -90,9 +87,8 @@ class _LocationMapState extends State<LocationMap> {
             children: [
               TileLayer(
                 urlTemplate:
-                    '${AppConstants.mapTilerBaseUrl}?key=${AppConstants.mapTilerApiKey}&language=en',
-                userAgentPackageName:
-                    AppConstants.mapUserAgentPackageName,
+                    '${AppConstants.mapTilerBaseUrl}?key=${AppConstants.mapTilerApiKey}&language=${context.locale.languageCode}',
+                userAgentPackageName: AppConstants.mapUserAgentPackageName,
               ),
               if (selectedLocation != null)
                 MarkerLayer(
@@ -122,10 +118,7 @@ class _LocationMapState extends State<LocationMap> {
               onPressed: () {
                 context.read<AddressViewModel>().doEvent(GetCurrentAddress());
               },
-              child: Icon(
-                Icons.my_location,
-                color: context.colors.pink,
-              ),
+              child: Icon(Icons.my_location, color: context.colors.pink),
             ),
           ),
 

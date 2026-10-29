@@ -39,9 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _onNotificationsChanged(bool value) {
-    context.read<ProfileViewModel>().doEvent(
-      NotificationToggleChanged(value),
-    );
+    context.read<ProfileViewModel>().doEvent(NotificationToggleChanged(value));
   }
 
   Future<void> _onLanguageTap() {
@@ -77,9 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (mounted && updatedProfile != null) {
       final profileViewModel = context.read<ProfileViewModel>();
 
-      await profileViewModel.doEvent(
-        ProfileUpdated(updatedProfile),
-      );
+      await profileViewModel.doEvent(ProfileUpdated(updatedProfile));
 
       if (mounted) {
         await profileViewModel.doEvent(ProfileRequested());
@@ -90,17 +86,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _onAboutUsTap() {
     context.push(
       AppRoutesName.webView,
-      extra: const WebViewArgs(
-        url: AppUrls.aboutUs,
-        title: AppString.aboutUs,
-      ),
+      extra: WebViewArgs(url: AppUrls.aboutUs, title: AppString.aboutUs),
     );
   }
 
   void _onTermsConditionsTap() {
     context.push(
       AppRoutesName.webView,
-      extra: const WebViewArgs(
+      extra: WebViewArgs(
         url: AppUrls.termsAndConditions,
         title: AppString.termsAndConditionsRow,
       ),
@@ -112,10 +105,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Notifications are disabled'),
-          content: const Text(
-            'To receive notifications, enable them from your device settings.',
-          ),
+          title: Text(AppString.notificationsDisabledTitle),
+          content: Text(AppString.notificationsDisabledBody),
           actions: [
             TextButton(
               onPressed: () {
@@ -125,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 Navigator.of(dialogContext).pop();
               },
-              child: const Text('Not now'),
+              child: Text(AppString.notNow),
             ),
             TextButton(
               onPressed: () {
@@ -139,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   OpenNotificationSettingsRequested(),
                 );
               },
-              child: const Text('Open settings'),
+              child: Text(AppString.openSettings),
             ),
           ],
         );
@@ -150,11 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showNotificationError(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _onMyOrdersTap() {
@@ -194,9 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }
 
             if (state.notificationErrorMessage.isNotEmpty) {
-              _showNotificationError(
-                state.notificationErrorMessage,
-              );
+              _showNotificationError(state.notificationErrorMessage);
             }
           },
           child: BlocBuilder<ProfileViewModel, ProfileState>(
@@ -217,27 +202,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final profileState = state.profileState;
 
     if (profileState.isLoading && profileState.data == null) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
-    if (profileState.errorMessage.isNotEmpty &&
-        profileState.data == null) {
+    if (profileState.errorMessage.isNotEmpty && profileState.data == null) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              profileState.errorMessage,
-              textAlign: TextAlign.center,
-            ),
+            Text(profileState.errorMessage, textAlign: TextAlign.center),
             SizedBox(height: 12.h),
             TextButton(
-              onPressed: () => context
-                  .read<ProfileViewModel>()
-                  .doEvent(ProfileRequested()),
-              child: const Text(AppString.retry),
+              onPressed: () =>
+                  context.read<ProfileViewModel>().doEvent(ProfileRequested()),
+              child: Text(AppString.retry),
             ),
           ],
         ),
@@ -253,9 +231,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         : null;
 
     return RefreshIndicator(
-      onRefresh: () => context
-          .read<ProfileViewModel>()
-          .doEvent(ProfileRequested()),
+      onRefresh: () =>
+          context.read<ProfileViewModel>().doEvent(ProfileRequested()),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.only(bottom: 24.h),
@@ -271,8 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     : ProfileInfoSection(
                         data: displayData,
                         imageFile: savedImage,
-                        onEditTap: () =>
-                            _onEditProfileTap(profileState.data!),
+                        onEditTap: () => _onEditProfileTap(profileState.data!),
                       ),
               ),
             ),

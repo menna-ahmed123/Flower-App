@@ -47,7 +47,7 @@ class SavedAddressesBody extends StatelessWidget {
                       SizedBox(height: 12.h),
                       TextButton(
                         onPressed: onRetry,
-                        child: const Text(AppString.retry),
+                        child: Text(AppString.retry),
                       ),
                     ],
                   ),

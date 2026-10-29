@@ -221,7 +221,7 @@ class OrderTrackingViewModel
             trackingState: BaseState<TrackingEntity>(data: confirmed),
           ),
         );
-        emitUiEvent(const ShowTrackingMessage(AppString.statusDelivered));
+        emitUiEvent(ShowTrackingMessage(AppString.statusDelivered));
       case ErrorResponse(:final appError):
         emit(state.copyWith(isConfirmingDelivery: false));
         emitUiEvent(ShowTrackingMessage(appError.message));

@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flower_app/features/auth/core/auth_extension.dart';
+
 import '../../../../../../core/widgets/app_shimmer/product_details_shimmer.dart';
 
 // The route already creates the cubit AND fires GetProductDetailsEvent
@@ -21,7 +23,7 @@ class ProductDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Product details')),
+      appBar: AppBar(title: Text(AppString.productDetails)),
       body: SafeArea(
         child: Column(
           children: [
@@ -44,7 +46,7 @@ class ProductDetailsScreen extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
 
-                  return ProductDetailsBody(product: product,);
+                  return ProductDetailsBody(product: product);
                 },
               ),
             ),

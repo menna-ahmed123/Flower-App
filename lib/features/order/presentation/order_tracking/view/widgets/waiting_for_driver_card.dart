@@ -43,7 +43,7 @@ class _WaitingForDriverCardState extends State<WaitingForDriverCard>
           ),
         ),
         SizedBox(height: 20.h),
-        const Text(
+        Text(
           AppString.waitingForDriver,
           textAlign: TextAlign.center,
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),

@@ -155,7 +155,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   void _emitEmptyCart() {
     emit(
       state.copyWith(
-        previewState: const BaseState(errorMessage: AppString.cartIsEmpty),
+        previewState: BaseState(errorMessage: AppString.cartIsEmpty),
         destination: CheckoutDestination.emptyCart,
       ),
     );
@@ -235,7 +235,8 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
         estimate.subtotal != null ||
         estimate.deliveryFee != null ||
         estimate.total != null;
-    final total = estimate.total ??
+    final total =
+        estimate.total ??
         (hasPrice ? subtotal + deliveryFee - base.discount : base.total);
     return base.copyWith(
       subtotal: subtotal,
@@ -288,13 +289,13 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
   }
 
   void _applySubmitSuccess(OrderEntity order) {
-  final destination = _orderDestination(order);
+    final destination = _orderDestination(order);
     _orderTotal = order.total;
     _clearAttempt();
     if (destination == null) {
       emit(
         state.copyWith(
-          submitState: const BaseState(errorMessage: AppString.orderFailed),
+          submitState: BaseState(errorMessage: AppString.orderFailed),
         ),
       );
       return;
@@ -332,7 +333,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
       emit(
         state.copyWith(
           showValidation: true,
-          submitState: const BaseState(errorMessage: AppString.giftCardOnly),
+          submitState: BaseState(errorMessage: AppString.giftCardOnly),
         ),
       );
       return false;
@@ -395,7 +396,7 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
     emit(
       state.copyWith(
         previewState: BaseState(data: _summaryCart(current, error.data)),
-        submitState: const BaseState(errorMessage: AppString.priceChanged),
+        submitState: BaseState(errorMessage: AppString.priceChanged),
       ),
     );
   }
@@ -462,9 +463,11 @@ class CheckoutViewModel extends Cubit<CheckoutState> {
     final requested = item['requestedQuantity'];
     final available = item['availableQuantity'];
     if (name != null && requested != null && available != null) {
-      return '$name: $requested requested, $available available';
+      return AppString.quantityRequestedAvailable(name, requested, available);
     }
-    if (name != null && available != null) return '$name: $available available';
+    if (name != null && available != null) {
+      return AppString.quantityAvailable(name, available);
+    }
     return (name ?? item['reason'])?.toString() ?? '';
   }
 

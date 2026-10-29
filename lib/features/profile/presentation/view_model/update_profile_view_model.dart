@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flower_app/core/base/base_response.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/di/di.dart';
 import 'package:flower_app/core/services/image_picker_service.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_request.dart';
@@ -21,10 +22,8 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
   final UpdateProfileUseCase _updateProfileUseCase;
   final ImagePickerService _imagePickerService;
 
-  UpdateProfileViewModel(
-    this._updateProfileUseCase,
-    this._imagePickerService,
-  ) : super(const EditProfileState());
+  UpdateProfileViewModel(this._updateProfileUseCase, this._imagePickerService)
+    : super(const EditProfileState());
 
   ProfileEntity? _initialProfile;
 
@@ -70,11 +69,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
     _phone = profile.phoneNumber;
     _gender = profile.gender;
 
-    emit(
-      state.copyWith(
-        hasChanges: false,
-      ),
-    );
+    emit(state.copyWith(hasChanges: false));
   }
 
   void _updateHasChanges() {
@@ -91,11 +86,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
         _gender != profile.gender ||
         state.selectedImage != null;
 
-    emit(
-      state.copyWith(
-        hasChanges: hasChanges,
-      ),
-    );
+    emit(state.copyWith(hasChanges: hasChanges));
   }
 
   Future<void> _pickImage() async {
@@ -107,33 +98,33 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
       final imageFile = File(pickedImage.path);
       final extension = pickedImage.path.split('.').last.toLowerCase();
       if (!ProfileConstants.allowedExtensions.contains(extension)) {
-        emit(state.copyWith(
-          updateProfileState: state.updateProfileState.copyWith(
-            errorMessage: 'Please choose a JPG, JPEG, PNG, or WEBP image.',
+        emit(
+          state.copyWith(
+            updateProfileState: state.updateProfileState.copyWith(
+              errorMessage: AppString.invalidImageType,
+            ),
           ),
-        ));
+        );
         return;
       }
       if (await imageFile.length() > ProfileConstants.maxImageBytes) {
-        emit(state.copyWith(
-          updateProfileState: state.updateProfileState.copyWith(
-            errorMessage: 'Profile image must be 5 MB or smaller.',
+        emit(
+          state.copyWith(
+            updateProfileState: state.updateProfileState.copyWith(
+              errorMessage: AppString.profileImageTooLarge,
+            ),
           ),
-        ));
+        );
         return;
       }
-      emit(
-        state.copyWith(
-          selectedImage: imageFile,
-        ),
-      );
+      emit(state.copyWith(selectedImage: imageFile));
 
       _updateHasChanges();
     } catch (_) {
       emit(
         state.copyWith(
           updateProfileState: state.updateProfileState.copyWith(
-            errorMessage: 'Unable to select profile image.',
+            errorMessage: AppString.unableToSelectProfileImage,
           ),
         ),
       );
@@ -158,9 +149,7 @@ class UpdateProfileViewModel extends Cubit<EditProfileState> {
       profilePicture: state.selectedImage,
     );
 
-    final response = await _updateProfileUseCase(
-      updateProfileRequest: request,
-    );
+    final response = await _updateProfileUseCase(updateProfileRequest: request);
 
     switch (response) {
       case SuccessResponse<ProfileEntity>():
