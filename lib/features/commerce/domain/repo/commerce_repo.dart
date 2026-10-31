@@ -27,6 +27,8 @@ abstract interface class CommerceRepo {
 
   Future<BaseResponse<List<ProductEntity>>> searchProducts({
     required String query,
+    int? page,
+    int? pageSize,
     String? storeId,
   });
 }

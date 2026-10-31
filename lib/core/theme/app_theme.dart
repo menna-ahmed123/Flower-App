@@ -6,23 +6,32 @@ class AppTheme {
   final AppColors colors;
   final ThemeData themeData;
   AppTheme(this.colors)
-      : themeData = ThemeData(
-    colorScheme: ColorScheme(
-      brightness: colors.brightness,
-      primary: colors.pink,
-      onPrimary: colors.white,
-      secondary: colors.pink,
-      onSecondary: colors.white,
-      error: colors.error,
-      onError: colors.white,
-      surface: colors.white,
-      onSurface: colors.black,
-    ),
-    brightness: colors.brightness,
-    scaffoldBackgroundColor: colors.white,
+    : themeData = ThemeData(
+        colorScheme: ColorScheme(
+          brightness: colors.brightness,
+          primary: colors.pink,
+          onPrimary: colors.white,
+          secondary: colors.pink,
+          onSecondary: colors.white,
+          error: colors.error,
+          onError: colors.white,
+          surface: colors.white,
+          onSurface: colors.black,
+        ),
+        brightness: colors.brightness,
+        scaffoldBackgroundColor: colors.white,
         actionIconTheme: ActionIconThemeData(
-          backButtonIconBuilder: (context) =>
-              Icon(Icons.arrow_back_ios_new, color: colors.black, size: 20.w),
+          backButtonIconBuilder: (context) {
+            final icon = Icon(
+              Icons.arrow_back_ios_new,
+              color: colors.black,
+              size: 20.w,
+            );
+            if (Directionality.of(context) == TextDirection.rtl) {
+              return Transform.flip(flipX: true, child: icon);
+            }
+            return icon;
+          },
         ),
         appBarTheme: AppBarTheme(
           backgroundColor: colors.white,
@@ -37,55 +46,58 @@ class AppTheme {
             fontWeight: FontWeight.w600,
           ),
         ),
-    textTheme: TextTheme(
-      titleLarge: TextStyle(
-        color: colors.black,
-        fontSize: 24.sp,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      floatingLabelBehavior: FloatingLabelBehavior.always,
-      filled: true,
-      fillColor: colors.white,
-      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-      labelStyle: TextStyle(
-        color: colors.black,
+        textTheme: TextTheme(
+          titleLarge: TextStyle(
+            color: colors.black,
+            fontSize: 24.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          filled: true,
+          fillColor: colors.white,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: 16.h,
+          ),
+          labelStyle: TextStyle(
+            color: colors.black,
             fontSize: 18.sp,
-        fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w500,
           ),
           hintStyle: TextStyle(color: colors.grey.shade700, fontSize: 14.sp),
           errorStyle: TextStyle(color: colors.error, fontSize: 11.sp),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8.r),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.r),
             borderSide: BorderSide(color: colors.grey.shade900),
           ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6.r),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(6.r),
             borderSide: BorderSide(color: colors.grey.shade900, width: 1.w),
           ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6.r),
-        borderSide: BorderSide(color: colors.pink, width: 1.w),
-      ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(6.r),
+            borderSide: BorderSide(color: colors.pink, width: 1.w),
+          ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6.r),
             borderSide: BorderSide(color: colors.error, width: 1.w),
           ),
-      disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6.r),
-        borderSide: BorderSide(color: colors.grey.shade900, width: 1.w),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(6.r),
+            borderSide: BorderSide(color: colors.grey.shade900, width: 1.w),
           ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: colors.pink,
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50.r),
         ),
-        elevation: 0,
-      ),
-    ),
-  );
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colors.pink,
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50.r),
+            ),
+            elevation: 0,
+          ),
+        ),
+      );
 }

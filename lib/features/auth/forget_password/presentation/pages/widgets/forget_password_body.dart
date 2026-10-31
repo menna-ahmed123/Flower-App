@@ -64,7 +64,7 @@ class ForgetPasswordBodyState extends State<ForgetPasswordBody> {
   }
 
   Widget _buildForm(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Form(
         key: _formKey,
@@ -98,7 +98,7 @@ class ForgetPasswordBodyState extends State<ForgetPasswordBody> {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      decoration: const InputDecoration(hintText: AppString.enterYourEmail),
+      decoration: InputDecoration(hintText: AppString.enterYourEmail),
       validator: AppValidators.emailValidator,
     );
   }

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -167,8 +166,8 @@ double? _nullableDouble(Map<String, dynamic> json, String key) {
 
 String _displayMethod(String method) {
   return switch (method.toUpperCase()) {
-    'COD' => AppString.cashOnDelivery,
-    'CARD' => AppString.creditCard,
+    'COD' => 'Cash on Delivery',
+    'CARD' => 'Credit Card',
     _ => method,
   };
 }

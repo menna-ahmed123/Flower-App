@@ -3,44 +3,56 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Shown in place of the driver card until a driver accepts the order.
-class WaitingForDriverCard extends StatelessWidget {
+class WaitingForDriverCard extends StatefulWidget {
   const WaitingForDriverCard({super.key});
 
   @override
+  State<WaitingForDriverCard> createState() => _WaitingForDriverCardState();
+}
+
+class _WaitingForDriverCardState extends State<WaitingForDriverCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Row(
+    final pink = context.colors.pink;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        CircleAvatar(
-          radius: 25.r,
-          backgroundColor: context.colors.pink.withValues(alpha: 0.15),
-          child: SizedBox(
-            width: 22.w,
-            height: 22.h,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.5,
-              color: context.colors.pink,
+        FadeTransition(
+          opacity: Tween<double>(begin: 0.55, end: 1).animate(_pulse),
+          child: Container(
+            width: 88.r,
+            height: 88.r,
+            decoration: BoxDecoration(
+              color: pink.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
             ),
+            child: Icon(Icons.delivery_dining, size: 44.r, color: pink),
           ),
         ),
-        SizedBox(width: 16.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                AppString.waitingForDriver,
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-              ),
-              Text(
-                AppString.waitingForDriverHint,
-                style: TextStyle(
-                  color: context.colors.black.shade50,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
+        SizedBox(height: 20.h),
+        Text(
+          AppString.waitingForDriver,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+        ),
+        SizedBox(height: 8.h),
+        Text(
+          AppString.findingDriver,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 13, color: context.colors.grey.shade700),
         ),
       ],
     );

@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/errors/app_error.dart';
 import 'package:flower_app/core/network/token_refresh_coordinator.dart';
 import 'package:flower_app/core/network/token_storage.dart';
@@ -144,7 +145,7 @@ class AuthInterceptors extends Interceptor {
       response: original.response,
       type: DioExceptionType.badResponse,
       error: ForceLogin(),
-      message: 'Session expired',
+      message: AppString.sessionExpired,
     );
   }
 

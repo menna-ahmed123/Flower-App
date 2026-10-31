@@ -1,7 +1,9 @@
 import 'package:flower_app/core/base/api_response.dart';
 import 'package:flower_app/features/order/data/api/order_api_client.dart';
 import 'package:flower_app/features/order/data/data_sources/order_remote_data_source.dart';
+import 'package:flower_app/features/order/data/models/delivery_confirmation_model.dart';
 import 'package:flower_app/features/order/data/models/order_model.dart';
+import 'package:flower_app/features/order/data/models/order_tracking_model.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: OrderRemoteDataSource)
@@ -18,5 +20,15 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       page: page?.toString(),
       pageSize: pageSize?.toString(),
     );
+  }
+
+  @override
+  Future<ApiResponse<OrderTrackingModel>> orderTracking({required String orderId}) {
+    return orderApiClient.getOrderTracking(orderId: orderId);
+  }
+
+  @override
+  Future<ApiResponse<DeliveryConfirmationModel>> confirmDelivery({required String orderId}) {
+    return orderApiClient.confirmDelivery(orderId: orderId);
   }
 }

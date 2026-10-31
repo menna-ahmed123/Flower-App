@@ -83,7 +83,7 @@ class MainShell extends StatelessWidget {
                           );
                         }
                       },
-                      destinations: const [
+                      destinations: [
                         NavigationDestination(
                           icon: Icon(AppIcons.home),
                           label: AppString.home,

@@ -1,18 +1,18 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Replaces the staleness badge on the map while there is no driver.
 class NoDriverMapBanner extends StatelessWidget {
   const NoDriverMapBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: context.colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
             blurRadius: 6,
@@ -24,8 +24,8 @@ class NoDriverMapBanner extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.hourglass_top, size: 14, color: context.colors.warning),
-          const SizedBox(width: 6),
-          Text(AppString.waitingForDriver, style: const TextStyle(fontSize: 12)),
+          SizedBox(width: 6.w),
+          Text(AppString.waitingForDriver, style: TextStyle(fontSize: 12)),
         ],
       ),
     );

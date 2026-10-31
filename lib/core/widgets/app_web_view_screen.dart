@@ -148,7 +148,7 @@ class _WebViewErrorView extends StatelessWidget {
         children: [
           Text(AppString.somethingWrong, textAlign: TextAlign.center),
           SizedBox(height: 12.h),
-          TextButton(onPressed: onRetry, child: const Text(AppString.retry)),
+          TextButton(onPressed: onRetry, child: Text(AppString.retry)),
         ],
       ),
     );

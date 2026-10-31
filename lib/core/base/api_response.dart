@@ -1,3 +1,5 @@
+import 'package:flower_app/core/errors/api_exception.dart';
+
 class ApiResponse<T> {
   const ApiResponse({
     required this.status,
@@ -34,5 +36,14 @@ class ApiResponse<T> {
   String get errorMessage {
     if (errors == null) return message;
     return '$message\n${errors is Map ? errors.values.join('\n') : errors}';
+  }
+}
+
+extension ApiResponseValidation<T> on ApiResponse<T> {
+  T dataOrThrow() {
+    if (!status || errors != null || data == null) {
+      throw ApiException(message: errorMessage, statusCode: code);
+    }
+    return data as T;
   }
 }

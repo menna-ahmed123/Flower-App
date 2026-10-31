@@ -73,7 +73,7 @@ class _RegisterPageState extends State<RegisterPage> {
               context.go(AppRoutesName.login);
             },
           ),
-          title: const Text(AppString.signUp),
+          title: Text(AppString.signUp),
         ),
         body: BlocProvider(
           create: (context) => registerViewModel,

@@ -78,7 +78,13 @@ void main() {
     test('keeps separators out of the link', () async {
       await const UrlLauncherServiceImpl().launchWhatsApp('(010) 1234 5678');
 
-      expect(platform.launched, ['https://wa.me/01012345678']);
+      expect(platform.launched, ['https://wa.me/201012345678']);
+    });
+
+    test('turns a local number into the international wa.me form', () async {
+      await const UrlLauncherServiceImpl().launchWhatsApp('01067066051');
+
+      expect(platform.launched, ['https://wa.me/201067066051']);
     });
 
     test('opens outside the app so WhatsApp itself handles the chat', () async {

@@ -14,7 +14,8 @@ class FcmService {
   Stream<String> get onTokenRefresh {
     return _messaging.onTokenRefresh;
   }
-    Stream<RemoteMessage> get onMessage {
+
+  Stream<RemoteMessage> get onMessage {
     return FirebaseMessaging.onMessage;
   }
 }

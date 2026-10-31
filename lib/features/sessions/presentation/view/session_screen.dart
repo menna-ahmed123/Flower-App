@@ -1,3 +1,4 @@
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/features/sessions/domain/entities/session_entity.dart';
 import 'package:flower_app/features/sessions/presentation/view_model/session_event.dart';
 import 'package:flower_app/features/sessions/presentation/view_model/session_state.dart';
@@ -12,9 +13,7 @@ class SessionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Active Sessions'),
-      ),
+      appBar: AppBar(title: Text(AppString.activeSessions)),
       body: BlocConsumer<SessionsViewModel, SessionsState>(
         listenWhen: (previous, current) {
           final previousError = previous.sessionsState.errorMessage;
@@ -25,9 +24,7 @@ class SessionsScreen extends StatelessWidget {
         listener: (context, state) {
           if (state.sessionsState.data != null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.sessionsState.errorMessage),
-              ),
+              SnackBar(content: Text(state.sessionsState.errorMessage)),
             );
           }
         },
@@ -35,9 +32,7 @@ class SessionsScreen extends StatelessWidget {
           final sessionsState = state.sessionsState;
 
           if (sessionsState.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (sessionsState.errorMessage.isNotEmpty &&
@@ -45,9 +40,7 @@ class SessionsScreen extends StatelessWidget {
             return _ErrorView(
               message: sessionsState.errorMessage,
               onRetry: () {
-                context.read<SessionsViewModel>().onEvent(
-                  LoadSessions(),
-                );
+                context.read<SessionsViewModel>().onEvent(LoadSessions());
               },
             );
           }
@@ -55,16 +48,12 @@ class SessionsScreen extends StatelessWidget {
           final sessions = sessionsState.data ?? [];
 
           if (sessions.isEmpty) {
-            return const Center(
-              child: Text('No active sessions found'),
-            );
+            return Center(child: Text(AppString.noActiveSessions));
           }
 
           return RefreshIndicator(
             onRefresh: () {
-              return context.read<SessionsViewModel>().onEvent(
-                LoadSessions(),
-              );
+              return context.read<SessionsViewModel>().onEvent(LoadSessions());
             },
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
@@ -73,8 +62,7 @@ class SessionsScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 return _SessionCard(
                   session: sessions[index],
-                  isRevoking:
-                  state.revokingSessionId == sessions[index].id,
+                  isRevoking: state.revokingSessionId == sessions[index].id,
                   onRevoke: () {
                     final sessionId = sessions[index].id;
 
@@ -121,7 +109,7 @@ class _SessionCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    session.deviceName ?? 'Unknown device',
+                    session.deviceName ?? AppString.unknownDevice,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
@@ -129,16 +117,16 @@ class _SessionCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _SessionInfo(
-              label: 'Last active',
-              value: session.lastActiveAt ?? 'Unknown',
+              label: AppString.lastActive,
+              value: session.lastActiveAt ?? AppString.unknown,
             ),
             _SessionInfo(
-              label: 'Location / IP',
-              value: session.approximateLocationOrIp ?? 'Unknown',
+              label: AppString.locationOrIp,
+              value: session.approximateLocationOrIp ?? AppString.unknown,
             ),
             _SessionInfo(
-              label: 'Expires',
-              value: session.expiresAt ?? 'Unknown',
+              label: AppString.expires,
+              value: session.expiresAt ?? AppString.unknown,
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -147,13 +135,11 @@ class _SessionCard extends StatelessWidget {
                 onPressed: isRevoking ? null : onRevoke,
                 child: isRevoking
                     ? const SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
-                )
-                    : const Text('Revoke Session'),
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(AppString.revokeSession),
               ),
             ),
           ],
@@ -164,10 +150,7 @@ class _SessionCard extends StatelessWidget {
 }
 
 class _SessionInfo extends StatelessWidget {
-  const _SessionInfo({
-    required this.label,
-    required this.value,
-  });
+  const _SessionInfo({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -181,18 +164,12 @@ class _SessionInfo extends StatelessWidget {
         children: [
           Flexible(
             flex: 2,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
           ),
           const SizedBox(width: 8),
           Expanded(
             flex: 3,
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            child: Text(value, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],
       ),
@@ -201,10 +178,7 @@ class _SessionInfo extends StatelessWidget {
 }
 
 class _ErrorView extends StatelessWidget {
-  const _ErrorView({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ErrorView({required this.message, required this.onRetry});
 
   final String message;
   final VoidCallback onRetry;
@@ -217,15 +191,9 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
+            Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
+            ElevatedButton(onPressed: onRetry, child: Text(AppString.retry)),
           ],
         ),
       ),

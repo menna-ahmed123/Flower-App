@@ -43,7 +43,7 @@ class BottomSheetAddress extends StatelessWidget {
 
           const SizedBox(height: 22),
 
-          const Text(
+          Text(
             AppString.chooseDeliveryAddress,
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
           ),
@@ -148,7 +148,7 @@ class BottomSheetAddress extends StatelessWidget {
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
-                                            child: const Text(
+                                            child: Text(
                                               AppString.defaultAddress,
                                               style: TextStyle(
                                                 color: Colors.white,

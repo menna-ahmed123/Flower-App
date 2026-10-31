@@ -43,7 +43,7 @@ class _NoDriverAvailableCardState extends State<NoDriverAvailableCard>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 AppString.noDriverAvailable,
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),

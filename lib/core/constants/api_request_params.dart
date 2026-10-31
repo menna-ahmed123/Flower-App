@@ -9,4 +9,11 @@ class ApiRequestParams {
   static const String profilePicture = 'profilePicture';
   static const String page = 'Page';
   static const String pageSize = 'PageSize';
+  static const String orderId = 'orderId';
+  static const String osrmCoordinates = 'coordinates';
+  static const String osrmOverview = 'overview';
+  static const String osrmGeometries = 'geometries';
+  static const String osrmOverviewFull = 'full';
+  static const String osrmGeometriesGeoJson = 'geojson';
+  static const String osrmOkCode = 'Ok';
 }

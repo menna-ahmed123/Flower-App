@@ -1,6 +1,7 @@
 import 'package:flower_app/app/router/app_routes.dart';
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/core/constants/app_string.dart';
+import 'package:flower_app/core/localization/localized_label.dart';
 import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_event.dart';
@@ -95,8 +96,8 @@ class CheckoutAddressTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         context.read<CheckoutViewModel>().doEvent(
-              SelectCheckoutAddress(address),
-            );
+          SelectCheckoutAddress(address),
+        );
       },
       borderRadius: BorderRadius.circular(12.r),
       child: Container(
@@ -130,7 +131,9 @@ class CheckoutAddressTile extends StatelessWidget {
       color: colors.white,
       borderRadius: BorderRadius.circular(12.r),
       border: Border.all(
-        color: selected ? colors.pink : colors.grey.shade600.withValues(alpha: 0.35),
+        color: selected
+            ? colors.pink
+            : colors.grey.shade600.withValues(alpha: 0.35),
         width: selected ? 1.5 : 1,
       ),
       boxShadow: [
@@ -168,10 +171,11 @@ class CheckoutAddressLabels extends StatelessWidget {
   }
 
   String get _title {
-    return address.label ??
-        address.recipientName ??
-        address.city ??
-        AppString.address;
+    final label = address.label?.trim();
+    if (label != null && label.isNotEmpty) {
+      return localizedAddressLabel(label);
+    }
+    return address.recipientName ?? address.city ?? AppString.address;
   }
 
   String get _subtitle {
@@ -217,10 +221,7 @@ class CheckoutAddAddressButton extends StatelessWidget {
   Widget _label(BuildContext context) {
     return Text(
       AppString.addNew,
-      style: TextStyle(
-        color: context.colors.pink,
-        fontWeight: FontWeight.w600,
-      ),
+      style: TextStyle(color: context.colors.pink, fontWeight: FontWeight.w600),
     );
   }
 
@@ -228,9 +229,7 @@ class CheckoutAddAddressButton extends StatelessWidget {
     return OutlinedButton.styleFrom(
       padding: EdgeInsets.symmetric(vertical: 12.h),
       side: BorderSide(color: context.colors.pink),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24.r),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
     );
   }
 

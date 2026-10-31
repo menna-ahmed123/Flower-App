@@ -1,20 +1,20 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/navigation/product_navigation.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/core/utils/commerce_widgets/widgets/product_grid.dart';
+import 'package:flower_app/core/utils/pagination/pagination_grid_view.dart';
+import 'package:flower_app/core/utils/pagination/pagination_state.dart';
+import 'package:flower_app/core/widgets/app_shimmer/best_seller_shimmer.dart';
 import 'package:flower_app/features/auth/core/auth_extension.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:flower_app/features/commerce/core/widgets/commerce_app_bar.dart';
+import 'package:flower_app/features/commerce/core/widgets/product_card.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_event.dart';
-import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_state.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../../../../../core/widgets/app_shimmer/best_seller_shimmer.dart';
 
 class BestSellerScreen extends StatefulWidget {
   const BestSellerScreen({super.key});
@@ -23,13 +23,13 @@ class BestSellerScreen extends StatefulWidget {
 }
 
 class _BestSellerScreenState extends State<BestSellerScreen> {
-  late final BestSellerViewModel bestSellViewModel;
+  late final BestSellerViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    bestSellViewModel = context.read<BestSellerViewModel>();
-    bestSellViewModel.doEvent(BestSeller());
+    _viewModel = context.read<BestSellerViewModel>();
+    _viewModel.doEvent(BestSeller());
   }
 
   @override
@@ -45,17 +45,22 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                 des: AppString.desSell,
               ),
             ),
-
             Expanded(
-              child: BlocBuilder<BestSellerViewModel, BestSellerState>(
-                builder: (context, state) {
-                  final productState = state.bestSellState;
+              child: ListenableBuilder(
+                listenable: _viewModel.productsPaginationController,
+                builder: (context, _) {
+                  final paginationState =
+                      _viewModel.productsPaginationController.state;
 
-                  if (productState.isLoading) {
+                  // Show shimmer on initial load
+                  if (paginationState.status == PaginationStatus.loading &&
+                      paginationState.items.isEmpty) {
                     return const BestSellerShimmer();
                   }
 
-                  if (productState.errorMessage.isNotEmpty) {
+                  // Show error on initial load failure
+                  if (paginationState.status == PaginationStatus.error &&
+                      paginationState.items.isEmpty) {
                     return Center(
                       child: Padding(
                         padding: EdgeInsets.all(24.w),
@@ -69,7 +74,8 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              productState.errorMessage,
+                              paginationState.errorMessage ??
+                                  AppString.somethingWrong,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: context.colors.black,
@@ -91,9 +97,9 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                                 ),
                               ),
                               onPressed: () {
-                                bestSellViewModel.doEvent(BestSeller());
+                                _viewModel.productsPaginationController.retry();
                               },
-                              child: const Text(AppString.retry),
+                              child: Text(AppString.retry),
                             ),
                           ],
                         ),
@@ -101,9 +107,9 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                     );
                   }
 
-                  final List<ProductEntity> products = productState.data ?? [];
-
-                  if (products.isEmpty) {
+                  // Empty state
+                  if (paginationState.items.isEmpty &&
+                      paginationState.status == PaginationStatus.success) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -127,12 +133,34 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
                     );
                   }
 
-                  return ProductGrid(
-                    products: products,
-                    onTap: (product) {
-                      navigateToProductDetails(context, product.id);
+                  return PaginationGridView<ProductEntity>(
+                    controller: _viewModel.productsPaginationController,
+                    padding: EdgeInsets.all(16.w),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12.w,
+                      mainAxisSpacing: 12.h,
+                      childAspectRatio: 0.55,
+                    ),
+                    itemBuilder: (context, product, index) {
+                      return ProductCard(
+                        productId: product.id,
+                        imageUrl: product.imageUrl,
+                        name: product.name,
+                        price: product.discountedPrice > 0
+                            ? product.discountedPrice.toStringAsFixed(2)
+                            : 'N/A',
+                        oldPrice: product.price != product.discountedPrice
+                            ? product.price?.toStringAsFixed(2)
+                            : null,
+                        discount: product.discountPercent != null
+                            ? '${product.discountPercent!.toStringAsFixed(0)}%'
+                            : null,
+                        onAddToCart: () => _addToCart(context, product.id),
+                        onTap: () =>
+                            navigateToProductDetails(context, product.id),
+                      );
                     },
-                    onAddToCart: (productId) => _addToCart(context, productId),
                   );
                 },
               ),

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flower_app/core/base/base_response.dart';
 import 'package:flower_app/core/constants/api_endpoints.dart';
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/enums/notification_permission_status.dart';
 import 'package:flower_app/features/notification/domain/use_cases/is_notification_permission_granted_use_case.dart';
 import 'package:flower_app/features/notification/domain/use_cases/open_notification_settings_use_case.dart';
@@ -140,7 +141,7 @@ class ProfileViewModel extends Cubit<ProfileState> {
         state.copyWith(
           isNotificationsEnabled: previousValue,
           isUpdatingNotifications: false,
-          notificationErrorMessage: 'Something went wrong. Please try again.',
+          notificationErrorMessage: AppString.notificationUpdateFailed,
         ),
       );
     }

@@ -9,7 +9,7 @@ class AppSearchField extends StatefulWidget {
   const AppSearchField({
     super.key,
     this.controller,
-    this.hintText = AppString.search,
+    this.hintText,
     this.onChanged,
     this.onSubmitted,
     this.onClear,
@@ -19,7 +19,7 @@ class AppSearchField extends StatefulWidget {
   });
 
   final TextEditingController? controller;
-  final String hintText;
+  final String? hintText;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final VoidCallback? onClear;
@@ -84,7 +84,7 @@ class _AppSearchFieldState extends State<AppSearchField> {
 
   InputDecoration _buildDecoration(AppColors colors) {
     return InputDecoration(
-      hintText: widget.hintText,
+      hintText: widget.hintText ?? AppString.search,
       hintStyle: TextStyle(
         fontSize: 16.sp,
         color: colors.grey.shade800,

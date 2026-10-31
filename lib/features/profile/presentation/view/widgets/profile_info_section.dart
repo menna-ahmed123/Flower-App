@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flower_app/core/constants/app_icons.dart';
 import 'package:flower_app/features/profile/presentation/models/profile_display_data.dart';
 import 'package:flower_app/features/profile/presentation/view/widgets/profile_avatar.dart';
@@ -7,9 +9,15 @@ import 'package:flower_app/core/theme/app_color.dart';
 
 /// Avatar, name, email and edit-profile entry point of the signed-in user.
 class ProfileInfoSection extends StatelessWidget {
-  const ProfileInfoSection({super.key, required this.data, this.onEditTap});
+  const ProfileInfoSection({
+    super.key,
+    required this.data,
+    this.onEditTap,
+    this.imageFile,
+  });
 
   final ProfileDisplayData data;
+  final File? imageFile;
 
   /// Called when the pen icon next to the user's name is tapped.
   final VoidCallback? onEditTap;
@@ -20,7 +28,7 @@ class ProfileInfoSection extends StatelessWidget {
 
     return Column(
       children: [
-        ProfileAvatar(photoUrl: data.photoUrl),
+        ProfileAvatar(photoUrl: data.photoUrl, imageFile: imageFile),
         SizedBox(height: 8.h),
         Row(
           mainAxisSize: MainAxisSize.min,

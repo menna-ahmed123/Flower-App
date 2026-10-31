@@ -1,6 +1,5 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
-import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_event.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_state.dart';
 import 'package:flower_app/features/cart/presentation/view_model/checkout_view_model.dart';
@@ -28,16 +27,12 @@ class CheckoutPaymentSection extends StatelessWidget {
       children: [
         _title(context),
         SizedBox(height: 14.h),
-        if (state.isGift) ...[
-          _giftHint(context),
-          SizedBox(height: 10.h),
-        ],
+        if (state.isGift) ...[_giftHint(context), SizedBox(height: 10.h)],
         for (final method in state.paymentMethods) ...[
           CheckoutPaymentOption(
             method: method.name,
             selected: state.paymentMethod == method.name,
-            enabled: !state.isGift ||
-                method.apiMethod.toUpperCase() == 'CARD',
+            enabled: !state.isGift || method.apiMethod.toUpperCase() == 'CARD',
           ),
           SizedBox(height: 10.h),
         ],
@@ -59,11 +54,7 @@ class CheckoutPaymentSection extends StatelessWidget {
   Widget _giftHint(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          Icons.info_outline,
-          size: 16.sp,
-          color: context.colors.pink,
-        ),
+        Icon(Icons.info_outline, size: 16.sp, color: context.colors.pink),
         SizedBox(width: 6.w),
         Expanded(
           child: Text(
@@ -92,20 +83,27 @@ class CheckoutPaymentOption extends StatelessWidget {
   final bool selected;
   final bool enabled;
 
+  String _paymentLabel(String value) {
+    return switch (value) {
+      CheckoutPaymentMethods.cashOnDelivery => AppString.cashOnDelivery,
+      CheckoutPaymentMethods.creditCard => AppString.creditCard,
+      _ => value,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     return InkWell(
       onTap: () {
         if (!enabled) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text(AppString.giftCardOnly)),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(AppString.giftCardOnly)));
           return;
         }
         context.read<CheckoutViewModel>().doEvent(
-              SelectCheckoutPayment(method),
-            );
+          SelectCheckoutPayment(method),
+        );
       },
       borderRadius: BorderRadius.circular(12.r),
       child: Opacity(
@@ -124,7 +122,7 @@ class CheckoutPaymentOption extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            method,
+            _paymentLabel(method),
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w500,

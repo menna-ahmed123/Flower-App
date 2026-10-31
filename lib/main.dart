@@ -9,6 +9,7 @@ import 'package:flower_app/core/theme/app_color.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/firebase_options.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,13 +26,9 @@ import 'features/cart/presentation/view_model/cart_view_model.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  FirebaseMessaging.onBackgroundMessage(
-    firebaseMessagingBackgroundHandler,
-  );
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   await dotenv.load(fileName: '.env', isOptional: true);
 
@@ -46,18 +43,18 @@ Future<void> main() async {
   await notificationManager.initialize();
 
   await EasyLocalization.ensureInitialized();
+  await initializeDateFormatting('en');
+  await initializeDateFormatting('ar');
 
   final initialLocation = await AppRouter.resolveInitialLocation();
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [
-        Locale('en'),
-        Locale('ar'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('ar')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       startLocale: const Locale('en'),
+      useFallbackTranslations: true,
       useOnlyLangCode: true,
       child: MyApp(initialLocation: initialLocation),
     ),
@@ -87,17 +84,12 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    Intl.defaultLocale = context.locale.languageCode;
     return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<AuthSessionController>.value(
-          value: _authCubit,
-        ),
-        BlocProvider<AuthCubit>.value(
-          value: _authCubit,
-        ),
-        BlocProvider<CartViewModel>.value(
-          value: getIt<CartViewModel>(),
-        ),
+        RepositoryProvider<AuthSessionController>.value(value: _authCubit),
+        BlocProvider<AuthCubit>.value(value: _authCubit),
+        BlocProvider<CartViewModel>.value(value: getIt<CartViewModel>()),
       ],
       child: BlocListener<AuthCubit, AuthState>(
         listenWhen: (previous, current) =>

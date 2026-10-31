@@ -11,7 +11,7 @@ class RegisterTermsText extends StatelessWidget {
     return Text.rich(
       TextSpan(
         style: TextStyle(color: context.colors.black, fontSize: 13.sp),
-        children: const [
+        children: [
           TextSpan(text: AppString.creatingAccountAgreePrefix),
           TextSpan(
             text: AppString.termsAndConditions,

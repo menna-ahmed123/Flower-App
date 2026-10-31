@@ -1,13 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:flower_app/core/base/base_state.dart';
-import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/helpers/app_validators.dart';
 import 'package:flower_app/features/address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/cart/domain/entities/cart_entity.dart';
 
 abstract final class CheckoutPaymentMethods {
-  static const String cashOnDelivery = AppString.cashOnDelivery;
-  static const String creditCard = AppString.creditCard;
+  static const cashOnDelivery = 'Cash on Delivery';
+  static const creditCard = 'Credit Card';
 }
 
 enum CheckoutDestination { payment, confirmation, addAddress, emptyCart }
@@ -26,10 +25,10 @@ class CheckoutState extends Equatable {
     this.destination,
     this.orderId,
     this.sessionUrl,
-  this.successUrl,
-  this.cancelUrl,
-  this.stripeSessionId,
-  this.paymentAttemptId,
+    this.successUrl,
+    this.cancelUrl,
+    this.stripeSessionId,
+    this.paymentAttemptId,
   });
 
   final AddressEntity? selectedAddress;
@@ -46,8 +45,8 @@ class CheckoutState extends Equatable {
   final String? sessionUrl;
   final String? stripeSessionId;
   final String? paymentAttemptId;
- final String? successUrl;
-final String? cancelUrl;
+  final String? successUrl;
+  final String? cancelUrl;
 
   List<PaymentMethodEntity> get paymentMethods {
     return previewState.data?.paymentMethods ?? const [];
@@ -100,7 +99,7 @@ final String? cancelUrl;
     String? stripeSessionId,
     String? paymentAttemptId,
     String? successUrl,
-String? cancelUrl,
+    String? cancelUrl,
   }) {
     return CheckoutState(
       selectedAddress: selectedAddress ?? this.selectedAddress,

@@ -15,3 +15,7 @@ class ShowTrackingMessage extends OrderTrackingUiEvent {
   @override
   List<Object?> get props => [message];
 }
+
+class TrackingNavigateBack extends OrderTrackingUiEvent {
+  const TrackingNavigateBack();
+}

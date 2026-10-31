@@ -11,16 +11,18 @@ import 'order_status_tracking_label.dart';
 /// renders in the customer's language.
 typedef TrackingTimelineStep = ({OrderStatus status, DateTime? occurredAt});
 
-/// The API statuses each displayed step covers. `pickedUp` happens inside
-/// "Out for delivery", so its timestamp belongs to that step.
+/// The API statuses each displayed step covers, so the step shows the moment
+/// its phase began. `pickedUp` is still part of the "preparing" phase (it is
+/// not out for delivery yet); `awaitingDeliveryConfirmation` belongs to the
+/// final step because that is when the customer sees it and confirms.
 const Map<OrderStatus, List<OrderStatus>> _timelineCoverage = {
   OrderStatus.placed: [OrderStatus.placed],
-  OrderStatus.preparing: [OrderStatus.preparing],
-  OrderStatus.outForDelivery: [
-    OrderStatus.outForDelivery,
-    OrderStatus.pickedUp,
+  OrderStatus.preparing: [OrderStatus.preparing, OrderStatus.pickedUp],
+  OrderStatus.outForDelivery: [OrderStatus.outForDelivery, OrderStatus.arrived],
+  OrderStatus.delivered: [
+    OrderStatus.awaitingDeliveryConfirmation,
+    OrderStatus.delivered,
   ],
-  OrderStatus.delivered: [OrderStatus.delivered],
 };
 
 /// The tracking timeline, built the way the screen shows it.

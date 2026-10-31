@@ -7,11 +7,7 @@ import 'pagination_state.dart';
 class PaginationGridView<T> extends StatefulWidget {
   final PaginationController<T> controller;
 
-  final Widget Function(
-    BuildContext context,
-    T item,
-    int index,
-  ) itemBuilder;
+  final Widget Function(BuildContext context, T item, int index) itemBuilder;
 
   final SliverGridDelegate gridDelegate;
 
@@ -26,12 +22,10 @@ class PaginationGridView<T> extends StatefulWidget {
   });
 
   @override
-  State<PaginationGridView<T>> createState() =>
-      _PaginationGridViewState<T>();
+  State<PaginationGridView<T>> createState() => _PaginationGridViewState<T>();
 }
 
-class _PaginationGridViewState<T>
-    extends State<PaginationGridView<T>> {
+class _PaginationGridViewState<T> extends State<PaginationGridView<T>> {
   late final ScrollController _scrollController;
 
   @override
@@ -44,7 +38,9 @@ class _PaginationGridViewState<T>
 
     widget.controller.addListener(_onPaginationChanged);
 
-    widget.controller.loadNextPage();
+    if (widget.controller.state.status == PaginationStatus.initial) {
+      widget.controller.loadNextPage();
+    }
   }
 
   void _onPaginationChanged() {
@@ -79,70 +75,52 @@ class _PaginationGridViewState<T>
   Widget build(BuildContext context) {
     final state = widget.controller.state;
 
-    if (state.status == PaginationStatus.loading &&
-        state.items.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+    if (state.status == PaginationStatus.loading && state.items.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
     }
 
-    if (state.status == PaginationStatus.error &&
-        state.items.isEmpty) {
+    if (state.status == PaginationStatus.error && state.items.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              state.errorMessage ?? AppString.somethingWrong,
-            ),
+            Text(state.errorMessage ?? AppString.somethingWrong),
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: widget.controller.retry,
-              child: const Text(AppString.retry),
+              child: Text(AppString.retry),
             ),
           ],
         ),
       );
     }
 
-    if (state.items.isEmpty &&
-        state.status == PaginationStatus.success) {
-      return const Center(
-        child: Text(AppString.noData),
-      );
+    if (state.items.isEmpty && state.status == PaginationStatus.success) {
+      return Center(child: Text(AppString.noData));
     }
 
-    return GridView.builder(
-      controller: _scrollController,
-      padding: widget.padding,
-      gridDelegate: widget.gridDelegate,
-      itemCount: _getItemCount(state),
-      itemBuilder: (context, index) {
-        if (index >= state.items.length) {
-          return _buildBottomWidget(state);
-        }
-
-        final item = state.items[index];
-
-        return widget.itemBuilder(
-          context,
-          item,
-          index,
-        );
-      },
-    );
-  }
-
-  int _getItemCount(PaginationState<T> state) {
     final shouldShowBottomWidget =
         state.status == PaginationStatus.loadingMore ||
         state.status == PaginationStatus.errorLoadingMore;
 
-    if (shouldShowBottomWidget) {
-      return state.items.length + 1;
-    }
+    return CustomScrollView(
+      controller: _scrollController,
+      slivers: [
+        SliverPadding(
+          padding: widget.padding ?? EdgeInsets.zero,
+          sliver: SliverGrid(
+            gridDelegate: widget.gridDelegate,
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final item = state.items[index];
 
-    return state.items.length;
+              return widget.itemBuilder(context, item, index);
+            }, childCount: state.items.length),
+          ),
+        ),
+        if (shouldShowBottomWidget)
+          SliverToBoxAdapter(child: _buildBottomWidget(state)),
+      ],
+    );
   }
 
   Widget _buildBottomWidget(PaginationState<T> state) {
@@ -155,8 +133,15 @@ class _PaginationGridViewState<T>
       );
     }
 
-    return const Center(
-      child: CircularProgressIndicator(),
+    return const Padding(
+      padding: EdgeInsets.all(16),
+      child: Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
     );
   }
 }

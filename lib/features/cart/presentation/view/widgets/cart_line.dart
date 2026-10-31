@@ -193,16 +193,16 @@ class RemoveCartItemDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text(AppString.removeItem),
-      content: const Text(AppString.removeItemConfirm),
+      title: Text(AppString.removeItem),
+      content: Text(AppString.removeItemConfirm),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(dialogContext, false),
-          child: const Text(AppString.cancel),
+          child: Text(AppString.cancel),
         ),
         TextButton(
           onPressed: () => Navigator.pop(dialogContext, true),
-          child: const Text(AppString.remove),
+          child: Text(AppString.remove),
         ),
       ],
     );

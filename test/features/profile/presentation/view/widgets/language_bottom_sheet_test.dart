@@ -1,4 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_theme.dart';
 import 'package:flower_app/core/theme/app_color.dart';
@@ -83,6 +83,7 @@ void main() {
 
       expect(hostContext.locale.languageCode, 'ar');
       expect(find.text(AppString.changeLanguage), findsNothing);
+      expect(Directionality.of(hostContext), TextDirection.rtl);
     },
   );
 }

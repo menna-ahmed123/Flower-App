@@ -11,7 +11,7 @@ class LoadMoreButton extends StatelessWidget {
     return Center(
       child: TextButton(
         onPressed: onPressed,
-        child: const Text(AppString.loadMore),
+        child: Text(AppString.loadMore),
       ),
     );
   }

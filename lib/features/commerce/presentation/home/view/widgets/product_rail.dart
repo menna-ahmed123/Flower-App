@@ -44,7 +44,7 @@ class ProductRail extends StatelessWidget {
 
   Widget _list() {
     if (section.items.isEmpty) {
-      return const Center(child: Text(AppString.noResultsFound));
+      return Center(child: Text(AppString.noResultsFound));
     }
     return ListView.separated(
       scrollDirection: Axis.horizontal,

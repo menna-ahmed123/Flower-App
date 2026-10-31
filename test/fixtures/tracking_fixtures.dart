@@ -44,8 +44,8 @@ TrackingEntity trackingFixture({
   OrderStatus status = OrderStatus.preparing,
   bool withDriver = true,
   bool withMapData = true,
+  bool withDriverLocation = true,
   DateTime? recordedAt,
-  DateTime? eta,
 }) {
   return TrackingEntity(
     orderId: 'o1',
@@ -54,12 +54,11 @@ TrackingEntity trackingFixture({
     isTrackingActive: true,
     timeline: timelineFor(status),
     driver: withDriver ? driver : null,
-    driverLocation: (withDriver && withMapData)
+    driverLocation: (withDriver && withMapData && withDriverLocation)
         ? DriverLocationEntity(point: driverPoint, recordedAt: recordedAt)
         : null,
     destination: withMapData ? homePoint : null,
     storeLocation: withMapData ? storePoint : null,
-    estimatedArrival: eta ?? DateTime.utc(2024, 9, 3, 11, 0),
   );
 }
 

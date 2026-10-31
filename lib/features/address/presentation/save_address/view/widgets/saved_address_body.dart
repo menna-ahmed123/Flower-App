@@ -1,5 +1,6 @@
 import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flower_app/core/theme/app_color.dart';
+import 'package:flower_app/core/widgets/app_shimmer/address_shimmer.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_address_view_model.dart';
 import 'package:flower_app/features/address/presentation/default_address_view_model/default_state.dart';
 import 'package:flower_app/core/widgets/app_button.dart';
@@ -36,7 +37,7 @@ class SavedAddressesBody extends StatelessWidget {
       children: [
         Expanded(
           child: isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const AddressShimmer()
               : errorMessage.isNotEmpty
               ? Center(
                   child: Column(
@@ -46,7 +47,7 @@ class SavedAddressesBody extends StatelessWidget {
                       SizedBox(height: 12.h),
                       TextButton(
                         onPressed: onRetry,
-                        child: const Text(AppString.retry),
+                        child: Text(AppString.retry),
                       ),
                     ],
                   ),

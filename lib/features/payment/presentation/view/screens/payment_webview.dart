@@ -178,7 +178,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               size: 48,
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               AppString.unableToLoadPaymentPage,
               textAlign: TextAlign.center,
             ),
@@ -188,12 +188,12 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               child: ElevatedButton(
                 onPressed:
                     _invalidSessionUrl ? null : _retryLoading,
-                child: const Text(AppString.retry),
+                child: Text(AppString.retry),
               ),
             ),
             TextButton(
               onPressed: () => _finishPayment(false),
-              child: const Text(AppString.cancel),
+              child: Text(AppString.cancel),
             ),
           ],
         ),

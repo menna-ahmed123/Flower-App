@@ -72,8 +72,7 @@ class AppRouter {
   static final routeObserver = RouteObserver<ModalRoute<void>>();
 
   static Future<String> resolveInitialLocation() async {
-    final isAuthenticated =
-        await getIt<AuthRepository>().isAuthenticated();
+    final isAuthenticated = await getIt<AuthRepository>().isAuthenticated();
 
     return isAuthenticated ? AppRoutesName.home : AppRoutesName.login;
   }
@@ -89,14 +88,8 @@ class AppRouter {
         _forgetPasswordShell(),
         _searchRoute(),
         _mainShell(),
-        GoRoute(
-          path: AppRoutesName.address,
-          builder: _addressBuilder,
-        ),
-        GoRoute(
-          path: AppRoutesName.saveAddress,
-          builder: _saveAddressBuilder,
-        ),
+        GoRoute(path: AppRoutesName.address, builder: _addressBuilder),
+        GoRoute(path: AppRoutesName.saveAddress, builder: _saveAddressBuilder),
         GoRoute(path: AppRoutesName.checkout, builder: _checkoutBuilder),
         GoRoute(path: AppRoutesName.payment, builder: _paymentBuilder),
         GoRoute(
@@ -111,26 +104,20 @@ class AppRouter {
             return AppWebViewScreen(url: args.url, title: args.title);
           },
         ),
-        GoRoute(
-          path: AppRoutesName.sessions,
-          builder: _sessionsBuilder,
-        ),
+        GoRoute(path: AppRoutesName.sessions, builder: _sessionsBuilder),
         GoRoute(
           path: AppRoutesName.orderTrackingMapPage,
           builder: _orderTrackingMapBuilder,
         ),
+        GoRoute(path: AppRoutesName.myOrders, builder: _myOrderListBuilder),
+
         GoRoute(
-          path: AppRoutesName.myOrders,
-          builder: _myOrderListBuilder,
-        ),
-       
-GoRoute(
-  path: AppRoutesName.paymentWebView,
-  builder: (context, state) {
+          path: AppRoutesName.paymentWebView,
+          builder: (context, state) {
             final extra = state.extra;
 
             if (extra is! PaymentArgs) {
-              return const Scaffold(
+              return Scaffold(
                 body: Center(
                   child: Text(AppString.paymentSessionDataUnavailable),
                 ),
@@ -148,15 +135,8 @@ GoRoute(
     );
   }
 
-  static Widget _errorBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
-    return const Scaffold(
-      body: Center(
-        child: Text(AppString.pageNotFound),
-      ),
-    );
+  static Widget _errorBuilder(BuildContext context, GoRouterState state) {
+    return Scaffold(body: Center(child: Text(AppString.pageNotFound)));
   }
 
   static GoRoute _loginRoute() {
@@ -187,10 +167,7 @@ GoRoute(
   }
 
   static GoRoute _searchRoute() {
-    return GoRoute(
-      path: AppRoutesName.search,
-      builder: _searchBuilder,
-    );
+    return GoRoute(path: AppRoutesName.search, builder: _searchBuilder);
   }
 
   static ShellRoute _forgetPasswordShell() {
@@ -247,25 +224,14 @@ GoRoute(
   }
 
   static StatefulShellBranch _homeBranch() {
-    return StatefulShellBranch(
-      routes: _homeRoutes(),
-    );
+    return StatefulShellBranch(routes: _homeRoutes());
   }
 
   static List<RouteBase> _homeRoutes() {
     return [
-      GoRoute(
-        path: AppRoutesName.home,
-        builder: _homeBuilder,
-      ),
-      GoRoute(
-        path: AppRoutesName.bestSeller,
-        builder: _bestSellerBuilder,
-      ),
-      GoRoute(
-        path: AppRoutesName.occasion,
-        builder: _occasionBuilder,
-      ),
+      GoRoute(path: AppRoutesName.home, builder: _homeBuilder),
+      GoRoute(path: AppRoutesName.bestSeller, builder: _bestSellerBuilder),
+      GoRoute(path: AppRoutesName.occasion, builder: _occasionBuilder),
       GoRoute(
         path: AppRoutesName.productDetails,
         builder: _productDetailsBuilder,
@@ -273,34 +239,24 @@ GoRoute(
     ];
   }
 
-  static Widget _searchBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
+  static Widget _searchBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<SearchViewModel>(),
       child: const SearchScreen(),
     );
   }
 
-  static Widget _homeBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
+  static Widget _homeBuilder(BuildContext context, GoRouterState state) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) =>
-              getIt<HomeViewModel>()..doEvent(HomeRequested()),
+          create: (_) => getIt<HomeViewModel>()..doEvent(HomeRequested()),
         ),
         BlocProvider(
           create: (_) {
             final viewModel = getIt<DefaultAddressViewModel>();
 
-            if (context
-                .read<AuthCubit>()
-                .state
-                .isAuthenticated) {
+            if (context.read<AuthCubit>().state.isAuthenticated) {
               viewModel.doEvent(LoadSavedAddresses());
             }
 
@@ -312,10 +268,7 @@ GoRoute(
     );
   }
 
-  static Widget _bestSellerBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
+  static Widget _bestSellerBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<BestSellerViewModel>(),
       child: const BestSellerScreen(),
@@ -329,26 +282,18 @@ GoRoute(
     final productId = state.pathParameters['productId'];
 
     if (productId == null || productId.isEmpty) {
-      return const Scaffold(
-        body: Center(
-          child: Text(AppString.pageNotFound),
-        ),
-      );
+      return Scaffold(body: Center(child: Text(AppString.pageNotFound)));
     }
 
     return BlocProvider(
-      create: (_) => getIt<ProductDetailsViewModel>()
-        ..onEvent(
-          GetProductDetailsEvent(productId: productId),
-        ),
+      create: (_) =>
+          getIt<ProductDetailsViewModel>()
+            ..onEvent(GetProductDetailsEvent(productId: productId)),
       child: const ProductDetailsScreen(),
     );
   }
 
-  static Widget _occasionBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
+  static Widget _occasionBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<OccasionViewModel>(),
       child: const OccasionScreen(),
@@ -363,13 +308,9 @@ GoRoute(
     );
   }
 
-  static Widget _categoryBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
+  static Widget _categoryBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
-      create: (_) =>
-          getIt<CategoryViewModel>()..onEvent(LoadCategories()),
+      create: (_) => getIt<CategoryViewModel>()..onEvent(LoadCategories()),
       child: const CategoryScreen(),
     );
   }
@@ -388,10 +329,7 @@ GoRoute(
   static StatefulShellBranch _profileBranch() {
     return StatefulShellBranch(
       routes: [
-        GoRoute(
-          path: AppRoutesName.profile,
-          builder: _profileBuilder,
-        ),
+        GoRoute(path: AppRoutesName.profile, builder: _profileBuilder),
         GoRoute(
           path: AppRoutesName.editProfile,
           builder: (context, state) {
@@ -399,9 +337,7 @@ GoRoute(
 
             return BlocProvider(
               create: (_) => getIt<UpdateProfileViewModel>(),
-              child: EditProfileScreen(
-                profile: profile,
-              ),
+              child: EditProfileScreen(profile: profile),
             );
           },
         ),
@@ -409,20 +345,14 @@ GoRoute(
     );
   }
 
-  static Widget _profileBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
+  static Widget _profileBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider.value(
       value: getIt<ProfileViewModel>(),
       child: const ProfileScreen(),
     );
   }
 
-  static Widget _addressBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
+  static Widget _addressBuilder(BuildContext context, GoRouterState state) {
     final address = state.extra as AddressEntity?;
 
     return MultiBlocProvider(
@@ -434,9 +364,7 @@ GoRoute(
           create: (_) => getIt<AddressViewModel>(),
         ),
       ],
-      child: AddAddressScreen(
-        address: address,
-      ),
+      child: AddAddressScreen(address: address),
     );
   }
 
@@ -447,10 +375,7 @@ GoRoute(
     );
   }
 
-  static Widget _sessionsBuilder(
-    BuildContext context,
-    GoRouterState state,
-  ) {
+  static Widget _sessionsBuilder(BuildContext context, GoRouterState state) {
     return BlocProvider(
       create: (_) => getIt<SessionsViewModel>()..onEvent(LoadSessions()),
       child: const SessionsScreen(),
@@ -467,37 +392,33 @@ GoRoute(
     );
   }
 
-static Widget _paymentBuilder(
-  BuildContext context,
-  GoRouterState state,
-) {
-  final extra = state.extra;
+  static Widget _paymentBuilder(BuildContext context, GoRouterState state) {
+    final extra = state.extra;
 
-  if (extra is! PaymentArgs) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Payment session data is unavailable'),
+    if (extra is! PaymentArgs) {
+      return Scaffold(
+        body: Center(child: Text(AppString.paymentSessionDataUnavailable)),
+      );
+    }
+
+    return BlocProvider(
+      create: (context) => getIt<PaymentViewModel>()
+        ..doEvent(
+          StartPayment(
+            sessionUrl: extra.sessionUrl,
+            successUrl: extra.successUrl,
+            cancelUrl: extra.cancelUrl,
+          ),
+        ),
+      child: PaymentView(
+        successUrl: extra.successUrl,
+        cancelUrl: extra.cancelUrl,
+        orderId: extra.orderId,
       ),
     );
   }
 
-  return BlocProvider(
-    create: (context) => getIt<PaymentViewModel>()
-      ..doEvent(
-        StartPayment(
-          sessionUrl: extra.sessionUrl,
-          successUrl: extra.successUrl,
-          cancelUrl: extra.cancelUrl,
-        ),
-      ),
-    child: PaymentView(
-      successUrl: extra.successUrl,
-      cancelUrl: extra.cancelUrl,
-      orderId: extra.orderId,
-    ),
-  );
-}
-  static Widget _confirmationBuilder(    
+  static Widget _confirmationBuilder(
     BuildContext context,
     GoRouterState state,
   ) {
@@ -507,8 +428,8 @@ static Widget _paymentBuilder(
   static Widget _trackOrderBuilder(BuildContext context, GoRouterState state) {
     final orderId = _orderIdFromExtra(state.extra);
     return BlocProvider(
-      create: (_) => getIt<OrderTrackingViewModel>()
-        ..onEvent(WatchOrderTracking(orderId)),
+      create: (_) =>
+          getIt<OrderTrackingViewModel>()..onEvent(WatchOrderTracking(orderId)),
       child: OrderTrackingPage(orderId: orderId),
     );
   }
@@ -521,7 +442,6 @@ static Widget _paymentBuilder(
       value: state.extra! as OrderTrackingViewModel,
       child: const OrderTrackingMapPage(),
     );
-    return ConfirmationScreen(orderId: _orderIdFromExtra(state.extra));
   }
 
   static String? _orderIdFromExtra(Object? extra) {

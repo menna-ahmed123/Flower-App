@@ -66,19 +66,19 @@ class _AddAddressScreenState extends State<AddAddressScreen>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(AppString.location),
+          title: Text(AppString.location),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(AppString.cancel),
+              child: Text(AppString.cancel),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 onOpenSettings();
               },
-              child: const Text(AppString.openSettings),
+              child: Text(AppString.openSettings),
             ),
           ],
         );

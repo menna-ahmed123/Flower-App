@@ -1,4 +1,4 @@
-
+import 'package:flower_app/core/constants/app_string.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -7,9 +7,7 @@ import 'payment_state.dart';
 
 @injectable
 class PaymentViewModel extends Cubit<PaymentState> {
-  PaymentViewModel()
-      : super(const PaymentState());
-
+  PaymentViewModel() : super(const PaymentState());
 
   void doEvent(PaymentEvent event) {
     switch (event) {
@@ -43,9 +41,9 @@ class PaymentViewModel extends Cubit<PaymentState> {
         state.copyWith(
           paymentState: state.paymentState.copyWith(
             isLoading: false,
-            errorMessage: 'Payment session is unavailable',
+            errorMessage: AppString.paymentSessionUnavailable,
           ),
-          errorMessage: 'Payment session is unavailable',
+          errorMessage: AppString.paymentSessionUnavailable,
         ),
       );
       return;
@@ -105,9 +103,9 @@ class PaymentViewModel extends Cubit<PaymentState> {
       state.copyWith(
         paymentState: state.paymentState.copyWith(
           isLoading: false,
-          errorMessage: 'Payment failed',
+          errorMessage: AppString.paymentFailedShort,
         ),
-        errorMessage: 'Payment failed',
+        errorMessage: AppString.paymentFailedShort,
       ),
     );
   }

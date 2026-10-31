@@ -26,9 +26,7 @@ class TrackingBottomPanel extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            EstimatedArrivalSection(
-              estimatedArrivalDateTime: tracking.estimatedArrival,
-            ),
+            const EstimatedArrivalSection(),
             SizedBox(height: 12.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),

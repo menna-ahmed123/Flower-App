@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () {
         context.read<HomeViewModel>().doEvent(HomeRequested());
       },
-      child: const Text(AppString.retry),
+      child: Text(AppString.retry),
     );
   }
 }

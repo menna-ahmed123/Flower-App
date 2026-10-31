@@ -75,7 +75,7 @@ class _MyOrdersListPageState extends State<MyOrdersListPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppString.myOrders)),
+      appBar: AppBar(title: Text(AppString.myOrders)),
       body: SafeArea(child: const MyOrdersBody()),
     );
   }

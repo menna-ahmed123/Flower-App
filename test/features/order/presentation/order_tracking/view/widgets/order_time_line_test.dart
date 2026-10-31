@@ -80,7 +80,7 @@ void main() {
   testWidgets('a status grouped inside a step keeps its title and timestamp', (
     tester,
   ) async {
-    // PICKED_UP is part of the "Out for delivery" step, as before.
+    // PICKED_UP now belongs to the "preparing" step, not "out for delivery".
     final t = trackingFixture(status: OrderStatus.pickedUp);
     final steps = t.trackingTimeline;
     await pumpApp(
@@ -100,15 +100,10 @@ void main() {
     expect(find.text(AppString.trackingStepOutForDelivery), findsOneWidget);
     expect(find.text(AppString.statusDelivered), findsOneWidget);
 
-    // The picked-up moment is read as the "Out for delivery" step's own time.
-    expect(steps[2].occurredAt, DateTime.utc(2024, 9, 3, 12));
-    expect(
-      find.text(steps[0].occurredAt!.trackingTimelineLabel),
-      findsOneWidget,
-    );
-    expect(
-      find.text(steps[2].occurredAt!.trackingTimelineLabel),
-      findsOneWidget,
-    );
+    // Picking up is not out for delivery yet, so that step stays undated;
+    // the preparing step carries the timestamp that has happened.
+    expect(steps[2].occurredAt, isNull);
+    expect(find.text(steps[0].occurredAt!.trackingTimelineLabel), findsOneWidget);
+    expect(find.text(steps[1].occurredAt!.trackingTimelineLabel), findsOneWidget);
   });
 }

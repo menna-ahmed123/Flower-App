@@ -27,6 +27,10 @@ class DropDown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
+      // Re-seed the field's internal state whenever the selected value changes
+      // from the bloc (auto-select on edit, or clearing the city when the
+      // governorate changes); otherwise it keeps showing the stale choice.
+      key: ValueKey(value),
       initialValue: value,
       
       items: items,
@@ -42,7 +46,7 @@ class DropDown<T> extends StatelessWidget {
         ),
       ),
       decoration: InputDecoration(
-        focusColor: context.colors.pink.withOpacity(0.05),
+        focusColor: context.colors.pink.withValues(alpha: 0.05),
         labelText: labelText,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
         contentPadding: EdgeInsets.symmetric(
