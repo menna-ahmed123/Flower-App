@@ -261,34 +261,29 @@ class _LocationFormState extends State<LocationForm> {
               },
             ),
             SizedBox(height: 16.h),
-            
-            Expanded(
-              child: DropDown<String>(
-                labelText: 'Label',
-                hintText: 'Home / Office',
-                value: _labelController.text.isEmpty
-                    ? null
-                    : _labelController.text,
-                items: const [
-                  DropdownMenuItem<String>(
-                    value: 'home',
-                    child: Text('Home'),
-                  ),
-                  DropdownMenuItem<String>(
-                    value: 'office',
-                    child: Text('Office'),
-                  ),
-                ],
-                onChanged: (selected) {
-                  _labelController.text = selected ?? '';
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Required';
-                  }
-                  return null;
-                },
-              ),
+
+            DropDown<String>(
+              labelText: 'Label',
+              hintText: 'Home / Office',
+              value: _labelController.text.isEmpty
+                  ? null
+                  : _labelController.text,
+              items: const [
+                DropdownMenuItem<String>(value: 'home', child: Text('Home')),
+                DropdownMenuItem<String>(
+                  value: 'office',
+                  child: Text('Office'),
+                ),
+              ],
+              onChanged: (selected) {
+                _labelController.text = selected ?? '';
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Required';
+                }
+                return null;
+              },
             ),
             SizedBox(height: 32.h),
 
