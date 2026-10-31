@@ -284,16 +284,13 @@ class _LocationFormState extends State<LocationForm> {
             SizedBox(height: 16.h),
 
             DropDown<String>(
-              labelText: AppString.addressLabel,
+              labelText:  AppString.addressLabel,
               hintText: AppString.addressLabelHint,
               value: _labelController.text.isEmpty
                   ? null
                   : _labelController.text,
-              items: [
-                DropdownMenuItem<String>(
-                  value: 'home',
-                  child: Text(AppString.homeLabel),
-                ),
+              items:  [
+                DropdownMenuItem<String>(value: 'home', child: Text(AppString.homeLabel)),
                 DropdownMenuItem<String>(
                   value: 'office',
                   child: Text(AppString.office),
@@ -304,7 +301,7 @@ class _LocationFormState extends State<LocationForm> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return AppString.required;
+                  return 'Required';
                 }
                 return null;
               },
